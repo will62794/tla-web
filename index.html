@@ -1,0 +1,192 @@
+<!--
+  Based on:
+  - https://github.com/tree-sitter/tree-sitter/blob/master/cli/src/web_ui.html
+  - https://github.com/stsewd/tree-sitter-rst/blob/master/docs/index.html
+  
+  Assets from:
+  - https://github.com/tree-sitter/tree-sitter/blob/master/docs/assets/js/playground.js
+  - https://github.com/tree-sitter/tree-sitter.github.io/blob/master/tree-sitter.js
+  - https://github.com/tree-sitter/tree-sitter.github.io/blob/master/tree-sitter.wasm
+-->
+<head>
+    <meta charset="utf-8">
+    <title>A tree-sitter grammar for TLA+</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.45.0/codemirror.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/clusterize.js/0.18.0/clusterize.min.css">
+    <link rel="icon" type="image/png" href="https://tree-sitter.github.io/tree-sitter/assets/images/favicon-32x32.png" sizes="32x32" />
+    <link rel="icon" type="image/png" href="https://tree-sitter.github.io/tree-sitter/assets/images/favicon-16x16.png" sizes="16x16" />
+  </head>
+  
+  <body>
+
+    <textarea id="tlatext" cols=90 rows=15></textarea>
+
+    <select id="language-select" style="display: none;">
+        <option value="tlaplus">Parser</option>
+      </select>
+  
+    <script
+      src="https://code.jquery.com/jquery-3.3.1.min.js"
+      crossorigin="anonymous">
+    </script>
+  
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/codemirror/5.45.0/codemirror.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/clusterize.js/0.18.0/clusterize.min.js"></script>
+  
+    <script>LANGUAGE_BASE_URL = "js";</script>
+    <script src=js/tree-sitter.js></script>
+    <script src=js/playground.js></script>
+    
+    <script>
+      (codeExample => {
+        const handle = setInterval(() => {
+          const $codeEditor = document.querySelector('.CodeMirror');
+          if ($codeEditor) {
+            $codeEditor.CodeMirror.setValue(codeExample);
+            clearInterval(handle);
+          }
+        }, 500);
+      })
+      (`Taken from p178 of Specifying Systems by Leslie Lamport
+  ----------------------- MODULE DifferentialEquations ------------------------
+  LOCAL INSTANCE Reals
+  LOCAL INSTANCE Sequences
+  LOCAL PosReal == {r \\in Real : r > 0}
+  LOCAL OpenInterval(a, b) == {s \\in Real : a < s /\\ s < b}
+  LOCAL Nbhd(r,e) ==  OpenInterval(r-e, r+e)
+  LOCAL IsFirstDeriv(df, f) ==
+          /\\ df \\in [DOMAIN f -> Real]
+          /\\ \\A r \\in DOMAIN f : 
+                \\A e \\in PosReal :
+                   \\E d \\in PosReal : 
+                      \\A s \\in Nbhd(r,d) \\ {r} :
+                          (f[s] - f[r])/(s - r) \\in Nbhd(df[r], e)
+  
+  LOCAL IsDeriv(n, df, f) == 
+    LET IsD[k \\in 0..n,  g \\in [DOMAIN f -> Real]] ==
+           IF k = 0 
+             THEN g = f
+             ELSE \\E gg \\in [DOMAIN f -> Real] : /\\ IsFirstDeriv(g, gg)
+                                                 /\\ IsD[k-1, gg]
+    IN  IsD[n, df]
+  
+  Integrate(D, a, b, InitVals) ==
+    LET n == Len(InitVals)
+        gg == CHOOSE g : 
+                \\E e \\in PosReal : 
+                   /\\ g \\in [0..n -> [OpenInterval(a-e, b+e) -> Real]]
+                   /\\ \\A i \\in 1..n : /\\ IsDeriv(i, g[i], g[0])
+                                      /\\ g[i-1][a] = InitVals[i]
+                   /\\ \\A r \\in OpenInterval(a-e, b+e) :
+                          D[ <<r>> \\o [i \\in 1..(n+1) |-> g[i-1][r]] ] = 0
+    IN  [i \\in 1..n |-> gg[i-1][b]]
+  =============================================================================`);
+    </script>
+  
+    <style>
+      body {
+        margin: 0;
+        padding: 0;
+      }
+  
+      #playground-container {
+        width: 100%;
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+      }
+  
+      header {
+        box-sizing: border-box;
+        display: flex;
+        padding: 20px;
+        height: 60px;
+        border-bottom: 1px solid #aaa;
+      }
+  
+      main {
+        flex: 1;
+        position: relative;
+      }
+  
+      #input-pane {
+        position: absolute;
+        top: 0;
+        left: 0;
+        bottom: 0;
+        right: 50%;
+        display: flex;
+        flex-direction: column;
+      }
+  
+      #code-container, #query-container {
+        flex: 1;
+        position: relative;
+        overflow: hidden;
+        border-right: 1px solid #aaa;
+        border-bottom: 1px solid #aaa;
+      }
+  
+      #output-container-scroll {
+        position: absolute;
+        top: 0;
+        left: 50%;
+        bottom: 0;
+        right: 0;
+      }
+  
+      .header-item {
+        margin-right: 30px;
+      }
+  
+      #playground-container .CodeMirror {
+        position: absolute;
+        top: 0;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        height: 100%;
+      }
+  
+      #output-container-scroll {
+        flex: 1;
+        padding: 0;
+        overflow: auto;
+      }
+  
+      #output-container {
+        padding: 0 10px;
+        margin: 0;
+      }
+  
+      #logging-checkbox {
+        vertical-align: middle;
+      }
+  
+      .CodeMirror div.CodeMirror-cursor {
+        border-left: 3px solid red;
+      }
+  
+      a {
+        text-decoration: none;
+        color: #040404;
+        padding: 2px;
+      }
+  
+      a:hover {
+        text-decoration: underline;
+      }
+  
+      a.highlighted {
+        background-color: #d9d9d9;
+        color: red;
+        border-radius: 3px;
+        text-decoration: underline;
+      }
+  
+      .query-error {
+        text-decoration: underline red dashed;
+      }
+    </style>
+  </body>
+  
