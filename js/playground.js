@@ -263,17 +263,31 @@ function initEvalBoundInfix(node, vars){
     // lhs.
     let lhs = node.children[0];
     // symbol.
-    let symbol = node.children[1].text;
+    let symbol = node.children[1];
+    // console.log("symbol:", node.children[1]);
     // rhs
     let rhs = node.children[2];
 
-    if(lhs.type ==="identifier_ref" && vars.hasOwnProperty(lhs.text) && symbol==="="){
+    // Disjunction.
+    if(symbol.type === "lor"){
+        // initEvalExpr(lhs, vars);
+        // initEvalExpr(rhs, vars);
+    }
+
+    // Equality.
+    if(symbol.type ==="eq" && lhs.type ==="identifier_ref"){
         // Deal with equality of variable on left hand side.
         console.log("handle equality");
         let rhsVal = initEvalExpr(rhs, vars);
         console.log("rhsVal", rhsVal);
         let varName = lhs.text;
-        vars[varName] = rhsVal;
+        // Update assignments for all possible variable assignments currently generated.
+        for(let i=0;i<vars.length;i++){
+            if(vars[i].hasOwnProperty(lhs.text)){
+                console.log("varsi:", vars[i]);
+                vars[i][varName] = rhsVal;
+            }
+        }
     }    
 }
 
@@ -335,20 +349,17 @@ function initEvalExpr(node, vars){
 
 function getInitStates(initDef, vars){
     // Values of each state variable. Initially empty.
-    var_vals = {};
+    init_var_vals = {};
     for(v in vars){
-        var_vals[v] = null;
+        init_var_vals[v] = null;
     }
 
+    var_vals = [init_var_vals]
     initEvalExpr(initDef, var_vals);
-    console.log(var_vals);
-    // if(initDef.type === "conj_list"){
-    //     console.log("conjunction list!");
-    //     console.log(initDef.children);
-    //     // Evaluate each element of the conjunction list in order.
-
-
-    // }
+    console.log("State assignments:");
+    for(const vars of var_vals){
+        console.log(vars);
+    }
 }
 
   async function handleLanguageChange() {
@@ -372,7 +383,7 @@ function getInitStates(initDef, vars){
     parser.setLanguage(languagesByName[newLanguageName]);
     // handleCodeChange();
     // handleQueryChange();
-
+    // \\/ x = 12
     let newText = `----------------------- MODULE Test ------------------------
 EXTENDS Naturals
 
@@ -380,7 +391,7 @@ VARIABLE x
 VARIABLE y
 
 Init == 
-    /\\ x = 6
+    /\\ x = 6 
     /\\ y = 3
 
 =============================================================================`;
@@ -412,13 +423,17 @@ Init ==
 
     // Objects are passed by reference in JS.
     // D = {x: 1}
+    // L = [1,[2,3],3]
     // function modify(o){
     //     o["x"] = 12;
+    // }
+    // function modifyL(lst){
+    //     lst[1][0] = 55;
     // }
     // console.log(D);
     // modify(D);
     // console.log(D);
-    
+
 
     // s1 = cursor.gotoNextSibling();
     // console.log(cursor.nodeType);
