@@ -259,6 +259,24 @@ function walkTree(tree, specLines){
         
 }
 
+function initEvalBoundInfix(node, vars){
+    // lhs.
+    let lhs = node.children[0];
+    // symbol.
+    let symbol = node.children[1].text;
+    // rhs
+    let rhs = node.children[2];
+
+    if(lhs.type ==="identifier_ref" && vars.hasOwnProperty(lhs.text) && symbol==="="){
+        // Deal with equality of variable on left hand side.
+        console.log("handle equality");
+        let rhsVal = initEvalExpr(rhs, vars);
+        console.log("rhsVal", rhsVal);
+        let varName = lhs.text;
+        vars[varName] = rhsVal;
+    }    
+}
+
 // Evaluation of a TLC expression in the context of initial state generation
 // can produce a few outcomes. Either, it simply updates the current assignment
 // of values to variables, and/or it creates a new branch in the state computation,
@@ -276,6 +294,15 @@ function initEvalExpr(node, vars){
             initEvalExpr(child, vars);
         }
     }  
+    // if(node.type === "disj_list"){
+    //     console.log("conjunction list!");
+    //     console.log(node.children);
+    //     // Evaluate each element of the conjunction list in order.
+    //     // Recursively evaluate each child.
+    //     for(const child of node.children){
+    //         initEvalExpr(child, vars);
+    //     }
+    // }  
     if(node.type === "conj_item"){
         console.log(node.children);
         // bullet_conj
@@ -291,28 +318,7 @@ function initEvalExpr(node, vars){
     if(node.type === "bound_infix_op"){
         console.log(node.type);
         console.log(node.text);
-
-        // lhs.
-        let lhs = node.children[0];
-        console.log("lhs type:", lhs.type);
-        console.log("lhs name:", lhs.text);
-        // symbol.
-        let symbol = node.children[1].text;
-        console.log(symbol);
-        // rhs
-        let rhs = node.children[2];
-        console.log(vars.hasOwnProperty(lhs.text));
-        console.log(symbol === "=");
-        if(lhs.type ==="identifier_ref" && vars.hasOwnProperty(lhs.text) && symbol==="="){
-            // Deal with equality of variable on left hand side.
-            console.log("handle equality");
-            let rhsVal = initEvalExpr(rhs, vars);
-            console.log("rhsVal", rhsVal);
-            let varName = lhs.text;
-            vars[varName] = rhsVal;
-        }
-
-        // initEvalExpr(lhs, vars);
+        initEvalBoundInfix(node, vars);
     }
 
     if(node.type === "identifier_ref"){
@@ -325,9 +331,6 @@ function initEvalExpr(node, vars){
         console.log(node.text);
         return parseInt(node.text);
     }
-
-
-  
 }
 
 function getInitStates(initDef, vars){
