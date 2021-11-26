@@ -399,6 +399,39 @@ function initEvalExpr(node, vars){
     }
 }
 
+function evalNextExpr(node, currStateVars){
+    if(node.type === "conj_list"){
+        console.log("conjunction list!");
+        console.log(node.children);
+        // Evaluate each element of the conjunction list in order.
+        // Recursively evaluate each child.
+        let out = {"val": true, "states": currStateVars};
+        for(const child of node.children){
+            let res = initEvalExpr(child, out["states"]);
+            out = {"val": out["val"] && res["val"], "states": res["states"]}
+        }
+        return out;
+    }  
+    // if(node.type === "disj_list"){
+    //     console.log("conjunction list!");
+    //     console.log(node.children);
+    //     // Evaluate each element of the conjunction list in order.
+    //     // Recursively evaluate each child.
+    //     for(const child of node.children){
+    //         initEvalExpr(child, vars);
+    //     }
+    // }  
+    if(node.type === "conj_item"){
+        console.log(node.children);
+        // bullet_conj
+        console.log(node.children[0]);
+        console.log(node.children[0].type);
+        // conj_item
+        conj_item_node = node.children[1];
+        return initEvalExpr(conj_item_node, currStateVars);
+    }
+}
+
 function getInitStates(initDef, vars){
     // Values of each state variable. Initially empty.
     init_var_vals = {};
@@ -413,6 +446,12 @@ function getInitStates(initDef, vars){
     for(const vars of var_vals["states"]){
         console.log(vars);
     }
+    return var_vals["states"];
+}
+
+function getNextStates(nextDef, currStateVars){
+    let ret = evalNextExpr(nextDef, [currStateVars]);
+    console.log("getNextStates ret:", ret);
 }
 
   async function handleLanguageChange() {
@@ -447,6 +486,10 @@ Init ==
     /\\ x = 1 \\/ x = 2
     /\\ y = 3 \\/ y = 4
 
+Next == 
+    /\\ x = 2 /\\ x' = 12
+    /\\ y = 3 /\\ y' = 13
+
 =============================================================================`;
     newText = newText + "\n"
 
@@ -471,8 +514,17 @@ Init ==
     console.log("initDef.childCount: ", initDef.childCount);
     console.log("initDef.type: ", initDef.type);
 
-    getInitStates(initDef, vars);
+    let initStates = getInitStates(initDef, vars);
 
+    let nextDef = defns["Next"];
+    console.log("NEXT:");
+    console.log(nextDef);
+    console.log("nextDef.childCount: ", nextDef.childCount);
+    console.log("nextDef.type: ", nextDef.type);
+
+    // TODO: Implement this analogously to initial state generation.
+    let currState = initStates[0];
+    // getNextStates(nextDef, currState);
 
     // Objects are passed by reference in JS.
     // D = {x: 1}
