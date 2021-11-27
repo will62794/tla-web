@@ -397,6 +397,13 @@ function evalNextBoundInfix(node, ctx){
     }
 }
 
+function evalInitLand(lhs, rhs, contexts){
+    // Evaluate right to left.
+    let contextsLhs = evalInitExpr(lhs, contexts);
+    let contextsRhs = evalInitExpr(rhs, contextsLhs);
+    return contextsRhs;
+}
+
 function evalInitLor(lhs, rhs, contexts){
     // return {"val": false, "states": vars};
     console.log("###### LOR");
@@ -423,8 +430,24 @@ function evalInitBoundInfix(node, contexts){
         return evalInitLor(lhs, rhs, contexts);
     }
 
+    if(symbol.type === "land"){
+        return evalInitLand(lhs, rhs, contexts);
+    }
+
+    // Checks if a syntax tree node represents a primed variable.
+    function isPrimedVar(treeNode){
+        if(treeNode.children.length < 2){
+            return false;
+        }
+        let lhs = treeNode.children[0];
+        let symbol = treeNode.children[1];
+        return (treeNode.type === "bound_postfix_op" && 
+                lhs.type === "identifier_ref" &&
+                symbol.type === "prime");
+    }
+
     // Equality.
-    if(symbol.type ==="eq" && lhs.type ==="identifier_ref"){
+    if((symbol.type ==="eq" && lhs.type ==="identifier_ref")){
         // Deal with equality of variable on left hand side.
         console.log("bound_infix_op, symbol: " + symbol.type);
         let varName = lhs.text;
@@ -434,7 +457,6 @@ function evalInitBoundInfix(node, contexts){
             // If, in the current state assignment, the variable has not already
             // been assigned a value, then assign it.If it has already been assigned,
             // then check for equality.
-
             // Variable already assigned in this context. So, check for equality.
             if(ctx["state"].hasOwnProperty(varName) && ctx["state"][varName] !== null){
                 console.log("Variable '" + varName + "' already assigned in ctx:",  ctx);
@@ -467,7 +489,7 @@ function evalInitBoundInfix(node, contexts){
 //
 function evalNextExpr(node, ctx){
     if(node === undefined){
-        return {"val": false, "states": []};
+        return {"val": false, "state": []};
     }
 
     if(node.type === "disj_item"){
@@ -538,6 +560,19 @@ function evalNextExpr(node, ctx){
     }
 }
 
+function evalInitDisjList(parent, disjs, contexts){
+    console.log("evalInit: disjunction list!");
+
+    // Split into separate evaluation cases for each disjunct.
+    let newContexts = disjs.map(disj => evalInitExpr(disj, contexts));
+    console.log("newContexts:", newContexts);
+    return _.flatten(newContexts);
+
+    // let contextsLhs = evalInitExpr(lhs, contexts);
+    // let contextsRhs = evalInitExpr(rhs, contexts);
+    // return contextsLhs.concat(contextsRhs);
+}
+
 function evalInitConjList(parent, conjs, contexts){
     console.log("evalInit: conjunction list!");
     console.log("evalInit: node children:", parent.children);
@@ -565,18 +600,16 @@ function evalInitExpr(node, contexts){
     if(node.type === "conj_list"){
         return evalInitConjList(node, node.children, contexts);
     }  
-    // if(node.type === "disj_list"){
-    //     console.log("conjunction list!");
-    //     console.log(node.children);
-    //     // Evaluate each element of the conjunction list in order.
-    //     // Recursively evaluate each child.
-    //     for(const child of node.children){
-    //         evalInitExpr(child, vars);
-    //     }
-    // }  
+    if(node.type === "disj_list"){
+        return evalInitDisjList(node, node.children, contexts);
+    }  
     if(node.type === "conj_item"){
         conj_item_node = node.children[1];
         return evalInitExpr(conj_item_node, contexts);
+    }
+    if(node.type === "disj_item"){
+        disj_item_node = node.children[1];
+        return evalInitExpr(disj_item_node, contexts);
     }
     if(node.type === "bound_infix_op"){
         console.log(node.type, "| ", node.text);
@@ -618,12 +651,14 @@ function getNextStates(nextDef, currStateVars){
         let primedVar = k + "'";
         currStateVars[primedVar] = null;
     }
-    console.log(currStateVars);
-    ctx = {"val": true, "states": [currStateVars]}
-    let ret = evalNextExpr(nextDef, ctx);
+    console.log("currStateVars:", currStateVars);
+    let init_ctxs = [{"val": null, "state": currStateVars}]
+    // let ret = evalNextExpr(nextDef, init_ctxs);
+    let ret = evalInitExpr(nextDef, init_ctxs);
     console.log("getNextStates ret:", ret);
     // Only include evaluations that were TRUE.
-    return ret.filter(c => c["val"]);
+    return ret;
+    // return ret.filter(c => c["val"]);
 }
 
 
@@ -705,14 +740,20 @@ function getNextStates(nextDef, currStateVars){
     console.log("nextDef.type: ", nextDef.type);
 
     // TODO: Implement this analogously to initial state generation.
-    let currState = initStates[0];
-    let allNextStates = []
-    // for(const state of initStates){
-    //     console.log("$$$$$ Computing next states for current: " + JSON.stringify(state));
-    //     let states = getNextStates(nextDef, currState);
-    //     allNextStates = allNextStates.concat(states);
-    // }
-    // console.log(allNextStates);
+    // let currState = initStates[0]["state"];
+    let currState = {"x":1, "y":3}
+    console.log("$$$ Computing next states");
+    let ret = getNextStates(nextDef, currState);
+    console.log(ret);
+    return;
+
+    let allNextStates = [];
+    for(const state of initStates){
+        console.log("$$$$$ Computing next states for current: " + JSON.stringify(state));
+        let states = getNextStates(nextDef, currState);
+        allNextStates = allNextStates.concat(states);
+    }
+    console.log(allNextStates);
 
     // Objects are passed by reference in JS.
     // D = {x: 1}
