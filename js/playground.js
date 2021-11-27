@@ -44,10 +44,10 @@ let tree;
 
   var ASSIGN_PRIMED = false;
 
-//   const codeEditor = CodeMirror.fromTextArea(codeInput, {
-//     lineNumbers: true,
-//     showCursorWhenSelecting: true
-//   });
+  const codeEditor = CodeMirror.fromTextArea(codeInput, {
+    lineNumbers: true,
+    showCursorWhenSelecting: true
+  });
 
 //   const queryEditor = CodeMirror.fromTextArea(queryInput, {
 //     lineNumbers: true,
@@ -71,7 +71,7 @@ let tree;
   let isRendering = 0;
   let query;
 
-//   codeEditor.on('changes', handleCodeChange);
+  codeEditor.on('changes', handleCodeChange);
 //   codeEditor.on('viewportChange', runTreeQueryOnChange);
 //   codeEditor.on('cursorActivity', debounce(handleCursorMovement, 150));
 //   queryEditor.on('changes', debounce(handleQueryChange, 150));
@@ -693,39 +693,14 @@ function getNextStates(nextDef, currStateVars){
 ///////////////////////////////////////////////////
 ///////////////////////////////////////////////////
 
-
-  async function handleLanguageChange() {
-    const newLanguageName = languageSelect.value;
-    if (!languagesByName[newLanguageName]) {
-      const url = `${LANGUAGE_BASE_URL}/tree-sitter-${newLanguageName}.wasm`
-      languageSelect.disabled = true;
-      try {
-        languagesByName[newLanguageName] = await TreeSitter.Language.load(url);
-      } catch (e) {
-        console.error(e);
-        languageSelect.value = languageName;
-        return
-      } finally {
-        languageSelect.disabled = false;
-      }
-    }
-
-    tree = null;
-    languageName = newLanguageName;
-    parser.setLanguage(languagesByName[newLanguageName]);
-    // handleCodeChange();
-    // handleQueryChange();
-
-    newText = testSpecText + "\n"
+function generateStates(){
+    newText = codeEditor.getValue();
+    newText = newText + "\n"
 
     console.log(newText);
     const newTree = parser.parse(newText, tree);
     console.log(newTree);
     tree = newTree;
-
-
-    tlatext = document.getElementById('tlatext');
-    tlatext.innerHTML = newText;
 
     lines = newText.split("\n");
     objs = walkTree(tree, lines);
@@ -760,6 +735,15 @@ function getNextStates(nextDef, currStateVars){
     console.log("$$$ Computing next states");
     let ret = getNextStates(nextDef, currState);
     console.log(ret);
+
+    console.log("INITIAL STATES:");
+    for(const state of initStates){
+        console.log(state);
+    }
+    console.log("NEXT STATES:");
+    for(const state of ret){
+        console.log(state);
+    }
     return;
 
     let allNextStates = [];
@@ -769,6 +753,34 @@ function getNextStates(nextDef, currStateVars){
         allNextStates = allNextStates.concat(states);
     }
     console.log(allNextStates);
+
+}
+
+
+  async function handleLanguageChange() {
+    const newLanguageName = languageSelect.value;
+    if (!languagesByName[newLanguageName]) {
+      const url = `${LANGUAGE_BASE_URL}/tree-sitter-${newLanguageName}.wasm`
+      languageSelect.disabled = true;
+      try {
+        languagesByName[newLanguageName] = await TreeSitter.Language.load(url);
+      } catch (e) {
+        console.error(e);
+        languageSelect.value = languageName;
+        return
+      } finally {
+        languageSelect.disabled = false;
+      }
+    }
+
+    tree = null;
+    languageName = newLanguageName;
+    parser.setLanguage(languagesByName[newLanguageName]);
+    // handleCodeChange();
+    // handleQueryChange();
+
+    // Generate initial states and next states for exploration.
+    generateStates();
 
     // Objects are passed by reference in JS.
     // D = {x: 1}
@@ -820,13 +832,15 @@ function getNextStates(nextDef, currStateVars){
     const newTree = parser.parse(newText, tree);
     const duration = (performance.now() - start).toFixed(1);
 
-    updateTimeSpan.innerText = `${duration} ms`;
-    if (tree) tree.delete();
-    tree = newTree;
-    parseCount++;
-    renderTreeOnCodeChange();
-    runTreeQueryOnChange();
-    saveStateOnChange();
+    generateStates();
+
+    // updateTimeSpan.innerText = `${duration} ms`;
+    // if (tree) tree.delete();
+    // tree = newTree;
+    // parseCount++;
+    // renderTreeOnCodeChange();
+    // runTreeQueryOnChange();
+    // saveStateOnChange();
   }
 
   async function renderTree() {
