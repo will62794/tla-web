@@ -407,9 +407,10 @@ function initEvalBoundInfix(node, vars){
 
         // Update assignments for all possible variable assignments currently generated.
         let newVars = vars.map(function(v){
-            // if(v.hasOwnProperty(lhs.text)){
+            // If, in the current state assignment, the variable has not already
+            // been assigned a value, then assign it.
             return _.mapValues(v, (val,key,obj) => {
-                if(key === varName){
+                if(key === varName && val === null){
                     return rhsVal
                 } else{
                     return val;
