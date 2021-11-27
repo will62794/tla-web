@@ -404,8 +404,6 @@ function initEvalBoundInfix(node, vars){
         let rhsVal = initEvalExpr(rhs, vars);
         console.log("rhsVal", rhsVal);
         let varName = lhs.text;
-        // console.log(vars);
-        // console.log(typeof vars);
 
         // Update assignments for all possible variable assignments currently generated.
         let newVars = vars.map(function(v){
@@ -417,18 +415,7 @@ function initEvalBoundInfix(node, vars){
                     return val;
                 }
             })
-            // } else{
-                // return v;
-            // }
         })
-        
-        // for(let i=0;i<vars.length;i++){
-        //     if(vars[i].hasOwnProperty(lhs.text)){
-        //         console.log("varsi:", vars[i]);
-        //         vars[i][varName] = rhsVal;
-        //     }
-        // }
-
         return {"val": false, "states": newVars}
     }    
 }
