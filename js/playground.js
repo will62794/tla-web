@@ -42,6 +42,8 @@ let tree;
 
   let tree = null;
 
+  var ASSIGN_PRIMED = false;
+
 //   const codeEditor = CodeMirror.fromTextArea(codeInput, {
 //     lineNumbers: true,
 //     showCursorWhenSelecting: true
@@ -415,6 +417,71 @@ function evalInitLor(lhs, rhs, contexts){
     return contextsLhs.concat(contextsRhs);
 }
 
+// Checks if a syntax tree node represents a primed variable.
+function isPrimedVar(treeNode){
+    if(treeNode.children.length < 2){
+        return false;
+    }
+    let lhs = treeNode.children[0];
+    let symbol = treeNode.children[1];
+    return (treeNode.type === "bound_postfix_op" && 
+            lhs.type === "identifier_ref" &&
+            symbol.type === "prime");
+}
+
+function evalInitEq(lhs, rhs, contexts){
+    // Deal with equality of variable on left hand side.
+    let varName = lhs.text;
+
+    let isUnprimedVar = contexts[0]["state"].hasOwnProperty(varName);
+    // let primedVarAssign = isPrimedVar(lhs) && assignPrimed;
+
+    // TODO: Make this functionality parameterized on whether we are evaluating initial state
+    // or next state predicate.
+    // if(lhs.type ==="identifier_ref"){
+    if(isPrimedVar(lhs) || (isUnprimedVar && !ASSIGN_PRIMED)){
+        // Update assignments for all current evaluation contexts.
+        return contexts.map(ctx => {
+            // If, in the current state assignment, the variable has not already
+            // been assigned a value, then assign it.If it has already been assigned,
+            // then check for equality.
+            // Variable already assigned in this context. So, check for equality.
+            if(ctx["state"].hasOwnProperty(varName) && ctx["state"][varName] !== null){
+                console.log("Variable '" + varName + "' already assigned in ctx:",  ctx);
+                let rhsVals = evalInitExpr(rhs, [ctx]);
+                let rhsVal = rhsVals[0]["val"]
+                console.log("rhsVal:", rhsVal);
+                let boolVal = (ctx["state"][varName] === rhsVal)
+                console.log("boolVal:", boolVal);
+                return {"val": boolVal, "state": ctx["state"]}; 
+            }
+
+            // Variable not already assigned. So, update variable assignment as necessary.
+            let stateUpdated = _.mapValues(ctx["state"], (val,key,obj) => {
+                console.log("Variable '" + varName + "' not already assigned in ctx:",  ctx);
+                if(key === varName){
+                    let rhsVals = evalInitExpr(rhs, [ctx]);
+                    let rhsVal = rhsVals[0]["val"];
+                    return (val === null) ? rhsVal : val;
+                } 
+                return val;
+            })
+            return {"val": true, "state": stateUpdated};
+        })
+    } else{
+        let varName = lhs.text;
+        // Check equality of variable with expression.
+        // TODO: Check for variable name properly.
+        return contexts.map(ctx => {
+            let rhsVals = evalInitExpr(rhs, [ctx]);
+            let rhsVal = rhsVals[0]["val"];
+            let boolVal = (ctx["state"][varName] === rhsVal);
+            return {"val": boolVal, "state": ctx["state"]}; 
+        })
+    }
+
+}
+
 // 'vars' is a list of possible partial state assignments known up to this point.
 function evalInitBoundInfix(node, contexts){
     // lhs.
@@ -434,52 +501,11 @@ function evalInitBoundInfix(node, contexts){
         return evalInitLand(lhs, rhs, contexts);
     }
 
-    // Checks if a syntax tree node represents a primed variable.
-    function isPrimedVar(treeNode){
-        if(treeNode.children.length < 2){
-            return false;
-        }
-        let lhs = treeNode.children[0];
-        let symbol = treeNode.children[1];
-        return (treeNode.type === "bound_postfix_op" && 
-                lhs.type === "identifier_ref" &&
-                symbol.type === "prime");
-    }
-
     // Equality.
-    if((symbol.type ==="eq" && lhs.type ==="identifier_ref")){
-        // Deal with equality of variable on left hand side.
-        console.log("bound_infix_op, symbol: " + symbol.type);
-        let varName = lhs.text;
-
-        // Update assignments for all current evaluation contexts.
-        return contexts.map(ctx => {
-            // If, in the current state assignment, the variable has not already
-            // been assigned a value, then assign it.If it has already been assigned,
-            // then check for equality.
-            // Variable already assigned in this context. So, check for equality.
-            if(ctx["state"].hasOwnProperty(varName) && ctx["state"][varName] !== null){
-                console.log("Variable '" + varName + "' already assigned in ctx:",  ctx);
-                let rhsVals = evalInitExpr(rhs, [ctx]);
-                let rhsVal = rhsVals[0]["val"]
-                console.log("rhsVal:", rhsVal);
-                let boolVal = (ctx["state"][varName] === rhsVal)
-                console.log("boolVal:", boolVal);
-                return {"val": boolVal, "state": ctx["state"]}; 
-            }
-
-            // Variable not already assigned. So, update variable assignment as necessary.
-            let stateUpdated = _.mapValues(ctx["state"], (val,key,obj) => {
-                if(key === varName){
-                    let rhsVals = evalInitExpr(rhs, [ctx]);
-                    let rhsVal = rhsVals[0]["val"];
-                    return (val === null) ? rhsVal : val;
-                } 
-                return val;
-            })
-            return {"val": true, "state": stateUpdated};
-        })
-    }    
+    if(symbol.type ==="eq"){
+        console.log("bound_infix_op, symbol 'eq'");
+        return evalInitEq(lhs, rhs, contexts);
+    }   
 }
 
 // 'ctx' consists of the currently computed value of an expression and a 
@@ -618,6 +644,7 @@ function evalInitExpr(node, contexts){
 
     if(node.type === "identifier_ref"){
         //TODO.
+        console.log("identifier_ref");
         console.log(node.type);
         console.log(node.text);
     }
@@ -731,13 +758,20 @@ function getNextStates(nextDef, currStateVars){
     console.log("initDef.childCount: ", initDef.childCount);
     console.log("initDef.type: ", initDef.type);
 
+    // TODO: Pass this variable value as an argument to the evaluation functions.
+    ASSIGN_PRIMED = false;
+
     let initStates = getInitStates(initDef, vars);
+    console.log("initial states:", initStates);
 
     let nextDef = defns["Next"];
     console.log("<<<< NEXT >>>>:");
     console.log(nextDef);
     console.log("nextDef.childCount: ", nextDef.childCount);
     console.log("nextDef.type: ", nextDef.type);
+
+    // TODO: Pass this variable value as an argument to the evaluation functions.
+    ASSIGN_PRIMED = true;
 
     // TODO: Implement this analogously to initial state generation.
     // let currState = initStates[0]["state"];
