@@ -398,7 +398,7 @@ function evalNextBoundInfix(node, ctx){
 }
 
 // 'vars' is a list of possible partial state assignments known up to this point.
-function evalInitBoundInfix(node, vars){
+function evalInitBoundInfix(node, ctx){
     // lhs.
     let lhs = node.children[0];
     // symbol.
@@ -411,20 +411,24 @@ function evalInitBoundInfix(node, vars){
     if(symbol.type === "lor"){
         // return {"val": false, "states": vars};
         console.log("###### LOR");
-        console.log("orig vars:", JSON.stringify(vars));
+        console.log("orig ctx:", JSON.stringify(ctx));
         // For all existing possible variable assignments split into
         // separate evaluation cases for left and right branch.
-        let newLhsVars = _.flatten(vars.map(v => {
-            return evalInitExpr(lhs, [v])["states"];
-        }));
-        console.log("newLhsVars: ", JSON.stringify(newLhsVars));
+        let newLhs = evalInitExpr(lhs, ctx);
+        let newRhs = evalInitExpr(lhs, ctx);
+        return newLhs.concat(newRhs);
 
-        let newRhsVars = _.flatten(vars.map(v => {
-            return evalInitExpr(rhs, [v])["states"];
-        }));
-        console.log("newRhsVars: ", JSON.stringify(newRhsVars));
+        // let newLhsVars = _.flatten(vars.map(v => {
+        //     return evalInitExpr(lhs, [v])["states"];
+        // }));
+        // console.log("newLhsVars: ", JSON.stringify(newLhsVars));
 
-        return {"val": false, "states": newLhsVars.concat(newRhsVars)};
+        // let newRhsVars = _.flatten(vars.map(v => {
+        //     return evalInitExpr(rhs, [v])["states"];
+        // }));
+        // console.log("newRhsVars: ", JSON.stringify(newRhsVars));
+
+        // return {"val": new, "states": newLhsVars.concat(newRhsVars)};
 
     }
 
@@ -432,7 +436,7 @@ function evalInitBoundInfix(node, vars){
     if(symbol.type ==="eq" && lhs.type ==="identifier_ref"){
         // Deal with equality of variable on left hand side.
         console.log("bound_infix_op, symbol: " + symbol.type);
-        let rhsVal = evalInitExpr(rhs, vars);
+        let rhsVal = evalInitExpr(rhs, ctx);
         console.log("rhsVal", rhsVal);
         let varName = lhs.text;
 
@@ -534,21 +538,33 @@ function evalNextExpr(node, ctx){
 // can produce a few outcomes. Either, it simply updates the current assignment
 // of values to variables, and/or it creates a new branch in the state computation,
 // arising from presence of a disjunction (i.e. existential quantifier/set membership, etc.)
-function evalInitExpr(node, vars){
+function evalInitExpr(node, contexts){
     if(node === undefined){
-        return {"val": false, "states": []};
+        return [{"val": false, "states": []}];
     }
     if(node.type === "conj_list"){
         console.log("conjunction list!");
-        console.log(node.children);
-        // Evaluate each element of the conjunction list in order.
-        // Recursively evaluate each child.
-        let out = {"val": true, "states": vars};
-        for(const child of node.children){
-            let res = evalInitExpr(child, out["states"]);
-            out = {"val": out["val"] && res["val"], "states": res["states"]}
-        }
-        return out;
+        console.log("node children:", node.children, node.text);
+
+        // For each existing context, evaluate the conjunction
+        // list in that context.
+        let newContexts = contexts.map(ctx => {
+            let out = ctx;
+            for(const child of node.children){
+                console.log("out:", out);
+                let res = evalInitExpr(child, [out]);
+                out = {"val": out["val"] && res["val"], "states": res["states"]}
+            }
+        })
+        console.log("newContexts:", newContexts);
+
+        // let out = {"val": true, "states": vars};
+        // let currContexts = contexts;
+        // for(const child of node.children){
+        //     let res = evalInitExpr(child, out["states"]);
+        //     out = {"val": out["val"] && res["val"], "states": res["states"]}
+        // }
+        return newContexts;
     }  
     // if(node.type === "disj_list"){
     //     console.log("conjunction list!");
@@ -566,14 +582,15 @@ function evalInitExpr(node, vars){
         console.log(node.children[0].type);
         // conj_item
         conj_item_node = node.children[1];
-        return evalInitExpr(conj_item_node, vars);
+        return evalInitExpr(conj_item_node, contexts);
+        // return contexts.map(ctx => evalInitExpr(conj_item_node, ctx));
         // console.log(node.children[1]);
         // console.log(node.children[1].type);
         // console.log("conj_item");
     }
     if(node.type === "bound_infix_op"){
         console.log(node.type, "| ", node.text);
-        return evalInitBoundInfix(node, vars);
+        return contexts.map(ctx => evalInitBoundInfix(node, ctx));
         console.log("new vars:", JSON.stringify(vars));
     }
 
@@ -596,8 +613,11 @@ function getInitStates(initDef, vars){
         init_var_vals[v] = null;
     }
 
-    // var_vals = [init_var_vals]
-    let var_vals = evalInitExpr(initDef, [init_var_vals]);
+    // We refer to a 'context' as the context for a single evaluation
+    // branch, which contains a computed value along with a list of 
+    // generated states.
+    let init_ctx = {"val": null, "states": [init_var_vals]};
+    let var_vals = evalInitExpr(initDef, [init_ctx]);
     console.log(var_vals);
     console.log("Possible initial state assignments:");
     for(const vars of var_vals["states"]){
@@ -700,12 +720,12 @@ Next ==
     // TODO: Implement this analogously to initial state generation.
     let currState = initStates[0];
     let allNextStates = []
-    for(const state of initStates){
-        console.log("$$$$$ Computing next states for current: " + JSON.stringify(state));
-        let states = getNextStates(nextDef, currState);
-        allNextStates = allNextStates.concat(states);
-    }
-    console.log(allNextStates);
+    // for(const state of initStates){
+    //     console.log("$$$$$ Computing next states for current: " + JSON.stringify(state));
+    //     let states = getNextStates(nextDef, currState);
+    //     allNextStates = allNextStates.concat(states);
+    // }
+    // console.log(allNextStates);
 
     // Objects are passed by reference in JS.
     // D = {x: 1}
