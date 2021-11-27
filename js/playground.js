@@ -398,7 +398,7 @@ function evalNextBoundInfix(node, ctx){
 }
 
 // 'vars' is a list of possible partial state assignments known up to this point.
-function initEvalBoundInfix(node, vars){
+function evalInitBoundInfix(node, vars){
     // lhs.
     let lhs = node.children[0];
     // symbol.
@@ -415,12 +415,12 @@ function initEvalBoundInfix(node, vars){
         // For all existing possible variable assignments split into
         // separate evaluation cases for left and right branch.
         let newLhsVars = _.flatten(vars.map(v => {
-            return initEvalExpr(lhs, [v])["states"];
+            return evalInitExpr(lhs, [v])["states"];
         }));
         console.log("newLhsVars: ", JSON.stringify(newLhsVars));
 
         let newRhsVars = _.flatten(vars.map(v => {
-            return initEvalExpr(rhs, [v])["states"];
+            return evalInitExpr(rhs, [v])["states"];
         }));
         console.log("newRhsVars: ", JSON.stringify(newRhsVars));
 
@@ -432,7 +432,7 @@ function initEvalBoundInfix(node, vars){
     if(symbol.type ==="eq" && lhs.type ==="identifier_ref"){
         // Deal with equality of variable on left hand side.
         console.log("bound_infix_op, symbol: " + symbol.type);
-        let rhsVal = initEvalExpr(rhs, vars);
+        let rhsVal = evalInitExpr(rhs, vars);
         console.log("rhsVal", rhsVal);
         let varName = lhs.text;
 
@@ -534,7 +534,7 @@ function evalNextExpr(node, ctx){
 // can produce a few outcomes. Either, it simply updates the current assignment
 // of values to variables, and/or it creates a new branch in the state computation,
 // arising from presence of a disjunction (i.e. existential quantifier/set membership, etc.)
-function initEvalExpr(node, vars){
+function evalInitExpr(node, vars){
     if(node === undefined){
         return {"val": false, "states": []};
     }
@@ -545,7 +545,7 @@ function initEvalExpr(node, vars){
         // Recursively evaluate each child.
         let out = {"val": true, "states": vars};
         for(const child of node.children){
-            let res = initEvalExpr(child, out["states"]);
+            let res = evalInitExpr(child, out["states"]);
             out = {"val": out["val"] && res["val"], "states": res["states"]}
         }
         return out;
@@ -556,7 +556,7 @@ function initEvalExpr(node, vars){
     //     // Evaluate each element of the conjunction list in order.
     //     // Recursively evaluate each child.
     //     for(const child of node.children){
-    //         initEvalExpr(child, vars);
+    //         evalInitExpr(child, vars);
     //     }
     // }  
     if(node.type === "conj_item"){
@@ -566,14 +566,14 @@ function initEvalExpr(node, vars){
         console.log(node.children[0].type);
         // conj_item
         conj_item_node = node.children[1];
-        return initEvalExpr(conj_item_node, vars);
+        return evalInitExpr(conj_item_node, vars);
         // console.log(node.children[1]);
         // console.log(node.children[1].type);
         // console.log("conj_item");
     }
     if(node.type === "bound_infix_op"){
         console.log(node.type, "| ", node.text);
-        return initEvalBoundInfix(node, vars);
+        return evalInitBoundInfix(node, vars);
         console.log("new vars:", JSON.stringify(vars));
     }
 
@@ -597,9 +597,9 @@ function getInitStates(initDef, vars){
     }
 
     // var_vals = [init_var_vals]
-    let var_vals = initEvalExpr(initDef, [init_var_vals]);
+    let var_vals = evalInitExpr(initDef, [init_var_vals]);
     console.log(var_vals);
-    console.log("Possible state assignments:");
+    console.log("Possible initial state assignments:");
     for(const vars of var_vals["states"]){
         console.log(vars);
     }
