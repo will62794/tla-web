@@ -272,8 +272,8 @@ function evalNextBoundInfix(node, ctx){
     if(symbol.type === "land"){
         console.log("###### LAND");
         console.log(node.text);
-        console.log(node.children[0]);
-        console.log(node.children[2]);
+        // console.log("lhs:",node.children[0]);
+        // console.log("rhs:",node.children[2]);
         // Evaluate each element of the conjunction list in order.
         // Recursively evaluate each child.
         let res;
@@ -281,8 +281,11 @@ function evalNextBoundInfix(node, ctx){
         
         // lhs.
         let resLhs = evalNextExpr(node.children[0], ctx);
+        console.log("resLhs:",resLhs)
+
         // rhs.
         let resRhs = evalNextExpr(node.children[2], resLhs);
+        console.log("resRhs:",resRhs)
 
         return {"val": resLhs["val"] && resRhs["val"], "states": resRhs["states"]};
     }
@@ -291,9 +294,22 @@ function evalNextBoundInfix(node, ctx){
     // Disjunction.
     if(symbol.type === "lor"){
         console.log("###### LOR");
-        console.log("orig vars:", JSON.stringify(vars));
+        console.log("orig vars:", JSON.stringify(ctx["states"]));
         // For all existing possible variable assignments split into
         // separate evaluation cases for left and right branch.
+        let ret = [lhs, rhs].map((c) => {
+            evalNextExpr(c, ctx);
+        })
+        let retLhs = ret[0];
+        let retRhs = ret[1];
+        let boolVal = retLhs["val"] || retRhs["val"];
+        if(!boolVal){
+            return {"val": false, "states": []};
+        }
+        return {"val": boolVal, "states": retLhs["states"].concat(retRhs["states"])};
+
+
+
         let newLhsVars = _.flatten(ctx["states"].map(v => {
             return evalNextExpr(lhs, [v])["states"];
         }));
@@ -339,7 +355,7 @@ function evalNextBoundInfix(node, ctx){
                 })
             })
     
-            return {"val": false, "states": newVars}
+            return {"val": true, "states": newVars}
         }
         
         // Handle unprimed variable assignment.
@@ -354,13 +370,29 @@ function evalNextBoundInfix(node, ctx){
             let varName = lhs.text;
 
             // Update assignments for all possible variable assignments currently generated.
-            let newVars = ctx["states"].map(function(v){
-                return _.mapValues(v, (val,key,obj) => {
-                    return (key === varName) ? rhsVal : val;
-                })
+            let newVars = ctx["states"].filter((v) => {
+                console.log(v);
+                return v[varName] === rhsVal;
             })
+            
+            // map(function(v){
 
-            return {"val": false, "states": newVars}
+            //     if(v[varName] === rhsval){
+            //         return val;
+            //     } else{
+            //         return null;
+            //     }
+
+            //     return _.mapValues(v, (val,key,obj) => {
+            //         return (key === varName) ? rhsVal : val;
+            //     })
+            // })
+
+            if(newVars.length === 0){
+                return {"val": false, "states":[]};
+            }
+
+            return {"val": true, "states": newVars}
         }  
     }
 }
@@ -431,10 +463,11 @@ function evalNextExpr(node, ctx){
     }
 
     if(node.type === "conj_item"){
-        console.log(node.children);
+        console.log("conj_item, children:", node.children, ", ", node.text);
+        // console.log();
         // bullet_conj
-        console.log(node.children[0]);
-        console.log(node.children[0].type);
+        // console.log(node.children[0]);
+        // console.log(node.children[0].type);
         // conj_item
         conj_item_node = node.children[1];
         return evalNextExpr(conj_item_node, ctx);
@@ -442,7 +475,7 @@ function evalNextExpr(node, ctx){
 
     if(node.type === "conj_list"){
         console.log("conjunction list!");
-        console.log(node.children);
+        console.log("conjunction children:", node.children);
         // Evaluate each element of the conjunction list in order.
         // Recursively evaluate each child.
         let out = ctx; //{"val": true, "states": vars};
@@ -450,10 +483,14 @@ function evalNextExpr(node, ctx){
             let res = evalNextExpr(child, out);
             out = {"val": out["val"] && res["val"], "states": res["states"]}
         }
+        // If an expression evaluates to FALSE, then evaluation stops and no states are returned.
+        if(!out["val"]){
+            return {"val": false, "states": []};
+        }
         return out;
     }  
     if(node.type === "bound_infix_op"){
-        console.log(node.type, "| ", node.text);
+        // console.log(node.type, "| ", node.text);
         return evalNextBoundInfix(node, ctx);
         console.log("new vars:", JSON.stringify(vars));
     }
@@ -585,19 +622,20 @@ function getNextStates(nextDef, currStateVars){
     // handleCodeChange();
     // handleQueryChange();
     // \\/ x = 12
+    // /\\ y = 3 \\/ y = 4
+    // /\\ y = 3 /\\ y' = 13
+    // VARIABLE y
+
     let newText = `----------------------- MODULE Test ------------------------
 EXTENDS Naturals
 
 VARIABLE x
-VARIABLE y
 
 Init == 
     /\\ x = 1 \\/ x = 2
-    /\\ y = 3 \\/ y = 4
 
 Next == 
     /\\ x = 2 /\\ x' = 12
-    /\\ y = 3 /\\ y' = 13
 
 =============================================================================`;
     newText = newText + "\n"
