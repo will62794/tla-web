@@ -259,7 +259,7 @@ function walkTree(tree, specLines){
         
 }
 
-function nextEvalBoundInfix(node, ctx){
+function evalNextBoundInfix(node, ctx){
     // lhs.
     let lhs = node.children[0];
     // symbol.
@@ -454,7 +454,7 @@ function evalNextExpr(node, ctx){
     }  
     if(node.type === "bound_infix_op"){
         console.log(node.type, "| ", node.text);
-        return nextEvalBoundInfix(node, ctx);
+        return evalNextBoundInfix(node, ctx);
         console.log("new vars:", JSON.stringify(vars));
     }
 
