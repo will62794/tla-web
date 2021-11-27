@@ -534,6 +534,24 @@ function evalNextExpr(node, ctx){
     }
 }
 
+function evalInitConjList(parent, conjs, contexts){
+    console.log("conjunction list!");
+    console.log("node children:", parent.children, parent.text);
+
+    // For each existing context, evaluate the conjunction
+    // list in that context.
+    let newContexts = contexts.map(ctx => {
+        let out = ctx;
+        for(const child of conjs){
+            console.log("out:", out);
+            let res = evalInitExpr(child, [out]);
+            out = {"val": out["val"] && res["val"], "states": res["states"]}
+        }
+    })
+    console.log("newContexts:", newContexts);
+    return newContexts;    
+}
+
 // Evaluation of a TLC expression in the context of initial state generation
 // can produce a few outcomes. Either, it simply updates the current assignment
 // of values to variables, and/or it creates a new branch in the state computation,
@@ -543,28 +561,7 @@ function evalInitExpr(node, contexts){
         return [{"val": false, "states": []}];
     }
     if(node.type === "conj_list"){
-        console.log("conjunction list!");
-        console.log("node children:", node.children, node.text);
-
-        // For each existing context, evaluate the conjunction
-        // list in that context.
-        let newContexts = contexts.map(ctx => {
-            let out = ctx;
-            for(const child of node.children){
-                console.log("out:", out);
-                let res = evalInitExpr(child, [out]);
-                out = {"val": out["val"] && res["val"], "states": res["states"]}
-            }
-        })
-        console.log("newContexts:", newContexts);
-
-        // let out = {"val": true, "states": vars};
-        // let currContexts = contexts;
-        // for(const child of node.children){
-        //     let res = evalInitExpr(child, out["states"]);
-        //     out = {"val": out["val"] && res["val"], "states": res["states"]}
-        // }
-        return newContexts;
+        return evalInitConjList(node, node.children, contexts);
     }  
     // if(node.type === "disj_list"){
     //     console.log("conjunction list!");
