@@ -462,6 +462,12 @@ function evalNextExpr(node, ctx){
         return {"val": false, "states": []};
     }
 
+    if(node.type === "disj_item"){
+        console.log("disj_item, children:", node.children, ", ", node.text);
+        disj_item_node = node.children[1];
+        return evalNextExpr(disj_item_node, ctx);
+    }
+
     if(node.type === "conj_item"){
         console.log("conj_item, children:", node.children, ", ", node.text);
         // console.log();
@@ -489,6 +495,23 @@ function evalNextExpr(node, ctx){
         }
         return out;
     }  
+
+    if(node.type === "disj_list"){
+        console.log("disjunction list!");
+        console.log("disjunction children:", node.children);
+        let out = ctx; //{"val": true, "states": vars};
+
+        out = []
+
+        out = node.children.map(child => evalNextExpr(child, ctx));
+        console.log("disj_list out:", out);
+        // If an expression evaluates to FALSE, then evaluation stops and no states are returned.
+        // if(!out["val"]){
+            // return {"val": false, "states": []};
+        // }
+        return out;
+    } 
+
     if(node.type === "bound_infix_op"){
         // console.log(node.type, "| ", node.text);
         return evalNextBoundInfix(node, ctx);
@@ -592,6 +615,8 @@ function getNextStates(nextDef, currStateVars){
     ctx = {"val": true, "states": [currStateVars]}
     let ret = evalNextExpr(nextDef, ctx);
     console.log("getNextStates ret:", ret);
+    // Only include evaluations that were TRUE.
+    return ret.filter(c => c["val"]);
 }
 
 
@@ -630,12 +655,15 @@ function getNextStates(nextDef, currStateVars){
 EXTENDS Naturals
 
 VARIABLE x
+VARIABLE y
 
 Init == 
     /\\ x = 1 \\/ x = 2
+    /\\ y = 3 \\/ y = 6
 
 Next == 
-    /\\ x = 2 /\\ x' = 12
+    \\/ x = 1 /\\ x' = 99 /\\ y' = 88
+    \\/ x = 2 /\\ x' = 209 /\\ y' = 288
 
 =============================================================================`;
     newText = newText + "\n"
@@ -671,12 +699,13 @@ Next ==
 
     // TODO: Implement this analogously to initial state generation.
     let currState = initStates[0];
-    console.log("$$$$$ Computing next states for current: " + JSON.stringify(currState));
-    getNextStates(nextDef, currState);
-
-    currState = initStates[1];
-    console.log("$$$$$ Computing next states for current: " + JSON.stringify(currState));
-    getNextStates(nextDef, currState);
+    let allNextStates = []
+    for(const state of initStates){
+        console.log("$$$$$ Computing next states for current: " + JSON.stringify(state));
+        let states = getNextStates(nextDef, currState);
+        allNextStates = allNextStates.concat(states);
+    }
+    console.log(allNextStates);
 
     // Objects are passed by reference in JS.
     // D = {x: 1}
