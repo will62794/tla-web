@@ -397,19 +397,19 @@ function evalNextBoundInfix(node, ctx){
     }
 }
 
-function evalInitLor(lhs, rhs, ctx){
+function evalInitLor(lhs, rhs, contexts){
     // return {"val": false, "states": vars};
     console.log("###### LOR");
-    console.log("orig ctx:", JSON.stringify(ctx));
+    console.log("orig ctx:", JSON.stringify(contexts));
     // For all existing possible variable assignments split into
     // separate evaluation cases for left and right branch.
-    let newLhs = evalInitExpr(lhs, ctx);
-    let newRhs = evalInitExpr(lhs, ctx);
-    return newLhs.concat(newRhs);
+    let contextsLhs = evalInitExpr(lhs, contexts);
+    let contextsRhs = evalInitExpr(rhs, contexts);
+    return contextsLhs.concat(contextsRhs);
 }
 
 // 'vars' is a list of possible partial state assignments known up to this point.
-function evalInitBoundInfix(node, ctx){
+function evalInitBoundInfix(node, contexts){
     // lhs.
     let lhs = node.children[0];
     // symbol.
@@ -420,30 +420,43 @@ function evalInitBoundInfix(node, ctx){
 
     // Disjunction.
     if(symbol.type === "lor"){
-        return evalInitLor(lhs, rhs, ctx);
+        return evalInitLor(lhs, rhs, contexts);
     }
 
     // Equality.
     if(symbol.type ==="eq" && lhs.type ==="identifier_ref"){
         // Deal with equality of variable on left hand side.
         console.log("bound_infix_op, symbol: " + symbol.type);
-        let rhsVal = evalInitExpr(rhs, ctx);
-        console.log("rhsVal", rhsVal);
         let varName = lhs.text;
 
-        // Update assignments for all possible variable assignments currently generated.
-        let newVars = vars.map(function(v){
+        // Update assignments for all current evaluation contexts.
+        return contexts.map(ctx => {
             // If, in the current state assignment, the variable has not already
-            // been assigned a value, then assign it.
-            return _.mapValues(v, (val,key,obj) => {
-                if(key === varName && val === null){
-                    return rhsVal
-                } else{
-                    return val;
-                }
+            // been assigned a value, then assign it.If it has already been assigned,
+            // then check for equality.
+
+            // Variable already assigned in this context. So, check for equality.
+            if(ctx["state"].hasOwnProperty(varName) && ctx["state"][varName] !== null){
+                console.log("Variable '" + varName + "' already assigned in ctx:",  ctx);
+                let rhsVals = evalInitExpr(rhs, [ctx]);
+                let rhsVal = rhsVals[0]["val"]
+                console.log("rhsVal:", rhsVal);
+                let boolVal = (ctx["state"][varName] === rhsVal)
+                console.log("boolVal:", boolVal);
+                return {"val": boolVal, "state": ctx["state"]}; 
+            }
+
+            // Variable not already assigned. So, update variable assignment as necessary.
+            let stateUpdated = _.mapValues(ctx["state"], (val,key,obj) => {
+                if(key === varName){
+                    let rhsVals = evalInitExpr(rhs, [ctx]);
+                    let rhsVal = rhsVals[0]["val"];
+                    return (val === null) ? rhsVal : val;
+                } 
+                return val;
             })
+            return {"val": true, "state": stateUpdated};
         })
-        return {"val": false, "states": newVars}
     }    
 }
 
@@ -526,21 +539,19 @@ function evalNextExpr(node, ctx){
 }
 
 function evalInitConjList(parent, conjs, contexts){
-    console.log("conjunction list!");
-    console.log("node children:", parent.children, parent.text);
+    console.log("evalInit: conjunction list!");
+    console.log("evalInit: node children:", parent.children);
+    console.log(parent.text);
 
     // For each existing context, evaluate the conjunction
     // list in that context.
-    let newContexts = contexts.map(ctx => {
-        let out = ctx;
-        for(const child of conjs){
-            console.log("out:", out);
-            let res = evalInitExpr(child, [out]);
-            out = {"val": out["val"] && res["val"], "states": res["states"]}
-        }
-    })
-    console.log("newContexts:", newContexts);
-    return newContexts;    
+    let currContexts = _.cloneDeep(contexts);
+    for(const child of conjs){
+        console.log("currContexts:", currContexts);
+        currContexts = evalInitExpr(child, currContexts);
+    }
+    console.log("newContexts:", currContexts);
+    return currContexts;    
 }
 
 // Evaluation of a TLC expression in the context of initial state generation
@@ -549,7 +560,7 @@ function evalInitConjList(parent, conjs, contexts){
 // arising from presence of a disjunction (i.e. existential quantifier/set membership, etc.)
 function evalInitExpr(node, contexts){
     if(node === undefined){
-        return [{"val": false, "states": []}];
+        return [{"val": false, "state": {}}];
     }
     if(node.type === "conj_list"){
         return evalInitConjList(node, node.children, contexts);
@@ -564,21 +575,12 @@ function evalInitExpr(node, contexts){
     //     }
     // }  
     if(node.type === "conj_item"){
-        console.log(node.children);
-        // bullet_conj
-        console.log(node.children[0]);
-        console.log(node.children[0].type);
-        // conj_item
         conj_item_node = node.children[1];
         return evalInitExpr(conj_item_node, contexts);
-        // return contexts.map(ctx => evalInitExpr(conj_item_node, ctx));
-        // console.log(node.children[1]);
-        // console.log(node.children[1].type);
-        // console.log("conj_item");
     }
     if(node.type === "bound_infix_op"){
         console.log(node.type, "| ", node.text);
-        return contexts.map(ctx => evalInitBoundInfix(node, ctx));
+        return evalInitBoundInfix(node, contexts);
     }
 
     if(node.type === "identifier_ref"){
@@ -588,8 +590,7 @@ function evalInitExpr(node, contexts){
     }
     if(node.type === "nat_number"){
         console.log(node.type, node.text);
-        return parseInt(node.text);
-        // return {"val": parseInt(node.text), "states": vars};
+        return [{"val": parseInt(node.text), "state": {}}];
     }
 }
 
@@ -603,14 +604,13 @@ function getInitStates(initDef, vars){
     // We refer to a 'context' as the context for a single evaluation
     // branch, which contains a computed value along with a list of 
     // generated states.
-    let init_ctx = {"val": null, "states": [init_var_vals]};
-    let var_vals = evalInitExpr(initDef, [init_ctx]);
-    console.log(var_vals);
+    let init_ctx = {"val": null, "state": init_var_vals};
+    let ret_ctxs = evalInitExpr(initDef, [init_ctx]);
     console.log("Possible initial state assignments:");
-    for(const vars of var_vals["states"]){
-        console.log(vars);
+    for(const ctx of ret_ctxs){
+        console.log(ctx);
     }
-    return var_vals["states"];
+    return ret_ctxs;
 }
 
 function getNextStates(nextDef, currStateVars){
@@ -658,22 +658,22 @@ function getNextStates(nextDef, currStateVars){
     // /\\ y = 3 /\\ y' = 13
     // VARIABLE y
 
-    let newText = `----------------------- MODULE Test ------------------------
-EXTENDS Naturals
+//     let newText = `----------------------- MODULE Test ------------------------
+// EXTENDS Naturals
 
-VARIABLE x
-VARIABLE y
+// VARIABLE x
+// VARIABLE y
 
-Init == 
-    /\\ x = 1 \\/ x = 2
-    /\\ y = 3 \\/ y = 6
+// Init == 
+//     /\\ x = 1 \\/ x = 2
+//     /\\ y = 3 \\/ y = 6
 
-Next == 
-    \\/ x = 1 /\\ x' = 99 /\\ y' = 88
-    \\/ x = 2 /\\ x' = 209 /\\ y' = 288
+// Next == 
+//     \\/ x = 1 /\\ x' = 99 /\\ y' = 88
+//     \\/ x = 2 /\\ x' = 209 /\\ y' = 288
 
-=============================================================================`;
-    newText = newText + "\n"
+// =============================================================================`;
+    newText = testSpecText + "\n"
 
     console.log(newText);
     const newTree = parser.parse(newText, tree);
@@ -691,7 +691,7 @@ Next ==
     let defns = objs["op_defs"];
 
     let initDef = defns["Init"];
-    console.log("INIT:");
+    console.log("<<<<< INIT >>>>>:");
     console.log(initDef);
     console.log("initDef.childCount: ", initDef.childCount);
     console.log("initDef.type: ", initDef.type);
@@ -699,7 +699,7 @@ Next ==
     let initStates = getInitStates(initDef, vars);
 
     let nextDef = defns["Next"];
-    console.log("NEXT:");
+    console.log("<<<< NEXT >>>>:");
     console.log(nextDef);
     console.log("nextDef.childCount: ", nextDef.childCount);
     console.log("nextDef.type: ", nextDef.type);
