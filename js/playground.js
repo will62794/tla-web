@@ -259,6 +259,113 @@ function walkTree(tree, specLines){
         
 }
 
+function nextEvalBoundInfix(node, vars){
+    // lhs.
+    let lhs = node.children[0];
+    // symbol.
+    let symbol = node.children[1];
+    // console.log("symbol:", node.children[1]);
+    // rhs
+    let rhs = node.children[2];
+
+    // Conjunction.
+    if(symbol.type === "land"){
+        console.log("###### LAND");
+        console.log(node.text);
+        console.log(node.children[0]);
+        console.log(node.children[2]);
+        // Evaluate each element of the conjunction list in order.
+        // Recursively evaluate each child.
+        let res;
+        let out = {"val": true, "states": vars};
+        
+        // lhs.
+        res = nextEvalExpr(node.children[0], out["states"]);
+        out = {"val": out["val"] && res["val"], "states": res["states"]}
+
+        // rhs.
+        res = nextEvalExpr(node.children[2], out["states"]);
+        out = {"val": out["val"] && res["val"], "states": res["states"]}
+
+        return out;
+    }
+
+
+    // Disjunction.
+    if(symbol.type === "lor"){
+        // return {"val": false, "states": vars};
+        console.log("###### LOR");
+        console.log("orig vars:", JSON.stringify(vars));
+        // For all existing possible variable assignments split into
+        // separate evaluation cases for left and right branch.
+        let newLhsVars = _.flatten(vars.map(v => {
+            return nextEvalExpr(lhs, [v])["states"];
+        }));
+        console.log("newLhsVars: ", JSON.stringify(newLhsVars));
+
+        let newRhsVars = _.flatten(vars.map(v => {
+            return nextEvalExpr(rhs, [v])["states"];
+        }));
+        console.log("newRhsVars: ", JSON.stringify(newRhsVars));
+
+        return {"val": false, "states": newLhsVars.concat(newRhsVars)};
+    }
+
+    // Checks if a syntax tree node represents a primed variable.
+    // TODO: Check for identifier in list of variables.
+    function isPrimedVar(treeNode){
+        if(treeNode.children.length < 2){
+            return false;
+        }
+        let lhs = treeNode.children[0];
+        let symbol = treeNode.children[1];
+        return (treeNode.type === "bound_postfix_op" && 
+                lhs.type === "identifier_ref" &&
+                symbol.type === "prime");
+    }
+
+    // Equality with primed var.
+    if(symbol.type ==="eq" && isPrimedVar(lhs)){
+        console.log("bound_infix_op primed var, symbol: " + symbol.type);
+
+        let rhsVal = nextEvalExpr(rhs, vars);
+        let varName = lhs.children[0].text;
+        let varNamePrimed = varName + "'";
+        console.log("varNamePrimed:", varNamePrimed);
+
+        // Update assignments for all possible variable assignments currently generated.
+        let newVars = vars.map(function(v){
+            return _.mapValues(v, (val,key,obj) => {
+                return (key === varNamePrimed) ? rhsVal : val;
+            })
+        })
+
+        return {"val": false, "states": newVars}
+
+    }
+
+    // Equality.
+    if(symbol.type ==="eq" && lhs.type ==="identifier_ref"){
+        // TODO: Don't update variable values here. Just compute
+        // boolean value of equality expression.
+
+        // Deal with equality of variable on left hand side.
+        console.log("bound_infix_op, symbol: " + symbol.type);
+        let rhsVal = nextEvalExpr(rhs, vars);
+        console.log("rhsVal", rhsVal);
+        let varName = lhs.text;
+
+        // Update assignments for all possible variable assignments currently generated.
+        let newVars = vars.map(function(v){
+            return _.mapValues(v, (val,key,obj) => {
+                return (key === varName) ? rhsVal : val;
+            })
+        })
+
+        return {"val": false, "states": newVars}
+    }    
+}
+
 // 'vars' is a list of possible partial state assignments known up to this point.
 function initEvalBoundInfix(node, vars){
     // lhs.
@@ -340,6 +447,61 @@ function initEvalBoundInfix(node, vars){
     }    
 }
 
+function nextEvalExpr(node, vars){
+    if(node === undefined){
+        return {"val": false, "states": []};
+    }
+    if(node.type === "conj_list"){
+        console.log("conjunction list!");
+        console.log(node.children);
+        // Evaluate each element of the conjunction list in order.
+        // Recursively evaluate each child.
+        let out = {"val": true, "states": vars};
+        for(const child of node.children){
+            let res = nextEvalExpr(child, out["states"]);
+            out = {"val": out["val"] && res["val"], "states": res["states"]}
+        }
+        return out;
+    }  
+    // if(node.type === "disj_list"){
+    //     console.log("conjunction list!");
+    //     console.log(node.children);
+    //     // Evaluate each element of the conjunction list in order.
+    //     // Recursively evaluate each child.
+    //     for(const child of node.children){
+    //         initEvalExpr(child, vars);
+    //     }
+    // }  
+    if(node.type === "conj_item"){
+        console.log(node.children);
+        // bullet_conj
+        console.log(node.children[0]);
+        console.log(node.children[0].type);
+        // conj_item
+        conj_item_node = node.children[1];
+        return nextEvalExpr(conj_item_node, vars);
+        // console.log(node.children[1]);
+        // console.log(node.children[1].type);
+        // console.log("conj_item");
+    }
+    if(node.type === "bound_infix_op"){
+        console.log(node.type, "| ", node.text);
+        return nextEvalBoundInfix(node, vars);
+        console.log("new vars:", JSON.stringify(vars));
+    }
+
+    if(node.type === "identifier_ref"){
+        //TODO.
+        console.log(node.type);
+        console.log(node.text);
+    }
+    if(node.type === "nat_number"){
+        console.log(node.type, node.text);
+        return parseInt(node.text);
+        // return {"val": parseInt(node.text), "states": vars};
+    }
+}
+
 // Evaluation of a TLC expression in the context of initial state generation
 // can produce a few outcomes. Either, it simply updates the current assignment
 // of values to variables, and/or it creates a new branch in the state computation,
@@ -399,15 +561,15 @@ function initEvalExpr(node, vars){
     }
 }
 
-function evalNextExpr(node, currStateVars){
+function evalNextExpr(node, currStates){
     if(node.type === "conj_list"){
         console.log("conjunction list!");
         console.log(node.children);
         // Evaluate each element of the conjunction list in order.
         // Recursively evaluate each child.
-        let out = {"val": true, "states": currStateVars};
+        let out = {"val": true, "states": currStates};
         for(const child of node.children){
-            let res = initEvalExpr(child, out["states"]);
+            let res = nextEvalExpr(child, out["states"]);
             out = {"val": out["val"] && res["val"], "states": res["states"]}
         }
         return out;
@@ -428,7 +590,7 @@ function evalNextExpr(node, currStateVars){
         console.log(node.children[0].type);
         // conj_item
         conj_item_node = node.children[1];
-        return initEvalExpr(conj_item_node, currStateVars);
+        return nextEvalExpr(conj_item_node, currStateVars);
     }
 }
 
@@ -450,6 +612,11 @@ function getInitStates(initDef, vars){
 }
 
 function getNextStates(nextDef, currStateVars){
+    for(var k in currStateVars){
+        let primedVar = k + "'";
+        currStateVars[primedVar] = null;
+    }
+    console.log(currStateVars);
     let ret = evalNextExpr(nextDef, [currStateVars]);
     console.log("getNextStates ret:", ret);
 }
@@ -524,7 +691,8 @@ Next ==
 
     // TODO: Implement this analogously to initial state generation.
     let currState = initStates[0];
-    // getNextStates(nextDef, currState);
+    console.log("Computing next states.");
+    getNextStates(nextDef, currState);
 
     // Objects are passed by reference in JS.
     // D = {x: 1}
