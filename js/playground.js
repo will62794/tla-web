@@ -397,6 +397,17 @@ function evalNextBoundInfix(node, ctx){
     }
 }
 
+function evalInitLor(lhs, rhs, ctx){
+    // return {"val": false, "states": vars};
+    console.log("###### LOR");
+    console.log("orig ctx:", JSON.stringify(ctx));
+    // For all existing possible variable assignments split into
+    // separate evaluation cases for left and right branch.
+    let newLhs = evalInitExpr(lhs, ctx);
+    let newRhs = evalInitExpr(lhs, ctx);
+    return newLhs.concat(newRhs);
+}
+
 // 'vars' is a list of possible partial state assignments known up to this point.
 function evalInitBoundInfix(node, ctx){
     // lhs.
@@ -409,27 +420,7 @@ function evalInitBoundInfix(node, ctx){
 
     // Disjunction.
     if(symbol.type === "lor"){
-        // return {"val": false, "states": vars};
-        console.log("###### LOR");
-        console.log("orig ctx:", JSON.stringify(ctx));
-        // For all existing possible variable assignments split into
-        // separate evaluation cases for left and right branch.
-        let newLhs = evalInitExpr(lhs, ctx);
-        let newRhs = evalInitExpr(lhs, ctx);
-        return newLhs.concat(newRhs);
-
-        // let newLhsVars = _.flatten(vars.map(v => {
-        //     return evalInitExpr(lhs, [v])["states"];
-        // }));
-        // console.log("newLhsVars: ", JSON.stringify(newLhsVars));
-
-        // let newRhsVars = _.flatten(vars.map(v => {
-        //     return evalInitExpr(rhs, [v])["states"];
-        // }));
-        // console.log("newRhsVars: ", JSON.stringify(newRhsVars));
-
-        // return {"val": new, "states": newLhsVars.concat(newRhsVars)};
-
+        return evalInitLor(lhs, rhs, ctx);
     }
 
     // Equality.
@@ -588,7 +579,6 @@ function evalInitExpr(node, contexts){
     if(node.type === "bound_infix_op"){
         console.log(node.type, "| ", node.text);
         return contexts.map(ctx => evalInitBoundInfix(node, ctx));
-        console.log("new vars:", JSON.stringify(vars));
     }
 
     if(node.type === "identifier_ref"){
