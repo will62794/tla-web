@@ -737,12 +737,12 @@ function generateStates(){
     console.log(ret);
 
     console.log("INITIAL STATES:");
-    for(const state of initStates){
-        console.log(state);
+    for(const ctx of initStates){
+        console.log(ctx["val"], ctx["state"]);
     }
     console.log("NEXT STATES:");
-    for(const state of ret){
-        console.log(state);
+    for(const ctx of ret){
+        console.log(ctx);
     }
     return;
 
