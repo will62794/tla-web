@@ -730,20 +730,25 @@ function generateStates(){
     console.log("nextDef.type: ", nextDef.type);
 
     // let currState = initStates[0]["state"];
-    let currState = {"x":1, "y":3}
-    console.log("$$$ Computing next states");
-    let ret = getNextStates(nextDef, currState);
-    console.log(ret);
+    let allNext = []
+    for(const ctx of initStates){
+        let currState = _.cloneDeep(ctx["state"]);
+        console.log("$$$ Computing next states from current state: ", currState);
+        let ret = getNextStates(nextDef, currState);
+        console.log(ret);
+        allNext = allNext.concat(ret);
+    }
+
 
     console.log("INITIAL STATES:");
     for(const ctx of initStates){
         console.log(ctx["val"], ctx["state"]);
     }
     console.log("NEXT STATES:");
-    for(const ctx of ret){
-        console.log(ctx);
+    for(const ctx of allNext){
+        console.log(ctx["val"], ctx["state"]);
     }
-    return {"initStates": initStates, "nextStates": ret};
+    return {"initStates": initStates, "nextStates": allNext};
 
     let allNextStates = [];
     for(const state of initStates){
@@ -838,9 +843,18 @@ function generateStates(){
     let initStatesDiv = document.getElementById("initial-states");
     initStatesDiv.innerHTML = "";
     for(const ctx of res["initStates"]){
-        initStatesDiv.innerHTML += "<div>" + JSON.stringify(ctx["state"]) + "</div>"
+        if(ctx["val"]){
+            initStatesDiv.innerHTML += "<div>" + JSON.stringify(ctx["state"]) + "</div>";
+        }
     }
 
+    let nextStatesDiv = document.getElementById("next-states");
+    nextStatesDiv.innerHTML = "";
+    for(const ctx of res["nextStates"]){
+        if(ctx["val"]){
+            nextStatesDiv.innerHTML += "<div>" + JSON.stringify(ctx["state"]) + "</div>";
+        }
+    }
     // updateTimeSpan.innerText = `${duration} ms`;
     // if (tree) tree.delete();
     // tree = newTree;
