@@ -433,12 +433,11 @@ function evalInitEq(lhs, rhs, contexts){
     // Deal with equality of variable on left hand side.
     let varName = lhs.text;
 
-    let isUnprimedVar = contexts[0]["state"].hasOwnProperty(varName);
-    // let primedVarAssign = isPrimedVar(lhs) && assignPrimed;
+    // TODO: Debug why some next state pairs are not correctly being eliminated.
+    // (Will Schultz, Nov. 28, 2021.)
+    let isUnprimedVar = contexts[0]["state"].hasOwnProperty(varName) && !isPrimedVar(lhs);
+    console.log("isUnprimedVar:", isUnprimedVar);
 
-    // TODO: Make this functionality parameterized on whether we are evaluating initial state
-    // or next state predicate.
-    // if(lhs.type ==="identifier_ref"){
     if(isPrimedVar(lhs) || (isUnprimedVar && !ASSIGN_PRIMED)){
         // Update assignments for all current evaluation contexts.
         return contexts.map(ctx => {
@@ -470,12 +469,14 @@ function evalInitEq(lhs, rhs, contexts){
         })
     } else{
         let varName = lhs.text;
+        console.log("Checking for equality with var:", varName);
         // Check equality of variable with expression.
         // TODO: Check for variable name properly.
         return contexts.map(ctx => {
             let rhsVals = evalInitExpr(rhs, [ctx]);
             let rhsVal = rhsVals[0]["val"];
             let boolVal = (ctx["state"][varName] === rhsVal);
+            console.log("boolVal:", boolVal);
             return {"val": boolVal, "state": ctx["state"]}; 
         })
     }
