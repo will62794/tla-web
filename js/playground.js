@@ -655,6 +655,9 @@ function evalInitExpr(node, contexts){
 }
 
 function getInitStates(initDef, vars){
+    // TODO: Pass this variable value as an argument to the evaluation functions.
+    ASSIGN_PRIMED = false;
+
     // Values of each state variable. Initially empty.
     init_var_vals = {};
     for(v in vars){
@@ -674,6 +677,9 @@ function getInitStates(initDef, vars){
 }
 
 function getNextStates(nextDef, currStateVars){
+    // TODO: Pass this variable value as an argument to the evaluation functions.
+    ASSIGN_PRIMED = true;
+
     for(var k in currStateVars){
         let primedVar = k + "'";
         currStateVars[primedVar] = null;
@@ -714,9 +720,6 @@ function generateStates(){
     console.log("initDef.childCount: ", initDef.childCount);
     console.log("initDef.type: ", initDef.type);
 
-    // TODO: Pass this variable value as an argument to the evaluation functions.
-    ASSIGN_PRIMED = false;
-
     let initStates = getInitStates(initDef, vars);
     console.log("initial states:", initStates);
 
@@ -726,10 +729,6 @@ function generateStates(){
     console.log("nextDef.childCount: ", nextDef.childCount);
     console.log("nextDef.type: ", nextDef.type);
 
-    // TODO: Pass this variable value as an argument to the evaluation functions.
-    ASSIGN_PRIMED = true;
-
-    // TODO: Implement this analogously to initial state generation.
     // let currState = initStates[0]["state"];
     let currState = {"x":1, "y":3}
     console.log("$$$ Computing next states");
