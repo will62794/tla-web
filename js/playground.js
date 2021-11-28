@@ -744,7 +744,7 @@ function generateStates(){
     for(const ctx of ret){
         console.log(ctx);
     }
-    return;
+    return {"initStates": initStates, "nextStates": ret};
 
     let allNextStates = [];
     for(const state of initStates){
@@ -832,7 +832,15 @@ function generateStates(){
     const newTree = parser.parse(newText, tree);
     const duration = (performance.now() - start).toFixed(1);
 
-    generateStates();
+    console.log("Re-generating states.");
+    let res = generateStates();
+
+    // Display states in HTML.
+    let initStatesDiv = document.getElementById("initial-states");
+    initStatesDiv.innerHTML = "";
+    for(const ctx of res["initStates"]){
+        initStatesDiv.innerHTML += "<div>" + JSON.stringify(ctx["state"]) + "</div>"
+    }
 
     // updateTimeSpan.innerText = `${duration} ms`;
     // if (tree) tree.delete();

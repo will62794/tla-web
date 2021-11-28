@@ -19,8 +19,21 @@
   
   <body>
 
-    <!-- <textarea id="tlatext" cols=90 rows=15></textarea> -->
-    <textarea id="code-input"></textarea>
+    <!-- TLA+ code pane. -->
+    <div id="input-pane">
+        <div id="code-container">
+            <textarea id="code-input"></textarea>
+        </div>
+    </div>
+
+    <!-- Display pane. -->
+    <div id="output-container-scroll">
+        <h2>Initial states</h2>
+        <div id="initial-states" class="tlc-state">initial states</div>
+        <h2>Next states</h2>
+        <div id="next-states">next states</div>
+    </div>
+    
 
     <select id="language-select" style="display: none;">
         <option value="tlaplus">Parser</option>
@@ -87,6 +100,14 @@
         right: 50%;
         display: flex;
         flex-direction: column;
+      }
+
+      #initial-states{
+          font-size:16px;
+      }
+
+      .tlc-state{
+          font-family: monospace;
       }
   
       #code-container, #query-container {
