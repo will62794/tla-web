@@ -750,15 +750,6 @@ function generateStates(){
         console.log(ctx["val"], ctx["state"]);
     }
     return {"initStates": initStates, "nextStates": allNext};
-
-    let allNextStates = [];
-    for(const state of initStates){
-        console.log("$$$$$ Computing next states for current: " + JSON.stringify(state));
-        let states = getNextStates(nextDef, currState);
-        allNextStates = allNextStates.concat(states);
-    }
-    console.log(allNextStates);
-
 }
 
 
