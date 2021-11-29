@@ -69,7 +69,7 @@ let tree;
 
 //   playgroundContainer.style.visibility = 'visible';
 
-function walkTree(tree, specLines){
+function walkTree(tree){
 
     let cursor = tree.walk();
     
@@ -86,13 +86,13 @@ function walkTree(tree, specLines){
     while(more){
         more = cursor.gotoNextSibling();
         let node = cursor.currentNode();
-        console.log(node);
-        console.log("node type:");
-        console.log(node.type);
-        console.log("node text:");
-        console.log(node.text);
-        console.log("node id:");
-        console.log(node.id);
+        // console.log(node);
+        // console.log("node type:");
+        // console.log(node.type);
+        // console.log("node text:");
+        // console.log(node.text);
+        // console.log("node id:");
+        // console.log(node.id);
 
         if(node.type === "variable_declaration"){
             cursor.gotoFirstChild();
