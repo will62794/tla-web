@@ -1,22 +1,6 @@
 let tree;
 
 (async () => {
-  const CAPTURE_REGEX = /@\s*([\w\._-]+)/g;
-  const COLORS_BY_INDEX = [
-    'blue',
-    'chocolate',
-    'darkblue',
-    'darkcyan',
-    'darkgreen',
-    'darkred',
-    'darkslategray',
-    'dimgray',
-    'green',
-    'indigo',
-    'navy',
-    'red',
-    'sienna',
-  ];
 
   console.log("WILL")
 
@@ -37,7 +21,6 @@ let tree;
   loadState();
 
   await TreeSitter.init();
-
   const parser = new TreeSitter();
 
   let tree = null;
@@ -156,109 +139,7 @@ function walkTree(tree, specLines){
         "op_defs": op_defs
     }
 
-    // console.log(cursor.currentNode().toString());
     return objs;
-
-    // s1 = cursor.gotoNextSibling();
-    // console.log(s1);
-    // console.log(cursor.nodeType);
-    // s1 = cursor.gotoFirstChild();
-    // console.log(s1);
-    // console.log(cursor.nodeType);
-
-    // Go down to the top-level module.
-    s1 = cursor.gotoFirstChild();
-    console.log(cursor.nodeType);
-
-    console.log("++++++++++")
-    // s1 = cursor.gotoNextSibling();
-    // console.log(cursor.nodeType);
-
-    start = cursor.startPosition;
-    end = cursor.endPosition;
-    id = cursor.nodeId;
-    // console.log(start, end)
-
-    // Go to the first child of the MODULE.
-    s1 = cursor.gotoFirstChild();
-    console.log(cursor.nodeType);
-
-    function get_ident_name(cursor){
-        start = cursor.startPosition;
-        end = cursor.endPosition;
-        id = cursor.nodeId;
-        ident_str = specLines[start["row"]].substring(start["column"], end["column"]);
-        return ident_str;
-        // lines[start.row]
-    }
-
-    // start = cursor.startPosition;
-    // end = cursor.endPosition;
-    // id = cursor.nodeId;
-    // console.log(start, end)
-
-    s1 = cursor.gotoNextSibling();
-    console.log(cursor.nodeType);
-
-    s1 = cursor.gotoNextSibling();
-    console.log(cursor.nodeType);
-
-    s1 = cursor.gotoNextSibling();
-    console.log(cursor.nodeType);
-
-    s1 = cursor.gotoNextSibling();
-    console.log(cursor.nodeType);
-
-    s1 = cursor.gotoNextSibling();
-    console.log(cursor.nodeType);
-    console.log("___ subelems")
-    // Get sub elements.
-    s1 = cursor.gotoFirstChild();
-    console.log(cursor.nodeText);
-    if(cursor.nodeText ==="Next"){
-        console.log("NEXTNEXT");
-    }
-    console.log(cursor.nodeType);
-    ident = get_ident_name(cursor);
-    console.log(ident);
-    cursor.gotoParent();
-
-
-    s1 = cursor.gotoNextSibling();
-    console.log(cursor.nodeType);
-    ident = get_ident_name(cursor);
-    console.log(ident);
-
-    // Operator def.
-    s1 = cursor.gotoNextSibling();
-    console.log(cursor.nodeType);
-    // Get sub elements.
-    s1 = cursor.gotoFirstChild();
-    console.log(cursor.nodeText);
-    console.log(cursor.nodeType);
-    ident = get_ident_name(cursor);
-    console.log(ident);
-
-    s1 = cursor.gotoNextSibling();
-    console.log(cursor.nodeType);
-    s1 = cursor.gotoNextSibling();
-    console.log(cursor.nodeType);
-    cursor.gotoParent();
-
-    // Double line.
-    s1 = cursor.gotoNextSibling();
-    console.log(cursor.nodeType);
-    return;
-    
-    
-    // s1 = cursor.gotoFirstChild();
-    // console.log(s1);
-    // console.log(cursor.nodeType);
-
-    // s1 = cursor.gotoFirstChild();
-    // console.log(s1);
-    // console.log(cursor.nodeType);
-        
 }
 
 function evalInitLand(lhs, rhs, contexts){
@@ -569,42 +450,6 @@ function generateStates(specText){
     newText = codeEditor.getValue();
     newText = newText + "\n"
     generateStates(newText);
-
-    // Objects are passed by reference in JS.
-    // D = {x: 1}
-    // L = [1,[2,3],3]
-    // function modify(o){
-    //     o["x"] = 12;
-    // }
-    // function modifyL(lst){
-    //     lst[1][0] = 55;
-    // }
-    // console.log(D);
-    // modify(D);
-    // console.log(D);
-
-
-    // s1 = cursor.gotoNextSibling();
-    // console.log(cursor.nodeType);
-    // s1 = cursor.gotoNextSibling();
-    // console.log(cursor.nodeType);
-    // cursor.gotoParent();
-
-    // s1 = cursor.gotoNextSibling();
-    // console.log(cursor.nodeType);
-    // // Get sub elements.
-    // s1 = cursor.gotoFirstChild();
-    // console.log(cursor.nodeText);
-    // console.log(cursor.nodeType);
-    // ident = get_ident_name(cursor);
-    // console.log(ident);
-
-    // s1 = cursor.gotoNextSibling();
-    // console.log(cursor.nodeType);
-    // s1 = cursor.gotoNextSibling();
-    // console.log(cursor.nodeType);
-    // cursor.gotoParent();
-
   }
 
   async function handleCodeChange(editor, changes) {
@@ -639,94 +484,6 @@ function generateStates(specText){
             nextStatesDiv.innerHTML += "<div>" + JSON.stringify(ctx["state"]) + "</div>";
         }
     }
-    // updateTimeSpan.innerText = `${duration} ms`;
-    // if (tree) tree.delete();
-    // tree = newTree;
-    // parseCount++;
-    // renderTreeOnCodeChange();
-    // runTreeQueryOnChange();
-    // saveStateOnChange();
-  }
-
-  async function renderTree() {
-    isRendering++;
-    const cursor = tree.walk();
-
-    let currentRenderCount = parseCount;
-    let row = '';
-    let rows = [];
-    let finishedRow = false;
-    let visitedChildren = false;
-    let indentLevel = 0;
-
-    for (let i = 0;; i++) {
-      if (i > 0 && i % 10000 === 0) {
-        await new Promise(r => setTimeout(r, 0));
-        if (parseCount !== currentRenderCount) {
-          cursor.delete();
-          isRendering--;
-          return;
-        }
-      }
-
-      let displayName;
-      if (cursor.nodeIsMissing) {
-        displayName = `MISSING ${cursor.nodeType}`
-      } else if (cursor.nodeIsNamed) {
-        displayName = cursor.nodeType;
-      }
-
-      if (visitedChildren) {
-        if (displayName) {
-          finishedRow = true;
-        }
-
-        if (cursor.gotoNextSibling()) {
-          visitedChildren = false;
-        } else if (cursor.gotoParent()) {
-          visitedChildren = true;
-          indentLevel--;
-        } else {
-          break;
-        }
-      } else {
-        if (displayName) {
-          if (finishedRow) {
-            row += '</div>';
-            rows.push(row);
-            finishedRow = false;
-          }
-          const start = cursor.startPosition;
-          const end = cursor.endPosition;
-          const id = cursor.nodeId;
-          let fieldName = cursor.currentFieldName();
-          if (fieldName) {
-            fieldName += ': ';
-          } else {
-            fieldName = '';
-          }
-          row = `<div>${'  '.repeat(indentLevel)}${fieldName}<a class='plain' href="#" data-id=${id} data-range="${start.row},${start.column},${end.row},${end.column}">${displayName}</a> [${start.row}, ${start.column}] - [${end.row}, ${end.column}]`;
-          finishedRow = true;
-        }
-
-        if (cursor.gotoFirstChild()) {
-          visitedChildren = false;
-          indentLevel++;
-        } else {
-          visitedChildren = true;
-        }
-      }
-    }
-    if (finishedRow) {
-      row += '</div>';
-      rows.push(row);
-    }
-
-    cursor.delete();
-    cluster.update(rows);
-    treeRows = rows;
-    isRendering--;
-    handleCursorMovement();
   }
 
   function runTreeQuery(_, startRow, endRow) {
@@ -763,71 +520,6 @@ function generateStates(specText){
         }
       }
     });
-  }
-
-  function handleQueryChange() {
-    if (query) {
-      query.delete();
-      query.deleted = true;
-      query = null;
-    }
-
-    queryEditor.operation(() => {
-      queryEditor.getAllMarks().forEach(m => m.clear());
-      if (!queryCheckbox.checked) return;
-
-      const queryText = queryEditor.getValue();
-
-      try {
-        query = parser.getLanguage().query(queryText);
-        let match;
-
-        let row = 0;
-        queryEditor.eachLine((line) => {
-          while (match = CAPTURE_REGEX.exec(line.text)) {
-            queryEditor.markText(
-              {line: row, ch: match.index},
-              {line: row, ch: match.index + match[0].length},
-              {
-                inclusiveLeft: true,
-                inclusiveRight: true,
-                css: `color: ${colorForCaptureName(match[1])}`
-              }
-            );
-          }
-          row++;
-        });
-      } catch (error) {
-        const startPosition = queryEditor.posFromIndex(error.index);
-        const endPosition = {
-          line: startPosition.line,
-          ch: startPosition.ch + (error.length || Infinity)
-        };
-
-        if (error.index === queryText.length) {
-          if (startPosition.ch > 0) {
-            startPosition.ch--;
-          } else if (startPosition.row > 0) {
-            startPosition.row--;
-            startPosition.column = Infinity;
-          }
-        }
-
-        queryEditor.markText(
-          startPosition,
-          endPosition,
-          {
-            className: 'query-error',
-            inclusiveLeft: true,
-            inclusiveRight: true,
-            attributes: {title: error.message}
-          }
-        );
-      }
-    });
-
-    runTreeQuery();
-    saveQueryState();
   }
 
   function handleCursorMovement() {
@@ -888,31 +580,6 @@ function generateStates(specText){
     }
   }
 
-  function handleLoggingChange() {
-    if (loggingCheckbox.checked) {
-      parser.setLogger((message, lexing) => {
-        if (lexing) {
-          console.log("  ", message)
-        } else {
-          console.log(message)
-        }
-      });
-    } else {
-      parser.setLogger(null);
-    }
-  }
-
-  function handleQueryEnableChange() {
-    if (queryCheckbox.checked) {
-      queryContainer.style.visibility = '';
-      queryContainer.style.position = '';
-    } else {
-      queryContainer.style.visibility = 'hidden';
-      queryContainer.style.position = 'absolute';
-    }
-    handleQueryChange();
-  }
-
   function treeEditForEditorChange(change) {
     const oldLineCount = change.removed.length;
     const newLineCount = change.text.length;
@@ -955,17 +622,6 @@ function generateStates(specText){
       languageSelect.value = language;
       queryCheckbox.checked = (queryEnabled === 'true');
     }
-  }
-
-  function saveState() {
-    localStorage.setItem("language", languageSelect.value);
-    localStorage.setItem("sourceCode", codeEditor.getValue());
-    saveQueryState();
-  }
-
-  function saveQueryState() {
-    localStorage.setItem("queryEnabled", queryCheckbox.checked);
-    localStorage.setItem("query", queryEditor.getValue());
   }
 
   function debounce(func, wait, immediate) {
