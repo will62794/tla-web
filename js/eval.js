@@ -269,6 +269,11 @@ function evalInitExpr(node, contexts){
     }
 }
 
+/**
+ * Generates all possible initial states given the syntax tree node for the
+ * initial state predicate and an object 'vars' which contains exactly the
+ * specification's state variables as keys.
+ */
 function getInitStates(initDef, vars){
     // TODO: Pass this variable value as an argument to the evaluation functions.
     ASSIGN_PRIMED = false;
@@ -291,6 +296,10 @@ function getInitStates(initDef, vars){
     return ret_ctxs;
 }
 
+/**
+ * Generates all possible successor states from a given state and the syntax
+ * tree node for the definition of the next state predicate.
+ */
 function getNextStates(nextDef, currStateVars){
     // TODO: Pass this variable value as an argument to the evaluation functions.
     ASSIGN_PRIMED = true;
