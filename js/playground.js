@@ -110,10 +110,8 @@ let tree;
     // Display states in HTML.
     let initStatesDiv = document.getElementById("initial-states");
     initStatesDiv.innerHTML = "";
-    for(const ctx of res["initStates"]){
-        if(ctx["val"]){
-            initStatesDiv.innerHTML += "<div>" + JSON.stringify(ctx["state"]) + "</div>";
-        }
+    for(const state of res["initStates"]){
+        initStatesDiv.innerHTML += "<div>" + JSON.stringify(state) + "</div>";
     }
 
     let nextStatesDiv = document.getElementById("next-states");

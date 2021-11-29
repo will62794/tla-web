@@ -322,6 +322,8 @@ function generateStates(tree){
     console.log("initDef.type: ", initDef.type);
 
     let initStates = getInitStates(initDef, vars);
+    // Keep only the valid states.
+    initStates = initStates.filter(ctx => ctx["val"]).map(ctx => ctx["state"]);
     console.log("initial states:", initStates);
 
     let nextDef = defns["Next"];
@@ -332,8 +334,8 @@ function generateStates(tree){
 
     // let currState = initStates[0]["state"];
     let allNext = []
-    for(const ctx of initStates){
-        let currState = _.cloneDeep(ctx["state"]);
+    for(const istate of initStates){
+        let currState = _.cloneDeep(istate);
         console.log("$$$ Computing next states from current state: ", currState);
         let ret = getNextStates(nextDef, currState);
         console.log(ret);
@@ -342,8 +344,8 @@ function generateStates(tree){
 
 
     console.log("INITIAL STATES:");
-    for(const ctx of initStates){
-        console.log(ctx["val"], ctx["state"]);
+    for(const state of initStates){
+        console.log(state);
     }
     console.log("NEXT STATES:");
     for(const ctx of allNext){
