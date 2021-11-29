@@ -493,16 +493,13 @@ function getNextStates(nextDef, currStateVars){
 ///////////////////////////////////////////////////
 ///////////////////////////////////////////////////
 
-function generateStates(){
-    newText = codeEditor.getValue();
-    newText = newText + "\n"
-
-    console.log(newText);
-    const newTree = parser.parse(newText, tree);
+function generateStates(specText){
+    console.log(specText);
+    const newTree = parser.parse(specText, tree);
     console.log(newTree);
     tree = newTree;
 
-    lines = newText.split("\n");
+    lines = specText.split("\n");
     objs = walkTree(tree, lines);
 
     let vars = objs["var_decls"];
@@ -569,7 +566,9 @@ function generateStates(){
     // handleQueryChange();
 
     // Generate initial states and next states for exploration.
-    generateStates();
+    newText = codeEditor.getValue();
+    newText = newText + "\n"
+    generateStates(newText);
 
     // Objects are passed by reference in JS.
     // D = {x: 1}
@@ -622,7 +621,7 @@ function generateStates(){
     const duration = (performance.now() - start).toFixed(1);
 
     console.log("Re-generating states.");
-    let res = generateStates();
+    let res = generateStates(newText);
 
     // Display states in HTML.
     let initStatesDiv = document.getElementById("initial-states");
