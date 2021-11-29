@@ -23,7 +23,6 @@ let tree;
         const newTree = parser.parse(specText + "\n", tree);
         let ret = generateStates(newTree);
         const pass = _.isEqual(ret["initStates"], initExpected);
-        console.log(ret);
     
         let testHeader = document.createElement("h2");
         testHeader.innerText = "Test: " + testId + "";
@@ -79,16 +78,19 @@ Next == x' = 2
 initExpected = [{x:1}, {x:2}];    
 testStateGen("simple-spec2", spec2, initExpected);
 
-// let spec3 = `----------------------- MODULE Test ------------------------
-// VARIABLE x,y
-// Init == 
-//     /\\ x = 1 \\/ x = 2 
-//     /\\ y = 3 \\/ y = 4
+let spec3 = `----------------------- MODULE Test ------------------------
+VARIABLE x
+VARIABLE y
+Init == 
+    /\\ x = 1 \\/ x = 2 
+    /\\ y = 3 \\/ y = 4
 
-// Next == x' = 2 /\\ y' = 2
-// =============================================================================`;
-// initExpected = [{x:1}, {x:2}];    
-// testStateGen("simple-spec3", spec3, initExpected);
+Next == x' = 2 /\\ y' = 2
+=============================================================================`;
+// TODO: The expected value comparisons shouldn't be dependent on the order of
+// the returned states.
+initExpected = [{x:1,y:3},{x:2,y:3},{x:1,y:4},{x:2,y:4}];    
+testStateGen("simple-spec3", spec3, initExpected);
 
     
 
