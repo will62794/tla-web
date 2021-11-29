@@ -402,8 +402,17 @@ function evalNextBoundInfix(node, ctx){
 function evalInitLand(lhs, rhs, contexts){
     // Evaluate right to left.
     let contextsLhs = evalInitExpr(lhs, contexts);
-    let contextsRhs = evalInitExpr(rhs, contextsLhs);
-    return contextsRhs;
+    
+    // It's possible that the RHS forks the evaluation contexts further, so 
+    // we evaluate each current context, and compute its truth value against 
+    // all contexts returned by evaluation of the RHS.
+    let contextsOut = [];
+    for(const lctx of contextsLhs){
+        let contextsRhs = evalInitExpr(rhs, [lctx]);
+        contextsRhs = contextsRhs.map((rctx) => ({"val": lctx["val"] && rctx["val"], "state": rctx["state"]}));
+        contextsOut = contextsOut.concat(contextsRhs);
+    }
+    return contextsOut;
 }
 
 function evalInitLor(lhs, rhs, contexts){
