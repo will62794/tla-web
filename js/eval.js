@@ -44,6 +44,7 @@ function walkTree(tree){
         }
 
         if(node.type === "operator_definition"){
+            // TODO: Consider iterating through 'named' children only?
             cursor.gotoFirstChild();
 
             // The definition identifier name.
@@ -52,14 +53,20 @@ function walkTree(tree){
             console.assert(node.type === "identifier");
             let opName = node.text;
             
-            // def_eq (skip)
+            // Skip the 'def_eq' symbol ("==").
             cursor.gotoNextSibling();
-            // console.log(cursor.currentNode().text)
 
-            // The definition node.
+            // Skip any intervening comment nodes.
             cursor.gotoNextSibling();
+            while(cursor.currentNode().type === "comment"){
+                cursor.gotoNextSibling();
+            }
+
+            // We should now be at the definition node.
             // console.log(cursor.currentNode().text)
             let def = cursor.currentNode();
+            // console.log("def type:", def.type);
+            // console.log("def type:", def);
 
             // console.log(cursor.currentNode());
             // let var_ident = cursor.currentNode();
@@ -272,6 +279,10 @@ function evalInitConjList(parent, conjs, contexts){
 // TODO: Rename 'contexts' to 'context', since now we intend this function to
 // take in only a single context, not a list of contexts.
 function evalInitExpr(node, contexts){
+    console.log(node.type);
+    if(node.type === "comment"){
+
+    }
     if(node === undefined){
         return [{"val": false, "state": {}}];
     }
@@ -292,6 +303,10 @@ function evalInitExpr(node, contexts){
     if(node.type === "bound_infix_op"){
         console.log(node.type, "| ", node.text);
         return evalInitBoundInfix(node, contexts);
+    }
+
+    if(node.type === "bounded_quantification"){
+        console.log("bounded_quantification");
     }
 
     if(node.type === "identifier_ref"){
@@ -431,6 +446,7 @@ function getNextStates(nextDef, currStateVars){
     // let init_ctxs = [{"val": null, "state": currStateVars}]
     let init_ctx = {"val": null, "state": currStateVars};
     // let ret = evalNextExpr(nextDef, init_ctxs);
+    console.log("nextDef:", nextDef);
     let ret = evalInitExpr(nextDef, init_ctx);
     console.log("getNextStates ret:", ret);
     // Only include evaluations that were TRUE.
@@ -462,6 +478,7 @@ function generateStates(tree){
     }
 
     let nextDef = defns["Next"];
+    console.log(defns);
     console.log("<<<< NEXT >>>>");
     console.log(nextDef);
     console.log("nextDef.childCount: ", nextDef.childCount);
