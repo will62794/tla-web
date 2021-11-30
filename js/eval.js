@@ -295,10 +295,19 @@ function evalInitExpr(node, contexts){
     }
 
     if(node.type === "identifier_ref"){
-        //TODO.
-        console.log("identifier_ref");
-        console.log(node.type);
-        console.log(node.text);
+        let ident_name = node.text;
+        // console.log("identifier_ref");
+        // console.log(node.type);
+        // console.log(node.text);
+
+        // See if the identifier is bound to a value in the current context.
+        // If so, return the value it is bound to.
+        if(contexts["quant_bound"].hasOwnProperty(ident_name)){
+            let bound_val = contexts["quant_bound"][ident_name];
+            return [{"val": bound_val, "state": contexts["state"]}];
+        }
+
+        // TODO: Consider case of identifier referring to a variable, or being undefined.
     }
     if(node.type === "nat_number"){
         console.log(node.type, node.text);
