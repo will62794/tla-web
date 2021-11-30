@@ -266,6 +266,52 @@ function evalInitExpr(node, contexts){
         console.log(node.type, node.text);
         return [{"val": parseInt(node.text), "state": {}}];
     }
+
+    // TODO: Re-examine whether this implementation is correct.
+    if(node.type ==="finite_set_literal"){
+        // Evaluate the expression in each context.
+        // TODO: For now we assume finite set literal evaluation
+        // will not fork the evaluation context.
+        return contexts.map(ctx => {
+            console.log(node.children);
+            // Remove the outer braces, "{" and "}"
+            let innerChildren = node.children.slice(1,node.children.length-1);
+            // Remove commas and then evaluate each set element.
+            let ret = innerChildren.filter(child => child.type !== ",")
+            ret = ret.map(child => evalInitExpr(child, [ctx]));
+            ret = _.flatten(ret).map(c => c["val"]);
+            console.log(ret);
+            return {"val": ret, "state": ctx["state"]}
+        })
+
+        // let ret = node.children.map(child => evalInitExpr(child, contexts));
+        // console.log(_.flatten(ret));
+        return ret;
+    }
+
+    // "[" <quantifier_bound> "|->" <expr> "]"
+    if(node.type === "function_literal"){
+        console.log(node.children);
+        // lbracket = node.children[0]
+        // rbracket = node.children[4];
+        let quant_bound = node.children[1];
+        let all_map_to = node.children[2];
+        console.assert(all_map_to.type === "all_map_to");
+        let fexpr = node.children[3];
+
+        // Handle the quantifier bound:
+        // <identifier> \in <expr>
+        quant_ident = quant_bound.children[0];
+        quant_expr = evalInitExpr(quant_bound.children[2], contexts);
+        console.log("quant_expr:", quant_expr);
+        console.log(quant_ident.type);
+        console.log(quant_expr.type);
+
+        // Evaluate the quantified expression for each element in the 
+        // quantifier domain.
+        // TODO: Implement this.
+
+    }
 }
 
 /**
