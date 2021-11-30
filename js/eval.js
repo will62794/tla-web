@@ -215,7 +215,7 @@ function evalInitDisjList(parent, disjs, contexts){
 
     // Split into separate evaluation cases for each disjunct.
     return _.flattenDeep(disjs.map(disj => evalInitExpr(disj, contexts)));
-    
+
     // let newContexts = disjs.map(disj => evalInitExpr(disj, contexts));
     // console.log("newContexts:", newContexts);
     // return _.flatten(newContexts);
@@ -305,20 +305,23 @@ function evalInitExpr(node, contexts){
 
     // TODO: Re-examine whether this implementation is correct.
     if(node.type ==="finite_set_literal"){
-        // Evaluate the expression in each context.
-        // TODO: For now we assume finite set literal evaluation
-        // will not fork the evaluation context.
-        return contexts.map(ctx => {
-            console.log(node.children);
-            // Remove the outer braces, "{" and "}"
-            let innerChildren = node.children.slice(1,node.children.length-1);
-            // Remove commas and then evaluate each set element.
-            let ret = innerChildren.filter(child => child.type !== ",")
-            ret = ret.map(child => evalInitExpr(child, [ctx]));
-            ret = _.flatten(ret).map(c => c["val"]);
-            console.log(ret);
-            return {"val": ret, "state": ctx["state"]}
-        })
+        console.log(node.children);
+
+        // TODO: Check the computation below for correctness.
+
+        // Remove the outer braces, "{" and "}"
+        let innerChildren = node.children.slice(1,node.children.length-1);
+        // Remove commas and then evaluate each set element.
+        let ret = innerChildren.filter(child => child.type !== ",")
+        ret = ret.map(child => {
+            // TODO: For now assume set elements don't fork evaluation context.
+            let r = evalInitExpr(child, contexts);
+            console.assert(r.length === 1);
+            return r[0]["val"];
+        });
+        ret = _.flatten(ret);
+        console.log(ret);
+        return [{"val": ret, "state": contexts["state"]}];
 
         // let ret = node.children.map(child => evalInitExpr(child, contexts));
         // console.log(_.flatten(ret));

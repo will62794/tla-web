@@ -88,8 +88,8 @@ let tree;
     parser.setLanguage(languagesByName[newLanguageName]);
 
     // Download example spec.
-    let specPath = "./specs/simple1.tla";
-    // let specPath = "./specs/lockserver_nodefs.tla";
+    // let specPath = "./specs/simple1.tla";
+    let specPath = "./specs/lockserver_nodefs.tla";
     (() => {
         const handle = setInterval(() => {
             res = $.get(specPath, data => {
