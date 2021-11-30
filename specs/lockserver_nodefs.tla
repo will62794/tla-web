@@ -10,20 +10,20 @@ EXTENDS TLC, Naturals
 
 \* Hard-code constants inline for now.
 \* CONSTANT Server = {0,1,2}
-\* CONSTANT Client = {10,20}
+\* CONSTANT Client = {88,99}
 
 VARIABLE semaphore
 VARIABLE clientlocks
 
 \* Initially each server holds its lock, and all clients hold no locks.
 Init == 
-    /\ semaphore = [i \in {0,1,2} (*Server*) |-> TRUE]
-    /\ clientlocks = [i \in {10,20} (*Client*) |-> {}]
+    /\ semaphore = [i \in {0,1,2} |-> TRUE]
+    /\ clientlocks = [i \in {88,99} |-> {}]
 
 Next == 
     \* Connect(c,s)
     \* A client c requests a lock from server s.
-    \/ \E c \in {10,20} (*Client*), s \in {0,1,2} (*Server*) : 
+    \/ \E c \in {88,99}, s \in {0,1,2} : 
         \* The server must currently hold the lock.
         /\ semaphore[s] = TRUE
         \* The client obtains the lock of s.
@@ -31,7 +31,7 @@ Next ==
         /\ semaphore' = [semaphore EXCEPT ![s] = FALSE]
     \* Disconnect(c,s)
     \* A client c relinquishes the lock of server s.
-    \/ \E c \in {10,20} (*Client*), s \in {0,1,2} (*Server*) : 
+    \/ \E c \in {88,99}, s \in {0,1,2} : 
         \* The client must currently be holding the lock of s.
         /\ s \in clientlocks[c]
         \* The client relinquishes the lock of s.
