@@ -86,7 +86,26 @@ let tree;
     tree = null;
     languageName = newLanguageName;
     parser.setLanguage(languagesByName[newLanguageName]);
-    handleCodeChange();
+
+    // Download example spec.
+    // let specPath = "./specs/simple1.tla";
+    let specPath = "./specs/lockserver_nodefs.tla";
+    (() => {
+        const handle = setInterval(() => {
+            res = $.get(specPath, data => {
+                const $codeEditor = document.querySelector('.CodeMirror');
+                spec = data;
+                console.log("Retrieved spec:", specPath);
+                if ($codeEditor) {
+                    // code change handler should be triggered when we update the code mirror text.
+                    $codeEditor.CodeMirror.setValue(spec);
+                    $codeEditor.CodeMirror.setSize("100%", "100%");
+                    clearInterval(handle);
+                    // handleCodeChange();
+                }
+            });
+        }, 500);
+    })();
   }
 
   async function handleCodeChange(editor, changes) {

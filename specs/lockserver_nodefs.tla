@@ -15,8 +15,8 @@ EXTENDS TLC, Naturals
 VARIABLE semaphore
 VARIABLE clientlocks
 
+\* Initially each server holds its lock, and all clients hold no locks.
 Init == 
-    \* Initially each server holds its lock, and all clients hold no locks.
     /\ semaphore = [i \in {0,1,2} (*Server*) |-> TRUE]
     /\ clientlocks = [i \in {10,20} (*Client*) |-> {}]
 

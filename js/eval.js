@@ -48,17 +48,17 @@ function walkTree(tree){
 
             // The definition identifier name.
             node = cursor.currentNode()
-            console.log(node.text)
+            // console.log(node.text)
             console.assert(node.type === "identifier");
             let opName = node.text;
             
             // def_eq (skip)
             cursor.gotoNextSibling();
-            console.log(cursor.currentNode().text)
+            // console.log(cursor.currentNode().text)
 
             // The definition node.
             cursor.gotoNextSibling();
-            console.log(cursor.currentNode().text)
+            // console.log(cursor.currentNode().text)
             let def = cursor.currentNode();
 
             // console.log(cursor.currentNode());
@@ -68,11 +68,10 @@ function walkTree(tree){
             // var_decls[var_ident.text] = {"id": node.id}; 
             op_defs[opName] = def;
         }
-        console.log("++++")
     }
 
-    console.log(var_decls);
-    console.log(op_defs);
+    console.log("module declarations:",var_decls);
+    console.log("module definitions:",op_defs);
 
     objs = {
         "var_decls": var_decls,
@@ -319,13 +318,14 @@ function getNextStates(nextDef, currStateVars){
 }
 
 function generateStates(tree){
+    console.log("Extracting definitions/declarations from syntax tree.");
     objs = walkTree(tree);
 
     let vars = objs["var_decls"];
     let defns = objs["op_defs"];
 
     let initDef = defns["Init"];
-    console.log("<<<<< INIT >>>>>:");
+    console.log("<<<<< INIT >>>>>");
     console.log(initDef);
     console.log("initDef.childCount: ", initDef.childCount);
     console.log("initDef.type: ", initDef.type);
@@ -336,7 +336,7 @@ function generateStates(tree){
     console.log("initial states:", initStates);
 
     let nextDef = defns["Next"];
-    console.log("<<<< NEXT >>>>:");
+    console.log("<<<< NEXT >>>>");
     console.log(nextDef);
     console.log("nextDef.childCount: ", nextDef.childCount);
     console.log("nextDef.type: ", nextDef.type);

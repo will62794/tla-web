@@ -66,24 +66,6 @@
     //   })
     //   (testSpecText);
 
-        // Download example spec.
-        // let specPath = "./specs/simple1.tla";
-        let specPath = "./specs/lockserver_nodefs.tla";
-        (codeExample => {
-        const handle = setInterval(() => {
-            res = $.get(specPath, data => {
-                const $codeEditor = document.querySelector('.CodeMirror');
-                spec = data;
-                console.log("Retrieved spec:", specPath);
-                if ($codeEditor) {
-                    $codeEditor.CodeMirror.setValue(spec);
-                    $codeEditor.CodeMirror.setSize("100%", "100%");
-                    clearInterval(handle);
-                }
-            });
-        }, 500);
-        })
-        ();
     </script>
   
     <style>
