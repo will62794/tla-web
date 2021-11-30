@@ -67,7 +67,8 @@
     //   (testSpecText);
 
         // Download example spec.
-        let specPath = "./specs/simple1.tla";
+        // let specPath = "./specs/simple1.tla";
+        let specPath = "./specs/lockserver_nodefs.tla";
         (codeExample => {
         const handle = setInterval(() => {
             res = $.get(specPath, data => {
@@ -159,7 +160,7 @@
       }
 
       .CodeMirror{
-        font-size:14px;
+        font-size:13px;
       }
   
       #output-container-scroll {
