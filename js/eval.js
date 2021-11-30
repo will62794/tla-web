@@ -269,6 +269,7 @@ function evalInitConjList(parent, conjs, contexts){
 // single expression and context, as opposed to a list of contexts.
 //
 
+// TODO: Rename 'contexts' to 'context', since now we intend this function to take in only a single context, not a list of contexts.
 function evalInitExpr(node, contexts){
     if(node === undefined){
         return [{"val": false, "state": {}}];
