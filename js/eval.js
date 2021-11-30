@@ -303,6 +303,12 @@ function evalInitExpr(node, contexts){
         return [{"val": parseInt(node.text), "state": {}}];
     }
 
+    if(node.type === "boolean"){
+        console.log(node.type, node.text);
+        let boolVal = node.text === "TRUE" ? true : false;
+        return [{"val": boolVal, "state": {}}];
+    }
+
     // TODO: Re-examine whether this implementation is correct.
     if(node.type ==="finite_set_literal"){
         console.log(node.children);
@@ -333,10 +339,12 @@ function evalInitExpr(node, contexts){
         console.log(node.children);
         // lbracket = node.children[0]
         // rbracket = node.children[4];
+
         let quant_bound = node.children[1];
         let all_map_to = node.children[2];
-        console.assert(all_map_to.type === "all_map_to");
         let fexpr = node.children[3];
+
+        console.assert(all_map_to.type === "all_map_to");
 
         // Handle the quantifier bound:
         // <identifier> \in <expr>
@@ -348,8 +356,23 @@ function evalInitExpr(node, contexts){
 
         // Evaluate the quantified expression for each element in the 
         // quantifier domain.
-        // TODO: Implement this.
-
+        // TODO: For now assume that quantifier domain doesn't fork evaluation.
+        let domain = quant_expr[0]["val"];
+        let fnVal = {}; //_.fromPairs(domain.map(x => [x,null]));
+        for(const v of domain){
+            // Evaluate the expression in a context with the the current domain 
+            // value bound to the identifier.
+            let boundContext = {"val": contexts["val"], "state": contexts["state"]};
+            boundContext["quant_bound"] = {};
+            boundContext["quant_bound"][quant_ident.text] = v;
+            console.log("boundCtx:", boundContext);
+            // TODO: Handle bound quantifier values during evaluation.
+            let vals = evalInitExpr(fexpr, boundContext);
+            console.assert(vals.length === 1);
+            fnVal[v] = vals[0]["val"];
+        }
+        console.log("fnVal:", fnVal);
+        return [{"val":fnVal, "state":{}}];
     }
 }
 
