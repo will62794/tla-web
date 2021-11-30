@@ -4,6 +4,15 @@
 // Contains logic for expression evaluation and initial/next generation.
 //
 
+function cartesianProductOf() {
+    return _.reduce(arguments, function(a, b) {
+        return _.flatten(_.map(a, function(x) {
+            return _.map(b, function(y) {
+                return x.concat([y]);
+            });
+        }), true);
+    }, [ [] ]);
+}
 
 /**
  * Extract all defintions and variable declarations from the given syntax tree
@@ -280,8 +289,14 @@ function evalInitConjList(parent, conjs, contexts){
 // take in only a single context, not a list of contexts.
 function evalInitExpr(node, contexts){
     console.log(node.type);
-    if(node.type === "comment"){
 
+    if(node.type === "except"){
+        // TODO: Implement this.
+        throw Error("Evaluation of 'except' node type not implemented.");
+    }
+
+    if(node.type === "comment"){
+        // TOOD: Handle properly.
     }
     if(node === undefined){
         return [{"val": false, "state": {}}];
@@ -305,8 +320,48 @@ function evalInitExpr(node, contexts){
         return evalInitBoundInfix(node, contexts);
     }
 
+    // TODO: Finish this after implementing 'except' node type handling.
     if(node.type === "bounded_quantification"){
         console.log("bounded_quantification");
+        let quantifier = node.namedChildren[0];
+
+        // Extract all quantifier bounds/domains.
+        let currInd = 1;
+        quantBounds = [];
+        while(node.namedChildren[currInd].type === "quantifier_bound"){
+            quantBounds.push(node.namedChildren[currInd]);
+            currInd += 1;
+        }
+
+        // The quantified expression.
+        let quant_expr = node.namedChildren[currInd];
+        console.log("quant bounds:", quantBounds);
+        console.log("quant expr:", quant_expr);
+
+
+        
+        let quantDomains = quantBounds.map(qbound =>{
+            expr = evalInitExpr(qbound.children[2], contexts);
+            let domain = expr[0]["val"];
+            return domain;
+        });
+        let quantIdents = quantBounds.map(qbound => qbound.children[0].text);
+
+        // Iterate over the product of all quantified domains and evaluate
+        // the quantified expression with the appropriately bound values.
+        let quantDomainTuples = cartesianProductOf(...quantDomains);
+        console.log("quantDomain tuples:", quantDomainTuples);
+        for(var i=0; i<quantDomainTuples.length; i++){
+            let boundContext = {"val": contexts["val"], "state": contexts["state"]};
+            // Bound values to quantified variables.
+            boundContext["quant_bound"] = {}
+            for(var qk = 0;qk<quantIdents.length;qk++){
+                boundContext["quant_bound"][quantIdents[qk]] = quantDomainTuples[i][qk];
+            }
+            let ret = evalInitExpr(quant_expr, boundContext);
+            console.log("bounded quant ret:", ret);
+        }
+        
     }
 
     if(node.type === "identifier_ref"){
