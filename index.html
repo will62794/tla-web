@@ -55,16 +55,34 @@
     <script src=js/playground.js></script>
     
     <script>
-      (codeExample => {
+    //   (codeExample => {
+    //     const handle = setInterval(() => {
+    //       const $codeEditor = document.querySelector('.CodeMirror');
+    //       if ($codeEditor) {
+    //         $codeEditor.CodeMirror.setValue(codeExample);
+    //         clearInterval(handle);
+    //       }
+    //     }, 500);
+    //   })
+    //   (testSpecText);
+
+        // Download example spec.
+        let specPath = "./specs/simple1.tla";
+        (codeExample => {
         const handle = setInterval(() => {
-          const $codeEditor = document.querySelector('.CodeMirror');
-          if ($codeEditor) {
-            $codeEditor.CodeMirror.setValue(codeExample);
-            clearInterval(handle);
-          }
+            res = $.get(specPath, data => {
+                const $codeEditor = document.querySelector('.CodeMirror');
+                spec = data;
+                console.log("Retrieved spec:", specPath);
+                if ($codeEditor) {
+                    $codeEditor.CodeMirror.setValue(spec);
+                    $codeEditor.CodeMirror.setSize("100%", "100%");
+                    clearInterval(handle);
+                }
+            });
         }, 500);
-      })
-      (testSpecText);
+        })
+        ();
     </script>
   
     <style>
@@ -138,6 +156,10 @@
         left: 0;
         right: 0;
         height: 100%;
+      }
+
+      .CodeMirror{
+        font-size:14px;
       }
   
       #output-container-scroll {

@@ -2,8 +2,6 @@ let tree;
 
 (async () => {
 
-  console.log("WILL")
-
   const scriptURL = document.currentScript.getAttribute('src');
 
   const codeInput = document.getElementById('code-input');
