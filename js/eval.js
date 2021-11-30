@@ -82,19 +82,29 @@ function walkTree(tree){
 }
 
 function evalInitLand(lhs, rhs, contexts){
-    // Evaluate right to left.
-    let contextsLhs = evalInitExpr(lhs, contexts);
+    // Evaluate left to right.
+    console.log("###### LAND");
+    let lhsEval = _.flattenDeep(evalInitExpr(lhs, contexts));
+    console.log("lhsEval:", lhsEval);
+    let rhsEval = lhsEval.map(lctx => {
+        return evalInitExpr(rhs, lctx).map(rctx => {
+            return ({"val": (lctx["val"] && rctx["val"]), "state": rctx["state"]})
+        })
+    });
+    return _.flattenDeep(rhsEval);
     
-    // It's possible that the RHS forks the evaluation contexts further, so 
-    // we evaluate each current context, and compute its truth value against 
-    // all contexts returned by evaluation of the RHS.
-    let contextsOut = [];
-    for(const lctx of contextsLhs){
-        let contextsRhs = evalInitExpr(rhs, [lctx]);
-        contextsRhs = contextsRhs.map((rctx) => ({"val": lctx["val"] && rctx["val"], "state": rctx["state"]}));
-        contextsOut = contextsOut.concat(contextsRhs);
-    }
-    return contextsOut;
+    // evalInitExpr(lhs, contexts)
+
+    // // It's possible that the RHS forks the evaluation contexts further, so 
+    // // we evaluate each current context, and compute its truth value against 
+    // // all contexts returned by evaluation of the RHS.
+    // let contextsOut = [];
+    // for(const lctx of contextsLhs){
+    //     let contextsRhs = evalInitExpr(rhs, [lctx]);
+    //     contextsRhs = contextsRhs.map((rctx) => ({"val": lctx["val"] && rctx["val"], "state": rctx["state"]}));
+    //     contextsOut = contextsOut.concat(contextsRhs);
+    // }
+    // return contextsOut;
 }
 
 function evalInitLor(lhs, rhs, contexts){
@@ -104,6 +114,7 @@ function evalInitLor(lhs, rhs, contexts){
     // For all existing possible variable assignments split into
     // separate evaluation cases for left and right branch.
     let contextsLhs = evalInitExpr(lhs, contexts);
+    console.log("lhs contexts:",contextsLhs);
     let contextsRhs = evalInitExpr(rhs, contexts);
     return contextsLhs.concat(contextsRhs);
 }
@@ -124,52 +135,51 @@ function evalInitEq(lhs, rhs, contexts){
     // Deal with equality of variable on left hand side.
     let varName = lhs.text;
 
-    // TODO: Debug why some next state pairs are not correctly being eliminated.
-    // (Will Schultz, Nov. 28, 2021.)
-    let isUnprimedVar = contexts[0]["state"].hasOwnProperty(varName) && !isPrimedVar(lhs);
+    // let isUnprimedVar = contexts[0]["state"].hasOwnProperty(varName) && !isPrimedVar(lhs);
+    let isUnprimedVar = contexts["state"].hasOwnProperty(varName) && !isPrimedVar(lhs);
     console.log("isUnprimedVar:", isUnprimedVar);
 
     if(isPrimedVar(lhs) || (isUnprimedVar && !ASSIGN_PRIMED)){
         // Update assignments for all current evaluation contexts.
-        return contexts.map(ctx => {
-            // If, in the current state assignment, the variable has not already
-            // been assigned a value, then assign it.If it has already been assigned,
-            // then check for equality.
-            // Variable already assigned in this context. So, check for equality.
-            if(ctx["state"].hasOwnProperty(varName) && ctx["state"][varName] !== null){
-                console.log("Variable '" + varName + "' already assigned in ctx:",  ctx);
-                let rhsVals = evalInitExpr(rhs, [ctx]);
-                let rhsVal = rhsVals[0]["val"]
-                console.log("rhsVal:", rhsVal);
-                let boolVal = (ctx["state"][varName] === rhsVal)
-                console.log("boolVal:", boolVal);
-                return {"val": boolVal, "state": ctx["state"]}; 
-            }
 
-            // Variable not already assigned. So, update variable assignment as necessary.
-            let stateUpdated = _.mapValues(ctx["state"], (val,key,obj) => {
-                console.log("Variable '" + varName + "' not already assigned in ctx:",  ctx);
-                if(key === varName){
-                    let rhsVals = evalInitExpr(rhs, [ctx]);
-                    let rhsVal = rhsVals[0]["val"];
-                    return (val === null) ? rhsVal : val;
-                } 
-                return val;
-            })
-            return {"val": true, "state": stateUpdated};
+        // If, in the current state assignment, the variable has not already
+        // been assigned a value, then assign it.If it has already been assigned,
+        // then check for equality.
+        // Variable already assigned in this context. So, check for equality.
+        if(contexts["state"].hasOwnProperty(varName) && contexts["state"][varName] !== null){
+            console.log("Variable '" + varName + "' already assigned in ctx:",  contexts);
+            let rhsVals = evalInitExpr(rhs, contexts);
+            console.assert(rhsVals.length === 1);
+            let rhsVal = rhsVals[0]["val"]
+            console.log("rhsVal:", rhsVal);
+            let boolVal = (contexts["state"][varName] === rhsVal)
+            console.log("boolVal:", boolVal);
+            return [{"val": boolVal, "state": contexts["state"]}]; 
+        }
+
+        // Variable not already assigned. So, update variable assignment as necessary.
+        let stateUpdated = _.mapValues(contexts["state"], (val,key,obj) => {
+            console.log("Variable '" + varName + "' not already assigned in ctx:",  contexts);
+            if(key === varName){
+                let rhsVals = evalInitExpr(rhs, contexts);
+                console.assert(rhsVals.length === 1);
+                let rhsVal = rhsVals[0]["val"];
+                return (val === null) ? rhsVal : val;
+            } 
+            return val;
         })
+        return [{"val": true, "state": stateUpdated}];
     } else{
         let varName = lhs.text;
         console.log("Checking for equality with var:", varName);
         // Check equality of variable with expression.
         // TODO: Check for variable name properly.
-        return contexts.map(ctx => {
-            let rhsVals = evalInitExpr(rhs, [ctx]);
-            let rhsVal = rhsVals[0]["val"];
-            let boolVal = (ctx["state"][varName] === rhsVal);
-            console.log("boolVal:", boolVal);
-            return {"val": boolVal, "state": ctx["state"]}; 
-        })
+        let rhsVals = evalInitExpr(rhs, contexts);
+        console.assert(rhsVals.length === 1);
+        let rhsVal = rhsVals[0]["val"];
+        let boolVal = (contexts["state"][varName] === rhsVal);
+        console.log("boolVal:", boolVal);
+        return [{"val": boolVal, "state": contexts["state"]}]; 
     }
 
 }
@@ -204,9 +214,11 @@ function evalInitDisjList(parent, disjs, contexts){
     console.log("evalInit: disjunction list!");
 
     // Split into separate evaluation cases for each disjunct.
-    let newContexts = disjs.map(disj => evalInitExpr(disj, contexts));
-    console.log("newContexts:", newContexts);
-    return _.flatten(newContexts);
+    return _.flattenDeep(disjs.map(disj => evalInitExpr(disj, contexts)));
+    
+    // let newContexts = disjs.map(disj => evalInitExpr(disj, contexts));
+    // console.log("newContexts:", newContexts);
+    // return _.flatten(newContexts);
 
     // let contextsLhs = evalInitExpr(lhs, contexts);
     // let contextsRhs = evalInitExpr(rhs, contexts);
@@ -218,21 +230,45 @@ function evalInitConjList(parent, conjs, contexts){
     console.log("evalInit: node children:", parent.children);
     console.log(parent.text);
 
-    // For each existing context, evaluate the conjunction
-    // list in that context.
-    let currContexts = _.cloneDeep(contexts);
-    for(const child of conjs){
-        console.log("currContexts:", currContexts);
-        currContexts = evalInitExpr(child, currContexts);
-    }
-    console.log("newContexts:", currContexts);
-    return currContexts;    
+    return conjs.reduce((prevRes,currConj) => {
+        return _.flattenDeep(prevRes.map(ctx => evalInitExpr(currConj, ctx)))
+    }, [contexts]);
+
+    // let currContexts = _.cloneDeep(contexts);
+    // for(const child of conjs){
+    //     console.log("currContexts:", currContexts);
+    //     currContexts = evalInitExpr(child, currContexts);
+    // }
+    // console.log("newContexts:", currContexts);
+    // return currContexts;    
 }
 
 // Evaluation of a TLC expression in the context of initial state generation
 // can produce a few outcomes. Either, it simply updates the current assignment
 // of values to variables, and/or it creates a new branch in the state computation,
 // arising from presence of a disjunction (i.e. existential quantifier/set membership, etc.)
+
+// 
+// Evaluation of an individual expression always takes place under some
+// 'context' i.e. a current assignment of values to variables. Evaluation of a
+// sub expression can either:
+// 
+//  - Update the current context i.e. the current variable assignment
+//  - Return an atomic value.
+//  - Fork the current evaluation context into multiple, new contexts (e.g. via disjunction)
+// 
+// The return value of an expression evaluation is not always a single object. It can be a set
+// of return objects, if the evaluation computation forked into multiple contexts. Each context
+// is a separate computation, so it has its own expression value that it will return, along with
+// any generated states i.e. the assignments to variables that were produced on that 
+// evaluation branch.
+// 
+//
+// So, evaluation of a single expression should return a list of (value, state)
+// pairs. Each individual evaluation helper function, however, can take in a
+// single expression and context, as opposed to a list of contexts.
+//
+
 function evalInitExpr(node, contexts){
     if(node === undefined){
         return [{"val": false, "state": {}}];
@@ -333,7 +369,8 @@ function getInitStates(initDef, vars){
     // branch, which contains a computed value along with a list of 
     // generated states.
     let init_ctx = {"val": null, "state": init_var_vals};
-    let ret_ctxs = evalInitExpr(initDef, [init_ctx]);
+    // let ret_ctxs = evalInitExpr(initDef, [init_ctx]);
+    let ret_ctxs = evalInitExpr(initDef, init_ctx);
     console.log("Possible initial state assignments:");
     for(const ctx of ret_ctxs){
         console.log(ctx);
@@ -354,9 +391,10 @@ function getNextStates(nextDef, currStateVars){
         currStateVars[primedVar] = null;
     }
     console.log("currStateVars:", currStateVars);
-    let init_ctxs = [{"val": null, "state": currStateVars}]
+    // let init_ctxs = [{"val": null, "state": currStateVars}]
+    let init_ctx = {"val": null, "state": currStateVars};
     // let ret = evalNextExpr(nextDef, init_ctxs);
-    let ret = evalInitExpr(nextDef, init_ctxs);
+    let ret = evalInitExpr(nextDef, init_ctx);
     console.log("getNextStates ret:", ret);
     // Only include evaluations that were TRUE.
     return ret;
@@ -381,13 +419,18 @@ function generateStates(tree){
     initStates = initStates.filter(ctx => ctx["val"]).map(ctx => ctx["state"]);
     console.log("initial states:", initStates);
 
+    console.log("INITIAL STATES:");
+    for(const state of initStates){
+        console.log(state);
+    }
+
     let nextDef = defns["Next"];
     console.log("<<<< NEXT >>>>");
     console.log(nextDef);
     console.log("nextDef.childCount: ", nextDef.childCount);
     console.log("nextDef.type: ", nextDef.type);
 
-    // let currState = initStates[0]["state"];
+    // // let currState = initStates[0]["state"];
     let allNext = []
     for(const istate of initStates){
         let currState = _.cloneDeep(istate);
@@ -397,11 +440,6 @@ function generateStates(tree){
         allNext = allNext.concat(ret);
     }
 
-
-    console.log("INITIAL STATES:");
-    for(const state of initStates){
-        console.log(state);
-    }
     console.log("NEXT STATES:");
     for(const ctx of allNext){
         console.log(ctx["val"], ctx["state"]);
