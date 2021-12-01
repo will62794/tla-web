@@ -338,8 +338,6 @@ function evalInitExpr(node, contexts){
         console.log("quant bounds:", quantBounds);
         console.log("quant expr:", quant_expr);
 
-
-        
         let quantDomains = quantBounds.map(qbound =>{
             expr = evalInitExpr(qbound.children[2], contexts);
             let domain = expr[0]["val"];
