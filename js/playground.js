@@ -196,13 +196,13 @@ let tree;
         initStatesDiv.innerHTML += "<div>" + JSON.stringify(state) + "</div>";
     }
 
-    let nextStatesDiv = document.getElementById("next-states");
-    nextStatesDiv.innerHTML = "";
-    for(const ctx of res["nextStates"]){
-        if(ctx["val"]){
-            nextStatesDiv.innerHTML += "<div>" + JSON.stringify(ctx["state"]) + "</div>";
-        }
-    }
+    // let nextStatesDiv = document.getElementById("next-states");
+    // nextStatesDiv.innerHTML = "";
+    // for(const ctx of res["nextStates"]){
+    //     if(ctx["val"]){
+    //         nextStatesDiv.innerHTML += "<div>" + JSON.stringify(ctx["state"]) + "</div>";
+    //     }
+    // }
     genRandTrace();
   }
 
