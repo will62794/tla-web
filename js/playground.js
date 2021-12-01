@@ -89,8 +89,8 @@ let tree;
 
     // Download example spec.
     // let specPath = "./specs/simple1.tla";
-    let specPath = "./specs/simple2.tla";
-    // let specPath = "./specs/lockserver_nodefs.tla";
+    // let specPath = "./specs/simple2.tla";
+    let specPath = "./specs/lockserver_nodefs.tla";
     (() => {
         const handle = setInterval(() => {
             res = $.get(specPath, data => {
@@ -107,6 +107,70 @@ let tree;
             });
         }, 500);
     })();
+  }
+
+  function genRandTrace(){
+    
+    // Pick a random element from the given array.
+    function randChoice(arr){
+        let randI = _.random(0, arr.length-1);
+        return arr[randI];
+    }
+
+
+    const newText = codeEditor.getValue() + '\n';
+    const newTree = parser.parse(newText, tree);
+
+    objs = walkTree(newTree);
+    let vars = objs["var_decls"];
+    let defns = objs["op_defs"];
+
+    let initDef = defns["Init"];
+    let nextDef = defns["Next"];
+
+    let initStates = getInitStates(initDef, vars);
+    initStates = initStates.filter(ctx => ctx["val"]).map(ctx => ctx["state"]);
+
+    // Pick a random initial state.
+    let currState = randChoice(initStates);
+    console.log("initState in trace:", currState);
+
+    let max_trace_depth = 6;
+    let curr_depth = 0;
+    let trace = [_.cloneDeep(currState)];
+    while(curr_depth < max_trace_depth){
+        // Get next states from the current state and pick a random one.
+        let nextStates = getNextStates(nextDef, currState);
+        nextStates = nextStates.filter(ctx => ctx["val"]).map(ctx => ctx["state"]);
+        // console.log(nextStates);
+        let nextState = _.cloneDeep(randChoice(nextStates));
+        // Rename primed variables to unprimed variables.
+        nextState = _.pickBy(nextState, (val,k,obj) => k.endsWith("'"));
+        nextState = _.mapKeys(nextState, (val,k,obj) => k.slice(0,k.length-1));
+        console.log(nextState);
+        // Process next state.
+        currState = nextState;
+        curr_depth += 1;
+        trace.push(_.cloneDeep(currState));
+    }
+
+    // Display trace.
+    let traceDiv = document.getElementById("trace");
+    traceDiv.innerHTML = "";
+    console.log(trace);
+    let stateInd = 0;
+    for(const state of trace){
+        traceDiv.innerHTML += "<div>";
+        traceDiv.innerHTML += "<h3>State " + stateInd + "</h3>"
+        console.log(state);
+        for(const varname in state){
+            traceDiv.innerHTML += "<span>" + varname +":"+ JSON.stringify(state[varname]) + "</span>";
+            traceDiv.innerHTML += "<br>"
+        }
+        traceDiv.innerHTML += "</div>";
+        stateInd += 1;
+    }
+    traceDiv.innerHTML += "<br><br>";
   }
 
   async function handleCodeChange(editor, changes) {
@@ -139,6 +203,7 @@ let tree;
             nextStatesDiv.innerHTML += "<div>" + JSON.stringify(ctx["state"]) + "</div>";
         }
     }
+    genRandTrace();
   }
 
   function runTreeQuery(_, startRow, endRow) {

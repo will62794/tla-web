@@ -17,15 +17,15 @@ VARIABLE clientlocks
 
 \* Initially each server holds its lock, and all clients hold no locks.
 Init == 
-    /\ semaphore = [i \in {0,1,2} |-> TRUE]
+    /\ semaphore = [i \in {0,1} |-> TRUE]
     /\ clientlocks = [i \in {88,99} |-> {}]
 
 Next == 
-    \/ \E c \in {88,99}, s \in {0,1,2} : 
+    \/ \E c \in {88,99}, s \in {0,1} : 
         /\ semaphore[s] = TRUE
         /\ clientlocks' = [clientlocks EXCEPT ![c] = clientlocks[c] \cup {s}]
         /\ semaphore' = [semaphore EXCEPT ![s] = FALSE]
-    \/ \E c \in {88,99}, s \in {0,1,2} : 
+    \/ \E c \in {88,99}, s \in {0,1} : 
         /\ s \in clientlocks[c]
         /\ clientlocks' = [clientlocks EXCEPT ![c] = clientlocks[c] \ {s}]
         /\ semaphore' = [semaphore EXCEPT ![s] = TRUE]
