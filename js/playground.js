@@ -164,7 +164,7 @@ let tree;
         traceDiv.innerHTML += "<h3>State " + stateInd + "</h3>"
         console.log(state);
         for(const varname in state){
-            traceDiv.innerHTML += "<span>" + varname +":"+ JSON.stringify(state[varname]) + "</span>";
+            traceDiv.innerHTML += "<span>" + varname +": "+ JSON.stringify(state[varname]) + "</span>";
             traceDiv.innerHTML += "<br>"
         }
         traceDiv.innerHTML += "</div>";
