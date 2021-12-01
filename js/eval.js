@@ -153,7 +153,7 @@ function evalInitEq(lhs, rhs, contexts){
 
     // let isUnprimedVar = contexts[0]["state"].hasOwnProperty(varName) && !isPrimedVar(lhs);
     let isUnprimedVar = contexts["state"].hasOwnProperty(varName) && !isPrimedVar(lhs);
-    console.log("isUnprimedVar:", isUnprimedVar);
+    // console.log("isUnprimedVar:", isUnprimedVar);
 
     if(isPrimedVar(lhs) || (isUnprimedVar && !ASSIGN_PRIMED)){
         // Update assignments for all current evaluation contexts.
@@ -170,14 +170,15 @@ function evalInitEq(lhs, rhs, contexts){
             console.log("rhsVal:", rhsVal);
             let boolVal = (contexts["state"][varName] === rhsVal)
             console.log("boolVal:", boolVal);
+            return Object.assign({}, contexts, {"val": boolVal})
             return [{"val": boolVal, "state": contexts["state"]}]; 
         }
 
         // Variable not already assigned. So, update variable assignment as necessary.
         let stateUpdated = _.mapValues(contexts["state"], (val,key,obj) => {
-            console.log("Variable '" + varName + "' not already assigned in ctx:",  contexts);
             if(key === varName){
-                let rhsVals = evalInitExpr(rhs, contexts);
+                console.log("Variable (" + varName + ") not already assigned in ctx:",  JSON.stringify(contexts));
+                let rhsVals = evalInitExpr(rhs, _.cloneDeep(contexts));
                 console.assert(rhsVals.length === 1);
                 let rhsVal = rhsVals[0]["val"];
                 return (val === null) ? rhsVal : val;
@@ -227,7 +228,7 @@ function evalInitBoundInfix(node, contexts){
 
     // Equality.
     if(symbol.type ==="eq"){
-        console.log("bound_infix_op, symbol 'eq', ctx:", contexts);
+        console.log("bound_infix_op, symbol 'eq', ctx:", JSON.stringify(contexts));
         return evalInitEq(lhs, rhs, contexts);
     } 
 
@@ -395,9 +396,9 @@ function evalInitExpr(node, contexts){
     if(node.type === "function_evaluation"){
         console.log("function_evaluation");
         let fnVal = evalInitExpr(node.namedChildren[0], contexts)[0]["val"];
-        console.log("fnArg node: ", node.namedChildren[1]);
+        // console.log("fnArg node: ", node.namedChildren[1]);
         let fnArgVal = evalInitExpr(node.namedChildren[1], contexts);
-        console.log("fnArgVal:", fnArgVal);
+        // console.log("fnArgVal:", fnArgVal);
         let fnArg = evalInitExpr(node.namedChildren[1], contexts)[0]["val"];
         console.log("fneval:", fnVal, fnArg);
         return [Object.assign({}, contexts, {"val": fnVal[fnArg]})];
@@ -425,7 +426,7 @@ function evalInitExpr(node, contexts){
         return evalInitExpr(disj_item_node, contexts);
     }
     if(node.type === "bound_infix_op"){
-        console.log(node.type, ", ", node.text, ", ctx:", contexts);
+        console.log(node.type, ", ", node.text, ", ctx:", JSON.stringify(contexts));
         return evalInitBoundInfix(node, contexts);
     }
 
@@ -458,21 +459,19 @@ function evalInitExpr(node, contexts){
         // the quantified expression with the appropriately bound values.
         let quantDomainTuples = cartesianProductOf(...quantDomains);
         console.log("quantDomain tuples:", quantDomainTuples);
-        for(var i=0; i<quantDomainTuples.length; i++){
-            let boundContext = {
-                "val": contexts["val"], 
-                "state": contexts["state"]
-            };
+        return _.flattenDeep(quantDomainTuples.map(qtup => {
+            let boundContext = _.cloneDeep(contexts);
             // Bound values to quantified variables.
-            boundContext["quant_bound"] = {}
+            if(!boundContext.hasOwnProperty("quant_bound")){
+                boundContext["quant_bound"] = {};
+            }
             for(var qk = 0;qk<quantIdents.length;qk++){
-                boundContext["quant_bound"][quantIdents[qk]] = quantDomainTuples[i][qk];
+                boundContext["quant_bound"][quantIdents[qk]] = qtup[qk];
             }
             console.log("boundContext:", JSON.stringify(boundContext));
             let ret = evalInitExpr(quant_expr, _.cloneDeep(boundContext));
-            console.log("bounded quant ret:", ret);
-        }
-        
+            return ret;
+        }));
     }
 
     if(node.type === "identifier_ref"){
@@ -480,7 +479,7 @@ function evalInitExpr(node, contexts){
     }
 
     if(node.type === "nat_number"){
-        console.log(node.type, node.text);
+        // console.log(node.type, node.text);
         return [{"val": parseInt(node.text), "state": {}}];
     }
 
@@ -492,8 +491,6 @@ function evalInitExpr(node, contexts){
 
     // TODO: Re-examine whether this implementation is correct.
     if(node.type ==="finite_set_literal"){
-        console.log(node.children);
-
         // TODO: Check the computation below for correctness.
 
         // Remove the outer braces, "{" and "}"
@@ -517,7 +514,6 @@ function evalInitExpr(node, contexts){
 
     // "[" <quantifier_bound> "|->" <expr> "]"
     if(node.type === "function_literal"){
-        console.log(node.children);
         // lbracket = node.children[0]
         // rbracket = node.children[4];
 
@@ -601,7 +597,7 @@ function getNextStates(nextDef, currStateVars){
     // let init_ctxs = [{"val": null, "state": currStateVars}]
     let init_ctx = {"val": null, "state": currStateVars};
     // let ret = evalNextExpr(nextDef, init_ctxs);
-    console.log("nextDef:", nextDef);
+    // console.log("nextDef:", nextDef);
     let ret = evalInitExpr(nextDef, init_ctx);
     console.log("getNextStates ret:", ret);
     // Only include evaluations that were TRUE.
@@ -641,7 +637,7 @@ function generateStates(tree){
 
     // // let currState = initStates[0]["state"];
     let allNext = []
-    for(const istate of initStates){
+    for(const istate of initStates.slice(0,1)){
         let currState = _.cloneDeep(istate);
         console.log("$$$ Computing next states from current state: ", currState);
         let ret = getNextStates(nextDef, currState);
