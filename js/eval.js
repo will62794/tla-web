@@ -637,7 +637,7 @@ function generateStates(tree){
 
     // // let currState = initStates[0]["state"];
     let allNext = []
-    for(const istate of initStates.slice(0,1)){
+    for(const istate of initStates){
         let currState = _.cloneDeep(istate);
         console.log("$$$ Computing next states from current state: ", currState);
         let ret = getNextStates(nextDef, currState);
