@@ -104,52 +104,97 @@ let tree;
     }
 
 
-//
-// Run all tests.
-//
-
 
 let testsDiv = document.getElementById("tests");
 let initExpected;
+let nextExpected;
+
+function simple_spec1(){
+    let spec1 = `----------------------- MODULE Test ------------------------
+    VARIABLE x
+    Init == x = 1 
+    Next == x' = 2
+    =============================================================================`;
+    initExpected = [{x:1}];
+    nextExpected = [{"x":1, "x'":2}]
+    testStateGen("simple-spec1", spec1, initExpected, nextExpected);
+}
+
+function simple_spec2(){
+    let spec2 = `----------------------- MODULE Test ------------------------
+    VARIABLE x
+    Init == x = 1 \\/ x = 2 
+    Next == x' = 2
+    =============================================================================`;
+    initExpected = [{x:1}, {x:2}];    
+    nextExpected = [{"x":1, "x'":2}, {"x":2, "x'":2}]
+    testStateGen("simple-spec2", spec2, initExpected, nextExpected);
+}
+
+function simple_spec3(){
+    let spec3 = `----------------------- MODULE Test ------------------------
+    VARIABLE x
+    VARIABLE y
+    Init == 
+        /\\ x = 1 \\/ x = 2 
+        /\\ y = 3 \\/ y = 4
+    
+    Next == x' = 2 /\\ y' = 2
+    =============================================================================`;
+    initExpected = [{x:1,y:3},{x:2,y:3},{x:1,y:4},{x:2,y:4}];
+    nextExpected = [
+        {"x":1, "y":3, "x'":2, "y'": 2}, 
+        {"x":1, "y":4, "x'":2, "y'": 2}, 
+        {"x":2, "y":3, "x'":2, "y'": 2}, 
+        {"x":2, "y":4, "x'":2, "y'": 2}, 
+    ]
+    testStateGen("simple-spec3", spec3, initExpected, nextExpected);
+}
+
+function simple_spec4(){
+    let spec4 = `----------------------- MODULE Test ------------------------
+    VARIABLE x
+    VARIABLE y
+    Init == 
+        /\\ x = 1 \\/ x = 2 
+        /\\ y = 3 \\/ y = 4
+    
+    Next == x = 1 /\\ x' = 2 /\\ y' = 2
+    =============================================================================`;
+    initExpected = [{x:1,y:3},{x:2,y:3},{x:1,y:4},{x:2,y:4}];
+    nextExpected = [
+        {"x":1, "y":3, "x'":2, "y'": 2}, 
+        {"x":1, "y":4, "x'":2, "y'": 2}, 
+    ]
+    testStateGen("simple-spec4", spec4, initExpected, nextExpected);
+}
+
+tests = {
+    "simple-spec1": simple_spec1,
+    "simple-spec2": simple_spec2,
+    "simple-spec3": simple_spec3,
+    "simple-spec4": simple_spec4,
+}
+
 const start = performance.now();
 
-let spec1 = `----------------------- MODULE Test ------------------------
-VARIABLE x
-Init == x = 1 
-Next == x' = 2
-=============================================================================`;
-initExpected = [{x:1}];
-nextExpected = [{"x":1, "x'":2}]
-testStateGen("simple-spec1", spec1, initExpected, nextExpected);
+const urlSearchParams = new URLSearchParams(window.location.search);
+const params = Object.fromEntries(urlSearchParams.entries());
+const arg = params["test"];
 
+// Allow URL arg to choose which test to run.
+let testNames;
+if(arg==="all" || arg === undefined){
+    testNames = Object.keys(tests);
+    testNames.sort();
+} else{
+    testNames = [arg];
+}
 
-let spec2 = `----------------------- MODULE Test ------------------------
-VARIABLE x
-Init == x = 1 \\/ x = 2 
-Next == x' = 2
-=============================================================================`;
-initExpected = [{x:1}, {x:2}];    
-nextExpected = [{"x":1, "x'":2}, {"x":2, "x'":2}]
-testStateGen("simple-spec2", spec2, initExpected, nextExpected);
-
-
-let spec3 = `----------------------- MODULE Test ------------------------
-VARIABLE x
-VARIABLE y
-Init == 
-    /\\ x = 1 \\/ x = 2 
-    /\\ y = 3 \\/ y = 4
-
-Next == x' = 2 /\\ y' = 2
-=============================================================================`;
-initExpected = [{x:1,y:3},{x:2,y:3},{x:1,y:4},{x:2,y:4}];
-nextExpected = [
-    {"x":1, "y":3, "x'":2, "y'": 2}, 
-    {"x":1, "y":4, "x'":2, "y'": 2}, 
-    {"x":2, "y":3, "x'":2, "y'": 2}, 
-    {"x":2, "y":4, "x'":2, "y'": 2}, 
-]
-testStateGen("simple-spec3", spec3, initExpected, nextExpected);
+// Run the specified tests.
+for(const name of testNames){
+    tests[name]();
+}
 
 
 // Measure test duration.
