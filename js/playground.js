@@ -12,6 +12,11 @@ function renamedPrimedVars(state){
     return _.mapKeys(state, (val,k,obj) => k.slice(0,k.length-1));
 }
 
+// TODO: Implement this properly.
+function toggleSpec(){
+    let pane = document.getElementById("input-pane");
+    pane.style.width="0%";
+}
 
 function renderNextStateChoices(nextStates){
     let initStatesDiv = document.getElementById("initial-states");

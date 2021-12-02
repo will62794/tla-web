@@ -19,6 +19,8 @@
   
   <body>
 
+    <!-- <div id="toggle-spec-button" onclick="toggleSpec()">Toggle Spec</div> -->
+
     <!-- TLA+ code pane. -->
     <div id="input-pane">
         <div id="code-container">
@@ -77,6 +79,24 @@
       body {
         margin: 0;
         padding: 0;
+      }
+      #toggle-spec-button{
+          position:absolute;
+          /* color:red; */
+          background-color: lightblue;
+          border-radius: 5px;
+          border:solid;
+          font-size:18px;
+          padding:5px;
+          z-index: 1000;
+          margin:5px;
+          right:0;
+          bottom:0;
+      }
+
+      #toggle-spec-button:hover{
+          cursor: pointer;
+          background-color: lightgray;
       }
   
       #playground-container {
