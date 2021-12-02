@@ -26,15 +26,19 @@
         </div>
     </div>
 
+    <div id="trace-container">
+        <h2>Current Trace</h2>
+        <div id="trace" class="tlc-state"></div>
+    </div>
+
     <!-- Display pane. -->
     <div id="output-container-scroll">
         <h2>Initial States</h2>
         <div id="initial-states" class="tlc-state"></div>
         <!-- <h2>Next states</h2>
         <div id="next-states" class="tlc-state">next states</div> -->
-        <h2>Current Trace</h2>
-        <div id="trace" class="tlc-state"></div>
     </div>
+
     
 
     <select id="language-select" style="display: none;">
@@ -100,13 +104,15 @@
         top: 0;
         left: 0;
         bottom: 0;
-        right: 50%;
+        right: 55%;
         display: flex;
         flex-direction: column;
       }
 
       #initial-states{
           min-height: 250px;
+          /* height:100px; */
+          /* overflow-y:scroll; */
       }
 
       #initial-states,#next-states{
@@ -121,11 +127,34 @@
           font-family: monospace;
       }
 
+      .trace-state b{
+          text-decoration: underline;
+      }
+
+      .trace-state{
+          border:solid;
+          border-color:steelblue;
+          border-width: 2px;
+          border-radius: 3px;
+          padding:6px;
+          margin-bottom:3px;
+          margin-top:5px;
+          width:90%;
+      }
+
       .init-state{
           background-color:lightgray;
           padding:5px;
-          width:400px;
+          width:90%;
           margin:5px;
+          border:solid;
+          border-color:lightgray;
+      }
+
+      .init-state:hover{
+          cursor:pointer;
+          border:solid;
+          border-color: steelblue;
       }
   
       #code-container, #query-container {
@@ -135,11 +164,20 @@
         border-right: 1px solid #aaa;
         border-bottom: 1px solid #aaa;
       }
+
+      #trace-container {
+        position: absolute;
+        top: 0;
+        left: 45%;
+        bottom: 0;
+        right: 30%;
+        padding:5px;
+      }
   
       #output-container-scroll {
         position: absolute;
         top: 0;
-        left: 50%;
+        left: 70%;
         bottom: 0;
         right: 0;
       }
@@ -163,8 +201,8 @@
   
       #output-container-scroll {
         flex: 1;
-        padding: 0;
         overflow: auto;
+        padding:5px;
       }
   
       #output-container {

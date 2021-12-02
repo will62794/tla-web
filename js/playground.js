@@ -35,14 +35,16 @@ function renderCurrentTrace(){
     console.log(trace);
     let stateInd = 0;
     for(const state of currTrace){
-        traceDiv.innerHTML += "<div>";
-        traceDiv.innerHTML += "<h3>State " + stateInd + "</h3>"
+        let traceStateDiv = document.createElement("div");
+        // traceDiv.innerHTML += "<div class='trace-state'>";
+        traceStateDiv.innerHTML += "<b>State " + stateInd + "</b><br>"
+        traceStateDiv.classList.add("trace-state");
         console.log(state);
         for(const varname in state){
-            traceDiv.innerHTML += "<span>" + varname +": "+ JSON.stringify(state[varname]) + "</span>";
-            traceDiv.innerHTML += "<br>"
+            traceStateDiv.innerHTML += "<span>" + varname +": "+ JSON.stringify(state[varname]) + "</span>";
+            traceStateDiv.innerHTML += "<br>"
         }
-        traceDiv.innerHTML += "</div>";
+        traceDiv.appendChild(traceStateDiv);
         stateInd += 1;
     }
     traceDiv.innerHTML += "<br><br>";
@@ -224,7 +226,7 @@ function handleChooseState(statehash){
     let stateInd = 0;
     for(const state of trace){
         traceDiv.innerHTML += "<div>";
-        traceDiv.innerHTML += "<h3>State " + stateInd + "</h3>"
+        traceDiv.innerHTML += "<b>State " + stateInd + "</b>"
         console.log(state);
         for(const varname in state){
             traceDiv.innerHTML += "<span>" + varname +": "+ JSON.stringify(state[varname]) + "</span>";
