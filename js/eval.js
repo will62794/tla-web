@@ -257,13 +257,15 @@ function evalInitBoundInfix(node, contexts){
     if(symbol.type ==="neq"){
         console.log("bound_infix_op, symbol 'neq', ctx:", JSON.stringify(contexts));
         
-        let varName = lhs.text;
-        console.log("Checking for inequality with var:", varName);
-        // TODO: Check for variable name properly.
+        let lident = lhs.text;
+        let lhsVal = evalInitExpr(lhs, contexts)[0]["val"];
+        // console.log("Checking for inequality with var:", varName);
         let rhsVals = evalInitExpr(rhs, contexts);
         console.assert(rhsVals.length === 1);
         let rhsVal = rhsVals[0]["val"];
-        let boolVal = !(contexts["state"][varName] === rhsVal);
+        let boolVal = !_.isEqual(lhsVal, rhsVal);
+        // console.log("inequality lhsVal:", lhsVal);
+        // console.log("inequality rhsVal:", rhsVal);
         console.log("inequality boolVal:", boolVal);
         // Return context with updated value.
         return [Object.assign({}, contexts, {"val": boolVal})];

@@ -249,12 +249,50 @@ function mldr_init(){
     
     
     ====`;
+    
+    // TODO: Will again have to contend with set vs. list ordering issues eventually.
     initExpected = [
         {   "currentTerm":{"44":0,"55":0,"66":0},
             "state":{"44":"Secondary","55":"Secondary","66":"Secondary"},
             "configVersion":{"44":1,"55":1,"66":1},
             "configTerm":{"44":0,"55":0,"66":0},
             "config":{"44":[44],"55":[44],"66":[44]}
+        },
+        {   "currentTerm":{"44":0,"55":0,"66":0},
+            "state":{"44":"Secondary","55":"Secondary","66":"Secondary"},
+            "configVersion":{"44":1,"55":1,"66":1},
+            "configTerm":{"44":0,"55":0,"66":0},
+            "config":{"44":[44,55],"55":[44,55],"66":[44,55]}
+        },
+        {   "currentTerm":{"44":0,"55":0,"66":0},
+            "state":{"44":"Secondary","55":"Secondary","66":"Secondary"},
+            "configVersion":{"44":1,"55":1,"66":1},
+            "configTerm":{"44":0,"55":0,"66":0},
+            "config":{"44":[55],"55":[55],"66":[55]}
+        },
+        {   "currentTerm":{"44":0,"55":0,"66":0},
+            "state":{"44":"Secondary","55":"Secondary","66":"Secondary"},
+            "configVersion":{"44":1,"55":1,"66":1},
+            "configTerm":{"44":0,"55":0,"66":0},
+            "config":{"44":[66],"55":[66],"66":[66]}
+        },
+        {   "currentTerm":{"44":0,"55":0,"66":0},
+            "state":{"44":"Secondary","55":"Secondary","66":"Secondary"},
+            "configVersion":{"44":1,"55":1,"66":1},
+            "configTerm":{"44":0,"55":0,"66":0},
+            "config":{"44":[44,66],"55":[44,66],"66":[44,66]}
+        },
+        {   "currentTerm":{"44":0,"55":0,"66":0},
+            "state":{"44":"Secondary","55":"Secondary","66":"Secondary"},
+            "configVersion":{"44":1,"55":1,"66":1},
+            "configTerm":{"44":0,"55":0,"66":0},
+            "config":{"44":[55,66],"55":[55,66],"66":[55,66]}
+        },
+        {   "currentTerm":{"44":0,"55":0,"66":0},
+            "state":{"44":"Secondary","55":"Secondary","66":"Secondary"},
+            "configVersion":{"44":1,"55":1,"66":1},
+            "configTerm":{"44":0,"55":0,"66":0},
+            "config":{"44":[44,55,66],"55":[44,55,66],"66":[44,55,66]}
         }
     ];
     // nextExpected = [
