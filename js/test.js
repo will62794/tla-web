@@ -114,7 +114,7 @@ function simple_spec1(){
     VARIABLE x
     Init == x = 1 
     Next == x' = 2
-    =============================================================================`;
+    ====`;
     initExpected = [{x:1}];
     nextExpected = [{"x":1, "x'":2}]
     testStateGen("simple-spec1", spec1, initExpected, nextExpected);
@@ -125,7 +125,7 @@ function simple_spec2(){
     VARIABLE x
     Init == x = 1 \\/ x = 2 
     Next == x' = 2
-    =============================================================================`;
+    ====`;
     initExpected = [{x:1}, {x:2}];    
     nextExpected = [{"x":1, "x'":2}, {"x":2, "x'":2}]
     testStateGen("simple-spec2", spec2, initExpected, nextExpected);
@@ -140,7 +140,7 @@ function simple_spec3(){
         /\\ y = 3 \\/ y = 4
     
     Next == x' = 2 /\\ y' = 2
-    =============================================================================`;
+    ====`;
     initExpected = [{x:1,y:3},{x:2,y:3},{x:1,y:4},{x:2,y:4}];
     nextExpected = [
         {"x":1, "y":3, "x'":2, "y'": 2}, 
@@ -160,7 +160,7 @@ function simple_spec4(){
         /\\ y = 3 \\/ y = 4
     
     Next == x = 1 /\\ x' = 2 /\\ y' = 2
-    =============================================================================`;
+    ====`;
     initExpected = [{x:1,y:3},{x:2,y:3},{x:1,y:4},{x:2,y:4}];
     nextExpected = [
         {"x":1, "y":3, "x'":2, "y'": 2}, 
