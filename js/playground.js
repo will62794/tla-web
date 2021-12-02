@@ -193,8 +193,8 @@ function handleChooseState(statehash){
     // Download example spec.
     // let specPath = "./specs/simple1.tla";
     // let specPath = "./specs/simple2.tla";
-    // let specPath = "./specs/lockserver_nodefs.tla";
-    let specPath = "./specs/MongoLoglessDynamicRaft.tla";
+    let specPath = "./specs/lockserver_nodefs.tla";
+    // let specPath = "./specs/MongoLoglessDynamicRaft.tla";
     (() => {
         const handle = setInterval(() => {
             res = $.get(specPath, data => {
