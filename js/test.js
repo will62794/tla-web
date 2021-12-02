@@ -29,14 +29,8 @@ let tree;
 
     function testStateGen(testId, specText, initExpected, nextExpected){
         let div;
-        tree = null;
-        const newTree = parser.parse(specText + "\n", tree);
-        let ret = generateStates(newTree);
-        
-        // Test correct initial states.
-        let initStates = ret["initStates"]
-        const passInit = arrEq(initExpected, initStates);
 
+        // Show the spec text and test name first.
         let testHeader = document.createElement("h2");
         testHeader.innerText = "Test: " + testId + "";
         let specCodeDiv = document.createElement("div");
@@ -46,6 +40,14 @@ let tree;
         testsDiv.appendChild(testHeader);
         specCodeDiv.appendChild(specCode);
         testsDiv.appendChild(specCodeDiv);
+
+        tree = null;
+        const newTree = parser.parse(specText + "\n", tree);
+        let ret = generateStates(newTree);
+        
+        // Test correct initial states.
+        let initStates = ret["initStates"]
+        const passInit = arrEq(initExpected, initStates);
 
         // Print expected initial states.
         div = document.createElement("div");
@@ -240,11 +242,11 @@ function mldr_init(){
     VARIABLE config
     
     Init == 
-        /\\ currentTerm = [i \\in Server |-> 0]
-        /\\ state       = [i \\in Server |-> Secondary]
-        /\\ configVersion =  [i \\in Server |-> 1]
-        /\\ configTerm    =  [i \\in Server |-> 0]
-        /\\ \\E initConfig \\in SUBSET Server : initConfig # {} /\\ config = [i \\in Server |-> initConfig]
+        /\\ currentTerm = [i \\in {0,1,2} |-> 0]
+        /\\ state       = [i \\in {0,1,2} |-> "Secondary"]
+        /\\ configVersion =  [i \\in {0,1,2} |-> 1]
+        /\\ configTerm    =  [i \\in {0,1,2} |-> 0]
+        /\\ \\E initConfig \\in SUBSET {0,1,2} : initConfig # {} /\\ config = [i \\in {0,1,2} |-> initConfig]
     
     
     ====`;
