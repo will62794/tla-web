@@ -282,7 +282,6 @@ const arg = params["test"];
 let testNames;
 if(arg==="all" || arg === undefined){
     testNames = Object.keys(tests);
-    testNames.sort();
 } else{
     testNames = [arg];
 }
