@@ -241,23 +241,28 @@ function mldr_init(){
     VARIABLE config
     
     Init == 
-        /\\ currentTerm = [i \\in {0,1,2} |-> 0]
-        /\\ state       = [i \\in {0,1,2} |-> "Secondary"]
-        /\\ configVersion =  [i \\in {0,1,2} |-> 1]
-        /\\ configTerm    =  [i \\in {0,1,2} |-> 0]
-        /\\ \\E initConfig \\in SUBSET {0,1,2} : initConfig # {} /\\ config = [i \\in {0,1,2} |-> initConfig]
+        /\\ currentTerm = [i \\in {44,55,66} |-> 0]
+        /\\ state       = [i \\in {44,55,66} |-> "Secondary"]
+        /\\ configVersion =  [i \\in {44,55,66} |-> 1]
+        /\\ configTerm    =  [i \\in {44,55,66} |-> 0]
+        /\\ \\E initConfig \\in SUBSET {44,55,66} : initConfig # {} /\\ config = [i \\in {44,55,66} |-> initConfig]
     
     
     ====`;
     initExpected = [
-        {semaphore:{0:true,1:true}, clientlocks:{88:[], 99:[]}}
+        {   "currentTerm":{"44":0,"55":0,"66":0},
+            "state":{"44":"Secondary","55":"Secondary","66":"Secondary"},
+            "configVersion":{"44":1,"55":1,"66":1},
+            "configTerm":{"44":0,"55":0,"66":0},
+            "config":{"44":[44],"55":[44],"66":[44]}
+        }
     ];
-    nextExpected = [
-        {semaphore: {0:true,1:true}, clientlocks: {88:[], 99:[]}, "semaphore'": {0:false,1:true}, "clientlocks'": {88:[0], 99:[]}},
-        {semaphore: {0:true,1:true}, clientlocks: {88:[], 99:[]}, "semaphore'": {0:false,1:true}, "clientlocks'": {88:[], 99:[0]}},
-        {semaphore: {0:true,1:true}, clientlocks: {88:[], 99:[]}, "semaphore'": {0:true,1:false}, "clientlocks'": {88:[], 99:[1]}},
-        {semaphore: {0:true,1:true}, clientlocks: {88:[], 99:[]}, "semaphore'": {0:true,1:false}, "clientlocks'": {88:[1], 99:[]}},
-    ]
+    // nextExpected = [
+    //     {semaphore: {0:true,1:true}, clientlocks: {88:[], 99:[]}, "semaphore'": {0:false,1:true}, "clientlocks'": {88:[0], 99:[]}},
+    //     {semaphore: {0:true,1:true}, clientlocks: {88:[], 99:[]}, "semaphore'": {0:false,1:true}, "clientlocks'": {88:[], 99:[0]}},
+    //     {semaphore: {0:true,1:true}, clientlocks: {88:[], 99:[]}, "semaphore'": {0:true,1:false}, "clientlocks'": {88:[], 99:[1]}},
+    //     {semaphore: {0:true,1:true}, clientlocks: {88:[], 99:[]}, "semaphore'": {0:true,1:false}, "clientlocks'": {88:[1], 99:[]}},
+    // ]
     testStateGen("mldr_init", specmldrinit, initExpected, null);
 }
 
