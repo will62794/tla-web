@@ -699,7 +699,7 @@ function computeInitStates(tree){
 }
 
 // TODO: Consider reconciling this with 'getNextStates' function.
-function computeNextStates(tree){
+function computeNextStates(tree, initStates){
     objs = walkTree(tree);
 
     let vars = objs["var_decls"];
