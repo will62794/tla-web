@@ -14,6 +14,20 @@ function cartesianProductOf() {
     }, [ [] ]);
 }
 
+function subsets(vals) {
+	const powerset = [];
+	generatePowerset([], 0);
+
+	function generatePowerset(path, index) {
+		powerset.push(path);
+		for (let i = index; i < vals.length; i++) {
+			generatePowerset([...path, vals[i]], i + 1);
+		}
+	}
+
+	return powerset;
+}
+
 function hashState(stateObj){
     return objectHash.sha1(stateObj);
 }
@@ -103,12 +117,15 @@ function walkTree(tree){
 
 function evalInitLand(lhs, rhs, contexts){
     // Evaluate left to right.
-    console.log("## LAND");
+    console.log("## LAND - LHS:", lhs.text, ", RHS: ", rhs.text);
     let lhsEval = _.flattenDeep(evalInitExpr(lhs, contexts));
     console.log("lhsEval:", lhsEval);
     let rhsEval = lhsEval.map(lctx => {
-        return evalInitExpr(rhs, lctx).map(rctx => {
-            return ({"val": (lctx["val"] && rctx["val"]), "state": rctx["state"]})
+        console.log("rhs:", rhs.text);
+        console.log("lctx:", lctx);
+        return evalInitExpr(rhs, lctx).map(ctx => {
+            console.log("ctx:", ctx);
+            return Object.assign({}, ctx, {"val": (lctx["val"] && ctx["val"]), "state": ctx["state"]});
         })
     });
     return _.flattenDeep(rhsEval);
@@ -234,6 +251,22 @@ function evalInitBoundInfix(node, contexts){
     if(symbol.type ==="eq"){
         console.log("bound_infix_op, symbol 'eq', ctx:", JSON.stringify(contexts));
         return evalInitEq(lhs, rhs, contexts);
+    } 
+
+    // Inequality.
+    if(symbol.type ==="neq"){
+        console.log("bound_infix_op, symbol 'neq', ctx:", JSON.stringify(contexts));
+        
+        let varName = lhs.text;
+        console.log("Checking for inequality with var:", varName);
+        // TODO: Check for variable name properly.
+        let rhsVals = evalInitExpr(rhs, contexts);
+        console.assert(rhsVals.length === 1);
+        let rhsVal = rhsVals[0]["val"];
+        let boolVal = !(contexts["state"][varName] === rhsVal);
+        console.log("inequality boolVal:", boolVal);
+        // Return context with updated value.
+        return [Object.assign({}, contexts, {"val": boolVal})];
     } 
 
     // Set membership.
@@ -434,6 +467,22 @@ function evalInitExpr(node, contexts){
         return evalInitBoundInfix(node, contexts);
     }
 
+    if(node.type === "bound_prefix_op"){
+        console.log(node.type, ", ", node.text, ", ctx:", JSON.stringify(contexts));
+        let symbol = node.children[0];
+        let rhs = node.children[1];
+        if(symbol.type === "powerset"){
+            console.log("POWERSET op");
+            console.log(rhs);
+            let rhsVal = evalInitExpr(rhs, contexts);
+            console.log("rhsVal: ", rhsVal);
+            rhsVal = rhsVal[0]["val"];
+            let powersetRhs = subsets(rhsVal);
+            console.log("powerset:",powersetRhs);
+            return [{"val": powersetRhs, "state": {}}];
+        }
+    }
+
     // TODO: Finish this after implementing 'except' node type handling.
     if(node.type === "bounded_quantification"){
         console.log("bounded_quantification");
@@ -472,6 +521,7 @@ function evalInitExpr(node, contexts){
             for(var qk = 0;qk<quantIdents.length;qk++){
                 boundContext["quant_bound"][quantIdents[qk]] = qtup[qk];
             }
+            console.log("quantDomain val:", JSON.stringify(qtup));
             console.log("boundContext:", JSON.stringify(boundContext));
             let ret = evalInitExpr(quant_expr, _.cloneDeep(boundContext));
             return ret;
@@ -493,6 +543,13 @@ function evalInitExpr(node, contexts){
         return [{"val": boolVal, "state": {}}];
     }
 
+    if(node.type === "string"){
+        console.log("string node", node.text);
+        // Remove the quotes.
+        let rawStr = node.text.substring(1,node.text.length-1);
+        return [{"val": rawStr, "state": {}}];
+    }
+
     // TODO: Re-examine whether this implementation is correct.
     if(node.type ==="finite_set_literal"){
         // TODO: Check the computation below for correctness.
@@ -508,7 +565,7 @@ function evalInitExpr(node, contexts){
             return r[0]["val"];
         });
         ret = _.flatten(ret);
-        console.log(ret);
+        // console.log(ret);
         return [{"val": ret, "state": contexts["state"]}];
 
         // let ret = node.children.map(child => evalInitExpr(child, contexts));
@@ -531,7 +588,7 @@ function evalInitExpr(node, contexts){
         // <identifier> \in <expr>
         quant_ident = quant_bound.children[0];
         quant_expr = evalInitExpr(quant_bound.children[2], contexts);
-        console.log("quant_expr:", quant_expr);
+        console.log("function_literal quant_expr:", quant_expr);
         console.log(quant_ident.type);
         console.log(quant_expr.type);
 
@@ -543,12 +600,17 @@ function evalInitExpr(node, contexts){
         for(const v of domain){
             // Evaluate the expression in a context with the the current domain 
             // value bound to the identifier.
-            let boundContext = {"val": contexts["val"], "state": contexts["state"]};
-            boundContext["quant_bound"] = {};
+            // let boundContext = {"val": contexts["val"], "state": contexts["state"]};
+            
+            let boundContext = _.cloneDeep(contexts);
+            if(!boundContext.hasOwnProperty("quant_bound")){
+                boundContext["quant_bound"] = {};
+            }
             boundContext["quant_bound"][quant_ident.text] = v;
-            console.log("boundCtx:", boundContext);
+            console.log("function_literal boundCtx:", boundContext);
             // TODO: Handle bound quantifier values during evaluation.
             let vals = evalInitExpr(fexpr, boundContext);
+            console.log("fexpr vals:", vals);
             console.assert(vals.length === 1);
             fnVal[v] = vals[0]["val"];
         }
@@ -613,6 +675,49 @@ function getNextStates(nextDef, currStateVars){
     return ret.filter(c => {
         return !_.every(origVars, (v) => _.isEqual(c["state"][v], c["state"][v+"'"]));
     });
+}
+
+// TODO: Consider reconciling this with 'getInitStates' function.
+function computeInitStates(tree){
+    objs = walkTree(tree);
+
+    let vars = objs["var_decls"];
+    let defns = objs["op_defs"];
+
+    let initDef = defns["Init"];
+    console.log("<<<<< INIT >>>>>");
+    console.log(initDef);
+    console.log("initDef.childCount: ", initDef.childCount);
+    console.log("initDef.type: ", initDef.type);
+
+    let initStates = getInitStates(initDef, vars);
+    // Keep only the valid states.
+    initStates = initStates.filter(ctx => ctx["val"]).map(ctx => ctx["state"]);
+    return initStates;
+}
+
+// TODO: Consider reconciling this with 'getNextStates' function.
+function computeNextStates(tree){
+    objs = walkTree(tree);
+
+    let vars = objs["var_decls"];
+    let defns = objs["op_defs"];
+
+    let nextDef = defns["Next"];
+    console.log(defns);
+    console.log("<<<< NEXT >>>>");
+    console.log(nextDef);
+    console.log("nextDef.childCount: ", nextDef.childCount);
+    console.log("nextDef.type: ", nextDef.type);
+
+    let allNext = []
+    for(const istate of initStates){
+        let currState = _.cloneDeep(istate);
+        console.log("###### Computing next states from state: ", currState);
+        let ret = getNextStates(nextDef, currState);
+        allNext = allNext.concat(ret);
+    }
+    return allNext;
 }
 
 function generateStates(tree){

@@ -43,10 +43,9 @@ let tree;
 
         tree = null;
         const newTree = parser.parse(specText + "\n", tree);
-        let ret = generateStates(newTree);
         
         // Test correct initial states.
-        let initStates = ret["initStates"]
+        let initStates = computeInitStates(newTree);
         const passInit = arrEq(initExpected, initStates);
 
         // Print expected initial states.
@@ -63,7 +62,7 @@ let tree;
         div = document.createElement("div");
         div.innerHTML = "<b>Initial states actual:</b>"
         testsDiv.appendChild(div);
-        for(const state of ret["initStates"]){
+        for(const state of initStates){
             let stateDiv = document.createElement("div");
             stateDiv.innerText = JSON.stringify(state);
             testsDiv.appendChild(stateDiv);
@@ -73,7 +72,7 @@ let tree;
         let passNext;
         if(nextExpected!==null){
             // Test correct next states.
-            let nextStates = ret["nextStates"].map(c => c["state"]);
+            let nextStates = computeNextStates(newTree).map(c => c["state"]);
             passNext = arrEq(nextExpected, nextStates);
 
             // Print expected next states.
