@@ -588,6 +588,7 @@ function getInitStates(initDef, vars){
 function getNextStates(nextDef, currStateVars){
     // TODO: Pass this variable value as an argument to the evaluation functions.
     ASSIGN_PRIMED = true;
+    let origVars = Object.keys(currStateVars);
 
     for(var k in currStateVars){
         let primedVar = k + "'";
@@ -600,9 +601,14 @@ function getNextStates(nextDef, currStateVars){
     // console.log("nextDef:", nextDef);
     let ret = evalInitExpr(nextDef, init_ctx);
     console.log("getNextStates ret:", ret);
-    // Only include evaluations that were TRUE.
-    return ret;
-    // return ret.filter(c => c["val"]);
+
+    // Filter out disabled transitions.
+    ret = ret.filter(c => c["val"] === true);
+
+    // Filter out transitions that do not modify the state.
+    return ret.filter(c => {
+        return !_.every(origVars, (v) => _.isEqual(c["state"][v], c["state"][v+"'"]));
+    });
 }
 
 function generateStates(tree){
@@ -642,7 +648,7 @@ function generateStates(tree){
         console.log("###### Computing next states from state: ", currState);
         let ret = getNextStates(nextDef, currState);
         // console.log(ret);
-        allNext = allNext.concat(ret.filter(c => c["val"]));
+        allNext = allNext.concat(ret);
     }
 
     console.log("NEXT STATES:");

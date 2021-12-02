@@ -50,7 +50,7 @@ let tree;
 
         // Print expected initial states.
         div = document.createElement("div");
-        div.innerText = "Expected initial states:"
+        div.innerHTML = "<b>Initial states expected:</b>"
         testsDiv.appendChild(div);
         for(const state of initExpected){
             let stateDiv = document.createElement("div");
@@ -60,7 +60,7 @@ let tree;
 
         // Print generated initial states.
         div = document.createElement("div");
-        div.innerText = "Initial states:"
+        div.innerHTML = "<b>Initial states actual:</b>"
         testsDiv.appendChild(div);
         for(const state of ret["initStates"]){
             let stateDiv = document.createElement("div");
@@ -70,7 +70,7 @@ let tree;
 
         // Print expected next states.
         div = document.createElement("div");
-        div.innerText = "Expected next states:"
+        div.innerHTML = "<b>Next states expected:</b>"
         testsDiv.appendChild(div);
         for(const state of nextExpected){
             let stateDiv = document.createElement("div");
@@ -80,7 +80,7 @@ let tree;
 
         // Print next states.
         div = document.createElement("div");
-        div.innerText = "Next states:"
+        div.innerHTML = "<b>Next states actual:</b>"
         testsDiv.appendChild(div);
         for(const state of nextStates){
             let stateDiv = document.createElement("div");
@@ -127,7 +127,7 @@ function simple_spec2(){
     Next == x' = 2
     ====`;
     initExpected = [{x:1}, {x:2}];    
-    nextExpected = [{"x":1, "x'":2}, {"x":2, "x'":2}]
+    nextExpected = [{"x":1, "x'":2}]
     testStateGen("simple-spec2", spec2, initExpected, nextExpected);
 }
 
@@ -184,12 +184,48 @@ function simple_spec5(){
     testStateGen("simple-spec5", spec5, initExpected, nextExpected);
 }
 
+function simple_lockserver_nodefs(){
+    let speclockserver = `---- MODULE lockserver_nodefs ----
+    EXTENDS TLC, Naturals
+    
+    VARIABLE semaphore
+    VARIABLE clientlocks
+    
+    Init == 
+        /\\ semaphore = [i \\in {0,1} |-> TRUE]
+        /\\ clientlocks = [i \\in {88,99} |-> {}]
+    
+    Next == 
+        \\/ \\E c \\in {88,99}, s \\in {0,1} : 
+            /\\ semaphore[s] = TRUE
+            /\\ clientlocks' = [clientlocks EXCEPT ![c] = clientlocks[c] \\cup {s}]
+            /\\ semaphore' = [semaphore EXCEPT ![s] = FALSE]
+        \\/ \\E c \\in {88,99}, s \\in {0,1} : 
+            /\\ s \\in clientlocks[c]
+            /\\ clientlocks' = [clientlocks EXCEPT ![c] = clientlocks[c] \\ {s}]
+            /\\ semaphore' = [semaphore EXCEPT ![s] = TRUE]
+    
+    ====`;
+    console.log(speclockserver);
+    initExpected = [
+        {semaphore:{0:true,1:true}, clientlocks:{88:[], 99:[]}}
+    ];
+    nextExpected = [
+        {semaphore: {0:true,1:true}, clientlocks: {88:[], 99:[]}, "semaphore'": {0:false,1:true}, "clientlocks'": {88:[0], 99:[]}},
+        {semaphore: {0:true,1:true}, clientlocks: {88:[], 99:[]}, "semaphore'": {0:false,1:true}, "clientlocks'": {88:[], 99:[0]}},
+        {semaphore: {0:true,1:true}, clientlocks: {88:[], 99:[]}, "semaphore'": {0:true,1:false}, "clientlocks'": {88:[], 99:[1]}},
+        {semaphore: {0:true,1:true}, clientlocks: {88:[], 99:[]}, "semaphore'": {0:true,1:false}, "clientlocks'": {88:[1], 99:[]}},
+    ]
+    testStateGen("simple_lockserver_nodefs", speclockserver, initExpected, nextExpected);
+}
+
 tests = {
     "simple-spec1": simple_spec1,
     "simple-spec2": simple_spec2,
     "simple-spec3": simple_spec3,
     "simple-spec4": simple_spec4,
     "simple-spec5": simple_spec5,
+    "simple_lockserver_nodefs": simple_lockserver_nodefs
 }
 
 const start = performance.now();
