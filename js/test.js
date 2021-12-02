@@ -72,7 +72,7 @@ let tree;
         let passNext;
         if(nextExpected!==null){
             // Test correct next states.
-            let nextStates = computeNextStates(newTree).map(c => c["state"]);
+            let nextStates = computeNextStates(newTree, initStates).map(c => c["state"]);
             passNext = arrEq(nextExpected, nextStates);
 
             // Print expected next states.
@@ -249,7 +249,7 @@ function mldr_init(){
     
     
     ====`;
-    
+
     // TODO: Will again have to contend with set vs. list ordering issues eventually.
     initExpected = [
         {   "currentTerm":{"44":0,"55":0,"66":0},
