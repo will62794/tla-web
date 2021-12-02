@@ -1,4 +1,5 @@
 let tree;
+let allInitStates = [];
 let nextStatePred = null;
 let currState = null;
 let currNextStates = [];
@@ -29,14 +30,32 @@ function renderNextStateChoices(nextStates){
     }
 }
 
+// Step back one state in the current trace.
+function traceStepBack(){
+    currTrace = currTrace.slice(0, currTrace.length - 1);
+    // Back to initial states.
+    if(currTrace.length === 0){
+        currNextStates = _.cloneDeep(allInitStates);
+    } else{
+        let lastState = currTrace[currTrace.length-1];
+        let nextStates = getNextStates(nextStatePred, _.cloneDeep(lastState))
+            .map(c => c["state"])
+            .map(renamedPrimedVars);
+        currNextStates = _.cloneDeep(nextStates);
+    }
+    renderCurrentTrace();
+    renderNextStateChoices(currNextStates);
+}
+
 function renderCurrentTrace(){
     let traceDiv = document.getElementById("trace");
     traceDiv.innerHTML = "";
     console.log(trace);
     let stateInd = 0;
-    for(const state of currTrace){
+    for(var ind=0;ind < currTrace.length;ind++){
+        let state = currTrace[ind];
+        let isLastState = ind === currTrace.length - 1;
         let traceStateDiv = document.createElement("div");
-        // traceDiv.innerHTML += "<div class='trace-state'>";
         traceStateDiv.innerHTML += "<b>State " + stateInd + "</b><br>"
         traceStateDiv.classList.add("trace-state");
         console.log(state);
@@ -44,10 +63,22 @@ function renderCurrentTrace(){
             traceStateDiv.innerHTML += "<span>" + varname +": "+ JSON.stringify(state[varname]) + "</span>";
             traceStateDiv.innerHTML += "<br>"
         }
+        // If this is the last state, add a "step back" button.
+        if(isLastState){
+            let backButton = document.createElement("div");
+            backButton.innerHTML = "Back"
+            backButton.id = "trace-back-button";
+            backButton.setAttribute("onclick", `traceStepBack()`);
+            traceStateDiv.appendChild(backButton);
+        }
+
         traceDiv.appendChild(traceStateDiv);
         stateInd += 1;
     }
     traceDiv.innerHTML += "<br><br>";
+    
+    let header = document.getElementById("poss-next-states-title");
+    header.innerHTML = (currTrace.length > 0) ? "Possible Next States" : "Possible Initial States";
 }
 
 function handleChooseState(statehash){
@@ -57,11 +88,13 @@ function handleChooseState(statehash){
     currTrace.push(nextState);
     console.log("nextState:", JSON.stringify(nextState));
     console.log("nextStatePred:", nextStatePred);
-    renderCurrentTrace();
     let nextStates = getNextStates(nextStatePred, _.cloneDeep(nextState))
                         .map(c => c["state"])
                         .map(renamedPrimedVars);
     currNextStates = _.cloneDeep(nextStates);
+
+    // Re-render.
+    renderCurrentTrace();
     renderNextStateChoices(currNextStates);
 }
 
@@ -257,6 +290,7 @@ function handleChooseState(statehash){
     let res = generateStates(newTree);
 
     let initStates = res["initStates"];
+    allInitStates = initStates;
 
     // Display states in HTML.
     let initStatesDiv = document.getElementById("initial-states");

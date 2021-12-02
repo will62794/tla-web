@@ -33,7 +33,7 @@
 
     <!-- Display pane. -->
     <div id="output-container-scroll">
-        <h2>Initial States</h2>
+        <h2 id="poss-next-states-title">Possible Initial States</h2>
         <div id="initial-states" class="tlc-state"></div>
         <!-- <h2>Next states</h2>
         <div id="next-states" class="tlc-state">next states</div> -->
@@ -172,6 +172,7 @@
         bottom: 0;
         right: 30%;
         padding:5px;
+        overflow: auto;
       }
   
       #output-container-scroll {
@@ -208,6 +209,21 @@
       #output-container {
         padding: 0 10px;
         margin: 0;
+      }
+
+      #trace-back-button{
+          color:black;
+          text-align: center;
+          height:20px;
+          vertical-align: middle;
+          background-color: lightgray;
+          margin-top:4px;
+          margin-bottom:4px;
+      }
+      #trace-back-button:hover{
+          cursor: pointer;
+          background-color: steelblue;
+ 
       }
   
       #logging-checkbox {
