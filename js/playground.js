@@ -1,4 +1,67 @@
 let tree;
+let nextStatePred = null;
+let currState = null;
+let currNextStates = [];
+let currTrace = []
+
+// Given a state with primed and unprimed variables, remove the original
+// unprimed variables and rename the primed variables to unprimed versions. 
+function renamedPrimedVars(state){
+    state = _.pickBy(state, (val,k,obj) => k.endsWith("'"));
+    return _.mapKeys(state, (val,k,obj) => k.slice(0,k.length-1));
+}
+
+
+function renderNextStateChoices(nextStates){
+    let initStatesDiv = document.getElementById("initial-states");
+    initStatesDiv.innerHTML = "";
+    // initStatesDiv.innerHTML += "<div>"
+    for(const state of nextStates){
+        let stateDiv = document.createElement("div");
+        stateDiv.classList.add("init-state");
+        for(const varname in state){
+            stateDiv.innerHTML += (varname + " = " + JSON.stringify(state[varname]));
+            stateDiv.innerHTML += "<br>"
+        }
+        let hash = hashState(state);
+        stateDiv.setAttribute("onclick", `handleChooseState("${hash}")`);
+        initStatesDiv.appendChild(stateDiv);
+    }
+}
+
+function renderCurrentTrace(){
+    let traceDiv = document.getElementById("trace");
+    traceDiv.innerHTML = "";
+    console.log(trace);
+    let stateInd = 0;
+    for(const state of currTrace){
+        traceDiv.innerHTML += "<div>";
+        traceDiv.innerHTML += "<h3>State " + stateInd + "</h3>"
+        console.log(state);
+        for(const varname in state){
+            traceDiv.innerHTML += "<span>" + varname +": "+ JSON.stringify(state[varname]) + "</span>";
+            traceDiv.innerHTML += "<br>"
+        }
+        traceDiv.innerHTML += "</div>";
+        stateInd += 1;
+    }
+    traceDiv.innerHTML += "<br><br>";
+}
+
+function handleChooseState(statehash){
+    console.log("currNextStates:", JSON.stringify(currNextStates));
+    let nextState = currNextStates.filter(s => hashState(s)===statehash)[0];
+    // TODO: Consider detecting cycles in the trace.
+    currTrace.push(nextState);
+    console.log("nextState:", JSON.stringify(nextState));
+    console.log("nextStatePred:", nextStatePred);
+    renderCurrentTrace();
+    let nextStates = getNextStates(nextStatePred, _.cloneDeep(nextState))
+                        .map(c => c["state"])
+                        .map(renamedPrimedVars);
+    currNextStates = _.cloneDeep(nextStates);
+    renderNextStateChoices(currNextStates);
+}
 
 (async () => {
 
@@ -187,25 +250,27 @@ let tree;
     const duration = (performance.now() - start).toFixed(1);
 
     console.log("Re-generating states.");
+    let treeObjs = walkTree(newTree);
+    nextStatePred = treeObjs["op_defs"]["Next"];
     let res = generateStates(newTree);
+
+    let initStates = res["initStates"];
 
     // Display states in HTML.
     let initStatesDiv = document.getElementById("initial-states");
     initStatesDiv.innerHTML = "";
     // initStatesDiv.innerHTML += "<div>"
-    for(const state of res["initStates"]){
-        let htmltext = ""
-        htmltext += "<div class='init-state'>"
+    for(const state of initStates){
+        let stateDiv = document.createElement("div");
+        stateDiv.classList.add("init-state");
         for(const varname in state){
-            htmltext += (varname + " = " + JSON.stringify(state[varname]));
-            htmltext += "<br>"
+            stateDiv.innerHTML += (varname + " = " + JSON.stringify(state[varname]));
+            stateDiv.innerHTML += "<br>"
         }
-        htmltext += "</div>"
-        initStatesDiv.innerHTML += htmltext
-        // initStatesDiv.innerHTML += "<div>" + JSON.stringify(state) + "</div>";
+        let hash = hashState(state);
+        stateDiv.setAttribute("onclick", `handleChooseState("${hash}")`);
+        initStatesDiv.appendChild(stateDiv);
     }
-    // initStatesDiv.innerHTML += "</div>"
-
 
     // let nextStatesDiv = document.getElementById("next-states");
     // nextStatesDiv.innerHTML = "";
@@ -214,7 +279,10 @@ let tree;
     //         nextStatesDiv.innerHTML += "<div>" + JSON.stringify(ctx["state"]) + "</div>";
     //     }
     // }
-    genRandTrace();
+
+    currNextStates = _.cloneDeep(initStates);
+
+    // genRandTrace();
   }
 
   function handleCursorMovement() {

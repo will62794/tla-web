@@ -14,6 +14,10 @@ function cartesianProductOf() {
     }, [ [] ]);
 }
 
+function hashState(stateObj){
+    return objectHash.sha1(stateObj);
+}
+
 /**
  * Extract all defintions and variable declarations from the given syntax tree
  * of a TLA+ module.
