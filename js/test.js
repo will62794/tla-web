@@ -43,10 +43,13 @@ let tree;
 
         let testHeader = document.createElement("h2");
         testHeader.innerText = "Test: " + testId + "";
+        let specCodeDiv = document.createElement("div");
+        specCodeDiv.style = "background-color:rgb(230,230,230);width:70%;margin-bottom:15px;";
         let specCode = document.createElement("code");
         specCode.innerText = specText;
         testsDiv.appendChild(testHeader);
-        testsDiv.appendChild(specCode);
+        specCodeDiv.appendChild(specCode);
+        testsDiv.appendChild(specCodeDiv);
 
         // Print expected initial states.
         div = document.createElement("div");
