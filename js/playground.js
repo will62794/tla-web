@@ -217,42 +217,6 @@ let tree;
     genRandTrace();
   }
 
-  function runTreeQuery(_, startRow, endRow) {
-    if (endRow == null) {
-      const viewport = codeEditor.getViewport();
-      startRow = viewport.from;
-      endRow = viewport.to;
-    }
-
-    codeEditor.operation(() => {
-      const marks = codeEditor.getAllMarks();
-      marks.forEach(m => m.clear());
-
-      if (tree && query) {
-        const captures = query.captures(
-          tree.rootNode,
-          {row: startRow, column: 0},
-          {row: endRow, column: 0},
-        );
-        let lastNodeId;
-        for (const {name, node} of captures) {
-          if (node.id === lastNodeId) continue;
-          lastNodeId = node.id;
-          const {startPosition, endPosition} = node;
-          codeEditor.markText(
-            {line: startPosition.row, ch: startPosition.column},
-            {line: endPosition.row, ch: endPosition.column},
-            {
-              inclusiveLeft: true,
-              inclusiveRight: true,
-              css: `color: ${colorForCaptureName(name)}`
-            }
-          );
-        }
-      }
-    });
-  }
-
   function handleCursorMovement() {
     if (isRendering) return;
 
@@ -292,54 +256,6 @@ let tree;
         $(outputContainerScroll).animate({scrollTop: offset - containerHeight + 40}, 150);
       }
     }
-  }
-
-  function handleTreeClick(event) {
-    if (event.target.tagName === 'A') {
-      event.preventDefault();
-      const [startRow, startColumn, endRow, endColumn] = event
-        .target
-        .dataset
-        .range
-        .split(',')
-        .map(n => parseInt(n));
-      codeEditor.focus();
-      codeEditor.setSelection(
-        {line: startRow, ch: startColumn},
-        {line: endRow, ch: endColumn}
-      );
-    }
-  }
-
-  function treeEditForEditorChange(change) {
-    const oldLineCount = change.removed.length;
-    const newLineCount = change.text.length;
-    const lastLineLength = change.text[newLineCount - 1].length;
-
-    const startPosition = {row: change.from.line, column: change.from.ch};
-    const oldEndPosition = {row: change.to.line, column: change.to.ch};
-    const newEndPosition = {
-      row: startPosition.row + newLineCount - 1,
-      column: newLineCount === 1
-        ? startPosition.column + lastLineLength
-        : lastLineLength
-    };
-
-    const startIndex = codeEditor.indexFromPos(change.from);
-    let newEndIndex = startIndex + newLineCount - 1;
-    let oldEndIndex = startIndex + oldLineCount - 1;
-    for (let i = 0; i < newLineCount; i++) newEndIndex += change.text[i].length;
-    for (let i = 0; i < oldLineCount; i++) oldEndIndex += change.removed[i].length;
-
-    return {
-      startIndex, oldEndIndex, newEndIndex,
-      startPosition, oldEndPosition, newEndPosition
-    };
-  }
-
-  function colorForCaptureName(capture) {
-    const id = query.captureNames.indexOf(capture);
-    return COLORS_BY_INDEX[id % COLORS_BY_INDEX.length];
   }
 
   function loadState() {
