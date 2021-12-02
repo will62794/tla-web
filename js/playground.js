@@ -192,9 +192,20 @@ let tree;
     // Display states in HTML.
     let initStatesDiv = document.getElementById("initial-states");
     initStatesDiv.innerHTML = "";
+    // initStatesDiv.innerHTML += "<div>"
     for(const state of res["initStates"]){
-        initStatesDiv.innerHTML += "<div>" + JSON.stringify(state) + "</div>";
+        let htmltext = ""
+        htmltext += "<div class='init-state'>"
+        for(const varname in state){
+            htmltext += (varname + " = " + JSON.stringify(state[varname]));
+            htmltext += "<br>"
+        }
+        htmltext += "</div>"
+        initStatesDiv.innerHTML += htmltext
+        // initStatesDiv.innerHTML += "<div>" + JSON.stringify(state) + "</div>";
     }
+    // initStatesDiv.innerHTML += "</div>"
+
 
     // let nextStatesDiv = document.getElementById("next-states");
     // nextStatesDiv.innerHTML = "";
