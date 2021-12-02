@@ -99,7 +99,7 @@ function walkTree(tree){
 
 function evalInitLand(lhs, rhs, contexts){
     // Evaluate left to right.
-    console.log("###### LAND");
+    console.log("## LAND");
     let lhsEval = _.flattenDeep(evalInitExpr(lhs, contexts));
     console.log("lhsEval:", lhsEval);
     let rhsEval = lhsEval.map(lctx => {
@@ -125,7 +125,7 @@ function evalInitLand(lhs, rhs, contexts){
 
 function evalInitLor(lhs, rhs, contexts){
     // return {"val": false, "states": vars};
-    console.log("###### LOR");
+    console.log("## LOR");
     console.log("orig ctx:", JSON.stringify(contexts));
     // For all existing possible variable assignments split into
     // separate evaluation cases for left and right branch.
@@ -639,16 +639,15 @@ function generateStates(tree){
     let allNext = []
     for(const istate of initStates){
         let currState = _.cloneDeep(istate);
-        console.log("$$$ Computing next states from current state: ", currState);
+        console.log("###### Computing next states from state: ", currState);
         let ret = getNextStates(nextDef, currState);
-        console.log(ret);
-        allNext = allNext.concat(ret);
+        // console.log(ret);
+        allNext = allNext.concat(ret.filter(c => c["val"]));
     }
 
     console.log("NEXT STATES:");
     for(const ctx of allNext){
         console.log(ctx);
-        // console.log(ctx["val"], ctx["state"]);
     }
     return {"initStates": initStates, "nextStates": allNext};
 }
