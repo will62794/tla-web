@@ -37,10 +37,6 @@ let tree;
         let initStates = ret["initStates"]
         const passInit = arrEq(initExpected, initStates);
 
-        // Test correct next states.
-        let nextStates = ret["nextStates"].map(c => c["state"]);
-        const passNext = arrEq(nextExpected, nextStates);
-
         let testHeader = document.createElement("h2");
         testHeader.innerText = "Test: " + testId + "";
         let specCodeDiv = document.createElement("div");
@@ -71,25 +67,34 @@ let tree;
             testsDiv.appendChild(stateDiv);
         }
 
-        // Print expected next states.
-        div = document.createElement("div");
-        div.innerHTML = "<b>Next states expected:</b>"
-        testsDiv.appendChild(div);
-        for(const state of nextExpected){
-            let stateDiv = document.createElement("div");
-            stateDiv.innerText = JSON.stringify(state);
-            testsDiv.appendChild(stateDiv);
+        // If given expected next states are null, don't check correctness of next states. 
+        let passNext;
+        if(nextExpected!==null){
+            // Test correct next states.
+            let nextStates = ret["nextStates"].map(c => c["state"]);
+            passNext = arrEq(nextExpected, nextStates);
+
+            // Print expected next states.
+            div = document.createElement("div");
+            div.innerHTML = "<b>Next states expected:</b>"
+            testsDiv.appendChild(div);
+            for(const state of nextExpected){
+                let stateDiv = document.createElement("div");
+                stateDiv.innerText = JSON.stringify(state);
+                testsDiv.appendChild(stateDiv);
+            }
+
+            // Print next states.
+            div = document.createElement("div");
+            div.innerHTML = "<b>Next states actual:</b>"
+            testsDiv.appendChild(div);
+            for(const state of nextStates){
+                let stateDiv = document.createElement("div");
+                stateDiv.innerText = JSON.stringify(state);
+                testsDiv.appendChild(stateDiv);
+            }
         }
 
-        // Print next states.
-        div = document.createElement("div");
-        div.innerHTML = "<b>Next states actual:</b>"
-        testsDiv.appendChild(div);
-        for(const state of nextStates){
-            let stateDiv = document.createElement("div");
-            stateDiv.innerText = JSON.stringify(state);
-            testsDiv.appendChild(stateDiv);
-        }
 
         let statusText = "Init: " + (passInit ? "PASS &#10003" : "FAIL &#10007");
         let statusColor = passInit ? "green" : "red";
@@ -98,12 +103,14 @@ let tree;
         div.style = "font-weight: bold; color:" + statusColor;
         testsDiv.appendChild(div);
 
-        statusText = "Next: " + (passNext ? "PASS &#10003" : "FAIL &#10007");
-        statusColor = passNext ? "green" : "red";
-        div = document.createElement("div");
-        div.innerHTML = statusText;
-        div.style = "font-weight: bold; color:" + statusColor;
-        testsDiv.appendChild(div);
+        if(nextExpected!==null){
+            statusText = "Next: " + (passNext ? "PASS &#10003" : "FAIL &#10007");
+            statusColor = passNext ? "green" : "red";
+            div = document.createElement("div");
+            div.innerHTML = statusText;
+            div.style = "font-weight: bold; color:" + statusColor;
+            testsDiv.appendChild(div);
+        }
     }
 
 
@@ -222,13 +229,45 @@ function simple_lockserver_nodefs(){
     testStateGen("simple_lockserver_nodefs", speclockserver, initExpected, nextExpected);
 }
 
+function mldr_init(){
+    let specmldrinit = `---- MODULE mldr ----
+    EXTENDS TLC, Naturals
+    
+    VARIABLE currentTerm
+    VARIABLE state
+    VARIABLE configVersion
+    VARIABLE configTerm
+    VARIABLE config
+    
+    Init == 
+        /\\ currentTerm = [i \\in Server |-> 0]
+        /\\ state       = [i \\in Server |-> Secondary]
+        /\\ configVersion =  [i \\in Server |-> 1]
+        /\\ configTerm    =  [i \\in Server |-> 0]
+        /\\ \\E initConfig \\in SUBSET Server : initConfig # {} /\\ config = [i \\in Server |-> initConfig]
+    
+    
+    ====`;
+    initExpected = [
+        {semaphore:{0:true,1:true}, clientlocks:{88:[], 99:[]}}
+    ];
+    nextExpected = [
+        {semaphore: {0:true,1:true}, clientlocks: {88:[], 99:[]}, "semaphore'": {0:false,1:true}, "clientlocks'": {88:[0], 99:[]}},
+        {semaphore: {0:true,1:true}, clientlocks: {88:[], 99:[]}, "semaphore'": {0:false,1:true}, "clientlocks'": {88:[], 99:[0]}},
+        {semaphore: {0:true,1:true}, clientlocks: {88:[], 99:[]}, "semaphore'": {0:true,1:false}, "clientlocks'": {88:[], 99:[1]}},
+        {semaphore: {0:true,1:true}, clientlocks: {88:[], 99:[]}, "semaphore'": {0:true,1:false}, "clientlocks'": {88:[1], 99:[]}},
+    ]
+    testStateGen("mldr_init", specmldrinit, initExpected, null);
+}
+
 tests = {
     "simple-spec1": simple_spec1,
     "simple-spec2": simple_spec2,
     "simple-spec3": simple_spec3,
     "simple-spec4": simple_spec4,
     "simple-spec5": simple_spec5,
-    "simple_lockserver_nodefs": simple_lockserver_nodefs
+    "simple_lockserver_nodefs": simple_lockserver_nodefs,
+    "mldr_init": mldr_init
 }
 
 const start = performance.now();
