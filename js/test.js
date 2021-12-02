@@ -154,6 +154,21 @@ function simple_spec3(){
 function simple_spec4(){
     let spec4 = `----------------------- MODULE Test ------------------------
     VARIABLE x
+    Init == 
+        /\\ x = 1 \\/ x = 2 
+    
+    Next == x = 1 /\\ x' = 3
+    ====`;
+    initExpected = [{x:1},{x:2}];
+    nextExpected = [
+        {"x":1, "x'":3},
+    ]
+    testStateGen("simple-spec4", spec4, initExpected, nextExpected);
+}
+
+function simple_spec5(){
+    let spec5 = `----------------------- MODULE Test ------------------------
+    VARIABLE x
     VARIABLE y
     Init == 
         /\\ x = 1 \\/ x = 2 
@@ -166,7 +181,7 @@ function simple_spec4(){
         {"x":1, "y":3, "x'":2, "y'": 2}, 
         {"x":1, "y":4, "x'":2, "y'": 2}, 
     ]
-    testStateGen("simple-spec4", spec4, initExpected, nextExpected);
+    testStateGen("simple-spec5", spec5, initExpected, nextExpected);
 }
 
 tests = {
@@ -174,6 +189,7 @@ tests = {
     "simple-spec2": simple_spec2,
     "simple-spec3": simple_spec3,
     "simple-spec4": simple_spec4,
+    "simple-spec5": simple_spec5,
 }
 
 const start = performance.now();
