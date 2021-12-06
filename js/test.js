@@ -4,6 +4,23 @@
 
 let tree;
 
+function toggleTestDetails(testId){
+
+    // alert("details"+testId);
+    let resultsDivId = "test_result_details_" + testId;
+    let testResultsDiv = document.getElementById(resultsDivId);
+    let isHidden = testResultsDiv.getAttribute("hidden");
+    // Hide.
+    if(isHidden===null){
+        testResultsDiv.setAttribute("hidden", true);
+    } else{
+        // Unhide.
+        testResultsDiv.removeAttribute("hidden");
+    }
+    console.log(isHidden);
+
+}
+
 (async () => {
 
     // Set up parser.
@@ -33,13 +50,19 @@ let tree;
         // Show the spec text and test name first.
         let testHeader = document.createElement("h2");
         testHeader.innerText = "Test: " + testId + "";
+        testHeader.style = "cursor:pointer";
+        testHeader.setAttribute("onclick", `toggleTestDetails(\"${testId}\")`);
+        testsDiv.appendChild(testHeader);
+
+        let detailedResultsDiv = document.createElement("div");
+        detailedResultsDiv.id = "test_result_details_" + testId;
+
         let specCodeDiv = document.createElement("div");
         specCodeDiv.style = "background-color:rgb(230,230,230);width:70%;margin-bottom:15px;";
         let specCode = document.createElement("code");
         specCode.innerText = specText;
-        testsDiv.appendChild(testHeader);
         specCodeDiv.appendChild(specCode);
-        testsDiv.appendChild(specCodeDiv);
+        detailedResultsDiv.appendChild(specCodeDiv);
 
         tree = null;
         const newTree = parser.parse(specText + "\n", tree);
@@ -51,21 +74,21 @@ let tree;
         // Print expected initial states.
         div = document.createElement("div");
         div.innerHTML = "<b>Initial states expected:</b>"
-        testsDiv.appendChild(div);
+        detailedResultsDiv.appendChild(div);
         for(const state of initExpected){
             let stateDiv = document.createElement("div");
             stateDiv.innerText = JSON.stringify(state);
-            testsDiv.appendChild(stateDiv);
+            detailedResultsDiv.appendChild(stateDiv);
         }
 
         // Print generated initial states.
         div = document.createElement("div");
         div.innerHTML = "<b>Initial states actual:</b>"
-        testsDiv.appendChild(div);
+        detailedResultsDiv.appendChild(div);
         for(const state of initStates){
             let stateDiv = document.createElement("div");
             stateDiv.innerText = JSON.stringify(state);
-            testsDiv.appendChild(stateDiv);
+            detailedResultsDiv.appendChild(stateDiv);
         }
 
         // If given expected next states are null, don't check correctness of next states. 
@@ -78,25 +101,29 @@ let tree;
             // Print expected next states.
             div = document.createElement("div");
             div.innerHTML = "<b>Next states expected:</b>"
-            testsDiv.appendChild(div);
+            detailedResultsDiv.appendChild(div);
             for(const state of nextExpected){
                 let stateDiv = document.createElement("div");
                 stateDiv.innerText = JSON.stringify(state);
-                testsDiv.appendChild(stateDiv);
+                detailedResultsDiv.appendChild(stateDiv);
             }
 
             // Print next states.
             div = document.createElement("div");
             div.innerHTML = "<b>Next states actual:</b>"
-            testsDiv.appendChild(div);
+            detailedResultsDiv.appendChild(div);
             for(const state of nextStates){
                 let stateDiv = document.createElement("div");
                 stateDiv.innerText = JSON.stringify(state);
-                testsDiv.appendChild(stateDiv);
+                detailedResultsDiv.appendChild(stateDiv);
             }
         }
 
+        // Append the detailed results and make it hidden by default.
+        detailedResultsDiv.setAttribute("hidden", true);
+        testsDiv.appendChild(detailedResultsDiv);
 
+        // Show the outcome of the test (PASS/FAIL).
         let statusText = "Init: " + (passInit ? "PASS &#10003" : "FAIL &#10007");
         let statusColor = passInit ? "green" : "red";
         div = document.createElement("div");
@@ -337,5 +364,8 @@ for(const name of testNames){
 // Measure test duration.
 const duration = (performance.now() - start).toFixed(1);
 console.log(`All tests ran in ${duration}ms`);
+let durationDiv = document.getElementById("test-duration");
+durationDiv.style="margin-top:25px;";
+durationDiv.innerText = `All ${testNames.length} tests ran in ${duration}ms`;
 
 })();
