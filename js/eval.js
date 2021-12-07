@@ -170,10 +170,10 @@ function isPrimedVar(treeNode){
 
 function evalInitEq(lhs, rhs, contexts){
     // Deal with equality of variable on left hand side.
-    let varName = lhs.text;
+    let identName = lhs.text;
 
     // let isUnprimedVar = contexts[0]["state"].hasOwnProperty(varName) && !isPrimedVar(lhs);
-    let isUnprimedVar = contexts["state"].hasOwnProperty(varName) && !isPrimedVar(lhs);
+    let isUnprimedVar = contexts["state"].hasOwnProperty(identName) && !isPrimedVar(lhs);
     // console.log("isUnprimedVar:", isUnprimedVar);
 
     if(isPrimedVar(lhs) || (isUnprimedVar && !ASSIGN_PRIMED)){
@@ -183,13 +183,13 @@ function evalInitEq(lhs, rhs, contexts){
         // been assigned a value, then assign it.If it has already been assigned,
         // then check for equality.
         // Variable already assigned in this context. So, check for equality.
-        if(contexts["state"].hasOwnProperty(varName) && contexts["state"][varName] !== null){
-            console.log("Variable '" + varName + "' already assigned in ctx:",  contexts);
+        if(contexts["state"].hasOwnProperty(identName) && contexts["state"][identName] !== null){
+            console.log("Variable '" + identName + "' already assigned in ctx:",  contexts);
             let rhsVals = evalInitExpr(rhs, contexts);
             console.assert(rhsVals.length === 1);
             let rhsVal = rhsVals[0]["val"]
             console.log("rhsVal:", rhsVal);
-            let boolVal = (contexts["state"][varName] === rhsVal)
+            let boolVal = (contexts["state"][identName] === rhsVal)
             console.log("boolVal:", boolVal);
             return Object.assign({}, contexts, {"val": boolVal})
             return [{"val": boolVal, "state": contexts["state"]}]; 
@@ -197,11 +197,12 @@ function evalInitEq(lhs, rhs, contexts){
 
         // Variable not already assigned. So, update variable assignment as necessary.
         let stateUpdated = _.mapValues(contexts["state"], (val,key,obj) => {
-            if(key === varName){
-                console.log("Variable (" + varName + ") not already assigned in ctx:",  JSON.stringify(contexts));
+            if(key === identName){
+                console.log("Variable (" + identName + ") not already assigned in ctx:",  JSON.stringify(contexts));
                 let rhsVals = evalInitExpr(rhs, _.cloneDeep(contexts));
                 console.assert(rhsVals.length === 1);
                 let rhsVal = rhsVals[0]["val"];
+                console.log("Variable (" + identName + ") getting value:",  rhsVal);
                 return (val === null) ? rhsVal : val;
             } 
             return val;
@@ -212,20 +213,27 @@ function evalInitEq(lhs, rhs, contexts){
 
     } else{
         let varName = lhs.text;
-        console.log("Checking for equality with var:", varName);
+        console.log("Checking for equality with var:", rhs.text, identName, contexts);
         // Check equality of variable with expression.
         // TODO: Check for variable name properly.
         let rhsVals = evalInitExpr(rhs, contexts);
         console.assert(rhsVals.length === 1);
         let rhsVal = rhsVals[0]["val"];
-        let boolVal = (contexts["state"][varName] === rhsVal);
+
+        // Check if identifier is a variable name or bound to some other name.
+        let boolVal;
+        if(contexts["state"].hasOwnProperty(identName)){
+            boolVal = (contexts["state"][varName] === rhsVal);
+        } else if(contexts["quant_bound"].hasOwnProperty(identName)){
+            boolVal = (contexts["quant_bound"][varName] === rhsVal);
+        } else{
+            throw Exception(`could not find identifier name '${identName}' bound to anything.`)
+        }
+
         console.log("boolVal:", boolVal);
         // Return context with updated value.
         return [Object.assign({}, contexts, {"val": boolVal})];
-        // return [_.update(contexts, "val", () => boolVal)];
-        // return [{"val": boolVal, "state": contexts["state"]}]; 
     }
-
 }
 
 // 'vars' is a list of possible partial state assignments known up to this point.
@@ -248,6 +256,7 @@ function evalInitBoundInfix(node, contexts){
         let lhsVal = mulLhsVal[0]["val"];
         let rhsVal = evalInitExpr(rhs, contexts)[0]["val"];
         let outVal = lhsVal * rhsVal;
+        // console.log("mul overall val:", outVal);
         return [Object.assign({}, contexts, {"val": outVal})];
     }
 
@@ -266,7 +275,7 @@ function evalInitBoundInfix(node, contexts){
     if(symbol.type === "gt"){
         let lhsVal = evalInitExpr(lhs, contexts)[0]["val"];
         let rhsVal = evalInitExpr(rhs, contexts)[0]["val"];
-        let outVal = lhsVal < rhsVal;
+        let outVal = lhsVal > rhsVal;
         return [Object.assign({}, contexts, {"val": outVal})];
     }
 
@@ -309,15 +318,13 @@ function evalInitBoundInfix(node, contexts){
         let lhs = node.namedChildren[0];
         let rhs = node.namedChildren[2];
 
-        if(lhs.type === "identifier"){
-            // TODO: Handle case of variable identifier.
-        }
-
         let lhsVal = evalInitExpr(lhs, contexts)[0]["val"];
         console.log("setin lhsval:", lhsVal);
 
         let rhsVal = evalInitExpr(rhs, contexts)[0]["val"];
         console.log("setin rhsval:", rhsVal);
+
+        console.log("setin lhs in rhs:", rhsVal.includes(lhsVal));
         return [Object.assign({}, contexts, {"val": rhsVal.includes(lhsVal)})]
     } 
     
@@ -510,6 +517,7 @@ function evalInitExpr(node, contexts){
         // Built in bound ops.
         // Eventually we want to look up these in a table of parsed definitions.
         if(opName == "Cardinality"){
+            console.log("Cardinality val:", argExpr.text, argExprVal.length);
             return [Object.assign({}, contexts, {"val": argExprVal.length})];
         }
     }
@@ -607,11 +615,15 @@ function evalInitExpr(node, contexts){
         let thenNode = node.namedChildren[1];
         let elseNode = node.namedChildren[2];
 
-        let condVal = evalInitExpr(cond, contexts)[0]["val"];
+        let condVal = evalInitExpr(cond, _.cloneDeep(contexts))[0]["val"];
         if(condVal){
-            return evalInitExpr(thenNode, contexts);
+            let thenVal = evalInitExpr(thenNode, _.cloneDeep(contexts));
+            console.log("thenVal", thenVal, thenNode.text);
+            return thenVal;
         } else{
-            return evalInitExpr(elseNode, contexts);
+            let elseVal = evalInitExpr(elseNode, _.cloneDeep(contexts));
+            console.log("elseVal", elseVal, elseNode.text, contexts);
+            return elseVal;
         }
     }
 

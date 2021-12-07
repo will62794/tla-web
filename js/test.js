@@ -291,7 +291,7 @@ Next ==
             /\\ i \\in config[i]
             /\\ currentTerm' = [s \\in {44,55} |-> IF s \\in voteQuorum THEN currentTerm[i] + 1 ELSE currentTerm[s]]
             /\\ state' = [s \\in {44,55} |-> IF s = i THEN "Primary" ELSE IF s \\in voteQuorum THEN "Secondary" ELSE state[s]]
-            /\\ config' = [s \\in {44,55} |-> {}]
+            /\\ config' = config
 
 ====`;
 
@@ -318,10 +318,7 @@ function mldr_init(){
 
 function mldr_next(){
     nextExpected = [
-        {semaphore: {0:true,1:true}, clientlocks: {88:[], 99:[]}, "semaphore'": {0:false,1:true}, "clientlocks'": {88:[0], 99:[]}},
-        {semaphore: {0:true,1:true}, clientlocks: {88:[], 99:[]}, "semaphore'": {0:false,1:true}, "clientlocks'": {88:[], 99:[0]}},
-        {semaphore: {0:true,1:true}, clientlocks: {88:[], 99:[]}, "semaphore'": {0:true,1:false}, "clientlocks'": {88:[], 99:[1]}},
-        {semaphore: {0:true,1:true}, clientlocks: {88:[], 99:[]}, "semaphore'": {0:true,1:false}, "clientlocks'": {88:[1], 99:[]}},
+        {semaphore: {0:true,1:true}, clientlocks: {88:[], 99:[]}, "semaphore'": {0:false,1:true}, "clientlocks'": {88:[0], 99:[]}}
     ]
     testStateGen("mldr_next", specmldr1, mldrInitExpected, nextExpected);
 }
