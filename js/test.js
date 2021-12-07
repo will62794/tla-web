@@ -259,78 +259,95 @@ function simple_lockserver_nodefs(){
     testStateGen("simple_lockserver_nodefs", speclockserver, initExpected, nextExpected);
 }
 
-function mldr_init(){
-    let specmldrinit = `---- MODULE mldr ----
-    EXTENDS TLC, Naturals
-    
-    VARIABLE currentTerm
-    VARIABLE state
-    VARIABLE configVersion
-    VARIABLE configTerm
-    VARIABLE config
-    
-    Init == 
-        /\\ currentTerm = [i \\in {44,55,66} |-> 0]
-        /\\ state       = [i \\in {44,55,66} |-> "Secondary"]
-        /\\ configVersion =  [i \\in {44,55,66} |-> 1]
-        /\\ configTerm    =  [i \\in {44,55,66} |-> 0]
-        /\\ \\E initConfig \\in SUBSET {44,55,66} : initConfig # {} /\\ config = [i \\in {44,55,66} |-> initConfig]
-    
-    
-    ====`;
+let specmldr1 = `---- MODULE mldr ----
+EXTENDS TLC, Naturals
 
+VARIABLE currentTerm
+VARIABLE state
+VARIABLE configVersion
+VARIABLE configTerm
+VARIABLE config
+
+Init == 
+    /\\ currentTerm = [i \\in {44,55,66} |-> 0]
+    /\\ state       = [i \\in {44,55,66} |-> "Secondary"]
+    /\\ configVersion =  [i \\in {44,55,66} |-> 1]
+    /\\ configTerm    =  [i \\in {44,55,66} |-> 0]
+    /\\ \\E initConfig \\in SUBSET {44,55,66} : initConfig # {} /\\ config = [i \\in {44,55,66} |-> initConfig]
+
+Next == 
+    \\/ \\E i \\in {44,55,66} : 
+        \\E voteQuorum \\in {i \\in SUBSET({44,55,66}) : Cardinality(i) * 2 > Cardinality({44,55,66})} : 
+            /\\ i \\in config[i]
+            /\\ i \\in voteQuorum
+            /\\ currentTerm' = [s \\in {44,55,66} |-> IF s \\in voteQuorum THEN currentTerm[i] + 1 ELSE currentTerm[s]]
+            /\\ state' = [s \\in {44,55,66} |->
+                        IF s = i THEN "Primary"
+                        ELSE IF s \\in voteQuorum THEN "Secondary"
+                        ELSE state[s]]
+            /\\ configTerm' = [configTerm EXCEPT ![i] = currentTerm[i] + 1]
+            /\\ UNCHANGED <<config, configVersion>> 
+====`;
+
+let mldrInitExpected = [
+    {   "currentTerm":{"44":0,"55":0,"66":0},
+        "state":{"44":"Secondary","55":"Secondary","66":"Secondary"},
+        "configVersion":{"44":1,"55":1,"66":1},
+        "configTerm":{"44":0,"55":0,"66":0},
+        "config":{"44":[44],"55":[44],"66":[44]}
+    },
+    {   "currentTerm":{"44":0,"55":0,"66":0},
+        "state":{"44":"Secondary","55":"Secondary","66":"Secondary"},
+        "configVersion":{"44":1,"55":1,"66":1},
+        "configTerm":{"44":0,"55":0,"66":0},
+        "config":{"44":[44,55],"55":[44,55],"66":[44,55]}
+    },
+    {   "currentTerm":{"44":0,"55":0,"66":0},
+        "state":{"44":"Secondary","55":"Secondary","66":"Secondary"},
+        "configVersion":{"44":1,"55":1,"66":1},
+        "configTerm":{"44":0,"55":0,"66":0},
+        "config":{"44":[55],"55":[55],"66":[55]}
+    },
+    {   "currentTerm":{"44":0,"55":0,"66":0},
+        "state":{"44":"Secondary","55":"Secondary","66":"Secondary"},
+        "configVersion":{"44":1,"55":1,"66":1},
+        "configTerm":{"44":0,"55":0,"66":0},
+        "config":{"44":[66],"55":[66],"66":[66]}
+    },
+    {   "currentTerm":{"44":0,"55":0,"66":0},
+        "state":{"44":"Secondary","55":"Secondary","66":"Secondary"},
+        "configVersion":{"44":1,"55":1,"66":1},
+        "configTerm":{"44":0,"55":0,"66":0},
+        "config":{"44":[44,66],"55":[44,66],"66":[44,66]}
+    },
+    {   "currentTerm":{"44":0,"55":0,"66":0},
+        "state":{"44":"Secondary","55":"Secondary","66":"Secondary"},
+        "configVersion":{"44":1,"55":1,"66":1},
+        "configTerm":{"44":0,"55":0,"66":0},
+        "config":{"44":[55,66],"55":[55,66],"66":[55,66]}
+    },
+    {   "currentTerm":{"44":0,"55":0,"66":0},
+        "state":{"44":"Secondary","55":"Secondary","66":"Secondary"},
+        "configVersion":{"44":1,"55":1,"66":1},
+        "configTerm":{"44":0,"55":0,"66":0},
+        "config":{"44":[44,55,66],"55":[44,55,66],"66":[44,55,66]}
+    }
+];
+
+// /\\ \\A v \\in voteQuorum : CanVoteForConfig(v, i, currentTerm[i] + 1)
+function mldr_init(){
     // TODO: Will again have to contend with set vs. list ordering issues eventually.
-    initExpected = [
-        {   "currentTerm":{"44":0,"55":0,"66":0},
-            "state":{"44":"Secondary","55":"Secondary","66":"Secondary"},
-            "configVersion":{"44":1,"55":1,"66":1},
-            "configTerm":{"44":0,"55":0,"66":0},
-            "config":{"44":[44],"55":[44],"66":[44]}
-        },
-        {   "currentTerm":{"44":0,"55":0,"66":0},
-            "state":{"44":"Secondary","55":"Secondary","66":"Secondary"},
-            "configVersion":{"44":1,"55":1,"66":1},
-            "configTerm":{"44":0,"55":0,"66":0},
-            "config":{"44":[44,55],"55":[44,55],"66":[44,55]}
-        },
-        {   "currentTerm":{"44":0,"55":0,"66":0},
-            "state":{"44":"Secondary","55":"Secondary","66":"Secondary"},
-            "configVersion":{"44":1,"55":1,"66":1},
-            "configTerm":{"44":0,"55":0,"66":0},
-            "config":{"44":[55],"55":[55],"66":[55]}
-        },
-        {   "currentTerm":{"44":0,"55":0,"66":0},
-            "state":{"44":"Secondary","55":"Secondary","66":"Secondary"},
-            "configVersion":{"44":1,"55":1,"66":1},
-            "configTerm":{"44":0,"55":0,"66":0},
-            "config":{"44":[66],"55":[66],"66":[66]}
-        },
-        {   "currentTerm":{"44":0,"55":0,"66":0},
-            "state":{"44":"Secondary","55":"Secondary","66":"Secondary"},
-            "configVersion":{"44":1,"55":1,"66":1},
-            "configTerm":{"44":0,"55":0,"66":0},
-            "config":{"44":[44,66],"55":[44,66],"66":[44,66]}
-        },
-        {   "currentTerm":{"44":0,"55":0,"66":0},
-            "state":{"44":"Secondary","55":"Secondary","66":"Secondary"},
-            "configVersion":{"44":1,"55":1,"66":1},
-            "configTerm":{"44":0,"55":0,"66":0},
-            "config":{"44":[55,66],"55":[55,66],"66":[55,66]}
-        },
-        {   "currentTerm":{"44":0,"55":0,"66":0},
-            "state":{"44":"Secondary","55":"Secondary","66":"Secondary"},
-            "configVersion":{"44":1,"55":1,"66":1},
-            "configTerm":{"44":0,"55":0,"66":0},
-            "config":{"44":[44,55,66],"55":[44,55,66],"66":[44,55,66]}
-        }
-    ];
-    // nextExpected = [
-    //     {semaphore: {0:true,1:true}, clientlocks: {88:[], 99:[]}, "semaphore'": {0:false,1:true}, "clientlocks'": {88:[0], 99:[]}},
-    //     {semaphore: {0:true,1:true}, clientlocks: {88:[], 99:[]}, "semaphore'": {0:false,1:true}, "clientlocks'": {88:[], 99:[0]}},
-    //     {semaphore: {0:true,1:true}, clientlocks: {88:[], 99:[]}, "semaphore'": {0:true,1:false}, "clientlocks'": {88:[], 99:[1]}},
-    //     {semaphore: {0:true,1:true}, clientlocks: {88:[], 99:[]}, "semaphore'": {0:true,1:false}, "clientlocks'": {88:[1], 99:[]}},
-    // ]
-    testStateGen("mldr_init", specmldrinit, initExpected, null);
+    testStateGen("mldr_init", specmldr1, mldrInitExpected, null);
+}
+
+function mldr_next(){
+    nextExpected = [
+        {semaphore: {0:true,1:true}, clientlocks: {88:[], 99:[]}, "semaphore'": {0:false,1:true}, "clientlocks'": {88:[0], 99:[]}},
+        {semaphore: {0:true,1:true}, clientlocks: {88:[], 99:[]}, "semaphore'": {0:false,1:true}, "clientlocks'": {88:[], 99:[0]}},
+        {semaphore: {0:true,1:true}, clientlocks: {88:[], 99:[]}, "semaphore'": {0:true,1:false}, "clientlocks'": {88:[], 99:[1]}},
+        {semaphore: {0:true,1:true}, clientlocks: {88:[], 99:[]}, "semaphore'": {0:true,1:false}, "clientlocks'": {88:[1], 99:[]}},
+    ]
+    testStateGen("mldr_next", specmldr1, mldrInitExpected, nextExpected);
 }
 
 tests = {
@@ -340,7 +357,8 @@ tests = {
     "simple-spec4": simple_spec4,
     "simple-spec5": simple_spec5,
     "simple_lockserver_nodefs": simple_lockserver_nodefs,
-    "mldr_init": mldr_init
+    "mldr_init": mldr_init,
+    "mldr_next": mldr_next
 }
 
 const start = performance.now();
