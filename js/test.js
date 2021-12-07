@@ -122,7 +122,7 @@ function toggleTestDetails(testId){
         // Append the detailed results and make it hidden by default.
         // TODO: Re-enable hiding test results by default once it can work
         // separately for single tests and all tests.
-        // detailedResultsDiv.setAttribute("hidden", true);
+        detailedResultsDiv.setAttribute("hidden", true);
         testsDiv.appendChild(detailedResultsDiv);
 
         // Show the outcome of the test (PASS/FAIL).
