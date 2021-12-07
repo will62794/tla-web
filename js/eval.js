@@ -230,13 +230,34 @@ function evalInitEq(lhs, rhs, contexts){
 
 // 'vars' is a list of possible partial state assignments known up to this point.
 function evalInitBoundInfix(node, contexts){
+    console.log("evalInitBoundInfix:", node);
+
     // lhs.
     let lhs = node.children[0];
     // symbol.
     let symbol = node.children[1];
-    // console.log("symbol:", node.children[1]);
+    console.log("symbol:", node.children[1].type);
     // rhs
     let rhs = node.children[2];
+
+    // Multiplication
+    if(symbol.type === "mul"){
+        console.log("mul lhs:", lhs, lhs.text);
+        let mulLhsVal = evalInitExpr(lhs, contexts);
+        console.log("mul lhs val:", mulLhsVal);
+        let lhsVal = mulLhsVal[0]["val"];
+        let rhsVal = evalInitExpr(rhs, contexts)[0]["val"];
+        let outVal = lhsVal * rhsVal;
+        return [Object.assign({}, contexts, {"val": outVal})];
+    }
+
+    // Greater than.
+    if(symbol.type === "gt"){
+        let lhsVal = evalInitExpr(lhs, contexts)[0]["val"];
+        let rhsVal = evalInitExpr(rhs, contexts)[0]["val"];
+        let outVal = lhsVal < rhsVal;
+        return [Object.assign({}, contexts, {"val": outVal})];
+    }
 
     // Disjunction.
     if(symbol.type === "lor"){
@@ -349,9 +370,8 @@ function evalInitConjList(parent, conjs, contexts){
 
 function evalInitIdentifierRef(node, contexts){
     let ident_name = node.text;
-    // console.log("identifier_ref");
-    // console.log(node.type);
-    // console.log(node.text);
+    console.log("identifier_ref, context:", contexts);
+    console.log(node.text);
 
     // If this identifier refers to a variable, return the value bound
     // to that variable in the current context.
@@ -360,15 +380,18 @@ function evalInitIdentifierRef(node, contexts){
         console.log("variable identifier: ", ident_name);
         let var_val = contexts["state"][ident_name];
         console.log("var ident context:", contexts["state"], var_val);
-        return [{"val": var_val, "state": contexts["state"]}];
+        // return [{"val": var_val, "state": contexts["state"]}];
+        return [Object.assign({}, contexts, {"val": var_val})];
     }
 
     // See if the identifier is bound to a value in the current context.
     // If so, return the value it is bound to.
-    if(contexts.hasOwnProperty("quant_bound") && 
-       contexts["quant_bound"].hasOwnProperty(ident_name)){
+    if(contexts.hasOwnProperty("quant_bound") && contexts["quant_bound"].hasOwnProperty(ident_name)){
+        console.log("ident is bound");
         let bound_val = contexts["quant_bound"][ident_name];
-        return [{"val": bound_val, "state": contexts["state"]}];
+        console.log("bound_val", bound_val);
+        return [Object.assign({}, contexts, {"val": bound_val})];
+        // return [{"val": bound_val, "state": contexts["state"]}];
     }
 
     // TODO: Consider case of being undefined.
@@ -403,6 +426,7 @@ function evalInitIdentifierRef(node, contexts){
 // TODO: Rename 'contexts' to 'context', since now we intend this function to
 // take in only a single context, not a list of contexts.
 function evalInitExpr(node, contexts){
+    console.log("$$ evalInitExpr, node: ", node, node.text);
 
     // [<lExpr> EXCEPT ![<updateExpr>] = <rExpr>]
     if(node.type === "except"){
@@ -464,6 +488,21 @@ function evalInitExpr(node, contexts){
         disj_item_node = node.children[1];
         return evalInitExpr(disj_item_node, contexts);
     }
+
+    if(node.type === "bound_op"){
+        let opName = node.namedChildren[0].text;
+        let argExpr = node.namedChildren[1];
+        console.log("bound_op:", opName);
+        console.log("bound_op context:",contexts);
+
+        let argExprVal = evalInitExpr(argExpr, contexts)[0]["val"]
+        // Built in bound ops.
+        // Eventually we want to look up these in a table of parsed definitions.
+        if(opName == "Cardinality"){
+            return [Object.assign({}, contexts, {"val": argExprVal.length})];
+        }
+    }
+
     if(node.type === "bound_infix_op"){
         console.log(node.type, ", ", node.text, ", ctx:", JSON.stringify(contexts));
         return evalInitBoundInfix(node, contexts);
@@ -551,6 +590,41 @@ function evalInitExpr(node, contexts){
         let rawStr = node.text.substring(1,node.text.length-1);
         return [{"val": rawStr, "state": {}}];
     }
+
+    // {<single_quantifier_bound> : <expr>}
+    // {i \in A : <expr>}
+    if(node.type === "set_filter"){
+        console.log("SET_FILTER");
+        // Extract the left and right side of the ":" of the set filter.
+        let singleQuantBound = node.namedChildren[0];
+        let rhsFilter = node.namedChildren[1];
+
+        // Evaluate the quantified domain.
+        console.assert(singleQuantBound.type === "single_quantifier_bound");
+        console.log("singleQuantBound:", singleQuantBound, singleQuantBound.text);
+        let ident = singleQuantBound.namedChildren[0].text;
+        let domainExpr = singleQuantBound.namedChildren[2];
+        console.log(domainExpr);
+        let domainExprVal = evalInitExpr(domainExpr, contexts)[0]["val"];
+        
+        console.log("domainExprVal:", domainExprVal);
+
+        // Return all values in domain for which the set filter evaluates to true.
+        let filteredVals = domainExprVal.filter(exprVal => {
+            // Evaluate rhs in context of the bound value and check its truth value.
+            let boundContext = _.cloneDeep(contexts);
+            if(!boundContext.hasOwnProperty("quant_bound")){
+                boundContext["quant_bound"] = {};
+            }
+            boundContext["quant_bound"][ident] = exprVal;
+            console.log("rhsFilterVal:", evalInitExpr(rhsFilter, boundContext));
+            let rhsFilterVal = evalInitExpr(rhsFilter, boundContext)[0]["val"];
+            return rhsFilterVal;
+        });
+        console.log("domainExprVal filtered:", filteredVals);
+        return [Object.assign({}, contexts, {"val": filteredVals})];
+    }
+
 
     // TODO: Re-examine whether this implementation is correct.
     if(node.type ==="finite_set_literal"){

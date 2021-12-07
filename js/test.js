@@ -259,6 +259,20 @@ function simple_lockserver_nodefs(){
     testStateGen("simple_lockserver_nodefs", speclockserver, initExpected, nextExpected);
 }
 
+// (*
+//     /\\ i \\in voteQuorum
+//     /\\ currentTerm' = [s \\in {44,55,66} |-> IF s \\in voteQuorum THEN currentTerm[i] + 1 ELSE currentTerm[s]]
+//     /\\ state' = [s \\in {44,55,66} |->
+//                 IF s = i THEN "Primary"
+//                 ELSE IF s \\in voteQuorum THEN "Secondary"
+//                 ELSE state[s]]
+//     /\\ configTerm' = [configTerm EXCEPT ![i] = currentTerm[i] + 1]
+//     /\\ UNCHANGED <<config, configVersion>>  *)
+
+
+// /\\ i \\in config[i]
+// \\E i \\in {44,55,66} : 
+        
 let specmldr1 = `---- MODULE mldr ----
 EXTENDS TLC, Naturals
 
@@ -277,16 +291,9 @@ Init ==
 
 Next == 
     \\/ \\E i \\in {44,55,66} : 
-        \\E voteQuorum \\in {i \\in SUBSET({44,55,66}) : Cardinality(i) * 2 > Cardinality({44,55,66})} : 
+        \\E voteQuorum \\in {S \\in SUBSET {44,55,66} : Cardinality(S) * 2 > Cardinality({44,55,66})} : 
             /\\ i \\in config[i]
-            /\\ i \\in voteQuorum
-            /\\ currentTerm' = [s \\in {44,55,66} |-> IF s \\in voteQuorum THEN currentTerm[i] + 1 ELSE currentTerm[s]]
-            /\\ state' = [s \\in {44,55,66} |->
-                        IF s = i THEN "Primary"
-                        ELSE IF s \\in voteQuorum THEN "Secondary"
-                        ELSE state[s]]
-            /\\ configTerm' = [configTerm EXCEPT ![i] = currentTerm[i] + 1]
-            /\\ UNCHANGED <<config, configVersion>> 
+
 ====`;
 
 let mldrInitExpected = [
