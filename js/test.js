@@ -278,15 +278,11 @@ EXTENDS TLC, Naturals
 
 VARIABLE currentTerm
 VARIABLE state
-VARIABLE configVersion
-VARIABLE configTerm
 VARIABLE config
 
 Init == 
     /\\ currentTerm = [i \\in {44,55} |-> 0]
     /\\ state       = [i \\in {44,55} |-> "Secondary"]
-    /\\ configVersion =  [i \\in {44,55} |-> 1]
-    /\\ configTerm    =  [i \\in {44,55} |-> 0]
     /\\ \\E initConfig \\in SUBSET {44,55} : initConfig # {} /\\ config = [i \\in {44,55} |-> initConfig]
 
 Next == 
@@ -295,29 +291,21 @@ Next ==
             /\\ i \\in config[i]
             /\\ currentTerm' = [s \\in {44,55} |-> IF s \\in voteQuorum THEN currentTerm[i] + 1 ELSE currentTerm[s]]
             /\\ state' = [s \\in {44,55} |-> IF s = i THEN "Primary" ELSE IF s \\in voteQuorum THEN "Secondary" ELSE state[s]]
-            /\\ configTerm' = [configTerm EXCEPT ![i] = currentTerm[i] + 1]
-            /\\ config' = config
-            /\\ configVersion' = configVersion
+            /\\ config' = [s \\in {44,55} |-> {}]
 
 ====`;
 
 let mldrInitExpected = [
     {   "currentTerm":{"44":0,"55":0},
         "state":{"44":"Secondary","55":"Secondary"},
-        "configVersion":{"44":1,"55":1},
-        "configTerm":{"44":0,"55":0},
         "config":{"44":[44],"55":[44]}
     },
     {   "currentTerm":{"44":0,"55":0},
         "state":{"44":"Secondary","55":"Secondary"},
-        "configVersion":{"44":1,"55":1},
-        "configTerm":{"44":0,"55":0},
         "config":{"44":[44,55],"55":[44,55]}
     },
     {   "currentTerm":{"44":0,"55":0},
         "state":{"44":"Secondary","55":"Secondary"},
-        "configVersion":{"44":1,"55":1},
-        "configTerm":{"44":0,"55":0},
         "config":{"44":[55],"55":[55]}
     },
 ];
