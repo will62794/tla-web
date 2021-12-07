@@ -293,6 +293,7 @@ Next ==
     \\/ \\E i \\in {44,55,66} : 
         \\E voteQuorum \\in {S \\in SUBSET {44,55,66} : Cardinality(S) * 2 > Cardinality({44,55,66})} : 
             /\\ i \\in config[i]
+            /\\ currentTerm' = [s \\in {44,55,66} |-> IF s \\in voteQuorum THEN currentTerm[i] + 1 ELSE currentTerm[s]]
 
 ====`;
 

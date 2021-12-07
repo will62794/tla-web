@@ -251,6 +251,17 @@ function evalInitBoundInfix(node, contexts){
         return [Object.assign({}, contexts, {"val": outVal})];
     }
 
+    // Plus.
+    if(symbol.type === "plus"){
+        console.log("mul lhs:", lhs, lhs.text);
+        let mulLhsVal = evalInitExpr(lhs, contexts);
+        console.log("mul lhs val:", mulLhsVal);
+        let lhsVal = mulLhsVal[0]["val"];
+        let rhsVal = evalInitExpr(rhs, contexts)[0]["val"];
+        let outVal = lhsVal + rhsVal;
+        return [Object.assign({}, contexts, {"val": outVal})];
+    }
+
     // Greater than.
     if(symbol.type === "gt"){
         let lhsVal = evalInitExpr(lhs, contexts)[0]["val"];
@@ -589,6 +600,19 @@ function evalInitExpr(node, contexts){
         // Remove the quotes.
         let rawStr = node.text.substring(1,node.text.length-1);
         return [{"val": rawStr, "state": {}}];
+    }
+
+    if(node.type === "if_then_else"){
+        let cond = node.namedChildren[0];
+        let thenNode = node.namedChildren[1];
+        let elseNode = node.namedChildren[2];
+
+        let condVal = evalInitExpr(cond, contexts)[0]["val"];
+        if(condVal){
+            return evalInitExpr(thenNode, contexts);
+        } else{
+            return evalInitExpr(elseNode, contexts);
+        }
     }
 
     // {<single_quantifier_bound> : <expr>}
