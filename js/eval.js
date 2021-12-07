@@ -212,25 +212,21 @@ function evalInitEq(lhs, rhs, contexts){
         // return [_.update(contexts, "val", () => boolVal)];
 
     } else{
-        let varName = lhs.text;
-        console.log("Checking for equality with var:", rhs.text, identName, contexts);
-        // Check equality of variable with expression.
-        // TODO: Check for variable name properly.
-        let rhsVals = evalInitExpr(rhs, contexts);
+        console.log("Checking for equality with var:", rhs.text, identName, JSON.stringify(contexts));
+        
+        // Evaluate left and right hand side.
+        let lhsVals = evalInitExpr(lhs, _.cloneDeep(contexts));
+        console.assert(lhsVals.length === 1);
+        let lhsVal = lhsVals[0]["val"];
+
+        let rhsVals = evalInitExpr(rhs, _.cloneDeep(contexts));
         console.assert(rhsVals.length === 1);
         let rhsVal = rhsVals[0]["val"];
 
-        // Check if identifier is a variable name or bound to some other name.
-        let boolVal;
-        if(contexts["state"].hasOwnProperty(identName)){
-            boolVal = (contexts["state"][varName] === rhsVal);
-        } else if(contexts["quant_bound"].hasOwnProperty(identName)){
-            boolVal = (contexts["quant_bound"][varName] === rhsVal);
-        } else{
-            throw new Error(`could not find identifier name '${identName}' bound to anything.`);
-        }
-
+        // Check equality.
+        const boolVal = _.isEqual(lhsVal, rhsVal);
         console.log("boolVal:", boolVal);
+
         // Return context with updated value.
         return [Object.assign({}, contexts, {"val": boolVal})];
     }
