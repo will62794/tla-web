@@ -227,7 +227,7 @@ function evalInitEq(lhs, rhs, contexts){
         } else if(contexts["quant_bound"].hasOwnProperty(identName)){
             boolVal = (contexts["quant_bound"][varName] === rhsVal);
         } else{
-            throw Exception(`could not find identifier name '${identName}' bound to anything.`)
+            throw new Error(`could not find identifier name '${identName}' bound to anything.`);
         }
 
         console.log("boolVal:", boolVal);
