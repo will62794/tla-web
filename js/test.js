@@ -206,6 +206,23 @@ function simple_spec4(){
     testStateGen("simple-spec4", spec4, initExpected, nextExpected);
 }
 
+function simple_spec4a(){
+    let spec4a = `----------------------- MODULE Test ------------------------
+    VARIABLE x
+    Init == 
+        /\\ x = 1 \\/ x = 2 
+    
+    Next == 
+        /\\ x = 1 
+        /\\ x' = 3
+    ====`;
+    initExpected = [{x:1},{x:2}];
+    nextExpected = [
+        {"x":1, "x'":3},
+    ]
+    testStateGen("simple-spec4a", spec4a, initExpected, nextExpected);
+}
+
 function simple_spec5(){
     let spec5 = `----------------------- MODULE Test ------------------------
     VARIABLE x
@@ -287,10 +304,11 @@ Init ==
 
 Next == 
     \\/ \\E i \\in {44,55} : 
-        \\E voteQuorum \\in {S \\in SUBSET {44,55} : Cardinality(S) * 2 > Cardinality({44,55})} : 
+        \\E voteQuorum \\in {S \\in SUBSET config[i] : Cardinality(S) * 2 > Cardinality(config[i])} : 
             /\\ i \\in config[i]
+            /\\ i \\in voteQuorum
             /\\ currentTerm' = [s \\in {44,55} |-> IF s \\in voteQuorum THEN currentTerm[i] + 1 ELSE currentTerm[s]]
-            /\\ state' = [s \\in {44,55} |-> IF s = i THEN "Primary" ELSE IF s \\in voteQuorum THEN "Secondary" ELSE state[s]]
+            /\\ state' = [s \\in {44,55} |-> IF s = i THEN "Primary" ELSE "Secondary"]
             /\\ config' = config
 
 ====`;
@@ -310,6 +328,9 @@ let mldrInitExpected = [
     },
 ];
 
+// IF s \\in voteQuorum THEN "Secondary" ELSE state[s]]
+
+
 // /\\ \\A v \\in voteQuorum : CanVoteForConfig(v, i, currentTerm[i] + 1)
 function mldr_init(){
     // TODO: Will again have to contend with set vs. list ordering issues eventually.
@@ -317,10 +338,37 @@ function mldr_init(){
 }
 
 function mldr_next(){
-    nextExpected = [
-        {semaphore: {0:true,1:true}, clientlocks: {88:[], 99:[]}, "semaphore'": {0:false,1:true}, "clientlocks'": {88:[0], 99:[]}}
-    ]
-    testStateGen("mldr-next", specmldr1, mldrInitExpected, nextExpected);
+    let mldrNextExpected = [
+        {   "currentTerm":{"44":0,"55":0},
+            "state":{"44":"Secondary","55":"Secondary"},
+            "config":{"44":[44],"55":[44]},
+            "currentTerm'":{"44":1,"55":0},
+            "state'":{"44":"Primary","55":"Secondary"},
+            "config'":{"44":[44],"55":[44]}
+        },
+        {   "currentTerm":{"44":0,"55":0},
+            "state":{"44":"Secondary","55":"Secondary"},
+            "config":{"44":[55],"55":[55]},
+            "currentTerm'":{"44":0,"55":1},
+            "state'":{"44":"Secondary","55":"Primary"},
+            "config'":{"44":[55],"55":[55]}
+        },
+        {   "currentTerm":{"44":0,"55":0},
+            "state":{"44":"Secondary","55":"Secondary"},
+            "config":{"44":[44,55],"55":[44,55]},
+            "currentTerm'":{"44":1,"55":1},
+            "state'":{"44":"Primary","55":"Secondary"},
+            "config'":{"44":[44,55],"55":[44,55]}
+        },
+        {   "currentTerm":{"44":0,"55":0},
+            "state":{"44":"Secondary","55":"Secondary"},
+            "config":{"44":[44,55],"55":[44,55]},
+            "currentTerm'":{"44":1,"55":1},
+            "state'":{"44":"Secondary","55":"Primary"},
+            "config'":{"44":[44,55],"55":[44,55]}
+        },
+    ];
+    testStateGen("mldr-next", specmldr1, mldrInitExpected, mldrNextExpected);
 }
 
 tests = {
@@ -328,6 +376,7 @@ tests = {
     "simple-spec2": simple_spec2,
     "simple-spec3": simple_spec3,
     "simple-spec4": simple_spec4,
+    "simple-spec4a": simple_spec4a,
     "simple-spec5": simple_spec5,
     "simple-lockserver-nodefs": simple_lockserver_nodefs,
     "mldr-init": mldr_init,

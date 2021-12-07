@@ -218,14 +218,16 @@ function evalInitEq(lhs, rhs, contexts){
         let lhsVals = evalInitExpr(lhs, _.cloneDeep(contexts));
         console.assert(lhsVals.length === 1);
         let lhsVal = lhsVals[0]["val"];
+        // console.log("Checking for, lhsVal", lhsVal);
 
         let rhsVals = evalInitExpr(rhs, _.cloneDeep(contexts));
         console.assert(rhsVals.length === 1);
         let rhsVal = rhsVals[0]["val"];
+        // console.log("Checking for, rhsVal", rhsVal);
 
         // Check equality.
         const boolVal = _.isEqual(lhsVal, rhsVal);
-        console.log("boolVal:", boolVal);
+        // console.log("Checking for, boolVal:", boolVal);
 
         // Return context with updated value.
         return [Object.assign({}, contexts, {"val": boolVal})];
@@ -315,10 +317,10 @@ function evalInitBoundInfix(node, contexts){
         let rhs = node.namedChildren[2];
 
         let lhsVal = evalInitExpr(lhs, contexts)[0]["val"];
-        console.log("setin lhsval:", lhsVal);
+        console.log("setin lhsval:", lhsVal, lhs.text, JSON.stringify(contexts));
 
         let rhsVal = evalInitExpr(rhs, contexts)[0]["val"];
-        console.log("setin rhsval:", rhsVal);
+        console.log("setin rhsval:", rhsVal, rhs.text, JSON.stringify(contexts));
 
         console.log("setin lhs in rhs:", rhsVal.includes(lhsVal));
         return [Object.assign({}, contexts, {"val": rhsVal.includes(lhsVal)})]
@@ -366,20 +368,16 @@ function evalInitDisjList(parent, disjs, contexts){
 
 function evalInitConjList(parent, conjs, contexts){
     console.log("evalInit: conjunction list! ctx:", contexts);
-    // console.log("evalInit: node children:", parent.children);
-    // console.log(parent.text);
 
+    // Initialize boolean value if needed.
+    if(contexts["val"]===null){
+        contexts["val"]=true;
+    }
     return conjs.reduce((prevRes,currConj) => {
-        return _.flattenDeep(prevRes.map(ctx => evalInitExpr(currConj, ctx)))
+        return _.flattenDeep(prevRes.map(ctx => {
+            return evalInitExpr(currConj, ctx).map(cb => Object.assign({}, cb, {"val": cb["val"] && ctx["val"]}));
+        }));
     }, [contexts]);
-
-    // let currContexts = _.cloneDeep(contexts);
-    // for(const child of conjs){
-    //     console.log("currContexts:", currContexts);
-    //     currContexts = evalInitExpr(child, currContexts);
-    // }
-    // console.log("newContexts:", currContexts);
-    // return currContexts;    
 }
 
 function evalInitIdentifierRef(node, contexts){
