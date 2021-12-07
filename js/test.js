@@ -283,63 +283,43 @@ VARIABLE configTerm
 VARIABLE config
 
 Init == 
-    /\\ currentTerm = [i \\in {44,55,66} |-> 0]
-    /\\ state       = [i \\in {44,55,66} |-> "Secondary"]
-    /\\ configVersion =  [i \\in {44,55,66} |-> 1]
-    /\\ configTerm    =  [i \\in {44,55,66} |-> 0]
-    /\\ \\E initConfig \\in SUBSET {44,55,66} : initConfig # {} /\\ config = [i \\in {44,55,66} |-> initConfig]
+    /\\ currentTerm = [i \\in {44,55} |-> 0]
+    /\\ state       = [i \\in {44,55} |-> "Secondary"]
+    /\\ configVersion =  [i \\in {44,55} |-> 1]
+    /\\ configTerm    =  [i \\in {44,55} |-> 0]
+    /\\ \\E initConfig \\in SUBSET {44,55} : initConfig # {} /\\ config = [i \\in {44,55} |-> initConfig]
 
 Next == 
-    \\/ \\E i \\in {44,55,66} : 
-        \\E voteQuorum \\in {S \\in SUBSET {44,55,66} : Cardinality(S) * 2 > Cardinality({44,55,66})} : 
+    \\/ \\E i \\in {44,55} : 
+        \\E voteQuorum \\in {S \\in SUBSET {44,55} : Cardinality(S) * 2 > Cardinality({44,55})} : 
             /\\ i \\in config[i]
-            /\\ currentTerm' = [s \\in {44,55,66} |-> IF s \\in voteQuorum THEN currentTerm[i] + 1 ELSE currentTerm[s]]
+            /\\ currentTerm' = [s \\in {44,55} |-> IF s \\in voteQuorum THEN currentTerm[i] + 1 ELSE currentTerm[s]]
+            /\\ state' = [s \\in {44,55} |-> IF s = i THEN "Primary" ELSE IF s \\in voteQuorum THEN "Secondary" ELSE state[s]]
+            /\\ configTerm' = [configTerm EXCEPT ![i] = currentTerm[i] + 1]
+            /\\ config' = config
+            /\\ configVersion' = configVersion
 
 ====`;
 
 let mldrInitExpected = [
-    {   "currentTerm":{"44":0,"55":0,"66":0},
-        "state":{"44":"Secondary","55":"Secondary","66":"Secondary"},
-        "configVersion":{"44":1,"55":1,"66":1},
-        "configTerm":{"44":0,"55":0,"66":0},
-        "config":{"44":[44],"55":[44],"66":[44]}
+    {   "currentTerm":{"44":0,"55":0},
+        "state":{"44":"Secondary","55":"Secondary"},
+        "configVersion":{"44":1,"55":1},
+        "configTerm":{"44":0,"55":0},
+        "config":{"44":[44],"55":[44]}
     },
-    {   "currentTerm":{"44":0,"55":0,"66":0},
-        "state":{"44":"Secondary","55":"Secondary","66":"Secondary"},
-        "configVersion":{"44":1,"55":1,"66":1},
-        "configTerm":{"44":0,"55":0,"66":0},
-        "config":{"44":[44,55],"55":[44,55],"66":[44,55]}
+    {   "currentTerm":{"44":0,"55":0},
+        "state":{"44":"Secondary","55":"Secondary"},
+        "configVersion":{"44":1,"55":1},
+        "configTerm":{"44":0,"55":0},
+        "config":{"44":[44,55],"55":[44,55]}
     },
-    {   "currentTerm":{"44":0,"55":0,"66":0},
-        "state":{"44":"Secondary","55":"Secondary","66":"Secondary"},
-        "configVersion":{"44":1,"55":1,"66":1},
-        "configTerm":{"44":0,"55":0,"66":0},
-        "config":{"44":[55],"55":[55],"66":[55]}
+    {   "currentTerm":{"44":0,"55":0},
+        "state":{"44":"Secondary","55":"Secondary"},
+        "configVersion":{"44":1,"55":1},
+        "configTerm":{"44":0,"55":0},
+        "config":{"44":[55],"55":[55]}
     },
-    {   "currentTerm":{"44":0,"55":0,"66":0},
-        "state":{"44":"Secondary","55":"Secondary","66":"Secondary"},
-        "configVersion":{"44":1,"55":1,"66":1},
-        "configTerm":{"44":0,"55":0,"66":0},
-        "config":{"44":[66],"55":[66],"66":[66]}
-    },
-    {   "currentTerm":{"44":0,"55":0,"66":0},
-        "state":{"44":"Secondary","55":"Secondary","66":"Secondary"},
-        "configVersion":{"44":1,"55":1,"66":1},
-        "configTerm":{"44":0,"55":0,"66":0},
-        "config":{"44":[44,66],"55":[44,66],"66":[44,66]}
-    },
-    {   "currentTerm":{"44":0,"55":0,"66":0},
-        "state":{"44":"Secondary","55":"Secondary","66":"Secondary"},
-        "configVersion":{"44":1,"55":1,"66":1},
-        "configTerm":{"44":0,"55":0,"66":0},
-        "config":{"44":[55,66],"55":[55,66],"66":[55,66]}
-    },
-    {   "currentTerm":{"44":0,"55":0,"66":0},
-        "state":{"44":"Secondary","55":"Secondary","66":"Secondary"},
-        "configVersion":{"44":1,"55":1,"66":1},
-        "configTerm":{"44":0,"55":0,"66":0},
-        "config":{"44":[44,55,66],"55":[44,55,66],"66":[44,55,66]}
-    }
 ];
 
 // /\\ \\A v \\in voteQuorum : CanVoteForConfig(v, i, currentTerm[i] + 1)
