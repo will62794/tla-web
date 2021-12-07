@@ -256,7 +256,7 @@ function simple_lockserver_nodefs(){
         {semaphore: {0:true,1:true}, clientlocks: {88:[], 99:[]}, "semaphore'": {0:true,1:false}, "clientlocks'": {88:[], 99:[1]}},
         {semaphore: {0:true,1:true}, clientlocks: {88:[], 99:[]}, "semaphore'": {0:true,1:false}, "clientlocks'": {88:[1], 99:[]}},
     ]
-    testStateGen("simple_lockserver_nodefs", speclockserver, initExpected, nextExpected);
+    testStateGen("simple-lockserver-nodefs", speclockserver, initExpected, nextExpected);
 }
 
 // (*
@@ -313,14 +313,14 @@ let mldrInitExpected = [
 // /\\ \\A v \\in voteQuorum : CanVoteForConfig(v, i, currentTerm[i] + 1)
 function mldr_init(){
     // TODO: Will again have to contend with set vs. list ordering issues eventually.
-    testStateGen("mldr_init", specmldr1, mldrInitExpected, null);
+    testStateGen("mldr-init", specmldr1, mldrInitExpected, null);
 }
 
 function mldr_next(){
     nextExpected = [
         {semaphore: {0:true,1:true}, clientlocks: {88:[], 99:[]}, "semaphore'": {0:false,1:true}, "clientlocks'": {88:[0], 99:[]}}
     ]
-    testStateGen("mldr_next", specmldr1, mldrInitExpected, nextExpected);
+    testStateGen("mldr-next", specmldr1, mldrInitExpected, nextExpected);
 }
 
 tests = {
@@ -329,9 +329,9 @@ tests = {
     "simple-spec3": simple_spec3,
     "simple-spec4": simple_spec4,
     "simple-spec5": simple_spec5,
-    "simple_lockserver_nodefs": simple_lockserver_nodefs,
-    "mldr_init": mldr_init,
-    "mldr_next": mldr_next
+    "simple-lockserver-nodefs": simple_lockserver_nodefs,
+    "mldr-init": mldr_init,
+    "mldr-next": mldr_next
 }
 
 const start = performance.now();
