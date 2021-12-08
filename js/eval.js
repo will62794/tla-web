@@ -366,11 +366,24 @@ function evalInitBoundInfix(node, contexts){
         return [Object.assign({}, contexts, {"val": rhsVal.includes(lhsVal)})]
     } 
     
+    // Set intersection.
+    if(symbol.type ==="cap"){
+        evalLog("bound_infix_op, symbol 'cap'");
+        // TODO: Will eventually need to figure out a more principled approach to object equality.
+        console.log(lhs);
+        let lhsVal = evalInitExpr(lhs, contexts)[0]["val"];
+        evalLog("cap lhs:", lhsVal);
+        let rhsVal = evalInitExpr(rhs, contexts)[0]["val"];
+        evalLog("cap rhs:", rhsVal);
+        let capVal = _.intersectionWith(lhsVal, rhsVal, _.isEqual);
+        return [Object.assign({}, contexts, {"val": capVal})];
+    } 
+
     // Set union.
     if(symbol.type ==="cup"){
         // console.log("bound_infix_op, symbol 'cup'");
         evalLog("bound_infix_op, symbol 'cup'");
-        // TODO: Will need to figure out a more principled approach to object equality.
+        // TODO: Will eventually need to figure out a more principled approach to object equality.
         console.log(lhs);
         let lhsVal = evalInitExpr(lhs, contexts)[0]["val"];
         console.log("cup lhs:", lhsVal);

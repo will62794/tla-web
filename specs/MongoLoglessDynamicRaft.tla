@@ -147,7 +147,8 @@ Next ==
         /\ state[i] = "Primary"
         /\ i \in newConfig
         /\ \A t \in Qa : configVersion[t] = configVersion[i] /\ configTerm[t] = configTerm[i]
-        /\ \A t \in Qb : currentTerm[t] = currentTerm[i]   
+        /\ \A t \in Qb : currentTerm[t] = currentTerm[i] 
+        /\ \A qx \in {sa \in SUBSET config[i] : Cardinality(sa) * 2 > Cardinality(config[i])}, qy \in {sb \in SUBSET newConfig : Cardinality(sb) * 2 > Cardinality(newConfig)} : qx \cap qy # {}  
         /\ configTerm' = [configTerm EXCEPT ![i] = currentTerm[i]]
         /\ configVersion' = [configVersion EXCEPT ![i] = configVersion[i] + 1]
         /\ config' = [config EXCEPT ![i] = newConfig]
