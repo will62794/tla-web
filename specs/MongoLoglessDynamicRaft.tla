@@ -6,8 +6,7 @@
 
 EXTENDS Naturals, Integers, FiniteSets, Sequences, TLC
 
-CONSTANTS Server
-CONSTANTS Secondary, Primary, Nil
+CONSTANTS Server, Secondary, Primary, Nil
 
 VARIABLE currentTerm
 VARIABLE state
@@ -17,23 +16,85 @@ VARIABLE config
 
 vars == <<currentTerm, state, configVersion, configTerm, config>>
 
-\*
 \* Helper operators.
-\*
-
-\* The set of all quorums of a given set.
 Quorums(S) == {i \in SUBSET(S) : Cardinality(i) * 2 > Cardinality(S)}
-
 QuorumsAt(i) == Quorums(config[i])
-
 Min(s) == CHOOSE x \in s : \A y \in s : x <= y
 Max(s) == CHOOSE x \in s : \A y \in s : x >= y
-
-\* Return the range of a given function.
-Range(f) == {f[x] : x \in DOMAIN f}
-
-\* Is a sequence empty.
 Empty(s) == Len(s) = 0
+
+Init == 
+    /\ currentTerm = [i \in {"s0","s1"} |-> 0]
+    /\ state       = [i \in {"s0","s1"} |-> "Secondary"]
+    /\ configVersion =  [i \in {"s0","s1"} |-> 1]
+    /\ configTerm    =  [i \in {"s0","s1"} |-> 0]
+    /\ \E initConfig \in SUBSET {"s0","s1"} : initConfig # {} /\ config = [i \in {"s0","s1"} |-> initConfig]
+
+Next ==
+    \/ \E i \in {"s0","s1"}, j \in {"s0","s1"} :
+        /\ currentTerm[i] > currentTerm[j]
+        /\ currentTerm' = [currentTerm EXCEPT ![j] = currentTerm[i]]
+        /\ state' = [state EXCEPT ![j] = "Secondary"]
+        /\ configVersion' = configVersion
+        /\ configTerm' = configTerm
+        /\ config' = config
+    \/ \E i \in {"s0","s1"}, newConfig \in SUBSET {"s0","s1"} :
+       \E Qa \in {s \in SUBSET config[i] : Cardinality(s) * 2 > Cardinality(config[i])} :
+       \E Qb \in {s \in SUBSET config[i] : Cardinality(s) * 2 > Cardinality(config[i])} :
+        /\ state[i] = "Primary"
+        /\ i \in newConfig
+        /\ \A t \in Qa : configVersion[t] = configVersion[i] /\ configTerm[t] = configTerm[i]
+        /\ \A t \in Qb : currentTerm[t] = currentTerm[i] 
+        /\ \A qx \in {sa \in SUBSET config[i] : Cardinality(sa) * 2 > Cardinality(config[i])}, qy \in {sb \in SUBSET newConfig : Cardinality(sb) * 2 > Cardinality(newConfig)} : qx \cap qy # {}  
+        /\ configTerm' = [configTerm EXCEPT ![i] = currentTerm[i]]
+        /\ configVersion' = [configVersion EXCEPT ![i] = configVersion[i] + 1]
+        /\ config' = [config EXCEPT ![i] = newConfig]
+        /\ currentTerm' = currentTerm
+        /\ state' = state
+    \/ \E i \in {"s0","s1"}, j \in {"s0","s1"} :
+        /\ state[j] = "Secondary"
+        /\ \/ configTerm[i] > configTerm[j]
+           \/ /\ configTerm[i] = configTerm[j]
+              /\ configVersion[i] > configVersion[j]
+        /\ configVersion' = [configVersion EXCEPT ![j] = configVersion[i]]
+        /\ configTerm' = [configTerm EXCEPT ![j] = configTerm[i]]
+        /\ config' = [config EXCEPT ![j] = config[i]]
+        /\ currentTerm' = currentTerm
+        /\ state' = state
+    \/ \E i \in {"s0","s1"} : \E voteQuorum \in {s \in SUBSET config[i] : Cardinality(s) * 2 > Cardinality(config[i])} :
+        /\ i \in config[i]
+        /\ i \in voteQuorum
+        /\ currentTerm' = [s \in {"s0","s1"} |-> IF s \in voteQuorum THEN currentTerm[i] + 1 ELSE currentTerm[s]]
+        /\ state' = [s \in {"s0","s1"} |->
+                        IF s = i THEN "Primary"
+                        ELSE IF s \in voteQuorum THEN "Secondary"
+                        ELSE state[s]]
+        /\ configTerm' = [configTerm EXCEPT ![i] = currentTerm[i] + 1]
+        /\ config' = config
+        /\ configVersion' = configVersion
+
+Spec == Init /\ [][Next]_vars
+
+=============================================================================
+
+\* Next ==
+\*     \/ \E s \in Server, newConfig \in SUBSET Server : Reconfig(s, newConfig)
+\*     \/ \E s,t \in Server : SendConfig(s, t)
+\*     \/ \E i \in Server : \E Q \in Quorums(config[i]) :  BecomeLeader(i, Q)
+\*     \/ \E s,t \in Server : UpdateTerms(s,t)
+
+        \* /\ ConfigQuorumCheck(i)
+        \* /\ TermQuorumCheck(i)
+        \* /\ QuorumsOverlap(config[i], newConfig)
+
+\* /\ \A v \in voteQuorum : 
+\*     /\ currentTerm[v] < currentTerm[i] + 1
+\*         \/ configTerm[i] = configTerm[v] /\ configVersion[i] = configVersion[v]
+\*         \/ \/ configTerm[i] > configTerm[v]
+\*            \/ configTerm[i] = configTerm[v] /\ configVersion[i] > configVersion[v]
+
+
+(*****
 
 \* Is the config of node i considered 'newer' than the config of node j. This is the condition for
 \* node j to accept the config of node i.
@@ -129,77 +190,5 @@ SendConfig(i, j) ==
     /\ config' = [config EXCEPT ![j] = config[i]]
     /\ UNCHANGED <<currentTerm, state>>
 
-\* 7777 = Primary.
-\* 8888 = Secondary.
+****)
 
-Init == 
-    /\ currentTerm = [i \in {"s0","s1"} |-> 0]
-    /\ state       = [i \in {"s0","s1"} |-> "Secondary"]
-    /\ configVersion =  [i \in {"s0","s1"} |-> 1]
-    /\ configTerm    =  [i \in {"s0","s1"} |-> 0]
-    /\ \E initConfig \in SUBSET {"s0","s1"} : initConfig # {} /\ config = [i \in {"s0","s1"} |-> initConfig]
-
-
-Next ==
-    \/ \E i \in {"s0","s1"}, j \in {"s0","s1"} :
-        /\ currentTerm[i] > currentTerm[j]
-        /\ currentTerm' = [currentTerm EXCEPT ![j] = currentTerm[i]]
-        /\ state' = [state EXCEPT ![j] = "Secondary"]
-        /\ configVersion' = configVersion
-        /\ configTerm' = configTerm
-        /\ config' = config
-    \/ \E i \in {"s0","s1"}, newConfig \in SUBSET {"s0","s1"} :
-       \E Qa \in {s \in SUBSET config[i] : Cardinality(s) * 2 > Cardinality(config[i])} :
-       \E Qb \in {s \in SUBSET config[i] : Cardinality(s) * 2 > Cardinality(config[i])} :
-        /\ state[i] = "Primary"
-        /\ i \in newConfig
-        /\ \A t \in Qa : configVersion[t] = configVersion[i] /\ configTerm[t] = configTerm[i]
-        /\ \A t \in Qb : currentTerm[t] = currentTerm[i] 
-        /\ \A qx \in {sa \in SUBSET config[i] : Cardinality(sa) * 2 > Cardinality(config[i])}, qy \in {sb \in SUBSET newConfig : Cardinality(sb) * 2 > Cardinality(newConfig)} : qx \cap qy # {}  
-        /\ configTerm' = [configTerm EXCEPT ![i] = currentTerm[i]]
-        /\ configVersion' = [configVersion EXCEPT ![i] = configVersion[i] + 1]
-        /\ config' = [config EXCEPT ![i] = newConfig]
-        /\ currentTerm' = currentTerm
-        /\ state' = state
-    \/ \E i \in {"s0","s1"}, j \in {"s0","s1"} :
-        /\ state[j] = "Secondary"
-        /\ \/ configTerm[i] > configTerm[j]
-           \/ /\ configTerm[i] = configTerm[j]
-              /\ configVersion[i] > configVersion[j]
-        /\ configVersion' = [configVersion EXCEPT ![j] = configVersion[i]]
-        /\ configTerm' = [configTerm EXCEPT ![j] = configTerm[i]]
-        /\ config' = [config EXCEPT ![j] = config[i]]
-        /\ currentTerm' = currentTerm
-        /\ state' = state
-    \/ \E i \in {"s0","s1"} : \E voteQuorum \in {s \in SUBSET config[i] : Cardinality(s) * 2 > Cardinality(config[i])} :
-        /\ i \in config[i]
-        /\ i \in voteQuorum
-        /\ currentTerm' = [s \in {"s0","s1"} |-> IF s \in voteQuorum THEN currentTerm[i] + 1 ELSE currentTerm[s]]
-        /\ state' = [s \in {"s0","s1"} |->
-                        IF s = i THEN "Primary"
-                        ELSE IF s \in voteQuorum THEN "Secondary"
-                        ELSE state[s]]
-        /\ configTerm' = [configTerm EXCEPT ![i] = currentTerm[i] + 1]
-        /\ config' = config
-        /\ configVersion' = configVersion
-
-Spec == Init /\ [][Next]_vars
-
-
-\* Next ==
-\*     \/ \E s \in Server, newConfig \in SUBSET Server : Reconfig(s, newConfig)
-\*     \/ \E s,t \in Server : SendConfig(s, t)
-\*     \/ \E i \in Server : \E Q \in Quorums(config[i]) :  BecomeLeader(i, Q)
-\*     \/ \E s,t \in Server : UpdateTerms(s,t)
-
-        \* /\ ConfigQuorumCheck(i)
-        \* /\ TermQuorumCheck(i)
-        \* /\ QuorumsOverlap(config[i], newConfig)
-
-\* /\ \A v \in voteQuorum : 
-\*     /\ currentTerm[v] < currentTerm[i] + 1
-\*         \/ configTerm[i] = configTerm[v] /\ configVersion[i] = configVersion[v]
-\*         \/ \/ configTerm[i] > configTerm[v]
-\*            \/ configTerm[i] = configTerm[v] /\ configVersion[i] > configVersion[v]
-
-=============================================================================
