@@ -143,9 +143,11 @@ Init ==
 Next ==
     \/ \E i \in {"s0","s1"}, newConfig \in SUBSET {"s0","s1"} :
        \E Qa \in {s \in SUBSET config[i] : Cardinality(s) * 2 > Cardinality(config[i])} :
+       \E Qb \in {s \in SUBSET config[i] : Cardinality(s) * 2 > Cardinality(config[i])} :
         /\ state[i] = "Primary"
         /\ i \in newConfig
         /\ \A t \in Qa : configVersion[t] = configVersion[i] /\ configTerm[t] = configTerm[i]
+        /\ \A t \in Qb : currentTerm[t] = currentTerm[i]   
         /\ configTerm' = [configTerm EXCEPT ![i] = currentTerm[i]]
         /\ configVersion' = [configVersion EXCEPT ![i] = configVersion[i] + 1]
         /\ config' = [config EXCEPT ![i] = newConfig]
