@@ -4,6 +4,15 @@
 // Contains logic for expression evaluation and initial/next generation.
 //
 
+// For debugging.
+let depth = 0;
+
+function evalLog(...msgArgs){
+    let indent = "(L"+depth+")" + ("|".repeat(depth * 2));
+    let args = [indent].concat(msgArgs)
+    console.log(...args);
+}
+
 function cartesianProductOf() {
     return _.reduce(arguments, function(a, b) {
         return _.flatten(_.map(a, function(x) {
@@ -188,9 +197,9 @@ function evalInitEq(lhs, rhs, contexts){
             let rhsVals = evalInitExpr(rhs, contexts);
             console.assert(rhsVals.length === 1);
             let rhsVal = rhsVals[0]["val"]
-            console.log("rhsVal:", rhsVal);
+            evalLog("rhsVal:", rhsVal);
             let boolVal = (contexts["state"][identName] === rhsVal)
-            console.log("boolVal:", boolVal);
+            evalLog("boolVal:", boolVal);
             return Object.assign({}, contexts, {"val": boolVal})
             return [{"val": boolVal, "state": contexts["state"]}]; 
         }
@@ -198,11 +207,11 @@ function evalInitEq(lhs, rhs, contexts){
         // Variable not already assigned. So, update variable assignment as necessary.
         let stateUpdated = _.mapValues(contexts["state"], (val,key,obj) => {
             if(key === identName){
-                console.log("Variable (" + identName + ") not already assigned in ctx:",  JSON.stringify(contexts));
+                evalLog("Variable (" + identName + ") not already assigned in ctx:",  JSON.stringify(contexts));
                 let rhsVals = evalInitExpr(rhs, _.cloneDeep(contexts));
                 console.assert(rhsVals.length === 1);
                 let rhsVal = rhsVals[0]["val"];
-                console.log("Variable (" + identName + ") getting value:",  rhsVal);
+                evalLog("Variable (" + identName + ") getting value:",  rhsVal);
                 return (val === null) ? rhsVal : val;
             } 
             return val;
@@ -212,7 +221,7 @@ function evalInitEq(lhs, rhs, contexts){
         // return [_.update(contexts, "val", () => boolVal)];
 
     } else{
-        console.log("Checking for equality with var:", rhs.text, identName, JSON.stringify(contexts));
+        evalLog("Checking for equality with var:", rhs.text, identName, JSON.stringify(contexts));
         
         // Evaluate left and right hand side.
         let lhsVals = evalInitExpr(lhs, _.cloneDeep(contexts));
@@ -236,13 +245,13 @@ function evalInitEq(lhs, rhs, contexts){
 
 // 'vars' is a list of possible partial state assignments known up to this point.
 function evalInitBoundInfix(node, contexts){
-    console.log("evalInitBoundInfix:", node);
+    evalLog("evalInitBoundInfix:", node);
 
     // lhs.
     let lhs = node.children[0];
     // symbol.
     let symbol = node.children[1];
-    console.log("symbol:", node.children[1].type);
+    // console.log("symbol:", node.children[1].type);
     // rhs
     let rhs = node.children[2];
 
@@ -288,13 +297,15 @@ function evalInitBoundInfix(node, contexts){
 
     // Equality.
     if(symbol.type ==="eq"){
-        console.log("bound_infix_op, symbol 'eq', ctx:", JSON.stringify(contexts));
+        // console.log("bound_infix_op, symbol 'eq', ctx:", JSON.stringify(contexts));
+        evalLog("bound_infix_op -> (eq), ctx:", JSON.stringify(contexts));
         return evalInitEq(lhs, rhs, contexts);
     } 
 
     // Inequality.
     if(symbol.type ==="neq"){
-        console.log("bound_infix_op, symbol 'neq', ctx:", JSON.stringify(contexts));
+        // console.log("bound_infix_op, symbol 'neq', ctx:", JSON.stringify(contexts));
+        evalLog("bound_infix_op -> (neq), ctx:", JSON.stringify(contexts));
         
         let lident = lhs.text;
         let lhsVal = evalInitExpr(lhs, contexts)[0]["val"];
@@ -312,7 +323,8 @@ function evalInitBoundInfix(node, contexts){
 
     // Set membership.
     if(symbol.type ==="in"){
-        console.log("bound_infix_op, symbol 'in', ctx:", contexts);
+        // console.log("bound_infix_op, symbol 'in', ctx:", contexts);
+        evalLog("bound_infix_op, symbol 'in', ctx:", contexts);
         let lhs = node.namedChildren[0];
         let rhs = node.namedChildren[2];
 
@@ -328,7 +340,8 @@ function evalInitBoundInfix(node, contexts){
     
     // Set union.
     if(symbol.type ==="cup"){
-        console.log("bound_infix_op, symbol 'cup'");
+        // console.log("bound_infix_op, symbol 'cup'");
+        evalLog("bound_infix_op, symbol 'cup'");
         // TODO: Will need to figure out a more principled approach to object equality.
         console.log(lhs);
         let lhsVal = evalInitExpr(lhs, contexts)[0]["val"];
@@ -340,7 +353,8 @@ function evalInitBoundInfix(node, contexts){
 
     // Set minus.
     if(symbol.type ==="setminus"){
-        console.log("bound_infix_op, symbol 'setminus'");
+        // console.log("bound_infix_op, symbol 'setminus'");
+        evalLog("bound_infix_op, symbol 'setminus'");
         // TODO: Will need to figure out a more principled approach to object equality.
         console.log(lhs);
         let lhsVal = evalInitExpr(lhs, contexts)[0]["val"];
@@ -367,7 +381,7 @@ function evalInitDisjList(parent, disjs, contexts){
 }
 
 function evalInitConjList(parent, conjs, contexts){
-    console.log("evalInit: conjunction list! ctx:", contexts);
+    evalLog("evalInitConjList -> ctx:", contexts);
 
     // Initialize boolean value if needed.
     if(contexts["val"]===null){
@@ -382,12 +396,10 @@ function evalInitConjList(parent, conjs, contexts){
 
 function evalInitIdentifierRef(node, contexts){
     let ident_name = node.text;
-    console.log("identifier_ref, context:", contexts);
-    console.log(node.text);
+    evalLog(`evalInitIdentifierRef, '${node.text}' context:`, contexts);
 
     // If this identifier refers to a variable, return the value bound
     // to that variable in the current context.
-    console.log(contexts);
     if(contexts["state"].hasOwnProperty(ident_name)){
         console.log("variable identifier: ", ident_name);
         let var_val = contexts["state"][ident_name];
@@ -438,7 +450,8 @@ function evalInitIdentifierRef(node, contexts){
 // TODO: Rename 'contexts' to 'context', since now we intend this function to
 // take in only a single context, not a list of contexts.
 function evalInitExpr(node, contexts){
-    console.log("$$ evalInitExpr, node: ", node, node.text);
+    // console.log("$$ evalInitExpr, node: ", node, node.text);
+    evalLog("evalInitExpr -> ("+ node.type + ") '" + node.text + "'");
 
     // [<lExpr> EXCEPT ![<updateExpr>] = <rExpr>]
     if(node.type === "except"){
@@ -517,7 +530,7 @@ function evalInitExpr(node, contexts){
     }
 
     if(node.type === "bound_infix_op"){
-        console.log(node.type, ", ", node.text, ", ctx:", JSON.stringify(contexts));
+        // evalLog(node.type + ", ", node.text, ", ctx:", JSON.stringify(contexts));
         return evalInitBoundInfix(node, contexts);
     }
 
@@ -616,7 +629,7 @@ function evalInitExpr(node, contexts){
             return thenVal;
         } else{
             let elseVal = evalInitExpr(elseNode, _.cloneDeep(contexts));
-            console.log("elseVal", elseVal, elseNode.text, contexts);
+            evalLog("elseVal", elseVal, elseNode.text, contexts);
             return elseVal;
         }
     }
@@ -683,6 +696,7 @@ function evalInitExpr(node, contexts){
     if(node.type === "function_literal"){
         // lbracket = node.children[0]
         // rbracket = node.children[4];
+        evalLog("function_literal: '" +  node.text + "'");
 
         let quant_bound = node.children[1];
         let all_map_to = node.children[2];
@@ -694,9 +708,9 @@ function evalInitExpr(node, contexts){
         // <identifier> \in <expr>
         quant_ident = quant_bound.children[0];
         quant_expr = evalInitExpr(quant_bound.children[2], contexts);
-        console.log("function_literal quant_expr:", quant_expr);
-        console.log(quant_ident.type);
-        console.log(quant_expr.type);
+        evalLog("function_literal quant_expr:", quant_expr);
+        evalLog(quant_ident.type);
+        evalLog(quant_expr.type);
 
         // Evaluate the quantified expression for each element in the 
         // quantifier domain.
@@ -713,14 +727,14 @@ function evalInitExpr(node, contexts){
                 boundContext["quant_bound"] = {};
             }
             boundContext["quant_bound"][quant_ident.text] = v;
-            console.log("function_literal boundCtx:", boundContext);
+            evalLog("function_literal boundCtx:", boundContext);
             // TODO: Handle bound quantifier values during evaluation.
             let vals = evalInitExpr(fexpr, boundContext);
-            console.log("fexpr vals:", vals);
+            evalLog("fexpr vals:", vals);
             console.assert(vals.length === 1);
             fnVal[v] = vals[0]["val"];
         }
-        console.log("fnVal:", fnVal);
+        evalLog("fnVal:", fnVal);
         return [{"val":fnVal, "state":{}}];
     }
 }
@@ -871,4 +885,37 @@ function generateStates(tree){
         console.log(ctx);
     }
     return {"initStates": initStates, "nextStates": allNext};
+}
+
+
+
+//
+// For debugging/tracing expression evaluation.
+//
+
+let origEvalInitExpr = evalInitExpr;
+evalInitExpr = function(...args){
+    depth += 1;
+    let ret = origEvalInitExpr(...args);
+    evalLog("evalreturn -> ", ret);
+    depth -= 1;
+    return ret;
+}
+
+let origEvalInitBoundInfix = evalInitBoundInfix;
+evalInitBoundInfix = function(...args){
+    depth += 1;
+    let ret = origEvalInitBoundInfix(...args);
+    evalLog("evalreturn -> ", ret);
+    depth -= 1;
+    return ret;
+}
+
+let origEvalInitConjList = evalInitConjList;
+evalInitConjList = function(...args){
+    depth += 1;
+    let ret = origEvalInitConjList(...args);
+    evalLog("evalreturn -> ", ret);
+    depth -= 1;
+    return ret;
 }
