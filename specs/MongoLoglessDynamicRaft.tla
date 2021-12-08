@@ -133,21 +133,21 @@ SendConfig(i, j) ==
 \* 8888 = Secondary.
 
 Init == 
-    /\ currentTerm = [i \in {44,55} |-> 0]
-    /\ state       = [i \in {44,55} |-> 8888]
-    /\ configVersion =  [i \in {44,55} |-> 1]
-    /\ configTerm    =  [i \in {44,55} |-> 0]
-    /\ \E initConfig \in SUBSET {44,55} : initConfig # {} /\ config = [i \in {44,55} |-> initConfig]
+    /\ currentTerm = [i \in {"s0","s1"} |-> 0]
+    /\ state       = [i \in {"s0","s1"} |-> "Secondary"]
+    /\ configVersion =  [i \in {"s0","s1"} |-> 1]
+    /\ configTerm    =  [i \in {"s0","s1"} |-> 0]
+    /\ \E initConfig \in SUBSET {"s0","s1"} : initConfig # {} /\ config = [i \in {"s0","s1"} |-> initConfig]
 
 
 Next ==
-    \/ \E i \in {44,55} : \E voteQuorum \in {s \in SUBSET config[i] : Cardinality(s) * 2 > Cardinality(config[i])} :
+    \/ \E i \in {"s0","s1"} : \E voteQuorum \in {s \in SUBSET config[i] : Cardinality(s) * 2 > Cardinality(config[i])} :
         /\ i \in config[i]
         /\ i \in voteQuorum
-        /\ currentTerm' = [s \in {44,55} |-> IF s \in voteQuorum THEN currentTerm[i] + 1 ELSE currentTerm[s]]
-        /\ state' = [s \in {44,55} |->
-                        IF s = i THEN 7777
-                        ELSE IF s \in voteQuorum THEN 8888
+        /\ currentTerm' = [s \in {"s0","s1"} |-> IF s \in voteQuorum THEN currentTerm[i] + 1 ELSE currentTerm[s]]
+        /\ state' = [s \in {"s0","s1"} |->
+                        IF s = i THEN "Primary"
+                        ELSE IF s \in voteQuorum THEN "Secondary"
                         ELSE state[s]]
         /\ configTerm' = [configTerm EXCEPT ![i] = currentTerm[i] + 1]
         /\ config' = config
