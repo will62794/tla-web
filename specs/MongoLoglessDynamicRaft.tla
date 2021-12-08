@@ -141,6 +141,13 @@ Init ==
 
 
 Next ==
+    \/ \E i \in {"s0","s1"}, j \in {"s0","s1"} :
+        /\ currentTerm[i] > currentTerm[j]
+        /\ currentTerm' = [currentTerm EXCEPT ![j] = currentTerm[i]]
+        /\ state' = [state EXCEPT ![j] = "Secondary"]
+        /\ configVersion' = configVersion
+        /\ configTerm' = configTerm
+        /\ config' = config
     \/ \E i \in {"s0","s1"}, newConfig \in SUBSET {"s0","s1"} :
        \E Qa \in {s \in SUBSET config[i] : Cardinality(s) * 2 > Cardinality(config[i])} :
        \E Qb \in {s \in SUBSET config[i] : Cardinality(s) * 2 > Cardinality(config[i])} :
@@ -152,6 +159,16 @@ Next ==
         /\ configTerm' = [configTerm EXCEPT ![i] = currentTerm[i]]
         /\ configVersion' = [configVersion EXCEPT ![i] = configVersion[i] + 1]
         /\ config' = [config EXCEPT ![i] = newConfig]
+        /\ currentTerm' = currentTerm
+        /\ state' = state
+    \/ \E i \in {"s0","s1"}, j \in {"s0","s1"} :
+        /\ state[j] = "Secondary"
+        /\ \/ configTerm[i] > configTerm[j]
+           \/ /\ configTerm[i] = configTerm[j]
+              /\ configVersion[i] > configVersion[j]
+        /\ configVersion' = [configVersion EXCEPT ![j] = configVersion[i]]
+        /\ configTerm' = [configTerm EXCEPT ![j] = configTerm[i]]
+        /\ config' = [config EXCEPT ![j] = config[i]]
         /\ currentTerm' = currentTerm
         /\ state' = state
     \/ \E i \in {"s0","s1"} : \E voteQuorum \in {s \in SUBSET config[i] : Cardinality(s) * 2 > Cardinality(config[i])} :
