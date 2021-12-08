@@ -129,29 +129,32 @@ SendConfig(i, j) ==
     /\ config' = [config EXCEPT ![j] = config[i]]
     /\ UNCHANGED <<currentTerm, state>>
 
+\* 7777 = Primary.
+\* 8888 = Secondary.
+
 Init == 
-    /\ currentTerm = [i \in Server |-> 0]
-    /\ state       = [i \in Server |-> Secondary]
-    /\ configVersion =  [i \in Server |-> 1]
-    /\ configTerm    =  [i \in Server |-> 0]
-    /\ \E initConfig \in SUBSET Server : initConfig # {} /\ config = [i \in Server |-> initConfig]
+    /\ currentTerm = [i \in {44,55} |-> 0]
+    /\ state       = [i \in {44,55} |-> 8888]
+    /\ configVersion =  [i \in {44,55} |-> 1]
+    /\ configTerm    =  [i \in {44,55} |-> 0]
+    /\ \E initConfig \in SUBSET {44,55} : initConfig # {} /\ config = [i \in {44,55} |-> initConfig]
+
 
 Next ==
-    \/ \E i \in Server : \E voteQuorum \in {s \in SUBSET(config[i]) : Cardinality(s) * 2 > Cardinality(config[i])} :
+    \/ \E i \in {44,55} : \E voteQuorum \in {s \in SUBSET config[i] : Cardinality(s) * 2 > Cardinality(config[i])} :
         /\ i \in config[i]
         /\ i \in voteQuorum
-        /\ \A v \in voteQuorum : 
-            /\ currentTerm[v] < currentTerm[i] + 1
-                \/ configTerm[i] = configTerm[v] /\ configVersion[i] = configVersion[v]
-                \/ \/ configTerm[i] > configTerm[v]
-                   \/ configTerm[i] = configTerm[v] /\ configVersion[i] > configVersion[v]
-        /\ currentTerm' = [s \in Server |-> IF s \in voteQuorum THEN currentTerm[i] + 1 ELSE currentTerm[s]]
-        /\ state' = [s \in Server |->
-                        IF s = i THEN Primary
-                        ELSE IF s \in voteQuorum THEN Secondary \* All voters should revert to secondary state.
+        /\ currentTerm' = [s \in {44,55} |-> IF s \in voteQuorum THEN currentTerm[i] + 1 ELSE currentTerm[s]]
+        /\ state' = [s \in {44,55} |->
+                        IF s = i THEN 7777
+                        ELSE IF s \in voteQuorum THEN 8888
                         ELSE state[s]]
         /\ configTerm' = [configTerm EXCEPT ![i] = currentTerm[i] + 1]
-        /\ UNCHANGED <<config, configVersion>> 
+        /\ config' = config
+        /\ configVersion' = configVersion
+
+Spec == Init /\ [][Next]_vars
+
 
 \* Next ==
 \*     \/ \E s \in Server, newConfig \in SUBSET Server : Reconfig(s, newConfig)
@@ -159,6 +162,10 @@ Next ==
 \*     \/ \E i \in Server : \E Q \in Quorums(config[i]) :  BecomeLeader(i, Q)
 \*     \/ \E s,t \in Server : UpdateTerms(s,t)
 
-Spec == Init /\ [][Next]_vars
+\* /\ \A v \in voteQuorum : 
+\*     /\ currentTerm[v] < currentTerm[i] + 1
+\*         \/ configTerm[i] = configTerm[v] /\ configVersion[i] = configVersion[v]
+\*         \/ \/ configTerm[i] > configTerm[v]
+\*            \/ configTerm[i] = configTerm[v] /\ configVersion[i] > configVersion[v]
 
 =============================================================================
