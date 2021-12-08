@@ -66,7 +66,7 @@ function renderCurrentTrace(){
         traceStateDiv.classList.add("trace-state");
         console.log(state);
         for(const varname in state){
-            traceStateDiv.innerHTML += "<span>" + varname +": "+ JSON.stringify(state[varname]) + "</span>";
+            traceStateDiv.innerHTML += "<span><span class='state-varname'>" + varname +"</span> = "+ JSON.stringify(state[varname]) + "</span>";
             traceStateDiv.innerHTML += "<br>"
         }
         // If this is the last state, add a "step back" button.
