@@ -26,7 +26,8 @@ function renderNextStateChoices(nextStates){
         let stateDiv = document.createElement("div");
         stateDiv.classList.add("init-state");
         for(const varname in state){
-            stateDiv.innerHTML += (varname + " = " + JSON.stringify(state[varname]));
+            stateDiv.innerHTML += `<span class='state-varname'>${varname}</span> = `
+            stateDiv.innerHTML += JSON.stringify(state[varname]);
             stateDiv.innerHTML += "<br>"
         }
         let hash = hashState(state);
@@ -306,17 +307,7 @@ function handleChooseState(statehash){
     let initStatesDiv = document.getElementById("initial-states");
     initStatesDiv.innerHTML = "";
     // initStatesDiv.innerHTML += "<div>"
-    for(const state of initStates){
-        let stateDiv = document.createElement("div");
-        stateDiv.classList.add("init-state");
-        for(const varname in state){
-            stateDiv.innerHTML += (varname + " = " + JSON.stringify(state[varname]));
-            stateDiv.innerHTML += "<br>"
-        }
-        let hash = hashState(state);
-        stateDiv.setAttribute("onclick", `handleChooseState("${hash}")`);
-        initStatesDiv.appendChild(stateDiv);
-    }
+    renderNextStateChoices(initStates);
 
     // let nextStatesDiv = document.getElementById("next-states");
     // nextStatesDiv.innerHTML = "";
