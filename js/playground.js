@@ -93,10 +93,14 @@ function handleChooseState(statehash){
     currTrace.push(nextState);
     console.log("nextState:", JSON.stringify(nextState));
     console.log("nextStatePred:", nextStatePred);
+    const start = performance.now();
     let nextStates = getNextStates(nextStatePred, _.cloneDeep(nextState))
                         .map(c => c["state"])
                         .map(renamedPrimedVars);
     currNextStates = _.cloneDeep(nextStates);
+    const duration = (performance.now() - start).toFixed(1);
+    console.log(`Generation of next states took ${duration}ms`)
+
 
     // Re-render.
     renderCurrentTrace();
@@ -193,8 +197,8 @@ function handleChooseState(statehash){
     // Download example spec.
     // let specPath = "./specs/simple1.tla";
     // let specPath = "./specs/simple2.tla";
-    let specPath = "./specs/lockserver_nodefs.tla";
-    // let specPath = "./specs/MongoLoglessDynamicRaft.tla";
+    // let specPath = "./specs/lockserver_nodefs.tla";
+    let specPath = "./specs/MongoLoglessDynamicRaft.tla";
     (() => {
         const handle = setInterval(() => {
             res = $.get(specPath, data => {

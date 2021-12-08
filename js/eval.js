@@ -6,11 +6,14 @@
 
 // For debugging.
 let depth = 0;
+let enableEvalTracing = true;
 
 function evalLog(...msgArgs){
-    let indent = "(L"+depth+")" + ("|".repeat(depth * 2));
-    let args = [indent].concat(msgArgs)
-    console.log(...args);
+    if(enableEvalTracing){
+        let indent = "(L"+depth+")" + ("|".repeat(depth * 2));
+        let args = [indent].concat(msgArgs)
+        console.log(...args);
+    }
 }
 
 function cartesianProductOf() {
@@ -401,9 +404,9 @@ function evalInitIdentifierRef(node, contexts){
     // If this identifier refers to a variable, return the value bound
     // to that variable in the current context.
     if(contexts["state"].hasOwnProperty(ident_name)){
-        console.log("variable identifier: ", ident_name);
+        evalLog("variable identifier: ", ident_name);
         let var_val = contexts["state"][ident_name];
-        console.log("var ident context:", contexts["state"], var_val);
+        evalLog("var ident context:", contexts["state"], var_val);
         // return [{"val": var_val, "state": contexts["state"]}];
         return [Object.assign({}, contexts, {"val": var_val})];
     }
@@ -411,9 +414,8 @@ function evalInitIdentifierRef(node, contexts){
     // See if the identifier is bound to a value in the current context.
     // If so, return the value it is bound to.
     if(contexts.hasOwnProperty("quant_bound") && contexts["quant_bound"].hasOwnProperty(ident_name)){
-        console.log("ident is bound");
         let bound_val = contexts["quant_bound"][ident_name];
-        console.log("bound_val", bound_val);
+        evalLog("bound_val", bound_val);
         return [Object.assign({}, contexts, {"val": bound_val})];
         // return [{"val": bound_val, "state": contexts["state"]}];
     }
