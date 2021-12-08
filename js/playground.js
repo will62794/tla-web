@@ -135,7 +135,9 @@ function handleChooseState(statehash){
 
   const codeEditor = CodeMirror.fromTextArea(codeInput, {
     lineNumbers: true,
-    showCursorWhenSelecting: true
+    showCursorWhenSelecting: true,
+    // TODO: Work out tlaplus mode functionality for syntax highlighting.
+    // mode:"tlaplus"
   });
 
 //   const queryEditor = CodeMirror.fromTextArea(queryInput, {
