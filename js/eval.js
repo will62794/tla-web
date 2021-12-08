@@ -628,8 +628,8 @@ function evalInitExpr(node, contexts){
 
     if(node.type === "nat_number"){
         // console.log(node.type, node.text);
-        // return [{"val": parseInt(node.text), "state": {}}];
-        return [{"val": new NatValue(parseInt(node.text)), "state": {}}];
+        return [{"val": parseInt(node.text), "state": {}}];
+        // return [{"val": new NatValue(parseInt(node.text)), "state": {}}];
     }
 
     if(node.type === "boolean"){
@@ -642,7 +642,8 @@ function evalInitExpr(node, contexts){
         console.log("string node", node.text);
         // Remove the quotes.
         let rawStr = node.text.substring(1,node.text.length-1);
-        return [{"val": new StringValue(rawStr), "state": {}}];
+        return [{"val": rawStr, "state": {}}];
+        // return [{"val": new StringValue(rawStr), "state": {}}];
     }
 
     if(node.type === "if_then_else"){
