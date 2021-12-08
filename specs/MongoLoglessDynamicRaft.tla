@@ -137,10 +137,14 @@ Init ==
     /\ \E initConfig \in SUBSET Server : initConfig # {} /\ config = [i \in Server |-> initConfig]
 
 Next ==
-    \/ \E i \in Server : \E voteQuorum \in Quorums(config[i]) : 
+    \/ \E i \in Server : \E voteQuorum \in {s \in SUBSET(config[i]) : Cardinality(s) * 2 > Cardinality(config[i])} :
         /\ i \in config[i]
         /\ i \in voteQuorum
-        /\ \A v \in voteQuorum : CanVoteForConfig(v, i, currentTerm[i] + 1)
+        /\ \A v \in voteQuorum : 
+            /\ currentTerm[v] < currentTerm[i] + 1
+                \/ configTerm[i] = configTerm[v] /\ configVersion[i] = configVersion[v]
+                \/ \/ configTerm[i] > configTerm[v]
+                   \/ configTerm[i] = configTerm[v] /\ configVersion[i] > configVersion[v]
         /\ currentTerm' = [s \in Server |-> IF s \in voteQuorum THEN currentTerm[i] + 1 ELSE currentTerm[s]]
         /\ state' = [s \in Server |->
                         IF s = i THEN Primary
