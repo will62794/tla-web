@@ -141,6 +141,16 @@ Init ==
 
 
 Next ==
+    \/ \E i \in {"s0","s1"}, newConfig \in SUBSET {"s0","s1"} :
+       \E Qa \in {s \in SUBSET config[i] : Cardinality(s) * 2 > Cardinality(config[i])} :
+        /\ state[i] = "Primary"
+        /\ i \in newConfig
+        /\ \A t \in Qa : configVersion[t] = configVersion[i] /\ configTerm[t] = configTerm[i]
+        /\ configTerm' = [configTerm EXCEPT ![i] = currentTerm[i]]
+        /\ configVersion' = [configVersion EXCEPT ![i] = configVersion[i] + 1]
+        /\ config' = [config EXCEPT ![i] = newConfig]
+        /\ currentTerm' = currentTerm
+        /\ state' = state
     \/ \E i \in {"s0","s1"} : \E voteQuorum \in {s \in SUBSET config[i] : Cardinality(s) * 2 > Cardinality(config[i])} :
         /\ i \in config[i]
         /\ i \in voteQuorum
@@ -161,6 +171,10 @@ Spec == Init /\ [][Next]_vars
 \*     \/ \E s,t \in Server : SendConfig(s, t)
 \*     \/ \E i \in Server : \E Q \in Quorums(config[i]) :  BecomeLeader(i, Q)
 \*     \/ \E s,t \in Server : UpdateTerms(s,t)
+
+        \* /\ ConfigQuorumCheck(i)
+        \* /\ TermQuorumCheck(i)
+        \* /\ QuorumsOverlap(config[i], newConfig)
 
 \* /\ \A v \in voteQuorum : 
 \*     /\ currentTerm[v] < currentTerm[i] + 1
