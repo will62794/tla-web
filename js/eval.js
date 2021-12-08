@@ -44,6 +44,31 @@ function hashState(stateObj){
     return objectHash.sha1(stateObj);
 }
 
+class TLAValue{
+    constructor() {
+    }
+}
+
+class NatValue extends TLAValue{
+    constructor(n){
+        super(n);
+        this.val = n;
+    }
+    toString(){
+        return this.val.toString();
+    }
+}
+
+class StringValue extends TLAValue{
+    constructor(s){
+        super(s);
+        this.val = s;
+    }
+    toString(){
+        return this.val;
+    }
+}
+
 /**
  * Extract all defintions and variable declarations from the given syntax tree
  * of a TLA+ module.
@@ -603,7 +628,8 @@ function evalInitExpr(node, contexts){
 
     if(node.type === "nat_number"){
         // console.log(node.type, node.text);
-        return [{"val": parseInt(node.text), "state": {}}];
+        // return [{"val": parseInt(node.text), "state": {}}];
+        return [{"val": new NatValue(parseInt(node.text)), "state": {}}];
     }
 
     if(node.type === "boolean"){
@@ -616,7 +642,7 @@ function evalInitExpr(node, contexts){
         console.log("string node", node.text);
         // Remove the quotes.
         let rawStr = node.text.substring(1,node.text.length-1);
-        return [{"val": rawStr, "state": {}}];
+        return [{"val": new StringValue(rawStr), "state": {}}];
     }
 
     if(node.type === "if_then_else"){
