@@ -6,7 +6,8 @@
 
 EXTENDS Naturals, Integers, FiniteSets, Sequences, TLC
 
-CONSTANTS Server, Secondary, Primary, Nil
+\* CONSTANTS Server
+CONSTANTS Secondary, Primary, Nil
 
 VARIABLE currentTerm
 VARIABLE state
@@ -23,22 +24,24 @@ Min(s) == CHOOSE x \in s : \A y \in s : x <= y
 Max(s) == CHOOSE x \in s : \A y \in s : x >= y
 Empty(s) == Len(s) = 0
 
+Server == {"n0","n1"}
+
 Init == 
-    /\ currentTerm = [i \in {"s0","s1"} |-> 0]
-    /\ state       = [i \in {"s0","s1"} |-> "Secondary"]
-    /\ configVersion =  [i \in {"s0","s1"} |-> 1]
-    /\ configTerm    =  [i \in {"s0","s1"} |-> 0]
-    /\ \E initConfig \in SUBSET {"s0","s1"} : initConfig # {} /\ config = [i \in {"s0","s1"} |-> initConfig]
+    /\ currentTerm = [i \in Server |-> 0]
+    /\ state       = [i \in Server |-> "Secondary"]
+    /\ configVersion =  [i \in Server |-> 1]
+    /\ configTerm    =  [i \in Server |-> 0]
+    /\ \E initConfig \in SUBSET Server : initConfig # {} /\ config = [i \in Server |-> initConfig]
 
 Next ==
-    \/ \E i \in {"s0","s1"}, j \in {"s0","s1"} :
+    \/ \E i \in Server : \E j \in Server :
         /\ currentTerm[i] > currentTerm[j]
         /\ currentTerm' = [currentTerm EXCEPT ![j] = currentTerm[i]]
         /\ state' = [state EXCEPT ![j] = "Secondary"]
         /\ configVersion' = configVersion
         /\ configTerm' = configTerm
         /\ config' = config
-    \/ \E i \in {"s0","s1"}, newConfig \in SUBSET {"s0","s1"} :
+    \/ \E i \in Server : \E newConfig \in SUBSET Server :
        \E Qa \in {s \in SUBSET config[i] : Cardinality(s) * 2 > Cardinality(config[i])} :
        \E Qb \in {s \in SUBSET config[i] : Cardinality(s) * 2 > Cardinality(config[i])} :
         /\ state[i] = "Primary"
@@ -51,7 +54,7 @@ Next ==
         /\ config' = [config EXCEPT ![i] = newConfig]
         /\ currentTerm' = currentTerm
         /\ state' = state
-    \/ \E i \in {"s0","s1"}, j \in {"s0","s1"} :
+    \/ \E i \in Server : \E j \in Server :
         /\ state[j] = "Secondary"
         /\ \/ configTerm[i] > configTerm[j]
            \/ /\ configTerm[i] = configTerm[j]
@@ -61,11 +64,11 @@ Next ==
         /\ config' = [config EXCEPT ![j] = config[i]]
         /\ currentTerm' = currentTerm
         /\ state' = state
-    \/ \E i \in {"s0","s1"} : \E voteQuorum \in {s \in SUBSET config[i] : Cardinality(s) * 2 > Cardinality(config[i])} :
+    \/ \E i \in Server : \E voteQuorum \in {s \in SUBSET config[i] : Cardinality(s) * 2 > Cardinality(config[i])} :
         /\ i \in config[i]
         /\ i \in voteQuorum
-        /\ currentTerm' = [s \in {"s0","s1"} |-> IF s \in voteQuorum THEN currentTerm[i] + 1 ELSE currentTerm[s]]
-        /\ state' = [s \in {"s0","s1"} |->
+        /\ currentTerm' = [s \in Server |-> IF s \in voteQuorum THEN currentTerm[i] + 1 ELSE currentTerm[s]]
+        /\ state' = [s \in Server |->
                         IF s = i THEN "Primary"
                         ELSE IF s \in voteQuorum THEN "Secondary"
                         ELSE state[s]]

@@ -6,7 +6,11 @@
 
 // For debugging.
 let depth = 0;
-let enableEvalTracing = false;
+
+// Optionally enable tracing of evaluation.
+const urlSearchParams = new URLSearchParams(window.location.search);
+const params = Object.fromEntries(urlSearchParams.entries());
+let enableEvalTracing = parseInt(params["debug"]);
 
 function evalLog(...msgArgs){
     if(enableEvalTracing){
@@ -184,7 +188,7 @@ function evalInitLand(lhs, rhs, contexts){
 function evalInitLor(lhs, rhs, contexts){
     // return {"val": false, "states": vars};
     console.log("## LOR");
-    console.log("orig ctx:", JSON.stringify(contexts));
+    console.log("orig ctx:", contexts);
     // For all existing possible variable assignments split into
     // separate evaluation cases for left and right branch.
     let contextsLhs = evalInitExpr(lhs, contexts);
@@ -235,7 +239,7 @@ function evalInitEq(lhs, rhs, contexts){
         // Variable not already assigned. So, update variable assignment as necessary.
         let stateUpdated = _.mapValues(contexts["state"], (val,key,obj) => {
             if(key === identName){
-                evalLog("Variable (" + identName + ") not already assigned in ctx:",  JSON.stringify(contexts));
+                evalLog("Variable (" + identName + ") not already assigned in ctx:",  contexts);
                 let rhsVals = evalInitExpr(rhs, _.cloneDeep(contexts));
                 console.assert(rhsVals.length === 1);
                 let rhsVal = rhsVals[0]["val"];
@@ -249,7 +253,7 @@ function evalInitEq(lhs, rhs, contexts){
         // return [_.update(contexts, "val", () => boolVal)];
 
     } else{
-        evalLog("Checking for equality with var:", rhs.text, identName, JSON.stringify(contexts));
+        evalLog("Checking for equality with var:", rhs.text, identName, contexts);
         
         // Evaluate left and right hand side.
         let lhsVals = evalInitExpr(lhs, _.cloneDeep(contexts));
@@ -326,14 +330,14 @@ function evalInitBoundInfix(node, contexts){
     // Equality.
     if(symbol.type ==="eq"){
         // console.log("bound_infix_op, symbol 'eq', ctx:", JSON.stringify(contexts));
-        evalLog("bound_infix_op -> (eq), ctx:", JSON.stringify(contexts));
+        evalLog("bound_infix_op -> (eq), ctx:", contexts);
         return evalInitEq(lhs, rhs, contexts);
     } 
 
     // Inequality.
     if(symbol.type ==="neq"){
         // console.log("bound_infix_op, symbol 'neq', ctx:", JSON.stringify(contexts));
-        evalLog("bound_infix_op -> (neq), ctx:", JSON.stringify(contexts));
+        evalLog("bound_infix_op -> (neq), ctx:", contexts);
         
         let lident = lhs.text;
         let lhsVal = evalInitExpr(lhs, contexts)[0]["val"];
@@ -357,10 +361,10 @@ function evalInitBoundInfix(node, contexts){
         let rhs = node.namedChildren[2];
 
         let lhsVal = evalInitExpr(lhs, contexts)[0]["val"];
-        console.log("setin lhsval:", lhsVal, lhs.text, JSON.stringify(contexts));
+        console.log("setin lhsval:", lhsVal, lhs.text, contexts);
 
         let rhsVal = evalInitExpr(rhs, contexts)[0]["val"];
-        console.log("setin rhsval:", rhsVal, rhs.text, JSON.stringify(contexts));
+        console.log("setin rhsval:", rhsVal, rhs.text, contexts);
 
         console.log("setin lhs in rhs:", rhsVal.includes(lhsVal));
         return [Object.assign({}, contexts, {"val": rhsVal.includes(lhsVal)})]
@@ -456,6 +460,15 @@ function evalInitIdentifierRef(node, contexts){
         evalLog("bound_val", bound_val);
         return [Object.assign({}, contexts, {"val": bound_val})];
         // return [{"val": bound_val, "state": contexts["state"]}];
+    }
+
+    // See if this identifier is a definition in the spec.
+    if(contexts["defns"].hasOwnProperty(ident_name)){
+        // Evaluate the definition in the current context.
+        // TODO: Consider defs that are n-ary operators.
+        let defNode = contexts["defns"][ident_name];
+        // return undefined;
+        return evalInitExpr(defNode, contexts);
     }
 
     // TODO: Consider case of being undefined.
@@ -575,7 +588,7 @@ function evalInitExpr(node, contexts){
     }
 
     if(node.type === "bound_prefix_op"){
-        console.log(node.type, ", ", node.text, ", ctx:", JSON.stringify(contexts));
+        console.log(node.type, ", ", node.text, ", ctx:", contexts);
         let symbol = node.children[0];
         let rhs = node.children[1];
         if(symbol.type === "powerset"){
@@ -586,6 +599,7 @@ function evalInitExpr(node, contexts){
             rhsVal = rhsVal[0]["val"];
             let powersetRhs = subsets(rhsVal);
             console.log("powerset:",powersetRhs);
+            // return [Object.assign({}, contexts, {"val":powersetRhs})];
             return [{"val": powersetRhs, "state": {}}];
         }
     }
@@ -628,8 +642,8 @@ function evalInitExpr(node, contexts){
             for(var qk = 0;qk<quantIdents.length;qk++){
                 boundContext["quant_bound"][quantIdents[qk]] = qtup[qk];
             }
-            console.log("quantDomain val:", JSON.stringify(qtup));
-            console.log("boundContext:", JSON.stringify(boundContext));
+            console.log("quantDomain val:", qtup);
+            console.log("boundContext:", boundContext);
             let ret = evalInitExpr(quant_expr, _.cloneDeep(boundContext));
             return ret;
         }));
@@ -786,7 +800,7 @@ function evalInitExpr(node, contexts){
  * initial state predicate and an object 'vars' which contains exactly the
  * specification's state variables as keys.
  */
-function getInitStates(initDef, vars){
+function getInitStates(initDef, vars, defns){
     // TODO: Pass this variable value as an argument to the evaluation functions.
     ASSIGN_PRIMED = false;
 
@@ -799,7 +813,7 @@ function getInitStates(initDef, vars){
     // We refer to a 'context' as the context for a single evaluation
     // branch, which contains a computed value along with a list of 
     // generated states.
-    let init_ctx = {"val": null, "state": init_var_vals};
+    let init_ctx = {"val": null, "state": init_var_vals, "defns": defns};
     // let ret_ctxs = evalInitExpr(initDef, [init_ctx]);
     let ret_ctxs = evalInitExpr(initDef, init_ctx);
     console.log("Possible initial state assignments:");
@@ -813,7 +827,7 @@ function getInitStates(initDef, vars){
  * Generates all possible successor states from a given state and the syntax
  * tree node for the definition of the next state predicate.
  */
-function getNextStates(nextDef, currStateVars){
+function getNextStates(nextDef, currStateVars, defns){
     // TODO: Pass this variable value as an argument to the evaluation functions.
     ASSIGN_PRIMED = true;
     let origVars = Object.keys(currStateVars);
@@ -824,7 +838,7 @@ function getNextStates(nextDef, currStateVars){
     }
     console.log("currStateVars:", currStateVars);
     // let init_ctxs = [{"val": null, "state": currStateVars}]
-    let init_ctx = {"val": null, "state": currStateVars};
+    let init_ctx = {"val": null, "state": currStateVars, "defns": defns};
     // let ret = evalNextExpr(nextDef, init_ctxs);
     // console.log("nextDef:", nextDef);
     let ret = evalInitExpr(nextDef, init_ctx);
@@ -852,7 +866,7 @@ function computeInitStates(tree){
     console.log("initDef.childCount: ", initDef.childCount);
     console.log("initDef.type: ", initDef.type);
 
-    let initStates = getInitStates(initDef, vars);
+    let initStates = getInitStates(initDef, vars, defns);
     // Keep only the valid states.
     initStates = initStates.filter(ctx => ctx["val"]).map(ctx => ctx["state"]);
     return initStates;
@@ -876,7 +890,7 @@ function computeNextStates(tree, initStates){
     for(const istate of initStates){
         let currState = _.cloneDeep(istate);
         console.log("###### Computing next states from state: ", currState);
-        let ret = getNextStates(nextDef, currState);
+        let ret = getNextStates(nextDef, currState, defns);
         allNext = allNext.concat(ret);
     }
     return allNext;
@@ -895,7 +909,7 @@ function generateStates(tree){
     console.log("initDef.childCount: ", initDef.childCount);
     console.log("initDef.type: ", initDef.type);
 
-    let initStates = getInitStates(initDef, vars);
+    let initStates = getInitStates(initDef, vars, defns);
     // Keep only the valid states.
     initStates = initStates.filter(ctx => ctx["val"]).map(ctx => ctx["state"]);
     console.log("initial states:", initStates);
@@ -917,7 +931,7 @@ function generateStates(tree){
     for(const istate of initStates){
         let currState = _.cloneDeep(istate);
         console.log("###### Computing next states from state: ", currState);
-        let ret = getNextStates(nextDef, currState);
+        let ret = getNextStates(nextDef, currState, defns);
         // console.log(ret);
         allNext = allNext.concat(ret);
     }

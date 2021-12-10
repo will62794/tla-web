@@ -4,6 +4,7 @@ let nextStatePred = null;
 let currState = null;
 let currNextStates = [];
 let currTrace = []
+let specDefs = null;
 
 // Given a state with primed and unprimed variables, remove the original
 // unprimed variables and rename the primed variables to unprimed versions. 
@@ -44,7 +45,7 @@ function traceStepBack(){
         currNextStates = _.cloneDeep(allInitStates);
     } else{
         let lastState = currTrace[currTrace.length-1];
-        let nextStates = getNextStates(nextStatePred, _.cloneDeep(lastState))
+        let nextStates = getNextStates(nextStatePred, _.cloneDeep(lastState), specDefs)
             .map(c => c["state"])
             .map(renamedPrimedVars);
         currNextStates = _.cloneDeep(nextStates);
@@ -95,7 +96,7 @@ function handleChooseState(statehash){
     console.log("nextState:", JSON.stringify(nextState));
     console.log("nextStatePred:", nextStatePred);
     const start = performance.now();
-    let nextStates = getNextStates(nextStatePred, _.cloneDeep(nextState))
+    let nextStates = getNextStates(nextStatePred, _.cloneDeep(nextState), specDefs)
                         .map(c => c["state"])
                         .map(renamedPrimedVars);
     currNextStates = _.cloneDeep(nextStates);
@@ -137,7 +138,7 @@ function handleChooseState(statehash){
     lineNumbers: true,
     showCursorWhenSelecting: true,
     // TODO: Work out tlaplus mode functionality for syntax highlighting.
-    mode:"tlaplus"
+    // mode:"tlaplus"
   });
 
 //   const queryEditor = CodeMirror.fromTextArea(queryInput, {
@@ -299,6 +300,7 @@ function handleChooseState(statehash){
 
     console.log("Re-generating states.");
     let treeObjs = walkTree(newTree);
+    specDefs = treeObjs["op_defs"];
     nextStatePred = treeObjs["op_defs"]["Next"];
     let res = generateStates(newTree);
 
