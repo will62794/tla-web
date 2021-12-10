@@ -158,14 +158,14 @@ function walkTree(tree){
 
 function evalInitLand(lhs, rhs, contexts){
     // Evaluate left to right.
-    console.log("## LAND - LHS:", lhs.text, ", RHS: ", rhs.text);
+    evalLog("## LAND - LHS:", lhs.text, ", RHS: ", rhs.text);
     let lhsEval = _.flattenDeep(evalInitExpr(lhs, contexts));
-    console.log("lhsEval:", lhsEval);
+    evalLog("lhsEval:", lhsEval);
     let rhsEval = lhsEval.map(lctx => {
-        console.log("rhs:", rhs.text);
-        console.log("lctx:", lctx);
+        evalLog("rhs:", rhs.text);
+        evalLog("lctx:", lctx);
         return evalInitExpr(rhs, lctx).map(ctx => {
-            console.log("ctx:", ctx);
+            evalLog("ctx:", ctx);
             return Object.assign({}, ctx, {"val": (lctx["val"] && ctx["val"]), "state": ctx["state"]});
         })
     });
@@ -187,12 +187,12 @@ function evalInitLand(lhs, rhs, contexts){
 
 function evalInitLor(lhs, rhs, contexts){
     // return {"val": false, "states": vars};
-    console.log("## LOR");
-    console.log("orig ctx:", contexts);
+    evalLog("## LOR");
+    evalLog("orig ctx:", contexts);
     // For all existing possible variable assignments split into
     // separate evaluation cases for left and right branch.
     let contextsLhs = evalInitExpr(lhs, contexts);
-    console.log("lhs contexts:",contextsLhs);
+    evalLog("lhs contexts:",contextsLhs);
     let contextsRhs = evalInitExpr(rhs, contexts);
     return contextsLhs.concat(contextsRhs);
 }
@@ -225,7 +225,7 @@ function evalInitEq(lhs, rhs, contexts){
         // then check for equality.
         // Variable already assigned in this context. So, check for equality.
         if(contexts["state"].hasOwnProperty(identName) && contexts["state"][identName] !== null){
-            console.log("Variable '" + identName + "' already assigned in ctx:",  contexts);
+            evalLog("Variable '" + identName + "' already assigned in ctx:",  contexts);
             let rhsVals = evalInitExpr(rhs, contexts);
             console.assert(rhsVals.length === 1);
             let rhsVal = rhsVals[0]["val"]
@@ -289,9 +289,9 @@ function evalInitBoundInfix(node, contexts){
 
     // Multiplication
     if(symbol.type === "mul"){
-        console.log("mul lhs:", lhs, lhs.text);
+        evalLog("mul lhs:", lhs, lhs.text);
         let mulLhsVal = evalInitExpr(lhs, contexts);
-        console.log("mul lhs val:", mulLhsVal);
+        evalLog("mul lhs val:", mulLhsVal);
         let lhsVal = mulLhsVal[0]["val"];
         let rhsVal = evalInitExpr(rhs, contexts)[0]["val"];
         let outVal = lhsVal * rhsVal;
@@ -301,9 +301,9 @@ function evalInitBoundInfix(node, contexts){
 
     // Plus.
     if(symbol.type === "plus"){
-        console.log("mul lhs:", lhs, lhs.text);
+        evalLog("mul lhs:", lhs, lhs.text);
         let mulLhsVal = evalInitExpr(lhs, contexts);
-        console.log("mul lhs val:", mulLhsVal);
+        evalLog("mul lhs val:", mulLhsVal);
         let lhsVal = mulLhsVal[0]["val"];
         let rhsVal = evalInitExpr(rhs, contexts)[0]["val"];
         let outVal = lhsVal + rhsVal;
@@ -348,7 +348,7 @@ function evalInitBoundInfix(node, contexts){
         let boolVal = !_.isEqual(lhsVal, rhsVal);
         // console.log("inequality lhsVal:", lhsVal);
         // console.log("inequality rhsVal:", rhsVal);
-        console.log("inequality boolVal:", boolVal);
+        evalLog("inequality boolVal:", boolVal);
         // Return context with updated value.
         return [Object.assign({}, contexts, {"val": boolVal})];
     } 
@@ -361,12 +361,12 @@ function evalInitBoundInfix(node, contexts){
         let rhs = node.namedChildren[2];
 
         let lhsVal = evalInitExpr(lhs, contexts)[0]["val"];
-        console.log("setin lhsval:", lhsVal, lhs.text, contexts);
+        evalLog("setin lhsval:", lhsVal, lhs.text, contexts);
 
         let rhsVal = evalInitExpr(rhs, contexts)[0]["val"];
-        console.log("setin rhsval:", rhsVal, rhs.text, contexts);
+        evalLog("setin rhsval:", rhsVal, rhs.text, contexts);
 
-        console.log("setin lhs in rhs:", rhsVal.includes(lhsVal));
+        evalLog("setin lhs in rhs:", rhsVal.includes(lhsVal));
         return [Object.assign({}, contexts, {"val": rhsVal.includes(lhsVal)})]
     } 
     
@@ -374,7 +374,6 @@ function evalInitBoundInfix(node, contexts){
     if(symbol.type ==="cap"){
         evalLog("bound_infix_op, symbol 'cap'");
         // TODO: Will eventually need to figure out a more principled approach to object equality.
-        console.log(lhs);
         let lhsVal = evalInitExpr(lhs, contexts)[0]["val"];
         evalLog("cap lhs:", lhsVal);
         let rhsVal = evalInitExpr(rhs, contexts)[0]["val"];
@@ -508,25 +507,25 @@ function evalInitExpr(node, contexts){
 
     // [<lExpr> EXCEPT ![<updateExpr>] = <rExpr>]
     if(node.type === "except"){
-        console.log("EXCEPT node, ctx:", contexts);
+        evalLog("EXCEPT node, ctx:", contexts);
         let lExpr = node.namedChildren[0];
         let updateExpr = node.namedChildren[1];
         let rExpr = node.namedChildren[2];
 
         // This value should be a function.
-        console.log("lExpr:",lExpr); 
+        evalLog("lExpr:",lExpr); 
         let lExprVal = evalInitExpr(lExpr, contexts);
-        console.log("lexprval:", lExprVal);
+        evalLog("lexprval:", lExprVal);
         // console.assert(lExprVal.type === "function");
         let fnVal = lExprVal[0]["val"];
-        console.log("fnVal:",fnVal);
+        evalLog("fnVal:",fnVal);
 
-        console.log(updateExpr);
+        evalLog(updateExpr);
         let updateExprVal = evalInitExpr(updateExpr, contexts)[0]["val"];
-        console.log("updateExprVal:", updateExprVal);
+        evalLog("updateExprVal:", updateExprVal);
 
         let rExprVal = evalInitExpr(rExpr, contexts)[0]["val"];
-        console.log("rExprVal:", rExprVal);
+        evalLog("rExprVal:", rExprVal);
         fnVal[updateExprVal] = rExprVal;
 
         return [Object.assign({}, contexts, {"val": _.cloneDeep(fnVal)})];
@@ -535,13 +534,13 @@ function evalInitExpr(node, contexts){
 
     }
     if(node.type === "function_evaluation"){
-        console.log("function_evaluation");
+        evalLog("function_evaluation");
         let fnVal = evalInitExpr(node.namedChildren[0], contexts)[0]["val"];
         // console.log("fnArg node: ", node.namedChildren[1]);
         let fnArgVal = evalInitExpr(node.namedChildren[1], contexts);
         // console.log("fnArgVal:", fnArgVal);
         let fnArg = evalInitExpr(node.namedChildren[1], contexts)[0]["val"];
-        console.log("fneval:", fnVal, fnArg);
+        evalLog("fneval:", fnVal, fnArg);
         return [Object.assign({}, contexts, {"val": fnVal[fnArg]})];
     }
 
@@ -570,14 +569,14 @@ function evalInitExpr(node, contexts){
     if(node.type === "bound_op"){
         let opName = node.namedChildren[0].text;
         let argExpr = node.namedChildren[1];
-        console.log("bound_op:", opName);
-        console.log("bound_op context:",contexts);
+        evalLog("bound_op:", opName);
+        evalLog("bound_op context:",contexts);
 
         let argExprVal = evalInitExpr(argExpr, contexts)[0]["val"]
         // Built in bound ops.
         // Eventually we want to look up these in a table of parsed definitions.
         if(opName == "Cardinality"){
-            console.log("Cardinality val:", argExpr.text, argExprVal.length);
+            evalLog("Cardinality val:", argExpr.text, argExprVal.length);
             return [Object.assign({}, contexts, {"val": argExprVal.length})];
         }
     }
@@ -588,17 +587,17 @@ function evalInitExpr(node, contexts){
     }
 
     if(node.type === "bound_prefix_op"){
-        console.log(node.type, ", ", node.text, ", ctx:", contexts);
+        evalLog(node.type, ", ", node.text, ", ctx:", contexts);
         let symbol = node.children[0];
         let rhs = node.children[1];
         if(symbol.type === "powerset"){
-            console.log("POWERSET op");
-            console.log(rhs);
+            evalLog("POWERSET op");
+            evalLog(rhs);
             let rhsVal = evalInitExpr(rhs, contexts);
-            console.log("rhsVal: ", rhsVal);
+            evalLog("rhsVal: ", rhsVal);
             rhsVal = rhsVal[0]["val"];
             let powersetRhs = subsets(rhsVal);
-            console.log("powerset:",powersetRhs);
+            evalLog("powerset:",powersetRhs);
             // return [Object.assign({}, contexts, {"val":powersetRhs})];
             return [{"val": powersetRhs, "state": {}}];
         }
@@ -606,7 +605,7 @@ function evalInitExpr(node, contexts){
 
     // TODO: Finish this after implementing 'except' node type handling.
     if(node.type === "bounded_quantification"){
-        console.log("bounded_quantification");
+        evalLog("bounded_quantification");
         let quantifier = node.namedChildren[0];
 
         // Extract all quantifier bounds/domains.
@@ -619,8 +618,8 @@ function evalInitExpr(node, contexts){
 
         // The quantified expression.
         let quant_expr = node.namedChildren[currInd];
-        console.log("quant bounds:", quantBounds);
-        console.log("quant expr:", quant_expr);
+        evalLog("quant bounds:", quantBounds);
+        evalLog("quant expr:", quant_expr);
 
         let quantDomains = quantBounds.map(qbound =>{
             expr = evalInitExpr(qbound.children[2], contexts);
@@ -632,7 +631,7 @@ function evalInitExpr(node, contexts){
         // Iterate over the product of all quantified domains and evaluate
         // the quantified expression with the appropriately bound values.
         let quantDomainTuples = cartesianProductOf(...quantDomains);
-        console.log("quantDomain tuples:", quantDomainTuples);
+        evalLog("quantDomain tuples:", quantDomainTuples);
         return _.flattenDeep(quantDomainTuples.map(qtup => {
             let boundContext = _.cloneDeep(contexts);
             // Bound values to quantified variables.
@@ -642,8 +641,8 @@ function evalInitExpr(node, contexts){
             for(var qk = 0;qk<quantIdents.length;qk++){
                 boundContext["quant_bound"][quantIdents[qk]] = qtup[qk];
             }
-            console.log("quantDomain val:", qtup);
-            console.log("boundContext:", boundContext);
+            evalLog("quantDomain val:", qtup);
+            evalLog("boundContext:", boundContext);
             let ret = evalInitExpr(quant_expr, _.cloneDeep(boundContext));
             return ret;
         }));
@@ -660,13 +659,13 @@ function evalInitExpr(node, contexts){
     }
 
     if(node.type === "boolean"){
-        console.log(node.type, node.text);
+        evalLog(node.type, node.text);
         let boolVal = node.text === "TRUE" ? true : false;
         return [{"val": boolVal, "state": {}}];
     }
 
     if(node.type === "string"){
-        console.log("string node", node.text);
+        evalLog("string node", node.text);
         // Remove the quotes.
         let rawStr = node.text.substring(1,node.text.length-1);
         return [{"val": rawStr, "state": {}}];
@@ -681,7 +680,7 @@ function evalInitExpr(node, contexts){
         let condVal = evalInitExpr(cond, _.cloneDeep(contexts))[0]["val"];
         if(condVal){
             let thenVal = evalInitExpr(thenNode, _.cloneDeep(contexts));
-            console.log("thenVal", thenVal, thenNode.text);
+            evalLog("thenVal", thenVal, thenNode.text);
             return thenVal;
         } else{
             let elseVal = evalInitExpr(elseNode, _.cloneDeep(contexts));
@@ -693,20 +692,20 @@ function evalInitExpr(node, contexts){
     // {<single_quantifier_bound> : <expr>}
     // {i \in A : <expr>}
     if(node.type === "set_filter"){
-        console.log("SET_FILTER");
+        evalLog("SET_FILTER");
         // Extract the left and right side of the ":" of the set filter.
         let singleQuantBound = node.namedChildren[0];
         let rhsFilter = node.namedChildren[1];
 
         // Evaluate the quantified domain.
         console.assert(singleQuantBound.type === "single_quantifier_bound");
-        console.log("singleQuantBound:", singleQuantBound, singleQuantBound.text);
+        evalLog("singleQuantBound:", singleQuantBound, singleQuantBound.text);
         let ident = singleQuantBound.namedChildren[0].text;
         let domainExpr = singleQuantBound.namedChildren[2];
-        console.log(domainExpr);
+        evalLog(domainExpr);
         let domainExprVal = evalInitExpr(domainExpr, contexts)[0]["val"];
         
-        console.log("domainExprVal:", domainExprVal);
+        evalLog("domainExprVal:", domainExprVal);
 
         // Return all values in domain for which the set filter evaluates to true.
         let filteredVals = domainExprVal.filter(exprVal => {
@@ -716,11 +715,11 @@ function evalInitExpr(node, contexts){
                 boundContext["quant_bound"] = {};
             }
             boundContext["quant_bound"][ident] = exprVal;
-            console.log("rhsFilterVal:", evalInitExpr(rhsFilter, boundContext));
+            evalLog("rhsFilterVal:", evalInitExpr(rhsFilter, boundContext));
             let rhsFilterVal = evalInitExpr(rhsFilter, boundContext)[0]["val"];
             return rhsFilterVal;
         });
-        console.log("domainExprVal filtered:", filteredVals);
+        evalLog("domainExprVal filtered:", filteredVals);
         return [Object.assign({}, contexts, {"val": filteredVals})];
     }
 
