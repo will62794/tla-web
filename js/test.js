@@ -276,6 +276,44 @@ function simple_lockserver_nodefs(){
     testStateGen("simple-lockserver-nodefs", speclockserver, initExpected, nextExpected);
 }
 
+function simple_lockserver_withdefs(){
+    let speclockserver = `---- MODULE lockserver_withdefs ----
+    EXTENDS TLC, Naturals
+    
+    VARIABLE semaphore
+    VARIABLE clientlocks
+    
+    Server == {0,1}
+    Client == {88,99}
+
+    Init == 
+        /\\ semaphore = [i \\in Server |-> TRUE]
+        /\\ clientlocks = [i \\in Client |-> {}]
+    
+    Next == 
+        \\/ \\E c \\in Client, s \\in Server : 
+            /\\ semaphore[s] = TRUE
+            /\\ clientlocks' = [clientlocks EXCEPT ![c] = clientlocks[c] \\cup {s}]
+            /\\ semaphore' = [semaphore EXCEPT ![s] = FALSE]
+        \\/ \\E c \\in Client, s \\in Server : 
+            /\\ s \\in clientlocks[c]
+            /\\ clientlocks' = [clientlocks EXCEPT ![c] = clientlocks[c] \\ {s}]
+            /\\ semaphore' = [semaphore EXCEPT ![s] = TRUE]
+    
+    ====`;
+    console.log(speclockserver);
+    initExpected = [
+        {semaphore:{0:true,1:true}, clientlocks:{88:[], 99:[]}}
+    ];
+    nextExpected = [
+        {semaphore: {0:true,1:true}, clientlocks: {88:[], 99:[]}, "semaphore'": {0:false,1:true}, "clientlocks'": {88:[0], 99:[]}},
+        {semaphore: {0:true,1:true}, clientlocks: {88:[], 99:[]}, "semaphore'": {0:false,1:true}, "clientlocks'": {88:[], 99:[0]}},
+        {semaphore: {0:true,1:true}, clientlocks: {88:[], 99:[]}, "semaphore'": {0:true,1:false}, "clientlocks'": {88:[], 99:[1]}},
+        {semaphore: {0:true,1:true}, clientlocks: {88:[], 99:[]}, "semaphore'": {0:true,1:false}, "clientlocks'": {88:[1], 99:[]}},
+    ]
+    testStateGen("simple-lockserver-withdefs", speclockserver, initExpected, nextExpected);
+}
+
 // (*
 //     /\\ i \\in voteQuorum
 //     /\\ currentTerm' = [s \\in {44,55,66} |-> IF s \\in voteQuorum THEN currentTerm[i] + 1 ELSE currentTerm[s]]
@@ -379,6 +417,7 @@ tests = {
     "simple-spec4a": simple_spec4a,
     "simple-spec5": simple_spec5,
     "simple-lockserver-nodefs": simple_lockserver_nodefs,
+    "simple-lockserver-withdefs": simple_lockserver_withdefs,
     "mldr-init": mldr_init,
     "mldr-next": mldr_next
 }
