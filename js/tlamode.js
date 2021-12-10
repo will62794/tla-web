@@ -13,7 +13,7 @@ function tlaplusMode(obj, modeConfig){
         },
     
         token: function(stream, state) {
-        console.log(stream);
+        // console.log(stream);
         stream.sol();
         stream.next();
         //   var fillAlign = state.scope.align === null && state.scope;
