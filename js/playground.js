@@ -137,7 +137,7 @@ function handleChooseState(statehash){
     lineNumbers: true,
     showCursorWhenSelecting: true,
     // TODO: Work out tlaplus mode functionality for syntax highlighting.
-    // mode:"tlaplus"
+    mode:"tlaplus"
   });
 
 //   const queryEditor = CodeMirror.fromTextArea(queryInput, {

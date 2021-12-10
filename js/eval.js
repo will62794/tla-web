@@ -6,7 +6,7 @@
 
 // For debugging.
 let depth = 0;
-let enableEvalTracing = true;
+let enableEvalTracing = false;
 
 function evalLog(...msgArgs){
     if(enableEvalTracing){
