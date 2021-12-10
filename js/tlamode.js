@@ -68,7 +68,7 @@ CodeMirror.defineSimpleMode("tlaplus", {
       // no ambiguity between this one and the one above
       {regex: /(?:VARIABLE|CONSTANT|CONSTANTS|EXTENDS|MODULE)\b/,
        token: "keyword"},
-      {regex: /\\A|\\E|\\in|<<|>>/, token: "atom"},
+      {regex: /\\A|\\E|\\in|<<|>>/, token: "keyword"},
       {regex: /0x[a-f\d]+|[-+]?(?:\.\d+|\d+\.?\d*)(?:e[-+]?\d+)?/i,
        token: "number"},
       {regex: /\\\*.*/, token: "comment"},
