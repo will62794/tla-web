@@ -48,6 +48,12 @@ function hashState(stateObj){
     return objectHash.sha1(stateObj);
 }
 
+// Rename primed variables to unprimed variables.
+function renamePrimedVars(state){
+    state = _.pickBy(state, (val,k,obj) => k.endsWith("'"));
+    return _.mapKeys(state, (val,k,obj) => k.slice(0,k.length-1));
+}
+
 class TLAValue{
     constructor() {
     }
@@ -253,7 +259,7 @@ function evalInitEq(lhs, rhs, contexts){
         // return [_.update(contexts, "val", () => boolVal)];
 
     } else{
-        evalLog("Checking for equality with var:", rhs.text, identName, contexts);
+        evalLog(`Checking for equality of ident '${identName}' with '${rhs.text}'.`, contexts);
         
         // Evaluate left and right hand side.
         let lhsVals = evalInitExpr(lhs, _.cloneDeep(contexts));
@@ -893,6 +899,50 @@ function computeNextStates(tree, initStates){
         allNext = allNext.concat(ret);
     }
     return allNext;
+}
+
+function computeReachableStates(tree){
+    objs = walkTree(tree);
+
+    let vars = objs["var_decls"];
+    let defns = objs["op_defs"];
+
+    let initDef = defns["Init"];
+    let nextDef = defns["Next"];
+
+    // Compute initial states and keep only the valid ones.
+    let initStates = getInitStates(initDef, vars, defns);
+    initStates = initStates.filter(ctx => ctx["val"]).map(ctx => ctx["state"]);
+
+    let stateQueue = initStates;
+    let seenStatesHashSet = new Set(); 
+    let reachableStates = [];
+    while(stateQueue.length > 0){
+        let currState = stateQueue.pop();
+        console.log(currState);
+        let currStateHash = hashState(currState);
+        console.log(currStateHash);
+
+        // If we've already seen this state, we don't need to explore it.
+        if(seenStatesHashSet.has(currStateHash)){
+            continue;
+        }
+
+        // Mark the state as seen and record it as reachable.
+        seenStatesHashSet.add(currStateHash);
+        reachableStates.push(currState);
+
+        // Compute next states reachable from the current state, and add
+        // them to the state queue.
+        let currStateArg = _.cloneDeep(currState);
+        let nextStates = getNextStates(nextDef, currStateArg, defns)
+                            .map(c => c["state"])
+                            .map(renamePrimedVars);
+        // console.log("nextStates:", nextStates);
+        // console.log("reachableStates:", reachableStates);
+        stateQueue = stateQueue.concat(nextStates);
+    }
+    return reachableStates;
 }
 
 function generateStates(tree){

@@ -21,6 +21,16 @@ function toggleTestDetails(testId){
 
 }
 
+// Do two arrays (treated as sets) contain the same elements.
+function arrEq(a1,a2){
+    let a1Uniq = _.uniqWith(a1, _.isEqual)
+    let a2Uniq = _.uniqWith(a2, _.isEqual)
+
+    let sameSize = a1Uniq.length === a2Uniq.length;
+    let sameEls = _.every(a1Uniq, (s) => _.find(a2Uniq, t => _.isEqual(s,t)));
+    return sameSize && sameEls;
+}
+
 (async () => {
 
     // Set up parser.
@@ -33,16 +43,6 @@ function toggleTestDetails(testId){
     parser.setLanguage(lang);
 
     let tree = null;
-
-    // Do two arrays (treated as sets) contain the same elements.
-    function arrEq(a1,a2){
-        let a1Uniq = _.uniqWith(a1, _.isEqual)
-        let a2Uniq = _.uniqWith(a2, _.isEqual)
-
-        let sameSize = a1Uniq.length === a2Uniq.length;
-        let sameEls = _.every(a1Uniq, (s) => _.find(a2Uniq, t => _.isEqual(s,t)));
-        return sameSize && sameEls;
-    }
 
     function testStateGen(testId, specText, initExpected, nextExpected){
         let div;
@@ -456,9 +456,13 @@ function checkStateGraph(stateGraph, specPath){
         const newTree = parser.parse(specText + "\n", tree);
         
         // Test correct initial states.
-        let initStates = computeInitStates(newTree);
-        console.log("spec5 init", initStates);
-        console.log("spec5 tlc oracle", stateGraph["states"]);
+        // let initStates = computeInitStates(newTree);
+        let reachable = computeReachableStates(newTree);
+        // console.log("spec5 init", initStates);
+        let reachableTLC = stateGraph["states"].map(s => s["val"]);
+        console.log("spec5 reachable:", reachable);
+        console.log("spec5 TLC oracle:", reachableTLC);
+        console.log("eq:", arrEq(reachable, reachableTLC));
     })
 }
 
