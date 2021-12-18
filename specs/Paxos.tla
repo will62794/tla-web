@@ -3,9 +3,8 @@
 (* This is a specification of the Paxos algorithm.                         *)
 (***************************************************************************)
 EXTENDS Integers, FiniteSets
------------------------------------------------------------------------------
-\* CONSTANT Value, Acceptor, Quorum, Proposer
 
+\* Hard-coded constants for now.
 Acceptor == {"a1", "a2"}
 Quorum == {{"a1", "a2"}}
 Proposer == {"p1", "p2"}
@@ -26,7 +25,6 @@ Message ==      [type : {"1a"}, bal : Ballot]
                  mbal : Ballot \cup {-1}, mval : Value \cup {None}]
            \cup [type : {"2a"}, bal : Ballot, val : Value]
            \cup [type : {"2b"}, acc : Acceptor, bal : Ballot, val : Value]
------------------------------------------------------------------------------
 
 VARIABLE maxBal 
 VARIABLE maxVBal \* <<maxVBal[a], maxVal[a]>> is the vote with the largest
