@@ -304,7 +304,7 @@ function handleChooseState(statehash){
     console.log("Generating initial states.");
     let treeObjs = walkTree(newTree);
     specDefs = treeObjs["op_defs"];
-    nextStatePred = treeObjs["op_defs"]["Next"];
+    nextStatePred = treeObjs["op_defs"]["Next"]["node"];
     let initStates = computeInitStates(newTree);
 
     // Display states in HTML.

@@ -123,17 +123,36 @@ function walkTree(tree){
 
             // The definition identifier name.
             node = cursor.currentNode()
-            // console.log(node.text)
+            console.log(node.text)
+            console.log(node)
+            console.log(cursor.currentFieldName());
             console.assert(node.type === "identifier");
             let opName = node.text;
+
+            op_defs[opName] = {"name": opName, "args": [], "node": null};
             
             // Skip the 'def_eq' symbol ("==").
             cursor.gotoNextSibling();
+            if(!cursor.currentNode().isNamed()){
+                cursor.gotoNextSibling();
+            }
+
+            // n-ary operator. save all parameters.
+            while(cursor.currentFieldName() === "parameter"){
+                op_defs[opName]["args"].push(cursor.currentNode().text);
+                cursor.gotoNextSibling();
+                if(!cursor.currentNode().isNamed()){
+                    cursor.gotoNextSibling();
+                }
+            }
 
             // Skip any intervening comment nodes.
             cursor.gotoNextSibling();
             while(cursor.currentNode().type === "comment"){
                 cursor.gotoNextSibling();
+                console.log(cursor.currentNode());
+                console.log(cursor.currentNode().type);
+                console.log(cursor.currentFieldName());
             }
 
             // We should now be at the definition node.
@@ -147,7 +166,8 @@ function walkTree(tree){
             cursor.gotoParent();
             // Save the variable declaration.
             // var_decls[var_ident.text] = {"id": node.id}; 
-            op_defs[opName] = def;
+            op_defs[opName]["node"] = def;
+            console.log("opDef:", op_defs[opName]);
         }
     }
 
@@ -393,11 +413,11 @@ function evalInitBoundInfix(node, contexts){
         // console.log("bound_infix_op, symbol 'cup'");
         evalLog("bound_infix_op, symbol 'cup'");
         // TODO: Will eventually need to figure out a more principled approach to object equality.
-        console.log(lhs);
+        evalLog(lhs);
         let lhsVal = evalInitExpr(lhs, contexts)[0]["val"];
-        console.log("cup lhs:", lhsVal);
+        evalLog("cup lhs:", lhsVal);
         let rhsVal = evalInitExpr(rhs, contexts)[0]["val"];
-        console.log("cup rhs:", lhsVal);
+        evalLog("cup rhs:", lhsVal);
         return [Object.assign({}, contexts, {"val": _.uniq(lhsVal.concat(rhsVal))})];
     }   
 
@@ -471,7 +491,7 @@ function evalInitIdentifierRef(node, contexts){
     if(contexts["defns"].hasOwnProperty(ident_name)){
         // Evaluate the definition in the current context.
         // TODO: Consider defs that are n-ary operators.
-        let defNode = contexts["defns"][ident_name];
+        let defNode = contexts["defns"][ident_name]["node"];
         // return undefined;
         return evalInitExpr(defNode, contexts);
     }
@@ -580,11 +600,36 @@ function evalInitExpr(node, contexts){
 
         let argExprVal = evalInitExpr(argExpr, contexts)[0]["val"]
         // Built in bound ops.
-        // Eventually we want to look up these in a table of parsed definitions.
         if(opName == "Cardinality"){
             evalLog("Cardinality val:", argExpr.text, argExprVal.length);
             return [Object.assign({}, contexts, {"val": argExprVal.length})];
         }
+
+        // Check for the bound op in the set of known definitions.
+        if(contexts["defns"].hasOwnProperty(opName)){
+            let opDefNode = contexts["defns"][opName]["node"];
+            evalLog("defns", node);
+
+            // n-ary operator.
+            if(node.namedChildren.length > 1){
+                // Evaluate each operator argument.
+                let opArgVals = node.namedChildren.slice(1).map(c => evalInitExpr(c, contexts));
+                evalLog("opArgVals:", opArgVals);
+
+                // Then, evaluate the operator defininition with these argument values bound
+                // to the appropriate names.
+                let opEvalContext = _.cloneDeep(contexts);
+                evalLog("opDefNode", opDefNode);
+                for(var i=0;i<opArgVals.length;i++){
+                    // The parameter name in the operator definition.
+                    let paramName = opDefNode.namedChildren[i+1].text;
+                    opEvalContext["quant_bound"][paramName] = opArgVals[i];
+                }
+                evalLog("opEvalContext:", opEvalContext);
+                return evalInitExpr(opDefNode, opEvalContext);
+            }
+        }
+
     }
 
     if(node.type === "bound_infix_op"){
@@ -873,10 +918,10 @@ function computeInitStates(tree){
     let initDef = defns["Init"];
     console.log("<<<<< INIT >>>>>");
     console.log(initDef);
-    console.log("initDef.childCount: ", initDef.childCount);
-    console.log("initDef.type: ", initDef.type);
+    console.log("initDef.childCount: ", initDef["node"].childCount);
+    console.log("initDef.type: ", initDef["node"].type);
 
-    let initStates = getInitStates(initDef, vars, defns);
+    let initStates = getInitStates(initDef["node"], vars, defns);
     // Keep only the valid states.
     initStates = initStates.filter(ctx => ctx["val"]).map(ctx => ctx["state"]);
     return initStates;
@@ -893,14 +938,14 @@ function computeNextStates(tree, initStates){
     console.log(defns);
     console.log("<<<< NEXT >>>>");
     console.log(nextDef);
-    console.log("nextDef.childCount: ", nextDef.childCount);
-    console.log("nextDef.type: ", nextDef.type);
+    console.log("nextDef.childCount: ", nextDef["node"].childCount);
+    console.log("nextDef.type: ", nextDef["node"].type);
 
     let allNext = []
     for(const istate of initStates){
         let currState = _.cloneDeep(istate);
         console.log("###### Computing next states from state: ", currState);
-        let ret = getNextStates(nextDef, currState, defns);
+        let ret = getNextStates(nextDef["node"], currState, defns);
         allNext = allNext.concat(ret);
     }
     return allNext;

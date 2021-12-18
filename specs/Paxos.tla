@@ -63,15 +63,23 @@ Init == /\ maxBal = [a \in Acceptor |-> -1]
 
 Send(m) == msgs' = msgs \cup {m}
 
+\*\cup {[type |-> "1a", bal |-> b, proposer |-> p]}
+\* TODO: Re-enable proper behavior of Phase1a. Requires implementation of
+\* 'record_literal' evaluation.
 (***************************************************************************)
 (* In an implementation, there will be a leader process that orchestrates  *)
 (* a ballot.  The ballot b leader performs actions Phase1a(b) and          *)
 (* Phase2a(b).  The Phase1a(b) action sends a phase 1a message (a message  *)
 (* m with m.type = "1a") that begins ballot b.                             *)
 (***************************************************************************)
-Phase1a(b, p) == /\ Send([type |-> "1a", bal |-> b, proposer |-> p])
-                 /\ UNCHANGED <<maxBal, maxVBal, maxVal>>
-                 
+Phase1a(b, p) == /\ msgs' = msgs \cup {b} 
+                 /\ maxBal' = maxBal
+                 /\ maxVBal' = maxVBal
+                 /\ maxVal' = maxVal
+
+
+
+Break == 1
 (***************************************************************************)
 (* Upon receipt of a ballot b phase 1a message, acceptor a can perform a   *)
 (* Phase1b(a) action only if b > maxBal[a].  The action sets maxBal[a] to  *)
@@ -152,10 +160,14 @@ Phase2b(a) == \E m \in msgs : /\ m.type = "2a"
 (***************************************************************************)
 (* Below are defined the next-state action and the complete spec.          *)
 (***************************************************************************)
-Next == \/ \E b \in Ballot : \E p \in Proposer : 
-                                \/ Phase1a(b, p)
-                             \/ \E v \in Value : Phase2a(b, v, p)
-        \/ \E a \in Acceptor : \E p \in Proposer : Phase1b(a, p) \/ Phase2b(a)
+Next == 
+    \/ \E b \in Ballot : \E p \in Proposer : Phase1a(b, p)
+    
+    
+Break2 == 1
+    \* \/ \E b \in Ballot : \E p \in Proposer : \E v \in Value : Phase2a(b, v, p)
+    \* \/ \E a \in Acceptor : \E p \in Proposer : Phase1b(a, p) 
+    \* \/ \E a \in Acceptor : \E p \in Proposer : Phase2b(a)
 
 Spec == Init /\ [][Next]_vars
 ----------------------------------------------------------------------------
