@@ -447,13 +447,12 @@ function mldr_next(){
     testStateGen("mldr-next", specmldr1, mldrInitExpected, mldrNextExpected);
 }
 
-function simple5_equiv(){
-    let specName = "simple5";
+function testTLCEquiv(specName){
     let specStatesPath = `./specs/with_state_graphs/${specName}.json`;
     res = $.get(specStatesPath).then(data => {
         let specPath = `./specs/with_state_graphs/${specName}.tla`;
-        testStateGraphEquiv("simple5-equiv", data, specPath);
-    });    
+        testStateGraphEquiv(`${specName}-tlc-equiv`, data, specPath);
+    });      
 }
 
 tests = {
@@ -467,7 +466,8 @@ tests = {
     "simple-lockserver-withdefs": simple_lockserver_withdefs,
     "mldr-init": mldr_init,
     "mldr-next": mldr_next,
-    "simple5-equiv": simple5_equiv
+    "simple5-equiv": () => testTLCEquiv("simple5"),
+    "mldr-init-only": () => testTLCEquiv("mldr_init_only")
 }
 
 const start = performance.now();
