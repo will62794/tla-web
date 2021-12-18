@@ -202,7 +202,8 @@ function handleChooseState(statehash){
     // let specPath = "./specs/simple1.tla";
     // let specPath = "./specs/simple2.tla";
     // let specPath = "./specs/lockserver_nodefs.tla";
-    let specPath = "./specs/MongoLoglessDynamicRaft.tla";
+    // let specPath = "./specs/MongoLoglessDynamicRaft.tla";
+    let specPath = "./specs/Paxos.tla";
     (() => {
         const handle = setInterval(() => {
             res = $.get(specPath, data => {
@@ -298,32 +299,20 @@ function handleChooseState(statehash){
     const newTree = parser.parse(newText, tree);
     const duration = (performance.now() - start).toFixed(1);
 
-    console.log("Re-generating states.");
+    // TODO: Consider what occurs when spec code changes after the
+    // initial page load.
+    console.log("Generating initial states.");
     let treeObjs = walkTree(newTree);
     specDefs = treeObjs["op_defs"];
     nextStatePred = treeObjs["op_defs"]["Next"];
-    let res = generateStates(newTree);
-
-    let initStates = res["initStates"];
-    allInitStates = initStates;
+    let initStates = computeInitStates(newTree);
 
     // Display states in HTML.
     let initStatesDiv = document.getElementById("initial-states");
     initStatesDiv.innerHTML = "";
-    // initStatesDiv.innerHTML += "<div>"
     renderNextStateChoices(initStates);
 
-    // let nextStatesDiv = document.getElementById("next-states");
-    // nextStatesDiv.innerHTML = "";
-    // for(const ctx of res["nextStates"]){
-    //     if(ctx["val"]){
-    //         nextStatesDiv.innerHTML += "<div>" + JSON.stringify(ctx["state"]) + "</div>";
-    //     }
-    // }
-
     currNextStates = _.cloneDeep(initStates);
-
-    // genRandTrace();
   }
 
   function handleCursorMovement() {

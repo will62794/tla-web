@@ -593,9 +593,9 @@ function evalInitExpr(node, contexts){
     }
 
     if(node.type === "bound_prefix_op"){
-        evalLog(node.type, ", ", node.text, ", ctx:", contexts);
         let symbol = node.children[0];
         let rhs = node.children[1];
+        evalLog(node.type, ", ", node.text, `, prefix symbol: '${symbol.type}' `, "ctx:", contexts);
         if(symbol.type === "powerset"){
             evalLog("POWERSET op");
             evalLog(rhs);
@@ -607,6 +607,11 @@ function evalInitExpr(node, contexts){
             // return [Object.assign({}, contexts, {"val":powersetRhs})];
             return [{"val": powersetRhs, "state": {}}];
         }
+        if(symbol.type === "negative"){
+            let rhsVal = evalInitExpr(rhs, contexts);
+            rhsVal = rhsVal[0]["val"];
+            return [{"val": -rhsVal, "state": {}}];
+        }   
     }
 
     // TODO: Finish this after implementing 'except' node type handling.
