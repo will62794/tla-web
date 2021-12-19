@@ -78,23 +78,29 @@ Phase1a(b, p) == /\ msgs' = msgs \cup {[type |-> "1a", bal |-> b, proposer |-> p
                  /\ maxVal' = maxVal
 
 Break == 1
+
+\* For Phase1b.
+\* Strictly greater than.
+\* /\ m.bal > maxBal[a]
+\* Greater than or equal.
+
 (***************************************************************************)
 (* Upon receipt of a ballot b phase 1a message, acceptor a can perform a   *)
 (* Phase1b(a) action only if b > maxBal[a].  The action sets maxBal[a] to  *)
 (* b and sends a phase 1b message to the leader containing the values of   *)
 (* maxVBal[a] and maxVal[a].                                               *)
 (***************************************************************************)
-Phase1b(a, p) == /\ \E m \in msgs :
-                  /\ m.proposer = p
-                  /\ m.type = "1a"
-                  \* Strictly greater than.
-                  \* /\ m.bal > maxBal[a]
-                  \* Greater than or equal.
-                  /\ m.bal >= maxBal[a]
-                  /\ maxBal' = [maxBal EXCEPT ![a] = m.bal]
-                  /\ Send([type |-> "1b", acc |-> a, bal |-> m.bal, 
-                            mbal |-> maxVBal[a], mval |-> maxVal[a], proposer |-> p])
-              /\ UNCHANGED <<maxVBal, maxVal>>
+Phase1b(a, p) == 
+    \E m \in msgs :
+        /\ m.proposer = p
+        /\ m.type = "1a"
+        /\ m.bal >= maxBal[a]
+        /\ maxBal' = [maxBal EXCEPT ![a] = m.bal]
+        /\ msgs' = msgs \cup {[type |-> "1b", acc |-> a, bal |-> m.bal, mbal |-> maxVBal[a], mval |-> maxVal[a], proposer |-> p]}
+        /\ maxVBal' = maxVBal
+        /\ maxVal'  = maxVal
+
+Breakb == 1
 
 (***************************************************************************)
 (* The Phase2a(b, v) action can be performed by the ballot b leader if two *)
@@ -160,6 +166,7 @@ Phase2b(a) == \E m \in msgs : /\ m.type = "2a"
 (***************************************************************************)
 Next == 
     \/ \E b \in Ballot : \E p \in Proposer : Phase1a(b, p)
+    \/ \E a \in Acceptor : \E p \in Proposer : Phase1b(a, p) 
     
     
 Break2 == 1

@@ -344,6 +344,13 @@ function evalInitBoundInfix(node, contexts){
         return [Object.assign({}, contexts, {"val": outVal})];
     }
 
+    if(symbol.type === "geq"){
+        let lhsVal = evalInitExpr(lhs, contexts)[0]["val"];
+        let rhsVal = evalInitExpr(rhs, contexts)[0]["val"];
+        let outVal = lhsVal >= rhsVal;
+        return [Object.assign({}, contexts, {"val": outVal})];
+    }
+
     // Disjunction.
     if(symbol.type === "lor"){
         return evalInitLor(lhs, rhs, contexts);
@@ -802,6 +809,20 @@ function evalInitExpr(node, contexts){
         // console.log(_.flatten(ret));
         return ret;
     }
+
+    if(node.type === "record_value"){
+        evalLog("RECVAL", node);
+        let rec = node.namedChildren[0];
+        let recField = node.namedChildren[1].text;
+
+        let recVal = evalInitExpr(rec, contexts)[0]["val"];
+        evalLog("recVal", recVal);
+        evalLog("recField", recField);
+        let fieldVal = recVal[recField];
+        return [{"val": fieldVal, "state": contexts["state"]}];
+
+    }
+
 
     // [<identifier> |-> <expr>, <identifier> |-> <expr>, ...]
     // "|->" is of type 'all_map_to'.
