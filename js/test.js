@@ -447,12 +447,35 @@ function mldr_next(){
     testStateGen("mldr-next", specmldr1, mldrInitExpected, mldrNextExpected);
 }
 
-function testTLCEquiv(specName){
+function testTLCEquiv(testId, specName){
     let specStatesPath = `./specs/with_state_graphs/${specName}.json`;
     res = $.get(specStatesPath).then(data => {
         let specPath = `./specs/with_state_graphs/${specName}.tla`;
-        testStateGraphEquiv(`${specName}-tlc-equiv`, data, specPath);
+        testStateGraphEquiv(testId, data, specPath);
     });      
+}
+
+function record_literal_eval(){
+    let spec = `---- MODULE record_literal_eval ----
+    EXTENDS TLC, Naturals
+    
+    VARIABLE x
+
+    Init == 
+    \\/ x = [a |-> "v1", b |-> "v2"]
+    \\/ x = [a |-> "v1", b |-> "v2", c |-> "v3"]
+    Next == x' = x
+    
+    ====`;
+    initExpected = [
+        {"x": {a:"v1", b:"v2"}},
+        {"x": {a:"v1", b:"v2", c: "v3"}}
+    ];
+    testStateGen("record_literal_eval", spec, initExpected, null);    
+}
+
+function simple5(){
+    return testTLCEquiv("simple5");
 }
 
 tests = {
@@ -462,12 +485,13 @@ tests = {
     "simple-spec4": simple_spec4,
     "simple-spec4a": simple_spec4a,
     "simple-spec5": simple_spec5,
+    "record_literal_eval": record_literal_eval,
     "simple-lockserver-nodefs": simple_lockserver_nodefs,
     "simple-lockserver-withdefs": simple_lockserver_withdefs,
     "mldr-init": mldr_init,
     "mldr-next": mldr_next,
-    "simple5-equiv": () => testTLCEquiv("simple5"),
-    "mldr-init-only": () => testTLCEquiv("mldr_init_only")
+    "simple5-tlc-equiv": (() => testTLCEquiv("simple5-tlc-equiv", "simple5")),
+    "mldr-init-only-tlc-equiv": (() => testTLCEquiv("mldr-init-only-tlc-equiv", "mldr_init_only"))
 }
 
 const start = performance.now();
@@ -486,6 +510,7 @@ if(arg==="all" || arg === undefined){
 
 // Run the specified tests.
 for(const name of testNames){
+    console.log(`Running test '${name}'`);
     tests[name]();
 }
 

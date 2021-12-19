@@ -803,6 +803,24 @@ function evalInitExpr(node, contexts){
         return ret;
     }
 
+    // [<identifier> |-> <expr>, <identifier> |-> <expr>, ...]
+    // "|->" is of type 'all_map_to'.
+    if(node.type === "record_literal"){
+        evalLog("RECLIT", node);
+        let record_obj = {}
+        for(var i=0;i<node.namedChildren.length;i+=3){
+            let ident = node.namedChildren[i]
+            let exprNode = node.namedChildren[i+2]
+
+            let identName = ident.text;
+            let exprVal = evalInitExpr(exprNode, contexts);
+            record_obj[identName] = exprVal[0]["val"];
+        }
+        evalLog("RECOBJ", record_obj);
+        return [{"val": record_obj, "state": contexts["state"]}];
+    }
+
+
     // "[" <quantifier_bound> "|->" <expr> "]"
     if(node.type === "function_literal"){
         // lbracket = node.children[0]
@@ -871,6 +889,9 @@ function getInitStates(initDef, vars, defns){
     let init_ctx = {"val": null, "state": init_var_vals, "defns": defns};
     // let ret_ctxs = evalInitExpr(initDef, [init_ctx]);
     let ret_ctxs = evalInitExpr(initDef, init_ctx);
+    if(ret_ctxs === undefined){
+        console.error("Set of generated initial states is 'undefined'.");
+    }
     console.log("Possible initial state assignments:");
     for(const ctx of ret_ctxs){
         console.log(ctx);
@@ -961,7 +982,7 @@ function computeReachableStates(tree){
     let nextDef = defns["Next"];
 
     // Compute initial states and keep only the valid ones.
-    let initStates = getInitStates(initDef, vars, defns);
+    let initStates = getInitStates(initDef["node"], vars, defns);
     initStates = initStates.filter(ctx => ctx["val"]).map(ctx => ctx["state"]);
 
     let stateQueue = initStates;
@@ -985,7 +1006,7 @@ function computeReachableStates(tree){
         // Compute next states reachable from the current state, and add
         // them to the state queue.
         let currStateArg = _.cloneDeep(currState);
-        let nextStates = getNextStates(nextDef, currStateArg, defns)
+        let nextStates = getNextStates(nextDef["node"], currStateArg, defns)
                             .map(c => c["state"])
                             .map(renamePrimedVars);
         // console.log("nextStates:", nextStates);
