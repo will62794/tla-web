@@ -72,12 +72,10 @@ Send(m) == msgs' = msgs \cup {m}
 (* Phase2a(b).  The Phase1a(b) action sends a phase 1a message (a message  *)
 (* m with m.type = "1a") that begins ballot b.                             *)
 (***************************************************************************)
-Phase1a(b, p) == /\ msgs' = msgs \cup {b} 
+Phase1a(b, p) == /\ msgs' = msgs \cup {[type |-> "1a", bal |-> b, proposer |-> p]}
                  /\ maxBal' = maxBal
                  /\ maxVBal' = maxVBal
                  /\ maxVal' = maxVal
-
-
 
 Break == 1
 (***************************************************************************)
