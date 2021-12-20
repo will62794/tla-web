@@ -135,8 +135,12 @@ Phase2a(b, v, p) ==
                \/ \E m \in Q1bv : 
                     /\ m.mval = v
                     /\ \A mm \in Q1bv : m.mbal \geq mm.mbal 
-  /\ Send([type |-> "2a", bal |-> b, val |-> v, proposer |-> p]) 
-  /\ UNCHANGED <<maxBal, maxVBal, maxVal>>
+  /\ msgs' = msgs \cup {[type |-> "2a", bal |-> b, val |-> v, proposer |-> p]}
+  /\ maxBal' = maxBal
+  /\ maxVBal' = maxVBal
+  /\ maxVal' = maxVal
+
+Break3 == 1
   
 (***************************************************************************)
 (* The Phase2b(a) action is performed by acceptor a upon receipt of a      *)
@@ -167,10 +171,12 @@ Phase2b(a) == \E m \in msgs : /\ m.type = "2a"
 Next == 
     \/ \E b \in Ballot : \E p \in Proposer : Phase1a(b, p)
     \/ \E a \in Acceptor : \E p \in Proposer : Phase1b(a, p) 
-    
+
     
 Break2 == 1
+    \* TODO: Need to implement LET expressions for Phase2a.
     \* \/ \E b \in Ballot : \E p \in Proposer : \E v \in Value : Phase2a(b, v, p)
+
     \* \/ \E a \in Acceptor : \E p \in Proposer : Phase1b(a, p) 
     \* \/ \E a \in Acceptor : \E p \in Proposer : Phase2b(a)
 
