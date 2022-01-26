@@ -31,7 +31,7 @@ function renderNextStateChoices(nextStates){
             stateDiv.innerHTML += JSON.stringify(state[varname]);
             stateDiv.innerHTML += "<br>"
         }
-        let hash = hashState(state);
+        let hash = hashStateShort(state);
         stateDiv.setAttribute("onclick", `handleChooseState("${hash}")`);
         initStatesDiv.appendChild(stateDiv);
     }
@@ -55,20 +55,46 @@ function traceStepBack(){
     renderNextStateChoices(currNextStates);
 }
 
-// Save the current trace in the URL.
-function traceGetLink(){
-    if(currTrace.length === 0){
-        return;
-    }
-
+function updateTraceLink(){
     var url_ob = new URL(document.URL);
     var traceHashes = currTrace.map(s => hashStateShort(s));
     console.log(traceHashes);
     url_ob.hash = '#' + traceHashes.join(",");
 
-    // Save the trace as a comma separated list of short state hashes
+    // Save the trace as a comma separated list of short state hashes.
     var new_url = url_ob.href;
     document.location.href = new_url;
+}
+
+// Save the current trace in the URL.
+function traceGetLink(){
+    if(currTrace.length === 0){
+        return;
+    }
+    updateTraceLink();
+}
+
+// Load a trace from URL link. Returns false if there is no link to load.
+function loadTraceFromLink(){
+    var url_ob = new URL(document.URL);
+    console.log("URL hash:", url_ob.hash);
+    if(url_ob.hash <= 1){
+        return false;
+    }
+    var traceHashes = url_ob.hash.slice(1).split(",");
+    console.log(traceHashes);
+
+    for(var ind=0;ind<traceHashes.length;ind++){
+        let shortHash = traceHashes[ind];
+        handleChooseState(shortHash)
+    }
+
+    return true;
+    // url_ob.hash = '#' + traceHashes.join(",");
+
+    // Save the trace as a comma separated list of short state hashes
+    // var new_url = url_ob.href;
+    // document.location.href = new_url;
 }
 
 function renderCurrentTrace(){
@@ -111,11 +137,14 @@ function renderCurrentTrace(){
     
     let header = document.getElementById("poss-next-states-title");
     header.innerHTML = (currTrace.length > 0) ? "Choose Next State" : "Choose Initial State";
+
+    updateTraceLink();
+
 }
 
-function handleChooseState(statehash){
+function handleChooseState(statehash_short){
     console.log("currNextStates:", JSON.stringify(currNextStates));
-    let nextState = currNextStates.filter(s => hashState(s)===statehash)[0];
+    let nextState = currNextStates.filter(s => hashStateShort(s)===statehash_short)[0];
     // TODO: Consider detecting cycles in the trace.
     currTrace.push(nextState);
     console.log("nextState:", JSON.stringify(nextState));
@@ -331,15 +360,18 @@ function handleChooseState(statehash){
     specDefs = treeObjs["op_defs"];
     nextStatePred = treeObjs["op_defs"]["Next"]["node"];
     let initStates = computeInitStates(newTree);
+    allInitStates = initStates;
 
     // Display states in HTML.
     let initStatesDiv = document.getElementById("initial-states");
     initStatesDiv.innerHTML = "";
     renderNextStateChoices(initStates);
     console.log("Rendered initial states");
-    allInitStates = initStates;
 
     currNextStates = _.cloneDeep(initStates);
+
+    // Check for trace to load from given link.
+    loadTraceFromLink();
   }
 
   function handleCursorMovement() {
