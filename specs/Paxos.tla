@@ -102,6 +102,20 @@ Phase1b(a, p) ==
 
 Breakb == 1
 
+Q1b(b,p,Q) == {m \in msgs : /\ m.type = "1b"
+                            /\ m.acc \in Q
+                            /\ m.bal = b
+                            /\ m.proposer = p}
+
+Q1bv(ms) == {m \in ms : m.mbal \geq 0}
+
+
+\* LET Q1b == {m \in msgs : /\ m.type = "1b"
+                        \*  /\ m.acc \in Q
+                        \*  /\ m.bal = b
+                        \*  /\ m.proposer = p}
+    \* Q1bv == {m \in Q1b : m.mbal \geq 0}
+
 (***************************************************************************)
 (* The Phase2a(b, v) action can be performed by the ballot b leader if two *)
 (* conditions are satisfied: (i) it has not already performed a phase 2a   *)
@@ -125,16 +139,11 @@ Breakb == 1
 Phase2a(b, v, p) ==
   /\ ~ \E m \in msgs : m.type = "2a" /\ m.bal = b /\ m.proposer = p
   /\ \E Q \in Quorum :
-        LET Q1b == {m \in msgs : /\ m.type = "1b"
-                                 /\ m.acc \in Q
-                                 /\ m.bal = b
-                                 /\ m.proposer = p}
-            Q1bv == {m \in Q1b : m.mbal \geq 0}
-        IN  /\ \A a \in Q : \E m \in Q1b : m.acc = a 
-            /\ \/ Q1bv = {}
-               \/ \E m \in Q1bv : 
-                    /\ m.mval = v
-                    /\ \A mm \in Q1bv : m.mbal \geq mm.mbal 
+        /\ \A a \in Q : \E m \in Q1b(b,p,Q) : m.acc = a 
+        /\ \/ Q1bv(Q1b(b,p,Q)) = {}
+           \/ \E m \in Q1bv(Q1b(b,p,Q)) : 
+                /\ m.mval = v
+                /\ \A mm \in Q1bv(Q1b(b,p,Q)) : m.mbal \geq mm.mbal 
   /\ msgs' = msgs \cup {[type |-> "2a", bal |-> b, val |-> v, proposer |-> p]}
   /\ maxBal' = maxBal
   /\ maxVBal' = maxVBal
@@ -171,6 +180,7 @@ Phase2b(a) == \E m \in msgs : /\ m.type = "2a"
 Next == 
     \/ \E b \in Ballot : \E p \in Proposer : Phase1a(b, p)
     \/ \E a \in Acceptor : \E p \in Proposer : Phase1b(a, p) 
+    \/ \E b \in Ballot : \E p \in Proposer : \E v \in Value : Phase2a(b, v, p)
 
     
 Break2 == 1
