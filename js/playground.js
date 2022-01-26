@@ -42,6 +42,7 @@ function traceStepBack(){
     currTrace = currTrace.slice(0, currTrace.length - 1);
     // Back to initial states.
     if(currTrace.length === 0){
+        console.log("Back to initial states.")
         currNextStates = _.cloneDeep(allInitStates);
     } else{
         let lastState = currTrace[currTrace.length-1];
@@ -319,6 +320,8 @@ function handleChooseState(statehash){
     let initStatesDiv = document.getElementById("initial-states");
     initStatesDiv.innerHTML = "";
     renderNextStateChoices(initStates);
+    console.log("Rendered initial states");
+    allInitStates = initStates;
 
     currNextStates = _.cloneDeep(initStates);
   }
