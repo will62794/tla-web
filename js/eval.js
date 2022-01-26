@@ -664,6 +664,12 @@ function evalInitExpr(node, contexts){
             rhsVal = rhsVal[0]["val"];
             return [{"val": -rhsVal, "state": {}}];
         }   
+
+        if(symbol.type === "lnot"){
+            let rhsVal = evalInitExpr(rhs, contexts);
+            rhsVal = rhsVal[0]["val"];
+            return [{"val": !rhsVal, "state": {}}];
+        }   
     }
 
     // TODO: Finish this after implementing 'except' node type handling.
