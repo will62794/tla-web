@@ -48,6 +48,12 @@ function hashState(stateObj){
     return objectHash.sha1(stateObj);
 }
 
+// 8 character prefix of the full hash.
+function hashStateShort(stateObj){
+    const shortHashPrefixLen = 6;
+    return objectHash.sha1(stateObj).slice(0,shortHashPrefixLen);
+}
+
 // Rename primed variables to unprimed variables.
 function renamePrimedVars(state){
     state = _.pickBy(state, (val,k,obj) => k.endsWith("'"));

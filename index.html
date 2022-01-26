@@ -43,7 +43,10 @@
 
         <div id="trace-container">
             <h3>Current Trace</h3> 
-            <div id="trace-back-button" onclick="traceStepBack()">Back</div>
+            <div id="trace-buttons">
+                <div class="trace-button" id="trace-back-button" onclick="traceStepBack()">Back</div>
+                <div class="trace-button" id="trace-copy-link-button" onclick="traceGetLink()">Get Trace Link</div>
+            </div>
             <div id="trace" class="tlc-state"></div>
         </div>
     </div>
@@ -275,22 +278,31 @@
         margin: 0;
       }
 
-      #trace-back-button{
-          color:black;
-          text-align: center;
-          height:18px;
-          vertical-align: middle;
-          background-color: lightgray;
-          /* margin-top:2px; */
-          /* margin-bottom:2px; */
-          width:50px;
-          font-size:14px;
-          border-radius: 3px;
-          background-color: steelblue;
-          color:white;
-
+      #trace-buttons{
+          width:80%;
+          /* border:solid; */
+          overflow: hidden;
       }
-      #trace-back-button:hover{
+
+      .trace-button{
+        color:black;
+        text-align: center;
+        height:18px;
+        vertical-align: middle;
+        background-color: lightgray;
+        font-size:14px;
+        border-radius: 3px;
+        background-color: steelblue;
+        color:white;
+        float: left; 
+        padding-left:6px;
+        padding-right:6px;
+        padding-top:3px;
+        padding-bottom:3px;
+        margin-right:5px; 
+      }
+
+      .trace-button:hover{
           cursor: pointer;
           background-color: gray;
       }

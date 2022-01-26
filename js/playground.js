@@ -55,6 +55,22 @@ function traceStepBack(){
     renderNextStateChoices(currNextStates);
 }
 
+// Save the current trace in the URL.
+function traceGetLink(){
+    if(currTrace.length === 0){
+        return;
+    }
+
+    var url_ob = new URL(document.URL);
+    var traceHashes = currTrace.map(s => hashStateShort(s));
+    console.log(traceHashes);
+    url_ob.hash = '#' + traceHashes.join(",");
+
+    // Save the trace as a comma separated list of short state hashes
+    var new_url = url_ob.href;
+    document.location.href = new_url;
+}
+
 function renderCurrentTrace(){
     let traceDiv = document.getElementById("trace");
     traceDiv.innerHTML = "";
@@ -210,9 +226,9 @@ function handleChooseState(statehash){
     // Download example spec.
     // let specPath = "./specs/simple1.tla";
     // let specPath = "./specs/simple2.tla";
-    // let specPath = "./specs/lockserver_nodefs.tla";
+    let specPath = "./specs/lockserver_nodefs.tla";
     // let specPath = "./specs/MongoLoglessDynamicRaft.tla";
-    let specPath = "./specs/Paxos.tla";
+    // let specPath = "./specs/Paxos.tla";
     (() => {
         const handle = setInterval(() => {
             res = $.get(specPath, data => {
