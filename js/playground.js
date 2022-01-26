@@ -70,14 +70,22 @@ function renderCurrentTrace(){
             traceStateDiv.innerHTML += "<span><span class='state-varname'>" + varname +"</span> = "+ JSON.stringify(state[varname]) + "</span>";
             traceStateDiv.innerHTML += "<br>"
         }
-        // If this is the last state, add a "step back" button.
-        if(isLastState){
-            let backButton = document.createElement("div");
-            backButton.innerHTML = "Back"
-            backButton.id = "trace-back-button";
-            backButton.setAttribute("onclick", `traceStepBack()`);
-            traceStateDiv.appendChild(backButton);
-        }
+
+        // let backButton = document.getElementById("trace-back-button");
+        // backButton.setAttribute("hidden", "true");
+
+        //     let backButton = document.createElement("div");
+
+
+        // Remove in favor of back button at top of trace.
+        // // If this is the last state, add a "step back" button.
+        // if(isLastState){
+        //     let backButton = document.createElement("div");
+        //     backButton.innerHTML = "Back"
+        //     backButton.id = "trace-back-button";
+        //     backButton.setAttribute("onclick", `traceStepBack()`);
+        //     traceStateDiv.appendChild(backButton);
+        // }
 
         traceDiv.appendChild(traceStateDiv);
         stateInd += 1;

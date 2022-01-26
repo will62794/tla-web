@@ -42,7 +42,8 @@
         <div id="next-states" class="tlc-state">next states</div> -->
 
         <div id="trace-container">
-            <h3>Current Trace</h3>
+            <h3>Current Trace</h3> 
+            <div id="trace-back-button" onclick="traceStepBack()">Back</div>
             <div id="trace" class="tlc-state"></div>
         </div>
     </div>
@@ -87,6 +88,7 @@
       body {
         margin: 0;
         padding: 0;
+        font-family: Arial, Helvetica, sans-serif;
       }
 
       h1,h2,h3,h4{
@@ -276,16 +278,21 @@
       #trace-back-button{
           color:black;
           text-align: center;
-          height:20px;
+          height:18px;
           vertical-align: middle;
           background-color: lightgray;
-          margin-top:4px;
-          margin-bottom:4px;
+          /* margin-top:2px; */
+          /* margin-bottom:2px; */
+          width:50px;
+          font-size:14px;
+          border-radius: 3px;
+          background-color: steelblue;
+          color:white;
+
       }
       #trace-back-button:hover{
           cursor: pointer;
-          background-color: steelblue;
- 
+          background-color: gray;
       }
   
       #logging-checkbox {
