@@ -36,13 +36,13 @@
 
     <!-- Display pane. -->
     <div id="output-container-scroll">
-        <h3 id="poss-next-states-title">Choose Initial State</h3>
+        <div id="poss-next-states-title" class="pane-title">Choose Initial State</div>
         <div id="initial-states" class="tlc-state"></div>
         <!-- <h2>Next states</h2>
         <div id="next-states" class="tlc-state">next states</div> -->
 
         <div id="trace-container">
-            <h3>Current Trace</h3> 
+            <div class="pane-title">Current Trace</div> 
             <div id="trace-buttons">
                 <div class="trace-button" id="trace-back-button" onclick="traceStepBack()">Back</div>
                 <!-- <div class="trace-button" id="trace-copy-link-button" onclick="traceGetLink()">Get Trace Link</div> -->
@@ -108,6 +108,13 @@
           padding:5px;
       }
 
+      .pane-title{
+          font-size:18px;
+          font-weight: bold;
+          padding-bottom:8px;
+          padding-top:8px;
+      }
+
       #toggle-spec-button{
           position:absolute;
           /* color:red; */
@@ -162,10 +169,10 @@
           /* min-height: 250px; */
           /* max-height:300px; */
           height:35%;
-          width:95%;
+          width:98%;
           /* height:100px; */
           overflow-y:scroll;
-          border: 1px gray solid;
+          border: 2px gray solid;
           border-radius: 5px;
       }
 
@@ -174,7 +181,9 @@
       }
 
       #trace{
-          padding-left:15px;
+        padding-left:15px;
+        height:50%;
+        overflow-y: scroll;
       }
 
       .tlc-state{
@@ -201,10 +210,10 @@
 
       .init-state{
           background-color:#ddd;
-          padding:5px;
+          padding:1%;
           width:45%;
           float:left;
-          margin:5px;
+          margin:1%;
           border:solid;
           border-color:gray;
       }

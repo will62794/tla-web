@@ -106,7 +106,7 @@ function renderCurrentTrace(){
         let state = currTrace[ind];
         let isLastState = ind === currTrace.length - 1;
         let traceStateDiv = document.createElement("div");
-        traceStateDiv.innerHTML += "<b>State " + stateInd + "</b><br>"
+        // traceStateDiv.innerHTML += "<b>State " + stateInd + "</b><br>"
         traceStateDiv.classList.add("trace-state");
         console.log(state);
         for(const varname in state){
@@ -255,8 +255,8 @@ function handleChooseState(statehash_short){
     // Download example spec.
     // let specPath = "./specs/simple1.tla";
     // let specPath = "./specs/simple2.tla";
-    let specPath = "./specs/lockserver_nodefs.tla";
-    // let specPath = "./specs/MongoLoglessDynamicRaft.tla";
+    // let specPath = "./specs/lockserver_nodefs.tla";
+    let specPath = "./specs/MongoLoglessDynamicRaft.tla";
     // let specPath = "./specs/Paxos.tla";
     (() => {
         const handle = setInterval(() => {

@@ -707,6 +707,10 @@ function evalInitExpr(node, contexts){
         // the quantified expression with the appropriately bound values.
         let quantDomainTuples = cartesianProductOf(...quantDomains);
         evalLog("quantDomain tuples:", quantDomainTuples);
+        if(quantDomainTuples.length === 0){
+            return [{"val": false, "state": {}}];
+        }
+
         return _.flattenDeep(quantDomainTuples.map(qtup => {
             let boundContext = _.cloneDeep(contexts);
             // Bound values to quantified variables.
