@@ -333,10 +333,10 @@ function evalInitBoundInfix(node, contexts){
 
     // Plus.
     if(symbol.type === "plus"){
-        evalLog("mul lhs:", lhs, lhs.text);
-        let mulLhsVal = evalInitExpr(lhs, contexts);
-        evalLog("mul lhs val:", mulLhsVal);
-        let lhsVal = mulLhsVal[0]["val"];
+        evalLog("plus lhs:", lhs, lhs.text);
+        let plusLhsVal = evalInitExpr(lhs, contexts);
+        evalLog("plus lhs val:", plusLhsVal);
+        let lhsVal = plusLhsVal[0]["val"];
         let rhsVal = evalInitExpr(rhs, contexts)[0]["val"];
         let outVal = lhsVal + rhsVal;
         return [Object.assign({}, contexts, {"val": outVal})];
@@ -621,22 +621,32 @@ function evalInitExpr(node, contexts){
         // Check for the bound op in the set of known definitions.
         if(contexts["defns"].hasOwnProperty(opName)){
             let opDefNode = contexts["defns"][opName]["node"];
+            let opDefObj = contexts["defns"][opName];
+            let opArgs = opDefObj["args"];
             evalLog("defns", node);
+            evalLog("opDefObj", opDefObj);
 
             // n-ary operator.
-            if(node.namedChildren.length > 1){
+            // if(node.namedChildren.length > 1){
+            if(opArgs.length > 1){
                 // Evaluate each operator argument.
-                let opArgVals = node.namedChildren.slice(1).map(c => evalInitExpr(c, contexts));
+                let opArgVals = _.flatten(node.namedChildren.slice(1).map(c => evalInitExpr(c, contexts)));
                 evalLog("opArgVals:", opArgVals);
 
                 // Then, evaluate the operator defininition with these argument values bound
                 // to the appropriate names.
                 let opEvalContext = _.cloneDeep(contexts);
+                if(!opEvalContext.hasOwnProperty("quant_bound")){
+                    opEvalContext["quant_bound"] = {};
+                }
+
                 evalLog("opDefNode", opDefNode);
-                for(var i=0;i<opArgVals.length;i++){
-                    // The parameter name in the operator definition.
-                    let paramName = opDefNode.namedChildren[i+1].text;
-                    opEvalContext["quant_bound"][paramName] = opArgVals[i];
+                // for(var i=0;i<opArgVals.length;i++){
+                for(var i=0;i<opArgs.length;i++){
+                        // The parameter name in the operator definition.
+                    let paramName = opArgs[i];
+                    console.log("paramName:", paramName);
+                    opEvalContext["quant_bound"][paramName] = opArgVals[i]["val"];
                 }
                 evalLog("opEvalContext:", opEvalContext);
                 return evalInitExpr(opDefNode, opEvalContext);
