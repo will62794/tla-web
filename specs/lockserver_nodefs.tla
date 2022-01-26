@@ -10,22 +10,25 @@ EXTENDS TLC, Naturals
 
 \* Hard-code constants inline for now.
 \* CONSTANT Server = {0,1,2}
-\* CONSTANT Client = {88,99}
+\* CONSTANT Client = {"c1","c2"}
+
+Server == {"s1", "s2"}
+Client == {"c1", "c2"}
 
 VARIABLE semaphore
 VARIABLE clientlocks
 
 \* Initially each server holds its lock, and all clients hold no locks.
 Init == 
-    /\ semaphore = [i \in {0,1} |-> TRUE]
-    /\ clientlocks = [i \in {88,99} |-> {}]
+    /\ semaphore = [i \in Server |-> TRUE]
+    /\ clientlocks = [i \in Client |-> {}]
 
 Next == 
-    \/ \E c \in {88,99}, s \in {0,1} : 
+    \/ \E c \in Client, s \in Server : 
         /\ semaphore[s] = TRUE
         /\ clientlocks' = [clientlocks EXCEPT ![c] = clientlocks[c] \cup {s}]
         /\ semaphore' = [semaphore EXCEPT ![s] = FALSE]
-    \/ \E c \in {88,99}, s \in {0,1} : 
+    \/ \E c \in Client, s \in Server : 
         /\ s \in clientlocks[c]
         /\ clientlocks' = [clientlocks EXCEPT ![c] = clientlocks[c] \ {s}]
         /\ semaphore' = [semaphore EXCEPT ![s] = TRUE]
