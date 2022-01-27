@@ -329,7 +329,7 @@ function evalEq(lhs, rhs, ctx){
             } 
             return val;
         });
-        console.log("state updated:", stateUpdated);
+        evalLog("state updated:", stateUpdated);
         return [ctx.withVal(true).withState(stateUpdated)];
 
     } else{
@@ -501,7 +501,7 @@ function evalBoundInfix(node, ctx){
 function evalDisjList(parent, disjs, ctx){
     assert(ctx instanceof Context);
 
-    console.log("eval: disjunction list!");
+    evalLog("eval: disjunction list!");
 
     // Split into separate evaluation cases for each disjunct.
     return _.flattenDeep(disjs.map(disj => evalExpr(disj, ctx)));
@@ -528,7 +528,7 @@ function evalConjList(parent, conjs, ctx){
         let res = prev.map(ctxPrev => {
             return evalExpr(conj, ctxPrev).map(ctxCurr => ctxCurr.withVal(ctxCurr["val"] && ctxPrev["val"]));
         });
-        console.log("evalConjList mapped: ", res);
+        evalLog("evalConjList mapped: ", res);
         return _.flattenDeep(res);
     }, [ctx]);
 }
@@ -780,7 +780,7 @@ function evalExpr(node, ctx){
     }
     if(node.type === "conj_list"){
         let ret =  evalConjList(node, node.children, ctx);
-        console.log("evalConjList ret: ", ret);
+        evalLog("evalConjList ret: ", ret);
         return ret;
     }  
     if(node.type === "disj_list"){
