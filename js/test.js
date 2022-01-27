@@ -455,6 +455,25 @@ function testTLCEquiv(testId, specName){
     });      
 }
 
+function bound_ops(){
+    let spec = `---- MODULE bound_ops ----
+    EXTENDS TLC, Naturals
+    
+    Add(a,b) == a + b
+    Add5(c) == c + 5
+
+    VARIABLE x
+
+    Init == x = Add(3,Add5(6)) 
+    Next == x' = x
+    
+    ====`;
+    initExpected = [
+        {"x": 20}
+    ];
+    testStateGen("bound_ops", spec, initExpected, null);    
+}
+
 function record_literal_eval(){
     let spec = `---- MODULE record_literal_eval ----
     EXTENDS TLC, Naturals
@@ -506,6 +525,7 @@ tests = {
     "simple-spec5": simple_spec5,
     "record_literal_eval": record_literal_eval,
     "record_access_eval": record_access_eval,
+    "bound_ops": bound_ops,
     "simple-lockserver-nodefs": simple_lockserver_nodefs,
     "simple-lockserver-withdefs": simple_lockserver_withdefs,
     "mldr-init": mldr_init,
