@@ -258,7 +258,8 @@ function handleChooseState(statehash_short){
     // let specPath = "./specs/lockserver_nodefs.tla";
     // let specPath = "./specs/MongoLoglessDynamicRaft.tla";
     // let specPath = "./specs/Paxos.tla";
-    let specPath = "./specs/simple_test.tla";
+    // let specPath = "./specs/simple_test.tla";
+    let specPath = "./specs/simple_lockserver.tla";
     (() => {
         const handle = setInterval(() => {
             res = $.get(specPath, data => {
