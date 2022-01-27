@@ -144,7 +144,11 @@ function renderCurrentTrace(){
 
 function handleChooseState(statehash_short){
     console.log("currNextStates:", JSON.stringify(currNextStates));
-    let nextState = currNextStates.filter(s => hashStateShort(s)===statehash_short)[0];
+    let nextStateChoices = currNextStates.filter(s => hashStateShort(s)===statehash_short);
+    if(nextStateChoices.length === 0){
+        throw Error("Given state hash does not exist among possible next states.")
+    }
+    let nextState = nextStateChoices[0];
     // TODO: Consider detecting cycles in the trace.
     currTrace.push(nextState);
     console.log("nextState:", JSON.stringify(nextState));
