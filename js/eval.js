@@ -617,6 +617,57 @@ function evalBoundedQuantification(node, ctx){
     }));    
 }
 
+function evalBoundOp(node, ctx){
+    assert(node.type === "bound_op");
+
+    let opName = node.namedChildren[0].text;
+    let argExpr = node.namedChildren[1];
+    evalLog("bound_op:", opName);
+    evalLog("bound_op context:",ctx);
+
+    let argExprVal = evalExpr(argExpr, ctx)[0]["val"]
+    // Built in bound ops.
+    if(opName == "Cardinality"){
+        evalLog("Cardinality val:", argExpr.text, argExprVal.length);
+        return [ctx.withVal(argExprVal.length)];
+    }
+
+    // Check for the bound op in the set of known definitions.
+    if(ctx["defns"].hasOwnProperty(opName)){
+        let opDefNode = ctx["defns"][opName]["node"];
+        let opDefObj = ctx["defns"][opName];
+        let opArgs = opDefObj["args"];
+        evalLog("defns", node);
+        evalLog("opDefObj", opDefObj);
+
+        // n-ary operator.
+        // if(node.namedChildren.length > 1){
+        if(opArgs.length > 1){
+            // Evaluate each operator argument.
+            let opArgVals = _.flatten(node.namedChildren.slice(1).map(c => evalExpr(c, ctx)));
+            evalLog("opArgVals:", opArgVals);
+
+            // Then, evaluate the operator defininition with these argument values bound
+            // to the appropriate names.
+            let opEvalContext = _.cloneDeep(ctx);
+            if(!opEvalContext.hasOwnProperty("quant_bound")){
+                opEvalContext["quant_bound"] = {};
+            }
+
+            evalLog("opDefNode", opDefNode);
+            // for(var i=0;i<opArgVals.length;i++){
+            for(var i=0;i<opArgs.length;i++){
+                // The parameter name in the operator definition.
+                let paramName = opArgs[i];
+                // console.log("paramName:", paramName);
+                opEvalContext["quant_bound"][paramName] = opArgVals[i]["val"];
+            }
+            evalLog("opEvalContext:", opEvalContext);
+            return evalExpr(opDefNode, opEvalContext);
+        }
+    }
+}
+
 /**
  * Evaluate a TLC expression for generating initial/next states.
  * 
@@ -743,53 +794,7 @@ function evalExpr(node, ctx){
     }
 
     if(node.type === "bound_op"){
-        let opName = node.namedChildren[0].text;
-        let argExpr = node.namedChildren[1];
-        evalLog("bound_op:", opName);
-        evalLog("bound_op context:",ctx);
-
-        let argExprVal = evalExpr(argExpr, ctx)[0]["val"]
-        // Built in bound ops.
-        if(opName == "Cardinality"){
-            evalLog("Cardinality val:", argExpr.text, argExprVal.length);
-            return [ctx.withVal(argExprVal.length)];
-        }
-
-        // Check for the bound op in the set of known definitions.
-        if(ctx["defns"].hasOwnProperty(opName)){
-            let opDefNode = ctx["defns"][opName]["node"];
-            let opDefObj = ctx["defns"][opName];
-            let opArgs = opDefObj["args"];
-            evalLog("defns", node);
-            evalLog("opDefObj", opDefObj);
-
-            // n-ary operator.
-            // if(node.namedChildren.length > 1){
-            if(opArgs.length > 1){
-                // Evaluate each operator argument.
-                let opArgVals = _.flatten(node.namedChildren.slice(1).map(c => evalExpr(c, ctx)));
-                evalLog("opArgVals:", opArgVals);
-
-                // Then, evaluate the operator defininition with these argument values bound
-                // to the appropriate names.
-                let opEvalContext = _.cloneDeep(ctx);
-                if(!opEvalContext.hasOwnProperty("quant_bound")){
-                    opEvalContext["quant_bound"] = {};
-                }
-
-                evalLog("opDefNode", opDefNode);
-                // for(var i=0;i<opArgVals.length;i++){
-                for(var i=0;i<opArgs.length;i++){
-                    // The parameter name in the operator definition.
-                    let paramName = opArgs[i];
-                    // console.log("paramName:", paramName);
-                    opEvalContext["quant_bound"][paramName] = opArgVals[i]["val"];
-                }
-                evalLog("opEvalContext:", opEvalContext);
-                return evalExpr(opDefNode, opEvalContext);
-            }
-        }
-
+        return evalBoundOp(node, ctx)
     }
 
     if(node.type === "bound_infix_op"){
@@ -926,6 +931,7 @@ function evalExpr(node, ctx){
         return ret;
     }
 
+    // <record>.<field>
     if(node.type === "record_value"){
         evalLog("RECVAL", node);
         let rec = node.namedChildren[0];
