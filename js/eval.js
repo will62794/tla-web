@@ -244,23 +244,9 @@ function evalInitLand(lhs, rhs, ctx){
         evalLog("lctx:", lctx);
         return evalInitExpr(rhs, lctx).map(actx => {
             return [actx.withVal((lctx["val"] && actx["val"])).withState(actx["state"])];
-            // return Object.assign({}, actx, {"val": (lctx["val"] && actx["val"]), "state": actx["state"]});
         })
     });
     return _.flattenDeep(rhsEval);
-    
-    // evalInitExpr(lhs, contexts)
-
-    // // It's possible that the RHS forks the evaluation contexts further, so 
-    // // we evaluate each current context, and compute its truth value against 
-    // // all contexts returned by evaluation of the RHS.
-    // let contextsOut = [];
-    // for(const lctx of contextsLhs){
-    //     let contextsRhs = evalInitExpr(rhs, [lctx]);
-    //     contextsRhs = contextsRhs.map((rctx) => ({"val": lctx["val"] && rctx["val"], "state": rctx["state"]}));
-    //     contextsOut = contextsOut.concat(contextsRhs);
-    // }
-    // return contextsOut;
 }
 
 function evalInitLor(lhs, rhs, ctx){
@@ -316,8 +302,6 @@ function evalInitEq(lhs, rhs, ctx){
             evalLog("boolVal:", boolVal);
 
             return [ctx.withVal(boolVal)];
-            // return Object.assign({}, ctx, {"val": boolVal})
-            // return [{"val": boolVal, "state": ctx["state"]}]; 
         }
 
         // Variable not already assigned. So, update variable assignment as necessary.
@@ -334,9 +318,6 @@ function evalInitEq(lhs, rhs, ctx){
         });
         console.log("state updated:", stateUpdated);
         return [ctx.withVal(true).withState(stateUpdated)];
-        // return [Object.assign({}, ctx, {"val": true, "state": stateUpdated})];
-        // return [{"val": true, "state": stateUpdated}];
-        // return [_.update(ctx, "val", () => boolVal)];
 
     } else{
         evalLog(`Checking for equality of ident '${identName}' with '${rhs.text}'.`, ctx);
@@ -358,7 +339,6 @@ function evalInitEq(lhs, rhs, ctx){
 
         // Return context with updated value.
         return [ctx.withVal(boolVal)];
-        // return [Object.assign({}, ctx, {"val": boolVal})];
     }
 }
 
@@ -386,7 +366,6 @@ function evalInitBoundInfix(node, ctx){
         let outVal = lhsVal * rhsVal;
         // console.log("mul overall val:", outVal);
         return [ctx.withVal(outVal)];
-        // return [Object.assign({}, ctx, {"val": outVal})];
     }
 
     // Plus.
@@ -398,7 +377,6 @@ function evalInitBoundInfix(node, ctx){
         let rhsVal = evalInitExpr(rhs, ctx)[0]["val"];
         let outVal = lhsVal + rhsVal;
         return [ctx.withVal(outVal)];
-        // return [Object.assign({}, ctx, {"val": outVal})];
     }
 
     // Greater than.
@@ -407,7 +385,6 @@ function evalInitBoundInfix(node, ctx){
         let rhsVal = evalInitExpr(rhs, ctx)[0]["val"];
         let outVal = lhsVal > rhsVal;
         return [ctx.withVal(outVal)];
-        // return [Object.assign({}, ctx, {"val": outVal})];
     }
 
     if(symbol.type === "geq"){
@@ -415,7 +392,6 @@ function evalInitBoundInfix(node, ctx){
         let rhsVal = evalInitExpr(rhs, ctx)[0]["val"];
         let outVal = lhsVal >= rhsVal;
         return [ctx.withVal(outVal)];
-        // return [Object.assign({}, ctx, {"val": outVal})];
     }
 
     // Disjunction.
@@ -451,7 +427,6 @@ function evalInitBoundInfix(node, ctx){
         evalLog("inequality boolVal:", boolVal);
         // Return context with updated value.
         return [ctx.withVal(boolVal)];
-        // return [Object.assign({}, ctx, {"val": boolVal})];
     } 
 
     // Set membership.
@@ -469,7 +444,6 @@ function evalInitBoundInfix(node, ctx){
 
         evalLog("setin lhs in rhs:", rhsVal.includes(lhsVal));
         return [ctx.withVal(rhsVal.includes(lhsVal))];
-        // return [Object.assign({}, ctx, {"val": rhsVal.includes(lhsVal)})]
     } 
     
     // Set intersection.
@@ -482,7 +456,6 @@ function evalInitBoundInfix(node, ctx){
         evalLog("cap rhs:", rhsVal);
         let capVal = _.intersectionWith(lhsVal, rhsVal, _.isEqual);
         return [ctx.withVal(capVal)];
-        // return [Object.assign({}, ctx, {"val": capVal})];
     } 
 
     // Set union.
@@ -496,7 +469,6 @@ function evalInitBoundInfix(node, ctx){
         let rhsVal = evalInitExpr(rhs, ctx)[0]["val"];
         evalLog("cup rhs:", lhsVal);
         return [ctx.withVal(_.uniq(lhsVal.concat(rhsVal)))];
-        // return [Object.assign({}, ctx, {"val": _.uniq(lhsVal.concat(rhsVal))})];
     }   
 
     // Set minus.
@@ -510,7 +482,6 @@ function evalInitBoundInfix(node, ctx){
         let rhsVal = evalInitExpr(rhs, ctx)[0]["val"];
         console.log("setminus rhs:", lhsVal);
         return [ctx.withVal(_.difference(lhsVal,rhsVal))];
-        // return [Object.assign({}, ctx, {"val": _.difference(lhsVal,rhsVal)})];
     }  
 }
 
@@ -541,10 +512,8 @@ function evalInitConjList(parent, conjs, ctx){
         ctx["val"]=true;
     }
     return conjs.reduce((prev,conj) => {
-        // return _.flattenDeep(
         let res = prev.map(ctxPrev => {
             return evalInitExpr(conj, ctxPrev).map(ctxCurr => ctxCurr.withVal(ctxCurr["val"] && ctxPrev["val"]));
-                // Object.assign({}, cb, {"val": cb["val"] && ctxInner["val"]})
         });
         console.log("evalInitConjList mapped: ", res);
         return _.flattenDeep(res);
@@ -563,10 +532,7 @@ function evalInitIdentifierRef(node, ctx){
         evalLog("variable identifier: ", ident_name);
         let var_val = ctx["state"][ident_name];
         evalLog("var ident context:", ctx["state"], var_val);
-        // return [{"val": var_val, "state": ctx["state"]}];
         return [ctx.withVal(var_val)];
-
-        // return [Object.assign({}, ctx, {"val": var_val})];
     }
 
     // See if the identifier is bound to a value in the current context.
@@ -575,8 +541,6 @@ function evalInitIdentifierRef(node, ctx){
         let bound_val = ctx["quant_bound"][ident_name];
         evalLog("bound_val", bound_val);
         return [ctx.withVal(bound_val)];
-        // return [Object.assign({}, ctx, {"val": bound_val})];
-        // return [{"val": bound_val, "state": ctx["state"]}];
     }
 
     // See if this identifier is a definition in the spec.
@@ -584,7 +548,6 @@ function evalInitIdentifierRef(node, ctx){
         // Evaluate the definition in the current context.
         // TODO: Consider defs that are n-ary operators.
         let defNode = ctx["defns"][ident_name]["node"];
-        // return undefined;
         return evalInitExpr(defNode, ctx);
     }
 
@@ -684,7 +647,6 @@ function evalInitExpr(node, ctx){
         fnVal[updateExprVal] = rExprVal;
 
         return [ctx.withVal(_.cloneDeep(fnVal))];
-        // return [Object.assign({}, ctx, {"val": _.cloneDeep(fnVal)})];
 
         throw Error("Evaluation of 'except' node type not implemented.");
 
@@ -701,10 +663,6 @@ function evalInitExpr(node, ctx){
         let fnArgVal = evalInitExpr(node.namedChildren[1], ctx)[0]["val"];
         evalLog("fneval (arg,val): ", fnVal, ",", fnArgVal);
         return [ctx.withVal(fnVal[fnArgVal])];
-
-        // } else{
-            // return [Object.assign({}, ctx, {"val": fnVal[fnArg]})];
-        // }
     }
 
 
@@ -713,7 +671,6 @@ function evalInitExpr(node, ctx){
     }
     if(node === undefined){
         return [ctx.withVal(false)];
-        // return [{"val": false, "state": {}}];
     }
     if(node.type === "conj_list"){
         let ret =  evalInitConjList(node, node.children, ctx);
@@ -743,7 +700,6 @@ function evalInitExpr(node, ctx){
         if(opName == "Cardinality"){
             evalLog("Cardinality val:", argExpr.text, argExprVal.length);
             return [ctx.withVal(argExprVal.length)];
-            // return [Object.assign({}, ctx, {"val": argExprVal.length})];
         }
 
         // Check for the bound op in the set of known definitions.
@@ -771,7 +727,7 @@ function evalInitExpr(node, ctx){
                 evalLog("opDefNode", opDefNode);
                 // for(var i=0;i<opArgVals.length;i++){
                 for(var i=0;i<opArgs.length;i++){
-                        // The parameter name in the operator definition.
+                    // The parameter name in the operator definition.
                     let paramName = opArgs[i];
                     // console.log("paramName:", paramName);
                     opEvalContext["quant_bound"][paramName] = opArgVals[i]["val"];
@@ -800,22 +756,18 @@ function evalInitExpr(node, ctx){
             rhsVal = rhsVal[0]["val"];
             let powersetRhs = subsets(rhsVal);
             evalLog("powerset:",powersetRhs);
-            // return [Object.assign({}, ctx, {"val":powersetRhs})];
             return [ctx.withVal(powersetRhs)];
-            // return [{"val": powersetRhs, "state": {}}];
         }
         if(symbol.type === "negative"){
             let rhsVal = evalInitExpr(rhs, ctx);
             rhsVal = rhsVal[0]["val"];
             return [ctx.withVal(-rhsVal)];
-            // return [{"val": -rhsVal, "state": {}}];
         }   
 
         if(symbol.type === "lnot"){
             let rhsVal = evalInitExpr(rhs, ctx);
             rhsVal = rhsVal[0]["val"];
             return [ctx.withVal(!rhsVal)];
-            // return [{"val": !rhsVal, "state": {}}];
         }   
     }
 
@@ -850,7 +802,6 @@ function evalInitExpr(node, ctx){
         evalLog("quantDomain tuples:", quantDomainTuples);
         if(quantDomainTuples.length === 0){
             return [ctx.withVal(false)];
-            // return [{"val": false, "state": {}}];
         }
 
         return _.flattenDeep(quantDomainTuples.map(qtup => {
@@ -876,15 +827,12 @@ function evalInitExpr(node, ctx){
     if(node.type === "nat_number"){
         // console.log(node.type, node.text);
         return [ctx.withVal(parseInt(node.text))];
-        // return [{"val": parseInt(node.text), "state": {}}];
-        // return [{"val": new NatValue(parseInt(node.text)), "state": {}}];
     }
 
     if(node.type === "boolean"){
         evalLog(node.type, node.text);
         let boolVal = node.text === "TRUE" ? true : false;
         return [ctx.withVal(boolVal)];
-        // return [{"val": boolVal, "state": {}}];
     }
 
     if(node.type === "string"){
@@ -892,8 +840,6 @@ function evalInitExpr(node, ctx){
         // Remove the quotes.
         let rawStr = node.text.substring(1,node.text.length-1);
         return [ctx.withVal(rawStr)];
-        // return [{"val": rawStr, "state": {}}];
-        // return [{"val": new StringValue(rawStr), "state": {}}];
     }
 
     if(node.type === "if_then_else"){
@@ -945,7 +891,6 @@ function evalInitExpr(node, ctx){
         });
         evalLog("domainExprVal filtered:", filteredVals);
         return [ctx.withVal(filteredVals)];
-        // return [Object.assign({}, ctx, {"val": filteredVals})];
     }
 
 
@@ -966,7 +911,6 @@ function evalInitExpr(node, ctx){
         ret = _.flatten(ret);
         // console.log(ret);
         return [ctx.withVal(ret)];
-        // return [{"val": ret, "state": ctx["state"]}];
 
         // let ret = node.children.map(child => evalInitExpr(child, ctx));
         // console.log(_.flatten(ret));
@@ -983,7 +927,6 @@ function evalInitExpr(node, ctx){
         evalLog("recField", recField);
         let fieldVal = recVal[recField];
         return [ctx.withVal(fieldVal)];
-        // return [{"val": fieldVal, "state": ctx["state"]}];
 
     }
 
@@ -1003,7 +946,6 @@ function evalInitExpr(node, ctx){
         }
         evalLog("RECOBJ", record_obj);
         return [ctx.withVal(record_obj)];
-        // return [{"val": record_obj, "state": ctx["state"]}];
     }
 
 
@@ -1051,7 +993,6 @@ function evalInitExpr(node, ctx){
         }
         evalLog("fnVal:", fnVal);
         return [ctx.withVal(fnVal)];
-        // return [{"val":fnVal, "state":{}}];
     }
 }
 
@@ -1074,11 +1015,6 @@ function getInitStates(initDef, vars, defns){
     // branch, which contains a computed value along with a list of 
     // generated states.
     let initCtx = new Context(null, init_var_vals, defns, {});
-    console.log("INITCTX:", initCtx);
-    console.log("INITCTX:", initCtx instanceof Context);
-    let init_ctx = {"val": null, "state": init_var_vals, "defns": defns};
-    // let ret_ctxs = evalInitExpr(initDef, [init_ctx]);
-    // let ret_ctxs = evalInitExpr(initDef, init_ctx);
     let ret_ctxs = evalInitExpr(initDef, initCtx);
     if(ret_ctxs === undefined){
         console.error("Set of generated initial states is 'undefined'.");
@@ -1104,13 +1040,9 @@ function getNextStates(nextDef, currStateVars, defns){
         currStateVars[primedVar] = null;
     }
     console.log("currStateVars:", currStateVars);
-    // let init_ctxs = [{"val": null, "state": currStateVars}]
 
     let initCtx = new Context(null, currStateVars, defns, {});
     console.log("currStateVars:", currStateVars);
-    // let init_ctx = {"val": null, "state": currStateVars, "defns": defns};
-    // let ret = evalNextExpr(nextDef, init_ctxs);
-    // console.log("nextDef:", nextDef);
     let ret = evalInitExpr(nextDef, initCtx);
     console.log("getNextStates ret:", ret);
 
