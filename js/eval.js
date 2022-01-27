@@ -12,6 +12,12 @@ const urlSearchParams = new URLSearchParams(window.location.search);
 const params = Object.fromEntries(urlSearchParams.entries());
 let enableEvalTracing = parseInt(params["debug"]);
 
+// Simple assertion utility.
+function assert(condition, message) {
+    if (!condition) {
+        throw new Error(message || 'Assertion failed');
+    }
+}
 function evalLog(...msgArgs){
     if(enableEvalTracing){
         let indent = "(L"+depth+")" + ("|".repeat(depth * 2));
@@ -512,75 +518,126 @@ function evalInitIdentifierRef(node, contexts){
     // TODO: Consider case of being undefined.
 }
 
-// Evaluation of a TLC expression in the context of initial state generation
-// can produce a few outcomes. Either, it simply updates the current assignment
-// of values to variables, and/or it creates a new branch in the state computation,
-// arising from presence of a disjunction (i.e. existential quantifier/set membership, etc.)
 
-// 
-// Evaluation of an individual expression always takes place under some
-// 'context' i.e. a current assignment of values to variables. Evaluation of a
-// sub expression can either:
-// 
-//  - Update the current context i.e. the current variable assignment
-//  - Return an atomic value.
-//  - Fork the current evaluation context into multiple, new contexts (e.g. via disjunction)
-// 
-// The return value of an expression evaluation is not always a single object. It can be a set
-// of return objects, if the evaluation computation forked into multiple contexts. Each context
-// is a separate computation, so it has its own expression value that it will return, along with
-// any generated states i.e. the assignments to variables that were produced on that 
-// evaluation branch.
-// 
-//
-// So, evaluation of a single expression should return a list of (value, state)
-// pairs. Each individual evaluation helper function, however, can take in a
-// single expression and context, as opposed to a list of contexts.
-//
+class Context{
+    constructor(val, state, defns, quant_bound) {
+        this.val = val;
+        this.state = state;
+        this.defns = defns;
+        this.quant_bound = quant_bound;
+    }
 
-// TODO: Rename 'contexts' to 'context', since now we intend this function to
-// take in only a single context, not a list of contexts.
-function evalInitExpr(node, contexts){
+    show(){
+        return this.defns;
+    }
+}
+
+/**
+ * Evaluate a TLC expression.
+ * 
+ * Note that evaluation of a TLC expression is not only about producing a single
+ * value. In the simple case, expression evaluation simply takes in an
+ * expression and returns a single TLC value. When we are evaluating an
+ * expression in the form of an initial state or next state predicate, however,
+ * things are more involved. 
+ * 
+ * That is, when evaluating an initial/next state predicate for generating
+ * states, the expression returns both a boolean value (TRUE/FALSE) as well as
+ * an assignment of values to variables. In the context of initial state
+ * generation, this is an assignment of values to all variables x1,...,xn
+ * declared in a specification. In the context of next state generation, though,
+ * this is an assignment of values to all variables x1,...,xn,x1',...,xn' i.e.
+ * the "current" state variables and the "next"/"primed" copy of the state
+ * variables. More precisely, predicate evaluation of this variety may actually
+ * produce not only a single return value, but a set of return values. That is,
+ * one for each potential "branch" of the evaluation, corresponding to possible
+ * disjunctions that appear in the predicate. For example, the initial state
+ * predicate x = 0 \/ x = 1 will produce two possible results, both of which
+ * evaluate to TRUE and which assign the values of 0 and 1, respectively, to the
+ * variable 'x'.
+ * 
+ * To handle this type of evaluation strategy, we allow expression evaluation to
+ * take in a current 'context', which consists of several items for tracking
+ * data needed during evaluation:
+ * 
+ * Context : {
+ *   val: TLCValue
+ *      The result value of this expression, or 'null' if no result has been
+ *      computed yet.
+ *   
+ *   state: string -> TLCValue
+ *      Represents the current assignment of values to variables in an
+ *      in-progress expression evaluation. 
+ * 
+ *   defns: string -> TLCSyntaxNode
+ *      Global definitions that exist in the specification, stored as mapping from
+ *      definition names to their syntax tree node.
+ *   
+ *   quant_bound: string -> TLCValue
+ *      Currently bound identifiers in the in-progress expression evaluation,
+ *      stored as a mapping from identifier names to their TLC values.
+ * }
+ * 
+ * Expression evaluation can return a list (i.e set) of these context objects,
+ * one for each potential evaluation branch of a given expression. In each
+ * returned context, the assignment of values to variables, 'state', will
+ * potentially be updated, as will the 'val' output value. The bound quantifiers
+ * may also be updated.
+ *
+ * In our implementation, though, we have each evaluation handler function take
+ * in a single context object, and return potentially many contexts. This makes
+ * it easier to implement each evaluation handler function, by focusing just on
+ * how to evaluate an expression given a single context, and either update it,
+ * or fork it into multiple new sub-contexts.
+ * 
+ * @param {TLASyntaxNode} node: TLA+ tree sitter syntax node representing the expression to evaluate.
+ * @param {Context} ctx: a 'Context' instance under which to evaluate the given expression.
+ * @returns 
+ */
+function evalInitExpr(node, ctx){
+    // TODO: Enable this after argument conversion.
+    // assert(ctx instanceof Context);
+
     // console.log("$$ evalInitExpr, node: ", node, node.text);
     evalLog("evalInitExpr -> ("+ node.type + ") '" + node.text + "'");
 
     // [<lExpr> EXCEPT ![<updateExpr>] = <rExpr>]
     if(node.type === "except"){
-        evalLog("EXCEPT node, ctx:", contexts);
+        evalLog("EXCEPT node, ctx:", ctx);
         let lExpr = node.namedChildren[0];
         let updateExpr = node.namedChildren[1];
         let rExpr = node.namedChildren[2];
 
         // This value should be a function.
         evalLog("lExpr:",lExpr); 
-        let lExprVal = evalInitExpr(lExpr, contexts);
+        let lExprVal = evalInitExpr(lExpr, ctx);
         evalLog("lexprval:", lExprVal);
         // console.assert(lExprVal.type === "function");
         let fnVal = lExprVal[0]["val"];
         evalLog("fnVal:",fnVal);
 
         evalLog(updateExpr);
-        let updateExprVal = evalInitExpr(updateExpr, contexts)[0]["val"];
+        let updateExprVal = evalInitExpr(updateExpr, ctx)[0]["val"];
         evalLog("updateExprVal:", updateExprVal);
 
-        let rExprVal = evalInitExpr(rExpr, contexts)[0]["val"];
+        let rExprVal = evalInitExpr(rExpr, ctx)[0]["val"];
         evalLog("rExprVal:", rExprVal);
         fnVal[updateExprVal] = rExprVal;
 
-        return [Object.assign({}, contexts, {"val": _.cloneDeep(fnVal)})];
+        return [Object.assign({}, ctx, {"val": _.cloneDeep(fnVal)})];
 
         throw Error("Evaluation of 'except' node type not implemented.");
 
     }
     if(node.type === "function_evaluation"){
         evalLog("function_evaluation");
-        let fnVal = evalInitExpr(node.namedChildren[0], contexts)[0]["val"];
+        let fnVal = evalInitExpr(node.namedChildren[0], ctx)[0]["val"];
         // console.log("fnArg node: ", node.namedChildren[1]);
-        let fnArgVal = evalInitExpr(node.namedChildren[1], contexts);
+        let fnArgVal = evalInitExpr(node.namedChildren[1], ctx);
         // console.log("fnArgVal:", fnArgVal);
-        let fnArg = evalInitExpr(node.namedChildren[1], contexts)[0]["val"];
+        let fnArg = evalInitExpr(node.namedChildren[1], ctx)[0]["val"];
         evalLog("fneval:", fnVal, fnArg);
-        return [Object.assign({}, contexts, {"val": fnVal[fnArg]})];
+        return [Object.assign({}, ctx, {"val": fnVal[fnArg]})];
     }
 
 
@@ -591,37 +648,37 @@ function evalInitExpr(node, contexts){
         return [{"val": false, "state": {}}];
     }
     if(node.type === "conj_list"){
-        return evalInitConjList(node, node.children, contexts);
+        return evalInitConjList(node, node.children, ctx);
     }  
     if(node.type === "disj_list"){
-        return evalInitDisjList(node, node.children, contexts);
+        return evalInitDisjList(node, node.children, ctx);
     }  
     if(node.type === "conj_item"){
         conj_item_node = node.children[1];
-        return evalInitExpr(conj_item_node, contexts);
+        return evalInitExpr(conj_item_node, ctx);
     }
     if(node.type === "disj_item"){
         disj_item_node = node.children[1];
-        return evalInitExpr(disj_item_node, contexts);
+        return evalInitExpr(disj_item_node, ctx);
     }
 
     if(node.type === "bound_op"){
         let opName = node.namedChildren[0].text;
         let argExpr = node.namedChildren[1];
         evalLog("bound_op:", opName);
-        evalLog("bound_op context:",contexts);
+        evalLog("bound_op context:",ctx);
 
-        let argExprVal = evalInitExpr(argExpr, contexts)[0]["val"]
+        let argExprVal = evalInitExpr(argExpr, ctx)[0]["val"]
         // Built in bound ops.
         if(opName == "Cardinality"){
             evalLog("Cardinality val:", argExpr.text, argExprVal.length);
-            return [Object.assign({}, contexts, {"val": argExprVal.length})];
+            return [Object.assign({}, ctx, {"val": argExprVal.length})];
         }
 
         // Check for the bound op in the set of known definitions.
-        if(contexts["defns"].hasOwnProperty(opName)){
-            let opDefNode = contexts["defns"][opName]["node"];
-            let opDefObj = contexts["defns"][opName];
+        if(ctx["defns"].hasOwnProperty(opName)){
+            let opDefNode = ctx["defns"][opName]["node"];
+            let opDefObj = ctx["defns"][opName];
             let opArgs = opDefObj["args"];
             evalLog("defns", node);
             evalLog("opDefObj", opDefObj);
@@ -630,12 +687,12 @@ function evalInitExpr(node, contexts){
             // if(node.namedChildren.length > 1){
             if(opArgs.length > 1){
                 // Evaluate each operator argument.
-                let opArgVals = _.flatten(node.namedChildren.slice(1).map(c => evalInitExpr(c, contexts)));
+                let opArgVals = _.flatten(node.namedChildren.slice(1).map(c => evalInitExpr(c, ctx)));
                 evalLog("opArgVals:", opArgVals);
 
                 // Then, evaluate the operator defininition with these argument values bound
                 // to the appropriate names.
-                let opEvalContext = _.cloneDeep(contexts);
+                let opEvalContext = _.cloneDeep(ctx);
                 if(!opEvalContext.hasOwnProperty("quant_bound")){
                     opEvalContext["quant_bound"] = {};
                 }
@@ -657,32 +714,32 @@ function evalInitExpr(node, contexts){
 
     if(node.type === "bound_infix_op"){
         // evalLog(node.type + ", ", node.text, ", ctx:", JSON.stringify(contexts));
-        return evalInitBoundInfix(node, contexts);
+        return evalInitBoundInfix(node, ctx);
     }
 
     if(node.type === "bound_prefix_op"){
         let symbol = node.children[0];
         let rhs = node.children[1];
-        evalLog(node.type, ", ", node.text, `, prefix symbol: '${symbol.type}' `, "ctx:", contexts);
+        evalLog(node.type, ", ", node.text, `, prefix symbol: '${symbol.type}' `, "ctx:", ctx);
         if(symbol.type === "powerset"){
             evalLog("POWERSET op");
             evalLog(rhs);
-            let rhsVal = evalInitExpr(rhs, contexts);
+            let rhsVal = evalInitExpr(rhs, ctx);
             evalLog("rhsVal: ", rhsVal);
             rhsVal = rhsVal[0]["val"];
             let powersetRhs = subsets(rhsVal);
             evalLog("powerset:",powersetRhs);
-            // return [Object.assign({}, contexts, {"val":powersetRhs})];
+            // return [Object.assign({}, ctx, {"val":powersetRhs})];
             return [{"val": powersetRhs, "state": {}}];
         }
         if(symbol.type === "negative"){
-            let rhsVal = evalInitExpr(rhs, contexts);
+            let rhsVal = evalInitExpr(rhs, ctx);
             rhsVal = rhsVal[0]["val"];
             return [{"val": -rhsVal, "state": {}}];
         }   
 
         if(symbol.type === "lnot"){
-            let rhsVal = evalInitExpr(rhs, contexts);
+            let rhsVal = evalInitExpr(rhs, ctx);
             rhsVal = rhsVal[0]["val"];
             return [{"val": !rhsVal, "state": {}}];
         }   
@@ -707,7 +764,7 @@ function evalInitExpr(node, contexts){
         evalLog("quant expr:", quant_expr);
 
         let quantDomains = quantBounds.map(qbound =>{
-            expr = evalInitExpr(qbound.children[2], contexts);
+            expr = evalInitExpr(qbound.children[2], ctx);
             let domain = expr[0]["val"];
             return domain;
         });
@@ -722,7 +779,7 @@ function evalInitExpr(node, contexts){
         }
 
         return _.flattenDeep(quantDomainTuples.map(qtup => {
-            let boundContext = _.cloneDeep(contexts);
+            let boundContext = _.cloneDeep(ctx);
             // Bound values to quantified variables.
             if(!boundContext.hasOwnProperty("quant_bound")){
                 boundContext["quant_bound"] = {};
@@ -738,7 +795,7 @@ function evalInitExpr(node, contexts){
     }
 
     if(node.type === "identifier_ref"){
-        return evalInitIdentifierRef(node, contexts);
+        return evalInitIdentifierRef(node, ctx);
     }
 
     if(node.type === "nat_number"){
@@ -766,14 +823,14 @@ function evalInitExpr(node, contexts){
         let thenNode = node.namedChildren[1];
         let elseNode = node.namedChildren[2];
 
-        let condVal = evalInitExpr(cond, _.cloneDeep(contexts))[0]["val"];
+        let condVal = evalInitExpr(cond, _.cloneDeep(ctx))[0]["val"];
         if(condVal){
-            let thenVal = evalInitExpr(thenNode, _.cloneDeep(contexts));
+            let thenVal = evalInitExpr(thenNode, _.cloneDeep(ctx));
             evalLog("thenVal", thenVal, thenNode.text);
             return thenVal;
         } else{
-            let elseVal = evalInitExpr(elseNode, _.cloneDeep(contexts));
-            evalLog("elseVal", elseVal, elseNode.text, contexts);
+            let elseVal = evalInitExpr(elseNode, _.cloneDeep(ctx));
+            evalLog("elseVal", elseVal, elseNode.text, ctx);
             return elseVal;
         }
     }
@@ -792,14 +849,14 @@ function evalInitExpr(node, contexts){
         let ident = singleQuantBound.namedChildren[0].text;
         let domainExpr = singleQuantBound.namedChildren[2];
         evalLog(domainExpr);
-        let domainExprVal = evalInitExpr(domainExpr, contexts)[0]["val"];
+        let domainExprVal = evalInitExpr(domainExpr, ctx)[0]["val"];
         
         evalLog("domainExprVal:", domainExprVal);
 
         // Return all values in domain for which the set filter evaluates to true.
         let filteredVals = domainExprVal.filter(exprVal => {
             // Evaluate rhs in context of the bound value and check its truth value.
-            let boundContext = _.cloneDeep(contexts);
+            let boundContext = _.cloneDeep(ctx);
             if(!boundContext.hasOwnProperty("quant_bound")){
                 boundContext["quant_bound"] = {};
             }
@@ -809,7 +866,7 @@ function evalInitExpr(node, contexts){
             return rhsFilterVal;
         });
         evalLog("domainExprVal filtered:", filteredVals);
-        return [Object.assign({}, contexts, {"val": filteredVals})];
+        return [Object.assign({}, ctx, {"val": filteredVals})];
     }
 
 
@@ -823,15 +880,15 @@ function evalInitExpr(node, contexts){
         let ret = innerChildren.filter(child => child.type !== ",")
         ret = ret.map(child => {
             // TODO: For now assume set elements don't fork evaluation context.
-            let r = evalInitExpr(child, contexts);
+            let r = evalInitExpr(child, ctx);
             console.assert(r.length === 1);
             return r[0]["val"];
         });
         ret = _.flatten(ret);
         // console.log(ret);
-        return [{"val": ret, "state": contexts["state"]}];
+        return [{"val": ret, "state": ctx["state"]}];
 
-        // let ret = node.children.map(child => evalInitExpr(child, contexts));
+        // let ret = node.children.map(child => evalInitExpr(child, ctx));
         // console.log(_.flatten(ret));
         return ret;
     }
@@ -841,11 +898,11 @@ function evalInitExpr(node, contexts){
         let rec = node.namedChildren[0];
         let recField = node.namedChildren[1].text;
 
-        let recVal = evalInitExpr(rec, contexts)[0]["val"];
+        let recVal = evalInitExpr(rec, ctx)[0]["val"];
         evalLog("recVal", recVal);
         evalLog("recField", recField);
         let fieldVal = recVal[recField];
-        return [{"val": fieldVal, "state": contexts["state"]}];
+        return [{"val": fieldVal, "state": ctx["state"]}];
 
     }
 
@@ -860,11 +917,11 @@ function evalInitExpr(node, contexts){
             let exprNode = node.namedChildren[i+2]
 
             let identName = ident.text;
-            let exprVal = evalInitExpr(exprNode, contexts);
+            let exprVal = evalInitExpr(exprNode, ctx);
             record_obj[identName] = exprVal[0]["val"];
         }
         evalLog("RECOBJ", record_obj);
-        return [{"val": record_obj, "state": contexts["state"]}];
+        return [{"val": record_obj, "state": ctx["state"]}];
     }
 
 
@@ -883,7 +940,7 @@ function evalInitExpr(node, contexts){
         // Handle the quantifier bound:
         // <identifier> \in <expr>
         quant_ident = quant_bound.children[0];
-        quant_expr = evalInitExpr(quant_bound.children[2], contexts);
+        quant_expr = evalInitExpr(quant_bound.children[2], ctx);
         evalLog("function_literal quant_expr:", quant_expr);
         evalLog(quant_ident.type);
         evalLog(quant_expr.type);
@@ -896,9 +953,9 @@ function evalInitExpr(node, contexts){
         for(const v of domain){
             // Evaluate the expression in a context with the the current domain 
             // value bound to the identifier.
-            // let boundContext = {"val": contexts["val"], "state": contexts["state"]};
+            // let boundContext = {"val": ctx["val"], "state": ctx["state"]};
             
-            let boundContext = _.cloneDeep(contexts);
+            let boundContext = _.cloneDeep(ctx);
             if(!boundContext.hasOwnProperty("quant_bound")){
                 boundContext["quant_bound"] = {};
             }
@@ -933,9 +990,13 @@ function getInitStates(initDef, vars, defns){
     // We refer to a 'context' as the context for a single evaluation
     // branch, which contains a computed value along with a list of 
     // generated states.
+    let initCtx = new Context(null, init_var_vals, defns, {});
+    console.log("INITCTX:", initCtx);
+    console.log("INITCTX:", initCtx instanceof Context);
     let init_ctx = {"val": null, "state": init_var_vals, "defns": defns};
     // let ret_ctxs = evalInitExpr(initDef, [init_ctx]);
-    let ret_ctxs = evalInitExpr(initDef, init_ctx);
+    // let ret_ctxs = evalInitExpr(initDef, init_ctx);
+    let ret_ctxs = evalInitExpr(initDef, initCtx);
     if(ret_ctxs === undefined){
         console.error("Set of generated initial states is 'undefined'.");
     }
