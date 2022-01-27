@@ -617,6 +617,7 @@ function evalBoundedQuantification(node, ctx){
     }));    
 }
 
+// <op>(<arg1>,...,<argn>)
 function evalBoundOp(node, ctx){
     assert(node.type === "bound_op");
 
