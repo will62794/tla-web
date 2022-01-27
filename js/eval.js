@@ -200,9 +200,26 @@ function walkTree(tree){
  */
 class Context{
     constructor(val, state, defns, quant_bound) {
+
+        // @type: TLAValue
+        // The result value of a TLA expression, or 'null' if no result has been
+        // computed yet.
         this.val = val;
+
+        // @type: TLAState
+        // Represents the current assignment of values to variables in an
+        // in-progress expression evaluation. Right now simply a mapping from
+        // variable names to TLA values.
         this.state = state;
+
+        // @type: Object
+        // Global definitions that exist in the specification, stored as mapping
+        // from definition names to their syntax tree node.
         this.defns = defns;
+
+        // @type: string -> TLCValue
+        // Currently bound identifiers in the in-progress expression evaluation,
+        // stored as a mapping from identifier names to their TLC values.
         this.quant_bound = quant_bound;
     }
 
