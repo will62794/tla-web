@@ -572,62 +572,52 @@ function evalIdentifierRef(node, ctx){
 }
 
 /**
- * Evaluate a TLC expression.
+ * Evaluate a TLC expression for generating initial/next states.
  * 
- * Note that evaluation of a TLC expression is not only about producing a single
- * value. In the simple case, expression evaluation simply takes in an
- * expression and returns a single TLC value. When we are evaluating an
- * expression in the form of an initial state or next state predicate, however,
- * things are more involved. 
+ * In the simplest case, expression evaluation simply takes in an expression and
+ * returns a TLA value. When we are evaluating an expression in the form of an
+ * initial state or next state predicate, however, things are more involved. 
  * 
  * That is, when evaluating an initial/next state predicate for generating
- * states, the expression returns both a boolean value (TRUE/FALSE) as well as
- * an assignment of values to variables. In the context of initial state
- * generation, this is an assignment of values to all variables x1,...,xn
- * declared in a specification. In the context of next state generation, though,
- * this is an assignment of values to all variables x1,...,xn,x1',...,xn' i.e.
- * the "current" state variables and the "next"/"primed" copy of the state
- * variables. More precisely, predicate evaluation of this variety may actually
+ * states, evaluation returns both a boolean value (TRUE/FALSE) as well as an
+ * assignment of values to variables. For example, in the context of initial
+ * state generation, this is an assignment of values to all variables x1,...,xn
+ * declared in a specification. In the context of next state generation, this is
+ * an assignment of values to all variables x1,...,xn,x1',...,xn' i.e. the
+ * "current" state variables and the "next"/"primed" copy of the state
+ * variables. 
+ * 
+ * Additionally, when generating states during this type of evaluation, we may
  * produce not only a single return value, but a set of return values. That is,
- * one for each potential "branch" of the evaluation, corresponding to possible
- * disjunctions that appear in the predicate. For example, the initial state
- * predicate x = 0 \/ x = 1 will produce two possible results, both of which
- * evaluate to TRUE and which assign the values of 0 and 1, respectively, to the
- * variable 'x'.
+ * we may have one return value for each potential "branch" of the evaluation,
+ * corresponding to possible disjunctions that appear in a predicate. For
+ * example, the initial state predicate x = 0 \/ x = 1 will produce two possible
+ * return values, both of which evaluate to TRUE and which assign the values of
+ * 0 and 1, respectively, to the variable 'x'.
  * 
  * To handle this type of evaluation strategy, we allow expression evaluation to
- * take in a current 'context', which consists of several items for tracking
- * data needed during evaluation:
+ * take in a current 'Context' object, which consists of several items for
+ * tracking data needed during evaluation. See the fields of the 'Context' class
+ * definition for an explanation of what data is tracked during expression
+ * evaluation.
  * 
- * Context : {
- *   val: TLCValue
- *      The result value of this expression, or 'null' if no result has been
- *      computed yet.
- *   
- *   state: string -> TLCValue
- *      Represents the current assignment of values to variables in an
- *      in-progress expression evaluation. 
- * 
- *   defns: string -> TLCSyntaxNode
- *      Global definitions that exist in the specification, stored as mapping from
- *      definition names to their syntax tree node.
- *   
- *   quant_bound: string -> TLCValue
- *      Currently bound identifiers in the in-progress expression evaluation,
- *      stored as a mapping from identifier names to their TLC values.
- * }
- * 
- * Expression evaluation can return a list (i.e set) of these context objects,
- * one for each potential evaluation branch of a given expression. In each
- * returned context, the assignment of values to variables, 'state', will
- * potentially be updated, as will the 'val' output value. The bound quantifiers
- * may also be updated.
+ * Expression evaluation can return a list of these context objects, one for
+ * each potential evaluation branch of a given expression. Each returned context
+ * can contain an assignment of values to variables along with a return value
+ * for that expression.
  *
- * In our implementation, though, we have each evaluation handler function take
- * in a single context object, and return potentially many contexts. This makes
- * it easier to implement each evaluation handler function, by focusing just on
- * how to evaluate an expression given a single context, and either update it,
- * or fork it into multiple new sub-contexts.
+ * In our implementation, we have each evaluation handler function (i.e.
+ * 'eval<NAME>') take in a single context object, and return potentially many
+ * contexts. This makes it easier to implement each evaluation handler function,
+ * by focusing just on how to evaluate an expression given a single context, and
+ * either update it, or fork it into multiple new sub-contexts. From this
+ * perspective, we can think about the overall evaluation computation as a tree,
+ * where each evaluation function takes in a single branch of the tree, and may
+ * potentially create several new forks in the tree, corresponding to separate
+ * evaluation sub-branches. When the overall computation terminates, each leaf
+ * of the tree should represent the result of one evaluation branch, which will
+ * contain both a return value for the expression and a potential assignment of
+ * values to variables.
  * 
  * @param {TLASyntaxNode} node: TLA+ tree sitter syntax node representing the expression to evaluate.
  * @param {Context} ctx: a 'Context' instance under which to evaluate the given expression.
