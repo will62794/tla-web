@@ -168,6 +168,9 @@ Phase2b(a) == \E m \in msgs : /\ m.type = "2a"
                               /\ Send([type |-> "2b", acc |-> a,
                                        bal |-> m.bal, val |-> m.val, proposer |-> None]) 
 
+
+Break4 == 1
+
 (***************************************************************************)
 (* In an implementation, there will be learner processes that learn from   *)
 (* the phase 2b messages if a value has been chosen.  The learners are     *)
@@ -181,6 +184,7 @@ Next ==
     \/ \E b \in Ballot : \E p \in Proposer : Phase1a(b, p)
     \/ \E a \in Acceptor : \E p \in Proposer : Phase1b(a, p) 
     \/ \E b \in Ballot : \E p \in Proposer : \E v \in Value : Phase2a(b, v, p)
+    \/ \E a \in Acceptor : \E p \in Proposer : Phase2b(a)
 
     
 Break2 == 1
