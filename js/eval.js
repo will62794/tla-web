@@ -194,17 +194,19 @@ function walkTree(tree){
     return objs;
 }
 
-function evalInitLand(lhs, rhs, contexts){
+function evalInitLand(lhs, rhs, ctx){
+    assert(ctx instanceof Context);
+
     // Evaluate left to right.
     evalLog("## LAND - LHS:", lhs.text, ", RHS: ", rhs.text);
-    let lhsEval = _.flattenDeep(evalInitExpr(lhs, contexts));
+    let lhsEval = _.flattenDeep(evalInitExpr(lhs, ctx));
     evalLog("lhsEval:", lhsEval);
     let rhsEval = lhsEval.map(lctx => {
         evalLog("rhs:", rhs.text);
         evalLog("lctx:", lctx);
-        return evalInitExpr(rhs, lctx).map(ctx => {
-            evalLog("ctx:", ctx);
-            return Object.assign({}, ctx, {"val": (lctx["val"] && ctx["val"]), "state": ctx["state"]});
+        return evalInitExpr(rhs, lctx).map(actx => {
+            return [actx.withVal((lctx["val"] && actx["val"])).withState(actx["state"])];
+            // return Object.assign({}, actx, {"val": (lctx["val"] && actx["val"]), "state": actx["state"]});
         })
     });
     return _.flattenDeep(rhsEval);
@@ -223,16 +225,18 @@ function evalInitLand(lhs, rhs, contexts){
     // return contextsOut;
 }
 
-function evalInitLor(lhs, rhs, contexts){
+function evalInitLor(lhs, rhs, ctx){
+    assert(ctx instanceof Context);
+
     // return {"val": false, "states": vars};
     evalLog("## LOR");
-    evalLog("orig ctx:", contexts);
+    evalLog("orig ctx:", ctx);
     // For all existing possible variable assignments split into
     // separate evaluation cases for left and right branch.
-    let contextsLhs = evalInitExpr(lhs, contexts);
-    evalLog("lhs contexts:",contextsLhs);
-    let contextsRhs = evalInitExpr(rhs, contexts);
-    return contextsLhs.concat(contextsRhs);
+    let ctxLhs = evalInitExpr(lhs, ctx);
+    evalLog("lhs ctx:",ctxLhs);
+    let ctxRhs = evalInitExpr(rhs, ctx);
+    return ctxLhs.concat(ctxRhs);
 }
 
 // Checks if a syntax tree node represents a primed variable.
@@ -247,59 +251,65 @@ function isPrimedVar(treeNode){
             symbol.type === "prime");
 }
 
-function evalInitEq(lhs, rhs, contexts){
+function evalInitEq(lhs, rhs, ctx){
+    assert(ctx instanceof Context);
+
     // Deal with equality of variable on left hand side.
     let identName = lhs.text;
 
-    // let isUnprimedVar = contexts[0]["state"].hasOwnProperty(varName) && !isPrimedVar(lhs);
-    let isUnprimedVar = contexts["state"].hasOwnProperty(identName) && !isPrimedVar(lhs);
+    // let isUnprimedVar = ctx[0]["state"].hasOwnProperty(varName) && !isPrimedVar(lhs);
+    let isUnprimedVar = ctx["state"].hasOwnProperty(identName) && !isPrimedVar(lhs);
     // console.log("isUnprimedVar:", isUnprimedVar);
 
     if(isPrimedVar(lhs) || (isUnprimedVar && !ASSIGN_PRIMED)){
-        // Update assignments for all current evaluation contexts.
+        // Update assignments for all current evaluation ctx.
 
         // If, in the current state assignment, the variable has not already
         // been assigned a value, then assign it.If it has already been assigned,
         // then check for equality.
         // Variable already assigned in this context. So, check for equality.
-        if(contexts["state"].hasOwnProperty(identName) && contexts["state"][identName] !== null){
-            evalLog("Variable '" + identName + "' already assigned in ctx:",  contexts);
-            let rhsVals = evalInitExpr(rhs, contexts);
+        if(ctx["state"].hasOwnProperty(identName) && ctx["state"][identName] !== null){
+            evalLog("Variable '" + identName + "' already assigned in ctx:",  ctx);
+            let rhsVals = evalInitExpr(rhs, ctx);
             console.assert(rhsVals.length === 1);
             let rhsVal = rhsVals[0]["val"]
             evalLog("rhsVal:", rhsVal);
-            let boolVal = (contexts["state"][identName] === rhsVal)
+            let boolVal = (ctx["state"][identName] === rhsVal)
             evalLog("boolVal:", boolVal);
-            return Object.assign({}, contexts, {"val": boolVal})
-            return [{"val": boolVal, "state": contexts["state"]}]; 
+
+            return [ctx.withVal(boolVal)];
+            // return Object.assign({}, ctx, {"val": boolVal})
+            // return [{"val": boolVal, "state": ctx["state"]}]; 
         }
 
         // Variable not already assigned. So, update variable assignment as necessary.
-        let stateUpdated = _.mapValues(contexts["state"], (val,key,obj) => {
+        let stateUpdated = _.mapValues(ctx["state"], (val,key,obj) => {
             if(key === identName){
-                evalLog("Variable (" + identName + ") not already assigned in ctx:",  contexts);
-                let rhsVals = evalInitExpr(rhs, _.cloneDeep(contexts));
+                evalLog("Variable (" + identName + ") not already assigned in ctx:",  ctx);
+                let rhsVals = evalInitExpr(rhs, _.cloneDeep(ctx));
                 console.assert(rhsVals.length === 1);
                 let rhsVal = rhsVals[0]["val"];
                 evalLog("Variable (" + identName + ") getting value:",  rhsVal);
                 return (val === null) ? rhsVal : val;
             } 
             return val;
-        })
-        return [Object.assign({}, contexts, {"val": true, "state": stateUpdated})];
+        });
+        console.log("state updated:", stateUpdated);
+        return [ctx.withVal(true).withState(stateUpdated)];
+        // return [Object.assign({}, ctx, {"val": true, "state": stateUpdated})];
         // return [{"val": true, "state": stateUpdated}];
-        // return [_.update(contexts, "val", () => boolVal)];
+        // return [_.update(ctx, "val", () => boolVal)];
 
     } else{
-        evalLog(`Checking for equality of ident '${identName}' with '${rhs.text}'.`, contexts);
+        evalLog(`Checking for equality of ident '${identName}' with '${rhs.text}'.`, ctx);
         
         // Evaluate left and right hand side.
-        let lhsVals = evalInitExpr(lhs, _.cloneDeep(contexts));
+        let lhsVals = evalInitExpr(lhs, _.cloneDeep(ctx));
         console.assert(lhsVals.length === 1);
         let lhsVal = lhsVals[0]["val"];
         // console.log("Checking for, lhsVal", lhsVal);
 
-        let rhsVals = evalInitExpr(rhs, _.cloneDeep(contexts));
+        let rhsVals = evalInitExpr(rhs, _.cloneDeep(ctx));
         console.assert(rhsVals.length === 1);
         let rhsVal = rhsVals[0]["val"];
         // console.log("Checking for, rhsVal", rhsVal);
@@ -309,12 +319,15 @@ function evalInitEq(lhs, rhs, contexts){
         // console.log("Checking for, boolVal:", boolVal);
 
         // Return context with updated value.
-        return [Object.assign({}, contexts, {"val": boolVal})];
+        return [ctx.withVal(boolVal)];
+        // return [Object.assign({}, ctx, {"val": boolVal})];
     }
 }
 
 // 'vars' is a list of possible partial state assignments known up to this point.
-function evalInitBoundInfix(node, contexts){
+function evalInitBoundInfix(node, ctx){
+    assert(ctx instanceof Context);
+
     evalLog("evalInitBoundInfix:", node);
 
     // lhs.
@@ -328,66 +341,70 @@ function evalInitBoundInfix(node, contexts){
     // Multiplication
     if(symbol.type === "mul"){
         evalLog("mul lhs:", lhs, lhs.text);
-        let mulLhsVal = evalInitExpr(lhs, contexts);
+        let mulLhsVal = evalInitExpr(lhs, ctx);
         evalLog("mul lhs val:", mulLhsVal);
         let lhsVal = mulLhsVal[0]["val"];
-        let rhsVal = evalInitExpr(rhs, contexts)[0]["val"];
+        let rhsVal = evalInitExpr(rhs, ctx)[0]["val"];
         let outVal = lhsVal * rhsVal;
         // console.log("mul overall val:", outVal);
-        return [Object.assign({}, contexts, {"val": outVal})];
+        return [ctx.withVal(outVal)];
+        // return [Object.assign({}, ctx, {"val": outVal})];
     }
 
     // Plus.
     if(symbol.type === "plus"){
         evalLog("plus lhs:", lhs, lhs.text);
-        let plusLhsVal = evalInitExpr(lhs, contexts);
+        let plusLhsVal = evalInitExpr(lhs, ctx);
         evalLog("plus lhs val:", plusLhsVal);
         let lhsVal = plusLhsVal[0]["val"];
-        let rhsVal = evalInitExpr(rhs, contexts)[0]["val"];
+        let rhsVal = evalInitExpr(rhs, ctx)[0]["val"];
         let outVal = lhsVal + rhsVal;
-        return [Object.assign({}, contexts, {"val": outVal})];
+        return [ctx.withVal(outVal)];
+        // return [Object.assign({}, ctx, {"val": outVal})];
     }
 
     // Greater than.
     if(symbol.type === "gt"){
-        let lhsVal = evalInitExpr(lhs, contexts)[0]["val"];
-        let rhsVal = evalInitExpr(rhs, contexts)[0]["val"];
+        let lhsVal = evalInitExpr(lhs, ctx)[0]["val"];
+        let rhsVal = evalInitExpr(rhs, ctx)[0]["val"];
         let outVal = lhsVal > rhsVal;
-        return [Object.assign({}, contexts, {"val": outVal})];
+        return [ctx.withVal(outVal)];
+        // return [Object.assign({}, ctx, {"val": outVal})];
     }
 
     if(symbol.type === "geq"){
-        let lhsVal = evalInitExpr(lhs, contexts)[0]["val"];
-        let rhsVal = evalInitExpr(rhs, contexts)[0]["val"];
+        let lhsVal = evalInitExpr(lhs, ctx)[0]["val"];
+        let rhsVal = evalInitExpr(rhs, ctx)[0]["val"];
         let outVal = lhsVal >= rhsVal;
-        return [Object.assign({}, contexts, {"val": outVal})];
+        return [ctx.withVal(outVal)];
+        // return [Object.assign({}, ctx, {"val": outVal})];
     }
 
     // Disjunction.
     if(symbol.type === "lor"){
-        return evalInitLor(lhs, rhs, contexts);
+        return evalInitLor(lhs, rhs, ctx);
     }
 
     if(symbol.type === "land"){
-        return evalInitLand(lhs, rhs, contexts);
+        return evalInitLand(lhs, rhs, ctx);
     }
 
     // Equality.
     if(symbol.type ==="eq"){
-        // console.log("bound_infix_op, symbol 'eq', ctx:", JSON.stringify(contexts));
-        evalLog("bound_infix_op -> (eq), ctx:", contexts);
-        return evalInitEq(lhs, rhs, contexts);
+        // console.log("bound_infix_op, symbol 'eq', ctx:", JSON.stringify(ctx));
+        evalLog("bound_infix_op -> (eq), ctx:", ctx);
+        return evalInitEq(lhs, rhs, ctx);
     } 
 
     // Inequality.
     if(symbol.type ==="neq"){
-        // console.log("bound_infix_op, symbol 'neq', ctx:", JSON.stringify(contexts));
-        evalLog("bound_infix_op -> (neq), ctx:", contexts);
+        // console.log("bound_infix_op, symbol 'neq', ctx:", JSON.stringify(ctx));
+        evalLog("bound_infix_op -> (neq), ctx:", ctx);
         
         let lident = lhs.text;
-        let lhsVal = evalInitExpr(lhs, contexts)[0]["val"];
+        let lhsVal = evalInitExpr(lhs, ctx)[0]["val"];
         // console.log("Checking for inequality with var:", varName);
-        let rhsVals = evalInitExpr(rhs, contexts);
+        let rhsVals = evalInitExpr(rhs, ctx);
         console.assert(rhsVals.length === 1);
         let rhsVal = rhsVals[0]["val"];
         let boolVal = !_.isEqual(lhsVal, rhsVal);
@@ -395,36 +412,39 @@ function evalInitBoundInfix(node, contexts){
         // console.log("inequality rhsVal:", rhsVal);
         evalLog("inequality boolVal:", boolVal);
         // Return context with updated value.
-        return [Object.assign({}, contexts, {"val": boolVal})];
+        return [ctx.withVal(boolVal)];
+        // return [Object.assign({}, ctx, {"val": boolVal})];
     } 
 
     // Set membership.
     if(symbol.type ==="in"){
-        // console.log("bound_infix_op, symbol 'in', ctx:", contexts);
-        evalLog("bound_infix_op, symbol 'in', ctx:", contexts);
+        // console.log("bound_infix_op, symbol 'in', ctx:", ctx);
+        evalLog("bound_infix_op, symbol 'in', ctx:", ctx);
         let lhs = node.namedChildren[0];
         let rhs = node.namedChildren[2];
 
-        let lhsVal = evalInitExpr(lhs, contexts)[0]["val"];
-        evalLog("setin lhsval:", lhsVal, lhs.text, contexts);
+        let lhsVal = evalInitExpr(lhs, ctx)[0]["val"];
+        evalLog("setin lhsval:", lhsVal, lhs.text, ctx);
 
-        let rhsVal = evalInitExpr(rhs, contexts)[0]["val"];
-        evalLog("setin rhsval:", rhsVal, rhs.text, contexts);
+        let rhsVal = evalInitExpr(rhs, ctx)[0]["val"];
+        evalLog("setin rhsval:", rhsVal, rhs.text, ctx);
 
         evalLog("setin lhs in rhs:", rhsVal.includes(lhsVal));
-        return [Object.assign({}, contexts, {"val": rhsVal.includes(lhsVal)})]
+        return [ctx.withVal(lhsVal)];
+        // return [Object.assign({}, ctx, {"val": rhsVal.includes(lhsVal)})]
     } 
     
     // Set intersection.
     if(symbol.type ==="cap"){
         evalLog("bound_infix_op, symbol 'cap'");
         // TODO: Will eventually need to figure out a more principled approach to object equality.
-        let lhsVal = evalInitExpr(lhs, contexts)[0]["val"];
+        let lhsVal = evalInitExpr(lhs, ctx)[0]["val"];
         evalLog("cap lhs:", lhsVal);
-        let rhsVal = evalInitExpr(rhs, contexts)[0]["val"];
+        let rhsVal = evalInitExpr(rhs, ctx)[0]["val"];
         evalLog("cap rhs:", rhsVal);
         let capVal = _.intersectionWith(lhsVal, rhsVal, _.isEqual);
-        return [Object.assign({}, contexts, {"val": capVal})];
+        return [ctx.withVal(capVal)];
+        // return [Object.assign({}, ctx, {"val": capVal})];
     } 
 
     // Set union.
@@ -433,11 +453,12 @@ function evalInitBoundInfix(node, contexts){
         evalLog("bound_infix_op, symbol 'cup'");
         // TODO: Will eventually need to figure out a more principled approach to object equality.
         evalLog(lhs);
-        let lhsVal = evalInitExpr(lhs, contexts)[0]["val"];
+        let lhsVal = evalInitExpr(lhs, ctx)[0]["val"];
         evalLog("cup lhs:", lhsVal);
-        let rhsVal = evalInitExpr(rhs, contexts)[0]["val"];
+        let rhsVal = evalInitExpr(rhs, ctx)[0]["val"];
         evalLog("cup rhs:", lhsVal);
-        return [Object.assign({}, contexts, {"val": _.uniq(lhsVal.concat(rhsVal))})];
+        return [ctx.withVal(_.uniq(lhsVal.concat(rhsVal)))];
+        // return [Object.assign({}, ctx, {"val": _.uniq(lhsVal.concat(rhsVal))})];
     }   
 
     // Set minus.
@@ -446,19 +467,22 @@ function evalInitBoundInfix(node, contexts){
         evalLog("bound_infix_op, symbol 'setminus'");
         // TODO: Will need to figure out a more principled approach to object equality.
         console.log(lhs);
-        let lhsVal = evalInitExpr(lhs, contexts)[0]["val"];
+        let lhsVal = evalInitExpr(lhs, ctx)[0]["val"];
         console.log("setminus lhs:", lhsVal);
-        let rhsVal = evalInitExpr(rhs, contexts)[0]["val"];
+        let rhsVal = evalInitExpr(rhs, ctx)[0]["val"];
         console.log("setminus rhs:", lhsVal);
-        return [Object.assign({}, contexts, {"val": _.difference(lhsVal,rhsVal)})];
+        return [ctx.withVal(_.difference(lhsVal,rhsVal))];
+        // return [Object.assign({}, ctx, {"val": _.difference(lhsVal,rhsVal)})];
     }  
 }
 
-function evalInitDisjList(parent, disjs, contexts){
+function evalInitDisjList(parent, disjs, ctx){
+    assert(ctx instanceof Context);
+
     console.log("evalInit: disjunction list!");
 
     // Split into separate evaluation cases for each disjunct.
-    return _.flattenDeep(disjs.map(disj => evalInitExpr(disj, contexts)));
+    return _.flattenDeep(disjs.map(disj => evalInitExpr(disj, ctx)));
 
     // let newContexts = disjs.map(disj => evalInitExpr(disj, contexts));
     // console.log("newContexts:", newContexts);
@@ -469,50 +493,61 @@ function evalInitDisjList(parent, disjs, contexts){
     // return contextsLhs.concat(contextsRhs);
 }
 
-function evalInitConjList(parent, conjs, contexts){
-    evalLog("evalInitConjList -> ctx:", contexts);
+function evalInitConjList(parent, conjs, ctx){
+    assert(ctx instanceof Context);
+    
+    evalLog("evalInitConjList -> ctx:", ctx);
 
     // Initialize boolean value if needed.
-    if(contexts["val"]===null){
-        contexts["val"]=true;
+    if(ctx["val"]===null){
+        ctx["val"]=true;
     }
-    return conjs.reduce((prevRes,currConj) => {
-        return _.flattenDeep(prevRes.map(ctx => {
-            return evalInitExpr(currConj, ctx).map(cb => Object.assign({}, cb, {"val": cb["val"] && ctx["val"]}));
-        }));
-    }, [contexts]);
+    return conjs.reduce((prev,conj) => {
+        // return _.flattenDeep(
+        let res = prev.map(ctxPrev => {
+            return evalInitExpr(conj, ctxPrev).map(ctxCurr => ctxCurr.withVal(ctxCurr["val"] && ctxPrev["val"]));
+                // Object.assign({}, cb, {"val": cb["val"] && ctxInner["val"]})
+        });
+        console.log("evalInitConjList mapped: ", res);
+        return _.flattenDeep(res);
+    }, [ctx]);
 }
 
-function evalInitIdentifierRef(node, contexts){
+function evalInitIdentifierRef(node, ctx){
+    assert(ctx instanceof Context);
+
     let ident_name = node.text;
-    evalLog(`evalInitIdentifierRef, '${node.text}' context:`, contexts);
+    evalLog(`evalInitIdentifierRef, '${node.text}' context:`, ctx);
 
     // If this identifier refers to a variable, return the value bound
     // to that variable in the current context.
-    if(contexts["state"].hasOwnProperty(ident_name)){
+    if(ctx["state"].hasOwnProperty(ident_name)){
         evalLog("variable identifier: ", ident_name);
-        let var_val = contexts["state"][ident_name];
-        evalLog("var ident context:", contexts["state"], var_val);
-        // return [{"val": var_val, "state": contexts["state"]}];
-        return [Object.assign({}, contexts, {"val": var_val})];
+        let var_val = ctx["state"][ident_name];
+        evalLog("var ident context:", ctx["state"], var_val);
+        // return [{"val": var_val, "state": ctx["state"]}];
+        return [ctx.withVal(var_val)];
+
+        // return [Object.assign({}, ctx, {"val": var_val})];
     }
 
     // See if the identifier is bound to a value in the current context.
     // If so, return the value it is bound to.
-    if(contexts.hasOwnProperty("quant_bound") && contexts["quant_bound"].hasOwnProperty(ident_name)){
-        let bound_val = contexts["quant_bound"][ident_name];
+    if(ctx.hasOwnProperty("quant_bound") && ctx["quant_bound"].hasOwnProperty(ident_name)){
+        let bound_val = ctx["quant_bound"][ident_name];
         evalLog("bound_val", bound_val);
-        return [Object.assign({}, contexts, {"val": bound_val})];
-        // return [{"val": bound_val, "state": contexts["state"]}];
+        return [ctx.withVal(bound_val)];
+        // return [Object.assign({}, ctx, {"val": bound_val})];
+        // return [{"val": bound_val, "state": ctx["state"]}];
     }
 
     // See if this identifier is a definition in the spec.
-    if(contexts["defns"].hasOwnProperty(ident_name)){
+    if(ctx["defns"].hasOwnProperty(ident_name)){
         // Evaluate the definition in the current context.
         // TODO: Consider defs that are n-ary operators.
-        let defNode = contexts["defns"][ident_name]["node"];
+        let defNode = ctx["defns"][ident_name]["node"];
         // return undefined;
-        return evalInitExpr(defNode, contexts);
+        return evalInitExpr(defNode, ctx);
     }
 
     // TODO: Consider case of being undefined.
@@ -525,6 +560,26 @@ class Context{
         this.state = state;
         this.defns = defns;
         this.quant_bound = quant_bound;
+    }
+
+    /**
+     * Returns a new copy of this context with 'val' updated to the given value.
+     * @param {TLCValue} valNew 
+     */
+    withVal(valNew){
+        let ctxCopy = _.cloneDeep(this);
+        ctxCopy["val"] = valNew;
+        return ctxCopy;
+    }
+
+    /**
+     * Returns a new copy of this context with 'state' updated to the given value.
+     * @param {Object} stateNew 
+     */
+    withState(stateNew){
+        let ctxCopy = _.cloneDeep(this);
+        ctxCopy["state"] = stateNew;
+        return ctxCopy;
     }
 
     show(){
@@ -596,7 +651,7 @@ class Context{
  */
 function evalInitExpr(node, ctx){
     // TODO: Enable this after argument conversion.
-    // assert(ctx instanceof Context);
+    assert(ctx instanceof Context);
 
     // console.log("$$ evalInitExpr, node: ", node, node.text);
     evalLog("evalInitExpr -> ("+ node.type + ") '" + node.text + "'");
@@ -624,20 +679,28 @@ function evalInitExpr(node, ctx){
         evalLog("rExprVal:", rExprVal);
         fnVal[updateExprVal] = rExprVal;
 
-        return [Object.assign({}, ctx, {"val": _.cloneDeep(fnVal)})];
+        return [ctx.withVal(_.cloneDeep(fnVal))];
+        // return [Object.assign({}, ctx, {"val": _.cloneDeep(fnVal)})];
 
         throw Error("Evaluation of 'except' node type not implemented.");
 
     }
+
+    // <fnVal>[<fnArgVal>] e.g. 'f[3]'
     if(node.type === "function_evaluation"){
-        evalLog("function_evaluation");
+        evalLog("function_evaluation: ", node.text);
+
         let fnVal = evalInitExpr(node.namedChildren[0], ctx)[0]["val"];
         // console.log("fnArg node: ", node.namedChildren[1]);
-        let fnArgVal = evalInitExpr(node.namedChildren[1], ctx);
+        // let fnArgVal = evalInitExpr(node.namedChildren[1], ctx);
         // console.log("fnArgVal:", fnArgVal);
-        let fnArg = evalInitExpr(node.namedChildren[1], ctx)[0]["val"];
-        evalLog("fneval:", fnVal, fnArg);
-        return [Object.assign({}, ctx, {"val": fnVal[fnArg]})];
+        let fnArgVal = evalInitExpr(node.namedChildren[1], ctx)[0]["val"];
+        evalLog("fneval (arg,val): ", fnVal, ",", fnArgVal);
+        return [ctx.withVal(fnVal[fnArgVal])];
+
+        // } else{
+            // return [Object.assign({}, ctx, {"val": fnVal[fnArg]})];
+        // }
     }
 
 
@@ -645,10 +708,13 @@ function evalInitExpr(node, ctx){
         // TOOD: Handle properly.
     }
     if(node === undefined){
-        return [{"val": false, "state": {}}];
+        return [ctx.withVal(false)];
+        // return [{"val": false, "state": {}}];
     }
     if(node.type === "conj_list"){
-        return evalInitConjList(node, node.children, ctx);
+        let ret =  evalInitConjList(node, node.children, ctx);
+        console.log("evalInitConjList ret: ", ret);
+        return ret;
     }  
     if(node.type === "disj_list"){
         return evalInitDisjList(node, node.children, ctx);
@@ -672,7 +738,8 @@ function evalInitExpr(node, ctx){
         // Built in bound ops.
         if(opName == "Cardinality"){
             evalLog("Cardinality val:", argExpr.text, argExprVal.length);
-            return [Object.assign({}, ctx, {"val": argExprVal.length})];
+            return [ctx.withVal(argExprVal.length)];
+            // return [Object.assign({}, ctx, {"val": argExprVal.length})];
         }
 
         // Check for the bound op in the set of known definitions.
@@ -730,18 +797,21 @@ function evalInitExpr(node, ctx){
             let powersetRhs = subsets(rhsVal);
             evalLog("powerset:",powersetRhs);
             // return [Object.assign({}, ctx, {"val":powersetRhs})];
-            return [{"val": powersetRhs, "state": {}}];
+            return [ctx.withVal(powersetRhs)];
+            // return [{"val": powersetRhs, "state": {}}];
         }
         if(symbol.type === "negative"){
             let rhsVal = evalInitExpr(rhs, ctx);
             rhsVal = rhsVal[0]["val"];
-            return [{"val": -rhsVal, "state": {}}];
+            return [ctx.withVal(-rhsVal)];
+            // return [{"val": -rhsVal, "state": {}}];
         }   
 
         if(symbol.type === "lnot"){
             let rhsVal = evalInitExpr(rhs, ctx);
             rhsVal = rhsVal[0]["val"];
-            return [{"val": !rhsVal, "state": {}}];
+            return [ctx.withVal(!rhsVal)];
+            // return [{"val": !rhsVal, "state": {}}];
         }   
     }
 
@@ -775,7 +845,8 @@ function evalInitExpr(node, ctx){
         let quantDomainTuples = cartesianProductOf(...quantDomains);
         evalLog("quantDomain tuples:", quantDomainTuples);
         if(quantDomainTuples.length === 0){
-            return [{"val": false, "state": {}}];
+            return [ctx.withVal(false)];
+            // return [{"val": false, "state": {}}];
         }
 
         return _.flattenDeep(quantDomainTuples.map(qtup => {
@@ -800,21 +871,24 @@ function evalInitExpr(node, ctx){
 
     if(node.type === "nat_number"){
         // console.log(node.type, node.text);
-        return [{"val": parseInt(node.text), "state": {}}];
+        return [ctx.withVal(parseInt(node.text))];
+        // return [{"val": parseInt(node.text), "state": {}}];
         // return [{"val": new NatValue(parseInt(node.text)), "state": {}}];
     }
 
     if(node.type === "boolean"){
         evalLog(node.type, node.text);
         let boolVal = node.text === "TRUE" ? true : false;
-        return [{"val": boolVal, "state": {}}];
+        return [ctx.withVal(boolVal)];
+        // return [{"val": boolVal, "state": {}}];
     }
 
     if(node.type === "string"){
         evalLog("string node", node.text);
         // Remove the quotes.
         let rawStr = node.text.substring(1,node.text.length-1);
-        return [{"val": rawStr, "state": {}}];
+        return [ctx.withVal(rawStr)];
+        // return [{"val": rawStr, "state": {}}];
         // return [{"val": new StringValue(rawStr), "state": {}}];
     }
 
@@ -866,7 +940,8 @@ function evalInitExpr(node, ctx){
             return rhsFilterVal;
         });
         evalLog("domainExprVal filtered:", filteredVals);
-        return [Object.assign({}, ctx, {"val": filteredVals})];
+        return [ctx.withVal(filteredVals)];
+        // return [Object.assign({}, ctx, {"val": filteredVals})];
     }
 
 
@@ -886,7 +961,8 @@ function evalInitExpr(node, ctx){
         });
         ret = _.flatten(ret);
         // console.log(ret);
-        return [{"val": ret, "state": ctx["state"]}];
+        return [ctx.withVal(ret)];
+        // return [{"val": ret, "state": ctx["state"]}];
 
         // let ret = node.children.map(child => evalInitExpr(child, ctx));
         // console.log(_.flatten(ret));
@@ -902,7 +978,8 @@ function evalInitExpr(node, ctx){
         evalLog("recVal", recVal);
         evalLog("recField", recField);
         let fieldVal = recVal[recField];
-        return [{"val": fieldVal, "state": ctx["state"]}];
+        return [ctx.withVal(fieldVal)];
+        // return [{"val": fieldVal, "state": ctx["state"]}];
 
     }
 
@@ -921,7 +998,8 @@ function evalInitExpr(node, ctx){
             record_obj[identName] = exprVal[0]["val"];
         }
         evalLog("RECOBJ", record_obj);
-        return [{"val": record_obj, "state": ctx["state"]}];
+        return [ctx.withVal(record_obj)];
+        // return [{"val": record_obj, "state": ctx["state"]}];
     }
 
 
@@ -968,7 +1046,8 @@ function evalInitExpr(node, ctx){
             fnVal[v] = vals[0]["val"];
         }
         evalLog("fnVal:", fnVal);
-        return [{"val":fnVal, "state":{}}];
+        return [ctx.withVal(fnVal)];
+        // return [{"val":fnVal, "state":{}}];
     }
 }
 
@@ -1022,10 +1101,13 @@ function getNextStates(nextDef, currStateVars, defns){
     }
     console.log("currStateVars:", currStateVars);
     // let init_ctxs = [{"val": null, "state": currStateVars}]
-    let init_ctx = {"val": null, "state": currStateVars, "defns": defns};
+
+    let initCtx = new Context(null, currStateVars, defns, {});
+    console.log("currStateVars:", currStateVars);
+    // let init_ctx = {"val": null, "state": currStateVars, "defns": defns};
     // let ret = evalNextExpr(nextDef, init_ctxs);
     // console.log("nextDef:", nextDef);
-    let ret = evalInitExpr(nextDef, init_ctx);
+    let ret = evalInitExpr(nextDef, initCtx);
     console.log("getNextStates ret:", ret);
 
     // Filter out disabled transitions.
@@ -1052,7 +1134,7 @@ function computeInitStates(tree){
 
     let initStates = getInitStates(initDef["node"], vars, defns);
     // Keep only the valid states.
-    initStates = initStates.filter(ctx => ctx["val"]).map(ctx => ctx["state"]);
+    initStates = initStates.filter(actx => actx["val"]).map(actx => actx["state"]);
     return initStates;
 }
 
@@ -1091,7 +1173,7 @@ function computeReachableStates(tree){
 
     // Compute initial states and keep only the valid ones.
     let initStates = getInitStates(initDef["node"], vars, defns);
-    initStates = initStates.filter(ctx => ctx["val"]).map(ctx => ctx["state"]);
+    initStates = initStates.filter(actx => actx["val"]).map(actx => actx["state"]);
 
     let stateQueue = initStates;
     let seenStatesHashSet = new Set(); 
