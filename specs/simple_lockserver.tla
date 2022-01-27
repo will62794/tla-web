@@ -2,8 +2,8 @@
 VARIABLE semaphore
 VARIABLE clientlocks
 
-Server == {0,1}
-Client == {88,99}
+Server == {"s1","s2"}
+Client == {"c1","c2"}
 
 Init == 
     /\ semaphore = [i \in Server |-> TRUE]
