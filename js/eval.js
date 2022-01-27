@@ -645,7 +645,7 @@ function evalInitExpr(node, contexts){
                 for(var i=0;i<opArgs.length;i++){
                         // The parameter name in the operator definition.
                     let paramName = opArgs[i];
-                    console.log("paramName:", paramName);
+                    // console.log("paramName:", paramName);
                     opEvalContext["quant_bound"][paramName] = opArgVals[i]["val"];
                 }
                 evalLog("opEvalContext:", opEvalContext);
