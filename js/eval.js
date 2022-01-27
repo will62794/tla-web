@@ -194,6 +194,44 @@ function walkTree(tree){
     return objs;
 }
 
+/**
+ * Defines an evaluation context structure for evaluating TLC expressions and
+ * initial/next state generation.
+ */
+class Context{
+    constructor(val, state, defns, quant_bound) {
+        this.val = val;
+        this.state = state;
+        this.defns = defns;
+        this.quant_bound = quant_bound;
+    }
+
+    /**
+     * Returns a new copy of this context with 'val' updated to the given value.
+     * @param {TLCValue} valNew 
+     */
+    withVal(valNew){
+        let ctxCopy = _.cloneDeep(this);
+        ctxCopy["val"] = valNew;
+        return ctxCopy;
+    }
+
+    /**
+     * Returns a new copy of this context with 'state' updated to the given value.
+     * @param {Object} stateNew 
+     */
+    withState(stateNew){
+        let ctxCopy = _.cloneDeep(this);
+        ctxCopy["state"] = stateNew;
+        return ctxCopy;
+    }
+
+    show(){
+        return this.defns;
+    }
+}
+
+
 function evalInitLand(lhs, rhs, ctx){
     assert(ctx instanceof Context);
 
@@ -495,7 +533,7 @@ function evalInitDisjList(parent, disjs, ctx){
 
 function evalInitConjList(parent, conjs, ctx){
     assert(ctx instanceof Context);
-    
+
     evalLog("evalInitConjList -> ctx:", ctx);
 
     // Initialize boolean value if needed.
@@ -551,40 +589,6 @@ function evalInitIdentifierRef(node, ctx){
     }
 
     // TODO: Consider case of being undefined.
-}
-
-
-class Context{
-    constructor(val, state, defns, quant_bound) {
-        this.val = val;
-        this.state = state;
-        this.defns = defns;
-        this.quant_bound = quant_bound;
-    }
-
-    /**
-     * Returns a new copy of this context with 'val' updated to the given value.
-     * @param {TLCValue} valNew 
-     */
-    withVal(valNew){
-        let ctxCopy = _.cloneDeep(this);
-        ctxCopy["val"] = valNew;
-        return ctxCopy;
-    }
-
-    /**
-     * Returns a new copy of this context with 'state' updated to the given value.
-     * @param {Object} stateNew 
-     */
-    withState(stateNew){
-        let ctxCopy = _.cloneDeep(this);
-        ctxCopy["state"] = stateNew;
-        return ctxCopy;
-    }
-
-    show(){
-        return this.defns;
-    }
 }
 
 /**
