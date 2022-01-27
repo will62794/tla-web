@@ -468,7 +468,7 @@ function evalInitBoundInfix(node, ctx){
         evalLog("setin rhsval:", rhsVal, rhs.text, ctx);
 
         evalLog("setin lhs in rhs:", rhsVal.includes(lhsVal));
-        return [ctx.withVal(lhsVal)];
+        return [ctx.withVal(rhsVal.includes(lhsVal))];
         // return [Object.assign({}, ctx, {"val": rhsVal.includes(lhsVal)})]
     } 
     
