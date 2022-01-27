@@ -291,6 +291,7 @@ function testPaxosNext(testId, specName){
         const initDuration = (performance.now() - start).toFixed(1);
 
         start = performance.now();
+        console.log("Computing next states for Paxos.");
         let nextStates = computeNextStates(newTree, initStates).map(c => c["state"]);
         const nextDuration = (performance.now() - start).toFixed(1);
         
