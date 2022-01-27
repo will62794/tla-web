@@ -469,7 +469,7 @@ function bound_ops(){
     
     ====`;
     initExpected = [
-        {"x": 20}
+        {"x": 14}
     ];
     testStateGen("bound_ops", spec, initExpected, null);    
 }
