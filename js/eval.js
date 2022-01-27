@@ -242,10 +242,6 @@ class Context{
         ctxCopy["state"] = stateNew;
         return ctxCopy;
     }
-
-    show(){
-        return this.defns;
-    }
 }
 
 
