@@ -571,6 +571,56 @@ function evalIdentifierRef(node, ctx){
     // TODO: Consider case of being undefined.
 }
 
+// \E x,...,xn \in <D1>, y1,...,yn \in <D2> : <expr>
+// \A x,...,xn \in <D1>, y1,...,yn \in <D2> : <expr>
+function evalBoundedQuantification(node, ctx){
+    evalLog("bounded_quantification");
+    let quantifier = node.namedChildren[0];
+
+    // Extract all quantifier bounds/domains.
+    let currInd = 1;
+    quantBounds = [];
+    while(node.namedChildren[currInd].type === "quantifier_bound"){
+        quantBounds.push(node.namedChildren[currInd]);
+        currInd += 1;
+    }
+
+    // The quantified expression.
+    let quant_expr = node.namedChildren[currInd];
+    evalLog("quant bounds:", quantBounds);
+    evalLog("quant expr:", quant_expr);
+
+    let quantDomains = quantBounds.map(qbound =>{
+        expr = evalExpr(qbound.children[2], ctx);
+        let domain = expr[0]["val"];
+        return domain;
+    });
+    let quantIdents = quantBounds.map(qbound => qbound.children[0].text);
+
+    // Iterate over the product of all quantified domains and evaluate
+    // the quantified expression with the appropriately bound values.
+    let quantDomainTuples = cartesianProductOf(...quantDomains);
+    evalLog("quantDomain tuples:", quantDomainTuples);
+    if(quantDomainTuples.length === 0){
+        return [ctx.withVal(false)];
+    }
+
+    return _.flattenDeep(quantDomainTuples.map(qtup => {
+        let boundContext = _.cloneDeep(ctx);
+        // Bound values to quantified variables.
+        if(!boundContext.hasOwnProperty("quant_bound")){
+            boundContext["quant_bound"] = {};
+        }
+        for(var qk = 0;qk<quantIdents.length;qk++){
+            boundContext["quant_bound"][quantIdents[qk]] = qtup[qk];
+        }
+        evalLog("quantDomain val:", qtup);
+        evalLog("boundContext:", boundContext);
+        let ret = evalExpr(quant_expr, _.cloneDeep(boundContext));
+        return ret;
+    }));    
+}
+
 /**
  * Evaluate a TLC expression for generating initial/next states.
  * 
@@ -780,51 +830,7 @@ function evalExpr(node, ctx){
 
     // TODO: Finish this after implementing 'except' node type handling.
     if(node.type === "bounded_quantification"){
-        evalLog("bounded_quantification");
-        let quantifier = node.namedChildren[0];
-
-        // Extract all quantifier bounds/domains.
-        let currInd = 1;
-        quantBounds = [];
-        while(node.namedChildren[currInd].type === "quantifier_bound"){
-            quantBounds.push(node.namedChildren[currInd]);
-            currInd += 1;
-        }
-
-        // The quantified expression.
-        let quant_expr = node.namedChildren[currInd];
-        evalLog("quant bounds:", quantBounds);
-        evalLog("quant expr:", quant_expr);
-
-        let quantDomains = quantBounds.map(qbound =>{
-            expr = evalExpr(qbound.children[2], ctx);
-            let domain = expr[0]["val"];
-            return domain;
-        });
-        let quantIdents = quantBounds.map(qbound => qbound.children[0].text);
-
-        // Iterate over the product of all quantified domains and evaluate
-        // the quantified expression with the appropriately bound values.
-        let quantDomainTuples = cartesianProductOf(...quantDomains);
-        evalLog("quantDomain tuples:", quantDomainTuples);
-        if(quantDomainTuples.length === 0){
-            return [ctx.withVal(false)];
-        }
-
-        return _.flattenDeep(quantDomainTuples.map(qtup => {
-            let boundContext = _.cloneDeep(ctx);
-            // Bound values to quantified variables.
-            if(!boundContext.hasOwnProperty("quant_bound")){
-                boundContext["quant_bound"] = {};
-            }
-            for(var qk = 0;qk<quantIdents.length;qk++){
-                boundContext["quant_bound"][quantIdents[qk]] = qtup[qk];
-            }
-            evalLog("quantDomain val:", qtup);
-            evalLog("boundContext:", boundContext);
-            let ret = evalExpr(quant_expr, _.cloneDeep(boundContext));
-            return ret;
-        }));
+        return evalBoundedQuantification(node, ctx);
     }
 
     if(node.type === "identifier_ref"){
