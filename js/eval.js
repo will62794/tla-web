@@ -622,13 +622,13 @@ function evalBoundOp(node, ctx){
     assert(node.type === "bound_op");
 
     let opName = node.namedChildren[0].text;
-    let argExpr = node.namedChildren[1];
     evalLog("bound_op:", opName);
     evalLog("bound_op context:",ctx);
 
-    let argExprVal = evalExpr(argExpr, ctx)[0]["val"]
-    // Built in bound ops.
+    // Built in operator.
     if(opName == "Cardinality"){
+        let argExpr = node.namedChildren[1];
+        let argExprVal = evalExpr(argExpr, ctx)[0]["val"]
         evalLog("Cardinality val:", argExpr.text, argExprVal.length);
         return [ctx.withVal(argExprVal.length)];
     }
@@ -643,9 +643,10 @@ function evalBoundOp(node, ctx){
 
         // n-ary operator.
         // if(node.namedChildren.length > 1){
-        if(opArgs.length > 1){
+        if(opArgs.length >= 1){
             // Evaluate each operator argument.
-            let opArgVals = _.flatten(node.namedChildren.slice(1).map(c => evalExpr(c, ctx)));
+            let opArgsEvald = node.namedChildren.slice(1).map(oarg => evalExpr(oarg, ctx));
+            let opArgVals = _.flatten(opArgsEvald);
             evalLog("opArgVals:", opArgVals);
 
             // Then, evaluate the operator defininition with these argument values bound
@@ -1215,7 +1216,7 @@ let origevalExpr = evalExpr;
 evalExpr = function(...args){
     depth += 1;
     let ret = origevalExpr(...args);
-    evalLog("evalreturn -> ", ret);
+    evalLog("evalreturn -> ", ret, args[0].text);
     depth -= 1;
     return ret;
 }
