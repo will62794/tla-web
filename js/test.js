@@ -40,7 +40,7 @@ function testStateGraphEquiv(testId, stateGraph, specPath){
         let testsDiv = document.getElementById("tests");
 
         // Show the spec text and test name first.
-        let testHeader = document.createElement("h2");
+        let testHeader = document.createElement("h3");
         testHeader.innerText = "Test: " + testId + "";
         // testHeader.style = "cursor:pointer";
         // testHeader.setAttribute("onclick", `toggleTestDetails(\"${testId}\")`);
@@ -86,7 +86,7 @@ function testStateGraphEquiv(testId, stateGraph, specPath){
         let div;
 
         // Show the spec text and test name first.
-        let testHeader = document.createElement("h2");
+        let testHeader = document.createElement("h3");
         testHeader.innerText = "Test: " + testId + "";
         testHeader.style = "cursor:pointer";
         testHeader.setAttribute("onclick", `toggleTestDetails(\"${testId}\")`);
@@ -474,6 +474,25 @@ function record_literal_eval(){
     testStateGen("record_literal_eval", spec, initExpected, null);    
 }
 
+function record_access_eval(){
+    let spec = `---- MODULE record_literal_eval ----
+    EXTENDS TLC, Naturals
+    
+    VARIABLE x
+
+    rec == [a |-> "v1", b |-> "v2"]
+
+    Init == x = rec.a \\/ x = rec.b
+    Next == x' = x
+    
+    ====`;
+    initExpected = [
+        {"x": "v1"},
+        {"x": "v2"}
+    ];
+    testStateGen("record_access_eval", spec, initExpected, null);    
+}
+
 function simple5(){
     return testTLCEquiv("simple5");
 }
@@ -486,6 +505,7 @@ tests = {
     "simple-spec4a": simple_spec4a,
     "simple-spec5": simple_spec5,
     "record_literal_eval": record_literal_eval,
+    "record_access_eval": record_access_eval,
     "simple-lockserver-nodefs": simple_lockserver_nodefs,
     "simple-lockserver-withdefs": simple_lockserver_withdefs,
     "mldr-init": mldr_init,
