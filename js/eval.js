@@ -135,8 +135,7 @@ function walkTree(tree){
 
             // The definition identifier name.
             node = cursor.currentNode()
-            console.log(node.text)
-            console.log(node)
+            console.log(node.text, node)
             // console.log(cursor.currentFieldName());
             console.assert(node.type === "identifier");
             let opName = node.text;
