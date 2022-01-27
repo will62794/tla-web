@@ -249,7 +249,7 @@ class Context{
 }
 
 
-function evalInitLand(lhs, rhs, ctx){
+function evalLand(lhs, rhs, ctx){
     assert(ctx instanceof Context);
 
     // Evaluate left to right.
@@ -266,7 +266,7 @@ function evalInitLand(lhs, rhs, ctx){
     return _.flattenDeep(rhsEval);
 }
 
-function evalInitLor(lhs, rhs, ctx){
+function evalLor(lhs, rhs, ctx){
     assert(ctx instanceof Context);
 
     // return {"val": false, "states": vars};
@@ -292,7 +292,7 @@ function isPrimedVar(treeNode){
             symbol.type === "prime");
 }
 
-function evalInitEq(lhs, rhs, ctx){
+function evalEq(lhs, rhs, ctx){
     assert(ctx instanceof Context);
 
     // Deal with equality of variable on left hand side.
@@ -360,10 +360,10 @@ function evalInitEq(lhs, rhs, ctx){
 }
 
 // 'vars' is a list of possible partial state assignments known up to this point.
-function evalInitBoundInfix(node, ctx){
+function evalBoundInfix(node, ctx){
     assert(ctx instanceof Context);
 
-    evalLog("evalInitBoundInfix:", node);
+    evalLog("evalBoundInfix:", node);
 
     // lhs.
     let lhs = node.children[0];
@@ -413,18 +413,18 @@ function evalInitBoundInfix(node, ctx){
 
     // Disjunction.
     if(symbol.type === "lor"){
-        return evalInitLor(lhs, rhs, ctx);
+        return evalLor(lhs, rhs, ctx);
     }
 
     if(symbol.type === "land"){
-        return evalInitLand(lhs, rhs, ctx);
+        return evalLand(lhs, rhs, ctx);
     }
 
     // Equality.
     if(symbol.type ==="eq"){
         // console.log("bound_infix_op, symbol 'eq', ctx:", JSON.stringify(ctx));
         evalLog("bound_infix_op -> (eq), ctx:", ctx);
-        return evalInitEq(lhs, rhs, ctx);
+        return evalEq(lhs, rhs, ctx);
     } 
 
     // Inequality.
@@ -502,10 +502,10 @@ function evalInitBoundInfix(node, ctx){
     }  
 }
 
-function evalInitDisjList(parent, disjs, ctx){
+function evalDisjList(parent, disjs, ctx){
     assert(ctx instanceof Context);
 
-    console.log("evalInit: disjunction list!");
+    console.log("eval: disjunction list!");
 
     // Split into separate evaluation cases for each disjunct.
     return _.flattenDeep(disjs.map(disj => evalExpr(disj, ctx)));
@@ -519,10 +519,10 @@ function evalInitDisjList(parent, disjs, ctx){
     // return contextsLhs.concat(contextsRhs);
 }
 
-function evalInitConjList(parent, conjs, ctx){
+function evalConjList(parent, conjs, ctx){
     assert(ctx instanceof Context);
 
-    evalLog("evalInitConjList -> ctx:", ctx);
+    evalLog("evalConjList -> ctx:", ctx);
 
     // Initialize boolean value if needed.
     if(ctx["val"]===null){
@@ -532,16 +532,16 @@ function evalInitConjList(parent, conjs, ctx){
         let res = prev.map(ctxPrev => {
             return evalExpr(conj, ctxPrev).map(ctxCurr => ctxCurr.withVal(ctxCurr["val"] && ctxPrev["val"]));
         });
-        console.log("evalInitConjList mapped: ", res);
+        console.log("evalConjList mapped: ", res);
         return _.flattenDeep(res);
     }, [ctx]);
 }
 
-function evalInitIdentifierRef(node, ctx){
+function evalIdentifierRef(node, ctx){
     assert(ctx instanceof Context);
 
     let ident_name = node.text;
-    evalLog(`evalInitIdentifierRef, '${node.text}' context:`, ctx);
+    evalLog(`evalIdentifierRef, '${node.text}' context:`, ctx);
 
     // If this identifier refers to a variable, return the value bound
     // to that variable in the current context.
@@ -690,12 +690,12 @@ function evalExpr(node, ctx){
         return [ctx.withVal(false)];
     }
     if(node.type === "conj_list"){
-        let ret =  evalInitConjList(node, node.children, ctx);
-        console.log("evalInitConjList ret: ", ret);
+        let ret =  evalConjList(node, node.children, ctx);
+        console.log("evalConjList ret: ", ret);
         return ret;
     }  
     if(node.type === "disj_list"){
-        return evalInitDisjList(node, node.children, ctx);
+        return evalDisjList(node, node.children, ctx);
     }  
     if(node.type === "conj_item"){
         conj_item_node = node.children[1];
@@ -758,7 +758,7 @@ function evalExpr(node, ctx){
 
     if(node.type === "bound_infix_op"){
         // evalLog(node.type + ", ", node.text, ", ctx:", JSON.stringify(contexts));
-        return evalInitBoundInfix(node, ctx);
+        return evalBoundInfix(node, ctx);
     }
 
     if(node.type === "bound_prefix_op"){
@@ -838,7 +838,7 @@ function evalExpr(node, ctx){
     }
 
     if(node.type === "identifier_ref"){
-        return evalInitIdentifierRef(node, ctx);
+        return evalIdentifierRef(node, ctx);
     }
 
     if(node.type === "nat_number"){
@@ -1221,19 +1221,19 @@ evalExpr = function(...args){
     return ret;
 }
 
-let origEvalInitBoundInfix = evalInitBoundInfix;
-evalInitBoundInfix = function(...args){
+let origevalBoundInfix = evalBoundInfix;
+evalBoundInfix = function(...args){
     depth += 1;
-    let ret = origEvalInitBoundInfix(...args);
+    let ret = origevalBoundInfix(...args);
     evalLog("evalreturn -> ", ret);
     depth -= 1;
     return ret;
 }
 
-let origEvalInitConjList = evalInitConjList;
-evalInitConjList = function(...args){
+let origevalConjList = evalConjList;
+evalConjList = function(...args){
     depth += 1;
-    let ret = origEvalInitConjList(...args);
+    let ret = origevalConjList(...args);
     evalLog("evalreturn -> ", ret);
     depth -= 1;
     return ret;
