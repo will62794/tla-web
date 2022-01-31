@@ -286,17 +286,31 @@ function testPaxosNext(testId, specName){
         tree = null;
         const newTree = parser.parse(specText + "\n", tree);
 
-        let start = performance.now();
-        let initStates = computeInitStates(newTree);
-        const initDuration = (performance.now() - start).toFixed(1);
+        const num_iters = 5;
+        let totalInitDuration = 0;
+        let totalNextDuration = 0;
+        let initStates;
+        let start;
+        for(var k=0;k<num_iters;k++){
+            start = performance.now();
+            initStates = computeInitStates(newTree);
+            let initDuration = (performance.now() - start);
+            totalInitDuration += initDuration;
+        }
+        let meanInitDuration = (totalInitDuration/num_iters).toFixed(1);
 
-        start = performance.now();
-        console.log("Computing next states for Paxos.");
-        let nextStates = computeNextStates(newTree, initStates).map(c => c["state"]);
-        const nextDuration = (performance.now() - start).toFixed(1);
-        
-        console.log(`Paxos benchmark: computed ${initStates.length} init states in ${initDuration}ms`);
-        console.log(`Paxos benchmark: computed ${nextStates.length} next states in ${nextDuration}ms.`);
+        let nextStates;
+        for(var k=0;k<num_iters;k++){
+            start = performance.now();
+            console.log("Computing next states for Paxos.");
+            nextStates = computeNextStates(newTree, initStates).map(c => c["state"]);
+            let nextDuration = (performance.now() - start);
+            totalNextDuration += nextDuration;
+        }
+        let meanNextDuration = (totalNextDuration/num_iters).toFixed(1);
+
+        console.log(`Paxos benchmark: computed ${initStates.length} init states in mean of ${meanInitDuration}ms`);
+        console.log(`Paxos benchmark: computed ${nextStates.length} next states in mean of ${meanNextDuration}ms.`);
     });      
 }
 
