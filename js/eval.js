@@ -529,7 +529,7 @@ function evalConjList(parent, conjs, ctx){
             // conjunction list will evaluate to false, so we can short-circuit
             // the expression evaluation and terminate early.
             if(ctxPrev["val"]===false){
-                return ctxPrev;
+                return [ctxPrev];
             }
 
             return evalExpr(conj, ctxPrev).map(ctxCurr => ctxCurr.withVal(ctxCurr["val"] && ctxPrev["val"]));
