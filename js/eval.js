@@ -1060,7 +1060,7 @@ function getNextStates(nextDef, currStateVars, defns){
     let initCtx = new Context(null, currStateVars, defns, {});
     console.log("currStateVars:", currStateVars);
     let ret = evalExpr(nextDef, initCtx);
-    console.log("getNextStates ret:", ret);
+    // console.log("getNextStates ret:", ret);
 
     // Filter out disabled transitions.
     ret = ret.filter(c => c["val"] === true);
