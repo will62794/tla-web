@@ -223,6 +223,23 @@ class Context{
     }
 
     /**
+     * Returns a new copy of this context with 'val' and 'state' updated to the
+     * given values.
+     * 
+     * Should be equivalent to calling ctx.withVal(valNew).withState(stateNew)
+     * but goal is to be more efficient.
+     * @param {TLCValue} valNew 
+     * @param {TLAState} stateNew 
+     */
+    withValAndState(valNew, stateNew){
+        let ctxCopy = _.cloneDeep(this);
+        ctxCopy["val"] = valNew;
+        ctxCopy["state"] = stateNew;
+        return ctxCopy;
+    }
+
+
+    /**
      * Returns a new copy of this context with 'val' updated to the given value.
      * @param {TLCValue} valNew 
      */
@@ -255,7 +272,7 @@ function evalLand(lhs, rhs, ctx){
         evalLog("rhs:", rhs.text);
         evalLog("lctx:", lctx);
         return evalExpr(rhs, lctx).map(actx => {
-            return [actx.withVal((lctx["val"] && actx["val"])).withState(actx["state"])];
+            return [actx.withValAndState((lctx["val"] && actx["val"]), actx["state"])];
         })
     });
     return _.flattenDeep(rhsEval);
@@ -329,7 +346,7 @@ function evalEq(lhs, rhs, ctx){
             return val;
         });
         evalLog("state updated:", stateUpdated);
-        return [ctx.withVal(true).withState(stateUpdated)];
+        return [ctx.withValAndState(true, stateUpdated)];
 
     } else{
         evalLog(`Checking for equality of ident '${identName}' with '${rhs.text}'.`, ctx);
