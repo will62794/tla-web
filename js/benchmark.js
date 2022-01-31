@@ -295,8 +295,8 @@ function testPaxosNext(testId, specName){
         let nextStates = computeNextStates(newTree, initStates).map(c => c["state"]);
         const nextDuration = (performance.now() - start).toFixed(1);
         
-        console.log(`Paxos init state evaluation ran in ${initDuration}ms`);
-        console.log(`Paxos next state evaluation ran in ${nextDuration}ms`);
+        console.log(`Paxos benchmark: computed ${initStates.length} init states in ${initDuration}ms`);
+        console.log(`Paxos benchmark: computed ${nextStates.length} next states in ${nextDuration}ms.`);
     });      
 }
 
