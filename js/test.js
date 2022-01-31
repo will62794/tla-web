@@ -163,22 +163,28 @@ function testStateGraphEquiv(testId, stateGraph, specPath){
         detailedResultsDiv.setAttribute("hidden", true);
         testsDiv.appendChild(detailedResultsDiv);
 
+        let statusDiv = document.createElement("div");
+        statusDiv.innerHTML = "";
+
         // Show the outcome of the test (PASS/FAIL).
-        let statusText = "Init: " + (passInit ? "PASS &#10003" : "FAIL &#10007");
+        // &#10003, &#10007
+        let statusText = "Init:" + (passInit ? "PASS" : "FAIL");
         let statusColor = passInit ? "green" : "red";
-        div = document.createElement("div");
-        div.innerHTML = statusText;
-        div.style = "font-weight: bold; color:" + statusColor;
-        testsDiv.appendChild(div);
+        initStatus = document.createElement("span");
+        initStatus.innerHTML += statusText;
+        initStatus.style = "margin-right:15px;font-weight: bold; color:" + statusColor;
+        statusDiv.appendChild(initStatus);
 
         if(nextExpected!==null){
-            statusText = "Next: " + (passNext ? "PASS &#10003" : "FAIL &#10007");
+            statusText = "Next:" + (passNext ? "PASS" : "FAIL");
             statusColor = passNext ? "green" : "red";
-            div = document.createElement("div");
-            div.innerHTML = statusText;
-            div.style = "font-weight: bold; color:" + statusColor;
-            testsDiv.appendChild(div);
+            nextStatus = document.createElement("span");
+            nextStatus.innerHTML += statusText;
+            nextStatus.style = "font-weight: bold; color:" + statusColor;
+            statusDiv.appendChild(nextStatus);
         }
+        testsDiv.appendChild(statusDiv);
+
     }
 
 
@@ -512,6 +518,26 @@ function record_access_eval(){
     testStateGen("record_access_eval", spec, initExpected, null);    
 }
 
+function next_state_precond_disabled(){
+    let spec = `---- MODULE next_state_precond_disabled ----
+    EXTENDS TLC, Naturals
+    
+    VARIABLE x
+
+    Init == x = 0
+    Next == 
+        /\\ x = 1 
+        /\\ x > 0
+        /\\ x' = 12 \\/ x' = 15
+    
+    ====`;
+    initExpected = [
+        {"x": 0}
+    ];
+    nextExpected = []
+    testStateGen("next_state_precond_disabled", spec, initExpected, nextExpected);    
+}
+
 function simple5(){
     return testTLCEquiv("simple5");
 }
@@ -525,6 +551,7 @@ tests = {
     "simple-spec5": simple_spec5,
     "record_literal_eval": record_literal_eval,
     "record_access_eval": record_access_eval,
+    "next_state_precond_disabled": next_state_precond_disabled,
     "bound_ops": bound_ops,
     "simple-lockserver-nodefs": simple_lockserver_nodefs,
     "simple-lockserver-withdefs": simple_lockserver_withdefs,

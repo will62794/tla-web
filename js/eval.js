@@ -525,6 +525,13 @@ function evalConjList(parent, conjs, ctx){
     }
     return conjs.reduce((prev,conj) => {
         let res = prev.map(ctxPrev => {
+            // If this context has already evaluated to false, then the overall
+            // conjunction list will evaluate to false, so we can short-circuit
+            // the expression evaluation and terminate early.
+            if(ctxPrev["val"]===false){
+                return ctxPrev;
+            }
+
             return evalExpr(conj, ctxPrev).map(ctxCurr => ctxCurr.withVal(ctxCurr["val"] && ctxPrev["val"]));
         });
         evalLog("evalConjList mapped: ", res);
