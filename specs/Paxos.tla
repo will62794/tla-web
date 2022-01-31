@@ -181,11 +181,16 @@ Break4 == 1
 (* Below are defined the next-state action and the complete spec.          *)
 (***************************************************************************)
 Next == 
-    \/ \E b \in Ballot : \E p \in Proposer : Phase1a(b, p)
+    \/ \E b \in Ballot : \E p \in Proposer : Phase1a(b, p) 
     \/ \E a \in Acceptor : \E p \in Proposer : Phase1b(a, p) 
     \/ \E b \in Ballot : \E p \in Proposer : \E v \in Value : Phase2a(b, v, p)
     \/ \E a \in Acceptor : \E p \in Proposer : Phase2b(a)
 
+kkk==1
+    \* \/ \E b \in Ballot : \E p \in Proposer : Phase1a(b, p) 
+    \* \/ \E a \in Acceptor : \E p \in Proposer : Phase1b(a, p) 
+    \* \/ \E b \in Ballot : \E p \in Proposer : \E v \in Value : Phase2a(b, v, p)
+    \* \/ \E a \in Acceptor : \E p \in Proposer : Phase2b(a)
     
 Break2 == 1
     \* TODO: Need to implement LET expressions for Phase2a.
