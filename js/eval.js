@@ -229,7 +229,6 @@ class Context{
      * definitions that never change.
      */
     clone(){
-        // return _.cloneDeep(this);
         let valNew = _.cloneDeep(this.val);
         let stateNew = _.cloneDeep(this.state);
         let defnsNew = this.defns // don't copy this field.
