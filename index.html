@@ -46,7 +46,7 @@
         <div id="trace-container">
             <div class="pane-title">Current Trace</div> 
             <div id="trace-buttons">
-                <div class="trace-button" id="trace-back-button" onclick="traceStepBack()">Back</div>
+                <div class="button-base trace-button" id="trace-back-button" onclick="traceStepBack()">Back</div>
                 <!-- <div class="trace-button" id="trace-copy-link-button" onclick="traceGetLink()">Get Trace Link</div> -->
             </div>
             <div id="trace" class="tlc-state"></div>
@@ -111,16 +111,8 @@
       }
 
       #set-constants-button{
-        background-color:lightblue;
         width:200px;
-        border-radius: 3px;
-        text-align: center;
-        padding:2px;
-      }
-
-      #set-constants-button:hover{
-          cursor: pointer;
-          color:gray;
+        font-family:Arial;
       }
 
       #app-title{
@@ -317,29 +309,31 @@
           overflow: hidden;
       }
 
-      .trace-button{
+      .button-base{
         color:black;
         text-align: center;
         height:18px;
         vertical-align: middle;
-        background-color: lightgray;
         font-size:14px;
         border-radius: 3px;
         background-color: steelblue;
         color:white;
-        float: left; 
         padding-left:6px;
         padding-right:6px;
         padding-top:3px;
         padding-bottom:3px;
+      }
+      .button-base:hover{
+        cursor: pointer;
+        background-color: gray;
+      }
+
+      .trace-button{
+        height:18px;
+        float: left; 
         margin-right:5px; 
       }
 
-      .trace-button:hover{
-          cursor: pointer;
-          background-color: gray;
-      }
-  
       #logging-checkbox {
         vertical-align: middle;
       }

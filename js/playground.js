@@ -456,6 +456,7 @@ function setConstantValues(){
         let setButtonDiv = document.createElement("div");
         setButtonDiv.innerHTML = "Set constant values"
         setButtonDiv.id = "set-constants-button"        
+        setButtonDiv.classList.add("button-base");     
         setButtonDiv.setAttribute("onclick", 'setConstantValues()');
         chooseConstsElem.appendChild(setButtonDiv);
 
