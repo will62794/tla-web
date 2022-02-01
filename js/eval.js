@@ -679,7 +679,6 @@ function evalBoundOp(node, ctx){
         evalLog("opDefObj", opDefObj);
 
         // n-ary operator.
-        // if(node.namedChildren.length > 1){
         if(opArgs.length >= 1){
             // Evaluate each operator argument.
             let opArgsEvald = node.namedChildren.slice(1).map(oarg => evalExpr(oarg, ctx));
@@ -694,7 +693,6 @@ function evalBoundOp(node, ctx){
             }
 
             evalLog("opDefNode", opDefNode);
-            // for(var i=0;i<opArgVals.length;i++){
             for(var i=0;i<opArgs.length;i++){
                 // The parameter name in the operator definition.
                 let paramName = opArgs[i];
