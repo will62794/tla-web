@@ -99,8 +99,9 @@ function walkTree(tree){
     let node = cursor.currentNode();
     console.assert(node.type === "module")
 
-    op_defs = {}
-    var_decls = {}
+    op_defs = {};
+    var_decls = {};
+    const_decls = {};
 
     // Look for all variables and definitions defined in the module.
     let more = cursor.gotoFirstChild();
@@ -108,12 +109,20 @@ function walkTree(tree){
         more = cursor.gotoNextSibling();
         let node = cursor.currentNode();
         // console.log(node);
-        // console.log("node type:");
-        // console.log(node.type);
+        // console.log("node type:", node.type);
         // console.log("node text:");
         // console.log(node.text);
         // console.log("node id:");
         // console.log(node.id);
+
+        if(node.type === "constant_declaration"){
+            cursor.gotoFirstChild();
+            cursor.gotoNextSibling();
+            let const_ident = cursor.currentNode();
+            cursor.gotoParent();
+            // Save the constant declaration.
+            const_decls[const_ident.text] = {"id": node.id}; 
+        }
 
         if(node.type === "variable_declaration"){
             cursor.gotoFirstChild();
@@ -177,10 +186,12 @@ function walkTree(tree){
         }
     }
 
-    console.log("module declarations:",var_decls);
+    console.log("module const declarations:",const_decls);
+    console.log("module var declarations:",var_decls);
     console.log("module definitions:",op_defs);
 
     objs = {
+        "const_decls": const_decls,
         "var_decls": var_decls,
         "op_defs": op_defs
     }
@@ -1106,8 +1117,11 @@ function getNextStates(nextDef, currStateVars, defns){
 function computeInitStates(tree){
     objs = walkTree(tree);
 
+    let consts = objs["const_decls"];
     let vars = objs["var_decls"];
     let defns = objs["op_defs"];
+
+    console.log("consts:", consts);
 
     let initDef = defns["Init"];
     console.log("<<<<< INIT >>>>>");
