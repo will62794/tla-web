@@ -223,6 +223,21 @@ class Context{
     }
 
     /**
+     * Return a copy of this Context object.
+     * 
+     * Avoids copying of 'defns' since we assume they should be global
+     * definitions that never change.
+     */
+    clone(){
+        // return _.cloneDeep(this);
+        let valNew = _.cloneDeep(this.val);
+        let stateNew = _.cloneDeep(this.state);
+        let defnsNew = this.defns // don't copy this field.
+        let quant_boundNew = _.cloneDeep(this.quant_bound);
+        return new Context(valNew,stateNew,defnsNew,quant_boundNew)
+    }
+
+    /**
      * Returns a new copy of this context with 'val' and 'state' updated to the
      * given values.
      * 
@@ -232,7 +247,7 @@ class Context{
      * @param {TLAState} stateNew 
      */
     withValAndState(valNew, stateNew){
-        let ctxCopy = _.cloneDeep(this);
+        let ctxCopy = this.clone();
         ctxCopy["val"] = valNew;
         ctxCopy["state"] = stateNew;
         return ctxCopy;
@@ -244,7 +259,7 @@ class Context{
      * @param {TLCValue} valNew 
      */
     withVal(valNew){
-        let ctxCopy = _.cloneDeep(this);
+        let ctxCopy = this.clone();
         ctxCopy["val"] = valNew;
         return ctxCopy;
     }
@@ -254,7 +269,7 @@ class Context{
      * @param {Object} stateNew 
      */
     withState(stateNew){
-        let ctxCopy = _.cloneDeep(this);
+        let ctxCopy = this.clone();
         ctxCopy["state"] = stateNew;
         return ctxCopy;
     }
