@@ -222,6 +222,8 @@ function setConstantValues(){
     for(var constDecl in specConsts){
         constTlaVals[constDecl] = initStateEval[`var_${constDecl}`];
     }
+
+    // TODO: Thread these assigned values through standard spec evaluation.
     console.log(constTlaVals);
     specConstVals = constTlaVals;
 }
