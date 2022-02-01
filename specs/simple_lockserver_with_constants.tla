@@ -1,9 +1,10 @@
 ---- MODULE simple_lockserver_with_constants ----
-VARIABLE semaphore
-VARIABLE clientlocks
 
 CONSTANT Server
 CONSTANT Client
+
+VARIABLE semaphore
+VARIABLE clientlocks
 
 Init == 
     /\ semaphore = [i \in Server |-> TRUE]
