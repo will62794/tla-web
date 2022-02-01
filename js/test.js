@@ -5,6 +5,11 @@
 let tree;
 let parser;
 
+// Parse URL params;
+const urlSearchParams = new URLSearchParams(window.location.search);
+const urlParams = Object.fromEntries(urlSearchParams.entries());
+let enableEvalTracing = parseInt(urlParams["debug"]);
+
 function toggleTestDetails(testId){
 
     // alert("details"+testId);
@@ -51,7 +56,7 @@ function testStateGraphEquiv(testId, stateGraph, specPath){
         
         // Test correct initial states.
         // let initStates = computeInitStates(newTree);
-        let reachable = computeReachableStates(newTree);
+        let reachable = computeReachableStates(walkTree(newTree));
         // console.log("spec5 init", initStates);
         let reachableTLC = stateGraph["states"].map(s => s["val"]);
         console.log("spec5 reachable:", reachable);
@@ -104,9 +109,10 @@ function testStateGraphEquiv(testId, stateGraph, specPath){
 
         tree = null;
         const newTree = parser.parse(specText + "\n", tree);
+        let treeObjs = walkTree(newTree);
         
         // Test correct initial states.
-        let initStates = computeInitStates(newTree);
+        let initStates = computeInitStates(treeObjs);
         const passInit = arrEq(initExpected, initStates);
 
         // Print expected initial states.
@@ -133,7 +139,7 @@ function testStateGraphEquiv(testId, stateGraph, specPath){
         let passNext;
         if(nextExpected!==null){
             // Test correct next states.
-            let nextStates = computeNextStates(newTree, initStates).map(c => c["state"]);
+            let nextStates = computeNextStates(treeObjs, initStates).map(c => c["state"]);
             passNext = arrEq(nextExpected, nextStates);
 
             // Print expected next states.

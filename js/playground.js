@@ -372,15 +372,16 @@ function handleChooseState(statehash_short){
       }
     }
     const newTree = parser.parse(newText, tree);
+    let treeObjs = walkTree(newTree);
+
     const duration = (performance.now() - start).toFixed(1);
 
     // TODO: Consider what occurs when spec code changes after the
     // initial page load.
     console.log("Generating initial states.");
-    let treeObjs = walkTree(newTree);
     specDefs = treeObjs["op_defs"];
     nextStatePred = treeObjs["op_defs"]["Next"]["node"];
-    let initStates = computeInitStates(newTree);
+    let initStates = computeInitStates(treeObjs);
     allInitStates = initStates;
 
     // Display states in HTML.

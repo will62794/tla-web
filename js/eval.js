@@ -1114,12 +1114,10 @@ function getNextStates(nextDef, currStateVars, defns){
 }
 
 // TODO: Consider reconciling this with 'getInitStates' function.
-function computeInitStates(tree){
-    objs = walkTree(tree);
-
-    let consts = objs["const_decls"];
-    let vars = objs["var_decls"];
-    let defns = objs["op_defs"];
+function computeInitStates(treeObjs){
+    let consts = treeObjs["const_decls"];
+    let vars = treeObjs["var_decls"];
+    let defns = treeObjs["op_defs"];
 
     console.log("consts:", consts);
 
@@ -1136,11 +1134,10 @@ function computeInitStates(tree){
 }
 
 // TODO: Consider reconciling this with 'getNextStates' function.
-function computeNextStates(tree, initStates){
-    objs = walkTree(tree);
-
-    let vars = objs["var_decls"];
-    let defns = objs["op_defs"];
+function computeNextStates(treeObjs, initStates){
+    let consts = treeObjs["const_decls"];
+    let vars = treeObjs["var_decls"];
+    let defns = treeObjs["op_defs"];
 
     let nextDef = defns["Next"];
     console.log(defns);
@@ -1159,11 +1156,9 @@ function computeNextStates(tree, initStates){
     return allNext;
 }
 
-function computeReachableStates(tree){
-    objs = walkTree(tree);
-
-    let vars = objs["var_decls"];
-    let defns = objs["op_defs"];
+function computeReachableStates(treeObjs){
+    let vars = treeObjs["var_decls"];
+    let defns = treeObjs["op_defs"];
 
     let initDef = defns["Init"];
     let nextDef = defns["Next"];
