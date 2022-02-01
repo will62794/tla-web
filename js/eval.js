@@ -7,11 +7,6 @@
 // For debugging.
 let depth = 0;
 
-// Optionally enable tracing of evaluation.
-const urlSearchParams = new URLSearchParams(window.location.search);
-const params = Object.fromEntries(urlSearchParams.entries());
-let enableEvalTracing = parseInt(params["debug"]);
-
 // Simple assertion utility.
 function assert(condition, message) {
     if (!condition) {

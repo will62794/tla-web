@@ -6,6 +6,11 @@ let currNextStates = [];
 let currTrace = []
 let specDefs = null;
 
+// Parse URL params;
+const urlSearchParams = new URLSearchParams(window.location.search);
+const urlParams = Object.fromEntries(urlSearchParams.entries());
+let enableEvalTracing = parseInt(urlParams["debug"]);
+
 // Given a state with primed and unprimed variables, remove the original
 // unprimed variables and rename the primed variables to unprimed versions. 
 function renamedPrimedVars(state){
@@ -264,6 +269,16 @@ function handleChooseState(statehash_short){
     let specPath = "./specs/Paxos.tla";
     // let specPath = "./specs/simple_test.tla";
     // let specPath = "./specs/simple_lockserver.tla";
+
+    // Check for given spec in URL args.
+    specPathArg = urlParams["specpath"];
+
+    // Load given spec.
+    if(specPathArg !== undefined){
+        specPath = specPathArg;
+    }
+
+
     (() => {
         const handle = setInterval(() => {
             res = $.get(specPath, data => {
