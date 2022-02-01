@@ -36,6 +36,8 @@
 
     <!-- Display pane. -->
     <div id="output-container-scroll">
+        <div id="choose-constants-container"></div>
+
         <div id="poss-next-states-title" class="pane-title">Choose Initial State</div>
         <div id="initial-states" class="tlc-state"></div>
         <!-- <h2>Next states</h2>
@@ -98,6 +100,27 @@
       h1,h2,h3,h4{
           font-family: Arial, Helvetica, sans-serif;
           /* text-decoration: underline; */
+      }
+
+      #choose-constants-elems{
+          font-size: 14px;
+          font-family: monospace;
+      }
+      #choose-constants-elems input{
+        font-family: monospace;
+      }
+
+      #set-constants-button{
+        background-color:lightblue;
+        width:200px;
+        border-radius: 3px;
+        text-align: center;
+        padding:2px;
+      }
+
+      #set-constants-button:hover{
+          cursor: pointer;
+          color:gray;
       }
 
       #app-title{

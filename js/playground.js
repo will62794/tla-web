@@ -5,6 +5,9 @@ let currState = null;
 let currNextStates = [];
 let currTrace = []
 let specDefs = null;
+let specConsts = null;
+let specConstVals = {};
+let parser;
 
 // Parse URL params;
 const urlSearchParams = new URLSearchParams(window.location.search);
@@ -172,6 +175,57 @@ function handleChooseState(statehash_short){
     renderNextStateChoices(currNextStates);
 }
 
+function setConstantValues(){
+    let constVals = {};
+    let nullTree;
+    for(var constDecl in specConsts){
+        let inputElem = document.getElementById("const-val-input-" + constDecl);
+        let constValText = inputElem.value;
+        console.log(constDecl, constValText);
+        constVals[constDecl] = constValText;
+    }
+
+    // Create a dummy spec to evaluate the expressions given for each CONSTANT.
+    // TODO: Might be a simpler way to do this TLA+ expression evaluation.
+    let dummySpec = "---- MODULE simple_lockserver_with_constants ----\n";
+    for(var constDecl in specConsts){
+        dummySpec += `${constDecl} == ${constVals[constDecl]}\n`;
+    }
+    for(var constDecl in specConsts){
+        dummySpec += `VARIABLE var_${constDecl}\n`;
+    }
+    dummySpec += `Init == \n`;
+    for(var constDecl in specConsts){
+        dummySpec += `/\\ var_${constDecl} = ${constDecl}\n`;
+    }
+    dummySpec += `Next == \n`;
+    for(var constDecl in specConsts){
+        dummySpec += `/\\ var_${constDecl}' = var_${constDecl}\n`;
+    }
+
+    console.log(dummySpec);
+
+    dummySpec += "====";
+
+    const dummySpecTree = parser.parse(dummySpec, nullTree);
+    console.log(dummySpecTree);
+
+    let dummyTreeObjs = walkTree(dummySpecTree);
+    console.log(dummyTreeObjs);
+
+    // Compute the single initial state.
+    let dummyInitStates = computeInitStates(dummyTreeObjs);
+    console.log("dummy init states:", dummyInitStates);
+    assert(dummyInitStates.length === 1);
+    let initStateEval = dummyInitStates[0];
+    let constTlaVals = {};
+    for(var constDecl in specConsts){
+        constTlaVals[constDecl] = initStateEval[`var_${constDecl}`];
+    }
+    console.log(constTlaVals);
+    specConstVals = constTlaVals;
+}
+
 (async () => {
 
   const scriptURL = document.currentScript.getAttribute('src');
@@ -191,7 +245,7 @@ function handleChooseState(statehash_short){
   loadState();
 
   await TreeSitter.init();
-  const parser = new TreeSitter();
+  parser = new TreeSitter();
 
   let tree = null;
 
@@ -374,13 +428,45 @@ function handleChooseState(statehash_short){
     const newTree = parser.parse(newText, tree);
     let treeObjs = walkTree(newTree);
 
+    specConsts = treeObjs["const_decls"];
+    specDefs = treeObjs["op_defs"];
+    nextStatePred = treeObjs["op_defs"]["Next"]["node"];
+
+    // If there are CONSTANT declarations in the spec, we must
+    // instantiate them with some concrete values.
+    if(!_.isEmpty(specConsts)){
+        console.log("Instantiating spec constants.");
+
+        let chooseConstsContainer = document.getElementById("choose-constants-container");
+        let chooseTitle = document.createElement("div");
+        chooseTitle.innerHTML = "Choose constants";
+        chooseTitle.classList.add("pane-title");
+        chooseConstsContainer.appendChild(chooseTitle);
+
+        let chooseConstsElem = document.createElement("div");
+        chooseConstsElem.id = "choose-constants-elems";
+        for(const constDecl in specConsts){
+            console.log(constDecl);
+            let newDiv = document.createElement("div");
+            newDiv.innerHTML = "CONSTANT " + constDecl + " <- ";
+            newDiv.innerHTML += `<input id='const-val-input-${constDecl}'>`;
+            chooseConstsElem.appendChild(newDiv);
+        }
+
+        let setButtonDiv = document.createElement("div");
+        setButtonDiv.innerHTML = "Set constant values"
+        setButtonDiv.id = "set-constants-button"        
+        setButtonDiv.setAttribute("onclick", 'setConstantValues()');
+        chooseConstsElem.appendChild(setButtonDiv);
+
+        chooseConstsContainer.appendChild(chooseConstsElem);
+    }
+
     const duration = (performance.now() - start).toFixed(1);
 
     // TODO: Consider what occurs when spec code changes after the
     // initial page load.
     console.log("Generating initial states.");
-    specDefs = treeObjs["op_defs"];
-    nextStatePred = treeObjs["op_defs"]["Next"]["node"];
     let initStates = computeInitStates(treeObjs);
     allInitStates = initStates;
 
