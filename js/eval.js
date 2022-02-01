@@ -351,7 +351,7 @@ function evalEq(lhs, rhs, ctx){
         let stateUpdated = _.mapValues(ctx["state"], (val,key,obj) => {
             if(key === identName){
                 evalLog("Variable (" + identName + ") not already assigned in ctx:",  ctx);
-                let rhsVals = evalExpr(rhs, _.cloneDeep(ctx));
+                let rhsVals = evalExpr(rhs, ctx.clone());
                 console.assert(rhsVals.length === 1);
                 let rhsVal = rhsVals[0]["val"];
                 evalLog("Variable (" + identName + ") getting value:",  rhsVal);
@@ -366,12 +366,12 @@ function evalEq(lhs, rhs, ctx){
         evalLog(`Checking for equality of ident '${identName}' with '${rhs.text}'.`, ctx);
         
         // Evaluate left and right hand side.
-        let lhsVals = evalExpr(lhs, _.cloneDeep(ctx));
+        let lhsVals = evalExpr(lhs, ctx.clone());
         console.assert(lhsVals.length === 1);
         let lhsVal = lhsVals[0]["val"];
         // console.log("Checking for, lhsVal", lhsVal);
 
-        let rhsVals = evalExpr(rhs, _.cloneDeep(ctx));
+        let rhsVals = evalExpr(rhs, ctx.clone());
         console.assert(rhsVals.length === 1);
         let rhsVal = rhsVals[0]["val"];
         // console.log("Checking for, rhsVal", rhsVal);
@@ -639,7 +639,7 @@ function evalBoundedQuantification(node, ctx){
     }
 
     return _.flattenDeep(quantDomainTuples.map(qtup => {
-        let boundContext = _.cloneDeep(ctx);
+        let boundContext = ctx.clone();
         // Bound values to quantified variables.
         if(!boundContext.hasOwnProperty("quant_bound")){
             boundContext["quant_bound"] = {};
@@ -649,7 +649,7 @@ function evalBoundedQuantification(node, ctx){
         }
         evalLog("quantDomain val:", qtup);
         evalLog("boundContext:", boundContext);
-        let ret = evalExpr(quant_expr, _.cloneDeep(boundContext));
+        let ret = evalExpr(quant_expr, boundContext.clone());
         return ret;
     }));    
 }
@@ -688,7 +688,7 @@ function evalBoundOp(node, ctx){
 
             // Then, evaluate the operator defininition with these argument values bound
             // to the appropriate names.
-            let opEvalContext = _.cloneDeep(ctx);
+            let opEvalContext = ctx.clone();
             if(!opEvalContext.hasOwnProperty("quant_bound")){
                 opEvalContext["quant_bound"] = {};
             }
@@ -900,13 +900,13 @@ function evalExpr(node, ctx){
         let thenNode = node.namedChildren[1];
         let elseNode = node.namedChildren[2];
 
-        let condVal = evalExpr(cond, _.cloneDeep(ctx))[0]["val"];
+        let condVal = evalExpr(cond, ctx.clone())[0]["val"];
         if(condVal){
-            let thenVal = evalExpr(thenNode, _.cloneDeep(ctx));
+            let thenVal = evalExpr(thenNode, ctx.clone());
             evalLog("thenVal", thenVal, thenNode.text);
             return thenVal;
         } else{
-            let elseVal = evalExpr(elseNode, _.cloneDeep(ctx));
+            let elseVal = evalExpr(elseNode, ctx.clone());
             evalLog("elseVal", elseVal, elseNode.text, ctx);
             return elseVal;
         }
@@ -933,7 +933,7 @@ function evalExpr(node, ctx){
         // Return all values in domain for which the set filter evaluates to true.
         let filteredVals = domainExprVal.filter(exprVal => {
             // Evaluate rhs in context of the bound value and check its truth value.
-            let boundContext = _.cloneDeep(ctx);
+            let boundContext = ctx.clone();
             if(!boundContext.hasOwnProperty("quant_bound")){
                 boundContext["quant_bound"] = {};
             }
@@ -1033,7 +1033,7 @@ function evalExpr(node, ctx){
             // value bound to the identifier.
             // let boundContext = {"val": ctx["val"], "state": ctx["state"]};
             
-            let boundContext = _.cloneDeep(ctx);
+            let boundContext = ctx.clone();
             if(!boundContext.hasOwnProperty("quant_bound")){
                 boundContext["quant_bound"] = {};
             }
