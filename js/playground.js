@@ -4,6 +4,7 @@ let nextStatePred = null;
 let currState = null;
 let currNextStates = [];
 let currTrace = []
+let specTreeObjs = null;
 let specDefs = null;
 let specConsts = null;
 let specConstVals = {};
@@ -54,9 +55,9 @@ function traceStepBack(){
         currNextStates = _.cloneDeep(allInitStates);
     } else{
         let lastState = currTrace[currTrace.length-1];
-        let nextStates = getNextStates(nextStatePred, _.cloneDeep(lastState), specDefs)
-            .map(c => c["state"])
-            .map(renamedPrimedVars);
+        let nextStates = computeNextStates(specTreeObjs, [_.cloneDeep(lastState)])
+                            .map(c => c["state"])
+                            .map(renamedPrimedVars);
         currNextStates = _.cloneDeep(nextStates);
     }
     renderCurrentTrace();
@@ -162,7 +163,8 @@ function handleChooseState(statehash_short){
     console.log("nextState:", JSON.stringify(nextState));
     console.log("nextStatePred:", nextStatePred);
     const start = performance.now();
-    let nextStates = getNextStates(nextStatePred, _.cloneDeep(nextState), specDefs)
+
+    let nextStates = computeNextStates(specTreeObjs, [nextState])
                         .map(c => c["state"])
                         .map(renamedPrimedVars);
     currNextStates = _.cloneDeep(nextStates);
@@ -353,69 +355,69 @@ function setConstantValues(){
     })();
   }
 
-  function genRandTrace(){
+//   function genRandTrace(){
     
-    // Pick a random element from the given array.
-    function randChoice(arr){
-        let randI = _.random(0, arr.length-1);
-        return arr[randI];
-    }
+//     // Pick a random element from the given array.
+//     function randChoice(arr){
+//         let randI = _.random(0, arr.length-1);
+//         return arr[randI];
+//     }
 
 
-    const newText = codeEditor.getValue() + '\n';
-    const newTree = parser.parse(newText, tree);
+//     const newText = codeEditor.getValue() + '\n';
+//     const newTree = parser.parse(newText, tree);
 
-    objs = walkTree(newTree);
-    let vars = objs["var_decls"];
-    let defns = objs["op_defs"];
+//     objs = walkTree(newTree);
+//     let vars = objs["var_decls"];
+//     let defns = objs["op_defs"];
 
-    let initDef = defns["Init"];
-    let nextDef = defns["Next"];
+//     let initDef = defns["Init"];
+//     let nextDef = defns["Next"];
 
-    let initStates = getInitStates(initDef, vars);
-    initStates = initStates.filter(ctx => ctx["val"]).map(ctx => ctx["state"]);
+//     let initStates = getXXXusenewmethodhereXXXStates(initDef, vars);
+//     initStates = initStates.filter(ctx => ctx["val"]).map(ctx => ctx["state"]);
 
-    // Pick a random initial state.
-    let currState = randChoice(initStates);
-    console.log("initState in trace:", currState);
+//     // Pick a random initial state.
+//     let currState = randChoice(initStates);
+//     console.log("initState in trace:", currState);
 
-    let max_trace_depth = 6;
-    let curr_depth = 0;
-    let trace = [_.cloneDeep(currState)];
-    while(curr_depth < max_trace_depth){
-        // Get next states from the current state and pick a random one.
-        let nextStates = getNextStates(nextDef, currState);
-        nextStates = nextStates.filter(ctx => ctx["val"]).map(ctx => ctx["state"]);
-        // console.log(nextStates);
-        let nextState = _.cloneDeep(randChoice(nextStates));
-        // Rename primed variables to unprimed variables.
-        nextState = _.pickBy(nextState, (val,k,obj) => k.endsWith("'"));
-        nextState = _.mapKeys(nextState, (val,k,obj) => k.slice(0,k.length-1));
-        console.log(nextState);
-        // Process next state.
-        currState = nextState;
-        curr_depth += 1;
-        trace.push(_.cloneDeep(currState));
-    }
+//     let max_trace_depth = 6;
+//     let curr_depth = 0;
+//     let trace = [_.cloneDeep(currState)];
+//     while(curr_depth < max_trace_depth){
+//         // Get next states from the current state and pick a random one.
+//         let nextStates = getXXXupdateifneededXXXStates(nextDef, currState);
+//         nextStates = nextStates.filter(ctx => ctx["val"]).map(ctx => ctx["state"]);
+//         // console.log(nextStates);
+//         let nextState = _.cloneDeep(randChoice(nextStates));
+//         // Rename primed variables to unprimed variables.
+//         nextState = _.pickBy(nextState, (val,k,obj) => k.endsWith("'"));
+//         nextState = _.mapKeys(nextState, (val,k,obj) => k.slice(0,k.length-1));
+//         console.log(nextState);
+//         // Process next state.
+//         currState = nextState;
+//         curr_depth += 1;
+//         trace.push(_.cloneDeep(currState));
+//     }
 
-    // Display trace.
-    let traceDiv = document.getElementById("trace");
-    traceDiv.innerHTML = "";
-    console.log(trace);
-    let stateInd = 0;
-    for(const state of trace){
-        traceDiv.innerHTML += "<div>";
-        traceDiv.innerHTML += "<b>State " + stateInd + "</b>"
-        console.log(state);
-        for(const varname in state){
-            traceDiv.innerHTML += "<span>" + varname +": "+ JSON.stringify(state[varname]) + "</span>";
-            traceDiv.innerHTML += "<br>"
-        }
-        traceDiv.innerHTML += "</div>";
-        stateInd += 1;
-    }
-    traceDiv.innerHTML += "<br><br>";
-  }
+//     // Display trace.
+//     let traceDiv = document.getElementById("trace");
+//     traceDiv.innerHTML = "";
+//     console.log(trace);
+//     let stateInd = 0;
+//     for(const state of trace){
+//         traceDiv.innerHTML += "<div>";
+//         traceDiv.innerHTML += "<b>State " + stateInd + "</b>"
+//         console.log(state);
+//         for(const varname in state){
+//             traceDiv.innerHTML += "<span>" + varname +": "+ JSON.stringify(state[varname]) + "</span>";
+//             traceDiv.innerHTML += "<br>"
+//         }
+//         traceDiv.innerHTML += "</div>";
+//         stateInd += 1;
+//     }
+//     traceDiv.innerHTML += "<br><br>";
+//   }
 
   async function handleCodeChange(editor, changes) {
     const newText = codeEditor.getValue() + '\n';
@@ -428,11 +430,11 @@ function setConstantValues(){
       }
     }
     const newTree = parser.parse(newText, tree);
-    let treeObjs = walkTree(newTree);
+    specTreeObjs = walkTree(newTree);
 
-    specConsts = treeObjs["const_decls"];
-    specDefs = treeObjs["op_defs"];
-    nextStatePred = treeObjs["op_defs"]["Next"]["node"];
+    specConsts = specTreeObjs["const_decls"];
+    specDefs = specTreeObjs["op_defs"];
+    nextStatePred = specTreeObjs["op_defs"]["Next"]["node"];
 
     // If there are CONSTANT declarations in the spec, we must
     // instantiate them with some concrete values.
@@ -470,7 +472,7 @@ function setConstantValues(){
     // TODO: Consider what occurs when spec code changes after the
     // initial page load.
     console.log("Generating initial states.");
-    let initStates = computeInitStates(treeObjs);
+    let initStates = computeInitStates(specTreeObjs);
     allInitStates = initStates;
 
     // Display states in HTML.
