@@ -186,7 +186,7 @@ Next ==
     \/ \E b \in Ballot : \E p \in Proposer : \E v \in Value : Phase2a(b, v, p)
     \/ \E a \in Acceptor : \E p \in Proposer : Phase2b(a)
 
-kkk==1
+break123==1
     \* \/ \E b \in Ballot : \E p \in Proposer : Phase1a(b, p) 
     \* \/ \E a \in Acceptor : \E p \in Proposer : Phase1b(a, p) 
     \* \/ \E b \in Ballot : \E p \in Proposer : \E v \in Value : Phase2a(b, v, p)
