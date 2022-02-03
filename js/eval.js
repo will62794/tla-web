@@ -530,11 +530,11 @@ function evalBoundInfix(node, ctx){
         // console.log("bound_infix_op, symbol 'setminus'");
         evalLog("bound_infix_op, symbol 'setminus'");
         // TODO: Will need to figure out a more principled approach to object equality.
-        console.log(lhs);
+        evalLog(lhs);
         let lhsVal = evalExpr(lhs, ctx)[0]["val"];
-        console.log("setminus lhs:", lhsVal);
+        evalLog("setminus lhs:", lhsVal);
         let rhsVal = evalExpr(rhs, ctx)[0]["val"];
-        console.log("setminus rhs:", lhsVal);
+        evalLog("setminus rhs:", lhsVal);
         return [ctx.withVal(_.difference(lhsVal,rhsVal))];
     }  
 }
@@ -1112,7 +1112,7 @@ function getNextStates(nextDef, currStateVars, defns, constvals){
     console.log("currStateVars:", currStateVars);
 
     let initCtx = new Context(null, currStateVars, defns, {}, constvals);
-    console.log("currStateVars:", currStateVars);
+    // console.log("currStateVars:", currStateVars);
     let ret = evalExpr(nextDef, initCtx);
     // console.log("getNextStates ret:", ret);
 
@@ -1155,20 +1155,20 @@ function computeNextStates(treeObjs, constvals, initStates){
     console.log(defns);
     console.log("<<<< NEXT >>>>");
     console.log(nextDef);
-    console.log("nextDef.childCount: ", nextDef["node"].childCount);
-    console.log("nextDef.type: ", nextDef["node"].type);
+    // console.log("nextDef.childCount: ", nextDef["node"].childCount);
+    // console.log("nextDef.type: ", nextDef["node"].type);
 
     let allNext = []
     for(const istate of initStates){
         let currState = _.cloneDeep(istate);
-        console.log("###### Computing next states from state: ", currState);
+        // console.log("###### Computing next states from state: ", currState);
         let ret = getNextStates(nextDef["node"], currState, defns, constvals);
         allNext = allNext.concat(ret);
     }
     return allNext;
 }
 
-function computeReachableStates(treeObjs){
+function computeReachableStates(treeObjs, constvals){
     let vars = treeObjs["var_decls"];
     let defns = treeObjs["op_defs"];
 
@@ -1176,17 +1176,17 @@ function computeReachableStates(treeObjs){
     let nextDef = defns["Next"];
 
     // Compute initial states and keep only the valid ones.
-    let initStates = getInitStates(initDef["node"], vars, defns);
-    initStates = initStates.filter(actx => actx["val"]).map(actx => actx["state"]);
+    // let initStates = getInitStates(initDef["node"], vars, defns, constvals);
+    let initStates = computeInitStates(treeObjs, constvals);
 
     let stateQueue = initStates;
     let seenStatesHashSet = new Set(); 
     let reachableStates = [];
     while(stateQueue.length > 0){
         let currState = stateQueue.pop();
-        console.log(currState);
+        // console.log(currState);
         let currStateHash = hashState(currState);
-        console.log(currStateHash);
+        // console.log(currStateHash);
 
         // If we've already seen this state, we don't need to explore it.
         if(seenStatesHashSet.has(currStateHash)){
@@ -1200,7 +1200,7 @@ function computeReachableStates(treeObjs){
         // Compute next states reachable from the current state, and add
         // them to the state queue.
         let currStateArg = _.cloneDeep(currState);
-        let nextStates = getNextStates(nextDef["node"], currStateArg, defns)
+        let nextStates = computeNextStates(treeObjs, constvals, [currStateArg])
                             .map(c => c["state"])
                             .map(renamePrimedVars);
         // console.log("nextStates:", nextStates);

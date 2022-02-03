@@ -232,6 +232,15 @@ function setConstantValues(){
     reloadSpec();
 }
 
+// TODO: Simple reachability benchmark that can eventually be incorporated into 
+// benchmarks page.
+function reachableBench(){
+    let start  = performance.now();
+    let reachable = computeReachableStates(specTreeObjs, specConstVals);
+    const duration = (performance.now() - start).toFixed(1);
+    console.log(`Computed ${reachable.length} reachable states in ${duration}ms.`);
+}
+
 /**
  * Clear the current trace, re-parse the spec and generate initial states.
  */
