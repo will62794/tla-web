@@ -112,7 +112,7 @@ function testStateGraphEquiv(testId, stateGraph, specPath){
         let treeObjs = walkTree(newTree);
         
         // Test correct initial states.
-        let initStates = computeInitStates(treeObjs);
+        let initStates = computeInitStates(treeObjs, {});
         const passInit = arrEq(initExpected, initStates);
 
         // Print expected initial states.
@@ -139,7 +139,7 @@ function testStateGraphEquiv(testId, stateGraph, specPath){
         let passNext;
         if(nextExpected!==null){
             // Test correct next states.
-            let nextStates = computeNextStates(treeObjs, initStates).map(c => c["state"]);
+            let nextStates = computeNextStates(treeObjs, {}, initStates).map(c => c["state"]);
             passNext = arrEq(nextExpected, nextStates);
 
             // Print expected next states.

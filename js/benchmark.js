@@ -139,7 +139,7 @@ function testStateGraphEquiv(testId, stateGraph, specPath){
         let passNext;
         if(nextExpected!==null){
             // Test correct next states.
-            let nextStates = computeNextStates(treeObjs, initStates).map(c => c["state"]);
+            let nextStates = computeNextStates(treeObjs, {}, initStates).map(c => c["state"]);
             passNext = arrEq(nextExpected, nextStates);
 
             // Print expected next states.
@@ -310,7 +310,7 @@ function testPaxosNext(testId, specName){
         for(var k=0;k<num_iters;k++){
             start = performance.now();
             console.log("Computing next states for Paxos.");
-            nextStates = computeNextStates(treeObjs, initStates).map(c => c["state"]);
+            nextStates = computeNextStates(treeObjs, {}, initStates).map(c => c["state"]);
             let nextDuration = (performance.now() - start);
             totalNextDuration += nextDuration;
         }

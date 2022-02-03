@@ -204,7 +204,7 @@ function walkTree(tree){
  * initial/next state generation.
  */
 class Context{
-    constructor(val, state, defns, quant_bound) {
+    constructor(val, state, defns, quant_bound, constants) {
 
         // @type: TLAValue
         // The result value of a TLA expression, or 'null' if no result has been
@@ -221,6 +221,10 @@ class Context{
         // Global definitions that exist in the specification, stored as mapping
         // from definition names to their syntax tree node.
         this.defns = defns;
+
+        // @type: Object
+        // Map containing values of any instantiated constant parameters of the spec.
+        this.constants = constants;
 
         // @type: string -> TLCValue
         // Currently bound identifiers in the in-progress expression evaluation,
@@ -239,7 +243,8 @@ class Context{
         let stateNew = _.cloneDeep(this.state);
         let defnsNew = this.defns // don't copy this field.
         let quant_boundNew = _.cloneDeep(this.quant_bound);
-        return new Context(valNew,stateNew,defnsNew,quant_boundNew)
+        let constants = _.cloneDeep(this.constants);
+        return new Context(valNew,stateNew,defnsNew,quant_boundNew, constants);
     }
 
     /**
@@ -605,6 +610,13 @@ function evalIdentifierRef(node, ctx){
         // TODO: Consider defs that are n-ary operators.
         let defNode = ctx["defns"][ident_name]["node"];
         return evalExpr(defNode, ctx);
+    }
+
+    // See if this identifier is an instantiated CONSTANT symbol.
+    if(ctx["constants"].hasOwnProperty(ident_name)){
+        // Return the instantiated constant value.
+        let constantVal = ctx["constants"][ident_name];
+        return [ctx.withVal(constantVal)];
     }
 
     // TODO: Consider case of being undefined.
@@ -1059,7 +1071,7 @@ function evalExpr(node, ctx){
  * initial state predicate and an object 'vars' which contains exactly the
  * specification's state variables as keys.
  */
-function getInitStates(initDef, vars, defns){
+function getInitStates(initDef, vars, defns, constvals){
     // TODO: Pass this variable value as an argument to the evaluation functions.
     ASSIGN_PRIMED = false;
 
@@ -1072,7 +1084,7 @@ function getInitStates(initDef, vars, defns){
     // We refer to a 'context' as the context for a single evaluation
     // branch, which contains a computed value along with a list of 
     // generated states.
-    let initCtx = new Context(null, init_var_vals, defns, {});
+    let initCtx = new Context(null, init_var_vals, defns, {}, constvals);
     let ret_ctxs = evalExpr(initDef, initCtx);
     if(ret_ctxs === undefined){
         console.error("Set of generated initial states is 'undefined'.");
@@ -1088,7 +1100,7 @@ function getInitStates(initDef, vars, defns){
  * Generates all possible successor states from a given state and the syntax
  * tree node for the definition of the next state predicate.
  */
-function getNextStates(nextDef, currStateVars, defns){
+function getNextStates(nextDef, currStateVars, defns, constvals){
     // TODO: Pass this variable value as an argument to the evaluation functions.
     ASSIGN_PRIMED = true;
     let origVars = Object.keys(currStateVars);
@@ -1099,7 +1111,7 @@ function getNextStates(nextDef, currStateVars, defns){
     }
     console.log("currStateVars:", currStateVars);
 
-    let initCtx = new Context(null, currStateVars, defns, {});
+    let initCtx = new Context(null, currStateVars, defns, {}, constvals);
     console.log("currStateVars:", currStateVars);
     let ret = evalExpr(nextDef, initCtx);
     // console.log("getNextStates ret:", ret);
@@ -1114,7 +1126,7 @@ function getNextStates(nextDef, currStateVars, defns){
 }
 
 // TODO: Consider reconciling this with 'getInitStates' function.
-function computeInitStates(treeObjs){
+function computeInitStates(treeObjs, constvals){
     let consts = treeObjs["const_decls"];
     let vars = treeObjs["var_decls"];
     let defns = treeObjs["op_defs"];
@@ -1127,14 +1139,14 @@ function computeInitStates(treeObjs){
     console.log("initDef.childCount: ", initDef["node"].childCount);
     console.log("initDef.type: ", initDef["node"].type);
 
-    let initStates = getInitStates(initDef["node"], vars, defns);
+    let initStates = getInitStates(initDef["node"], vars, defns, constvals);
     // Keep only the valid states.
     initStates = initStates.filter(actx => actx["val"]).map(actx => actx["state"]);
     return initStates;
 }
 
 // TODO: Consider reconciling this with 'getNextStates' function.
-function computeNextStates(treeObjs, initStates){
+function computeNextStates(treeObjs, constvals, initStates){
     let consts = treeObjs["const_decls"];
     let vars = treeObjs["var_decls"];
     let defns = treeObjs["op_defs"];
@@ -1150,7 +1162,7 @@ function computeNextStates(treeObjs, initStates){
     for(const istate of initStates){
         let currState = _.cloneDeep(istate);
         console.log("###### Computing next states from state: ", currState);
-        let ret = getNextStates(nextDef["node"], currState, defns);
+        let ret = getNextStates(nextDef["node"], currState, defns, constvals);
         allNext = allNext.concat(ret);
     }
     return allNext;

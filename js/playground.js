@@ -55,7 +55,7 @@ function traceStepBack(){
         currNextStates = _.cloneDeep(allInitStates);
     } else{
         let lastState = currTrace[currTrace.length-1];
-        let nextStates = computeNextStates(specTreeObjs, [_.cloneDeep(lastState)])
+        let nextStates = computeNextStates(specTreeObjs, specConstVals, [_.cloneDeep(lastState)])
                             .map(c => c["state"])
                             .map(renamedPrimedVars);
         currNextStates = _.cloneDeep(nextStates);
@@ -164,7 +164,7 @@ function handleChooseState(statehash_short){
     console.log("nextStatePred:", nextStatePred);
     const start = performance.now();
 
-    let nextStates = computeNextStates(specTreeObjs, [nextState])
+    let nextStates = computeNextStates(specTreeObjs, specConstVals, [nextState])
                         .map(c => c["state"])
                         .map(renamedPrimedVars);
     currNextStates = _.cloneDeep(nextStates);
@@ -226,8 +226,34 @@ function setConstantValues(){
     }
 
     // TODO: Thread these assigned values through standard spec evaluation.
-    console.log(constTlaVals);
+    console.log("constTlaVals:", constTlaVals);
     specConstVals = constTlaVals;
+
+    reloadSpec();
+}
+
+/**
+ * Clear the current trace, re-parse the spec and generate initial states.
+ */
+function reloadSpec(){
+    console.log("Clearing current trace.");
+    currTrace = []
+    renderCurrentTrace();
+
+    console.log("Generating initial states.");
+    let initStates = computeInitStates(specTreeObjs, specConstVals);
+    allInitStates = initStates;
+
+    // Display states in HTML.
+    let initStatesDiv = document.getElementById("initial-states");
+    initStatesDiv.innerHTML = "";
+    renderNextStateChoices(initStates);
+    console.log("Rendered initial states");
+
+    currNextStates = _.cloneDeep(initStates);
+
+    // Check for trace to load from given link.
+    // loadTraceFromLink();
 }
 
 (async () => {
@@ -469,22 +495,25 @@ function setConstantValues(){
 
     const duration = (performance.now() - start).toFixed(1);
 
-    // TODO: Consider what occurs when spec code changes after the
-    // initial page load.
-    console.log("Generating initial states.");
-    let initStates = computeInitStates(specTreeObjs);
-    allInitStates = initStates;
 
-    // Display states in HTML.
-    let initStatesDiv = document.getElementById("initial-states");
-    initStatesDiv.innerHTML = "";
-    renderNextStateChoices(initStates);
-    console.log("Rendered initial states");
+    reloadSpec();
 
-    currNextStates = _.cloneDeep(initStates);
+    // // TODO: Consider what occurs when spec code changes after the
+    // // initial page load.
+    // console.log("Generating initial states.");
+    // let initStates = computeInitStates(specTreeObjs, specConstVals);
+    // allInitStates = initStates;
 
-    // Check for trace to load from given link.
-    loadTraceFromLink();
+    // // Display states in HTML.
+    // let initStatesDiv = document.getElementById("initial-states");
+    // initStatesDiv.innerHTML = "";
+    // renderNextStateChoices(initStates);
+    // console.log("Rendered initial states");
+
+    // currNextStates = _.cloneDeep(initStates);
+
+    // // Check for trace to load from given link.
+    // loadTraceFromLink();
   }
 
   function handleCursorMovement() {
