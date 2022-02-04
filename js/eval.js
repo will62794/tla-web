@@ -109,11 +109,10 @@ function walkTree(tree){
         more = cursor.gotoNextSibling();
         let node = cursor.currentNode();
         // console.log(node);
-        // console.log("node type:", node.type);
-        // console.log("node text:");
-        // console.log(node.text);
-        // console.log("node id:");
-        // console.log(node.id);
+        console.log("node type:", node.type);
+        console.log("node text:", node.text);
+        // console.log("node id:", node.id);
+
 
         if(node.type === "constant_declaration"){
             cursor.gotoFirstChild();
