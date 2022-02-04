@@ -109,8 +109,8 @@ function walkTree(tree){
         more = cursor.gotoNextSibling();
         let node = cursor.currentNode();
         // console.log(node);
-        console.log("node type:", node.type);
-        console.log("node text:", node.text);
+        // console.log("node type:", node.type);
+        // console.log("node text:", node.text);
         // console.log("node id:", node.id);
 
 
@@ -541,7 +541,7 @@ function evalBoundInfix(node, ctx){
 function evalBoundPrefix(node, ctx){
     let symbol = node.children[0];
     let rhs = node.children[1];
-    evalLog(node.type, ", ", node.text, `, prefix symbol: '${symbol.type}' `, "ctx:", ctx);
+    evalLog("evalBoundPrefix: ", node.type, ", ", node.text, `, prefix symbol: '${symbol.type}' `, "ctx:", ctx);
     if(symbol.type === "powerset"){
         evalLog("POWERSET op");
         evalLog(rhs);

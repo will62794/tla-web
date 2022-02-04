@@ -548,7 +548,8 @@ function unchanged_statement(){
     let spec = `---- MODULE unchanged_statement ----
     EXTENDS TLC, Naturals
     
-    VARIABLE x,y
+    VARIABLE x
+    VARIABLE y
 
     Init == x = 0 /\\ y = 0
     Next == 
