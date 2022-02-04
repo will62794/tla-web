@@ -538,6 +538,33 @@ function evalBoundInfix(node, ctx){
     }  
 }
 
+function evalBoundPrefix(node, ctx){
+    let symbol = node.children[0];
+    let rhs = node.children[1];
+    evalLog(node.type, ", ", node.text, `, prefix symbol: '${symbol.type}' `, "ctx:", ctx);
+    if(symbol.type === "powerset"){
+        evalLog("POWERSET op");
+        evalLog(rhs);
+        let rhsVal = evalExpr(rhs, ctx);
+        evalLog("rhsVal: ", rhsVal);
+        rhsVal = rhsVal[0]["val"];
+        let powersetRhs = subsets(rhsVal);
+        evalLog("powerset:",powersetRhs);
+        return [ctx.withVal(powersetRhs)];
+    }
+    if(symbol.type === "negative"){
+        let rhsVal = evalExpr(rhs, ctx);
+        rhsVal = rhsVal[0]["val"];
+        return [ctx.withVal(-rhsVal)];
+    }   
+
+    if(symbol.type === "lnot"){
+        let rhsVal = evalExpr(rhs, ctx);
+        rhsVal = rhsVal[0]["val"];
+        return [ctx.withVal(!rhsVal)];
+    } 
+}
+
 function evalDisjList(parent, disjs, ctx){
     assert(ctx instanceof Context);
 
@@ -857,30 +884,7 @@ function evalExpr(node, ctx){
     }
 
     if(node.type === "bound_prefix_op"){
-        let symbol = node.children[0];
-        let rhs = node.children[1];
-        evalLog(node.type, ", ", node.text, `, prefix symbol: '${symbol.type}' `, "ctx:", ctx);
-        if(symbol.type === "powerset"){
-            evalLog("POWERSET op");
-            evalLog(rhs);
-            let rhsVal = evalExpr(rhs, ctx);
-            evalLog("rhsVal: ", rhsVal);
-            rhsVal = rhsVal[0]["val"];
-            let powersetRhs = subsets(rhsVal);
-            evalLog("powerset:",powersetRhs);
-            return [ctx.withVal(powersetRhs)];
-        }
-        if(symbol.type === "negative"){
-            let rhsVal = evalExpr(rhs, ctx);
-            rhsVal = rhsVal[0]["val"];
-            return [ctx.withVal(-rhsVal)];
-        }   
-
-        if(symbol.type === "lnot"){
-            let rhsVal = evalExpr(rhs, ctx);
-            rhsVal = rhsVal[0]["val"];
-            return [ctx.withVal(!rhsVal)];
-        }   
+        return evalBoundPrefix(node, ctx);
     }
 
     // TODO: Finish this after implementing 'except' node type handling.
