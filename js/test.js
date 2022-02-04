@@ -544,6 +544,24 @@ function next_state_precond_disabled(){
     testStateGen("next_state_precond_disabled", spec, initExpected, nextExpected);    
 }
 
+function unchanged_statement(){
+    let spec = `---- MODULE unchanged_statement ----
+    EXTENDS TLC, Naturals
+    
+    VARIABLE x,y
+
+    Init == x = 0 /\\ y = 0
+    Next == 
+        /\\ x' = x + 1
+        /\\ UNCHANGED y
+    ====`;
+    initExpected = [
+        {"x": 0, "y": 0}
+    ];
+    nextExpected = [{"x": 1, "y": 0}]
+    testStateGen("unchanged_statement", spec, initExpected, nextExpected);    
+}
+
 function simple5(){
     return testTLCEquiv("simple5");
 }
@@ -563,6 +581,7 @@ tests = {
     "simple-lockserver-withdefs": simple_lockserver_withdefs,
     "mldr-init": mldr_init,
     "mldr-next": mldr_next,
+    "unchanged_statement": unchanged_statement,
     "simple5-tlc-equiv": (() => testTLCEquiv("simple5-tlc-equiv", "simple5")),
     "mldr-init-only-tlc-equiv": (() => testTLCEquiv("mldr-init-only-tlc-equiv", "mldr_init_only"))
 }
