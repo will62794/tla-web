@@ -8,6 +8,7 @@
 - [ ] Tuple equality
 - [ ] RECURSIVE functions
 - [ ] Async testing framework
+- [ ] More unified method for comment filtering
 
 ## Interface/UI
 
