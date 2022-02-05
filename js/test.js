@@ -45,8 +45,13 @@ function testStateGraphEquiv(testId, stateGraph, specPath){
         let testsDiv = document.getElementById("tests");
 
         // Show the spec text and test name first.
-        let testHeader = document.createElement("h3");
+        let testHeader = document.createElement("a");
         testHeader.innerText = "Test: " + testId + "";
+        if(!urlParams.hasOwnProperty("test")){
+            testHeader.href = "?test=" + testId;
+        } else{
+            testHeader.setAttribute("onclick", `toggleTestDetails(\"${testId}\")`);
+        }
         // testHeader.style = "cursor:pointer";
         // testHeader.setAttribute("onclick", `toggleTestDetails(\"${testId}\")`);
         testsDiv.appendChild(testHeader);
@@ -478,6 +483,22 @@ function testTLCEquiv(testId, specName){
     });      
 }
 
+function tuple_literal(){
+    let spec = `---- MODULE tuple_literal ----
+    EXTENDS TLC, Naturals
+    
+    VARIABLE x
+
+    Init == x = <<1,2,3>>
+    Next == x' = x
+    
+    ====`;
+    initExpected = [
+        {"x": [1,2,3]},
+    ];
+    testStateGen("tuple_literal", spec, initExpected, null);    
+}
+
 function primed_tuple(){
     let spec = `---- MODULE primed_tuple ----
     EXTENDS TLC, Naturals
@@ -625,7 +646,8 @@ tests = {
     "simple-spec5": simple_spec5,
     "record_literal_eval": record_literal_eval,
     "record_access_eval": record_access_eval,
-    "primed_tuple": primed_tuple,
+    "tuple_literal": tuple_literal,
+    // "primed_tuple": primed_tuple,
     "next_state_precond_disabled": next_state_precond_disabled,
     "bound_ops": bound_ops,
     "simple-lockserver-nodefs": simple_lockserver_nodefs,
@@ -633,7 +655,7 @@ tests = {
     "mldr-init": mldr_init,
     "mldr-next": mldr_next,
     "unchanged_statement": unchanged_statement,
-    "unchanged_statement_tuple": unchanged_statement_tuple,
+    // "unchanged_statement_tuple": unchanged_statement_tuple,
     "simple5-tlc-equiv": (() => testTLCEquiv("simple5-tlc-equiv", "simple5")),
     "mldr-init-only-tlc-equiv": (() => testTLCEquiv("mldr-init-only-tlc-equiv", "mldr_init_only"))
 }

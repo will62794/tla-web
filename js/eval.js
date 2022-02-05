@@ -1124,6 +1124,16 @@ function evalExpr(node, ctx){
         return ret;
     }
 
+    // <<e1,e2,...,en>>
+    if(node.type ==="tuple_literal"){
+        evalLog("tuple_literal", node);
+        let elems = node.namedChildren.slice(1, node.namedChildren.length - 1);
+
+        tupleVals = elems.map(el => evalExpr(el, ctx)[0]["val"]);
+        return [ctx.withVal(tupleVals)];
+    }
+
+
     // <record>.<field>
     if(node.type === "record_value"){
         evalLog("RECVAL", node);
