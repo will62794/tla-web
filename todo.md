@@ -1,12 +1,17 @@
 # Features TODO
 
+## TLA+ Interpreter
+
 - [x] UNCHANGED construct
 - [x] Instantiation of CONSTANT values
 - [ ] Tuple equality
 - [ ] RECURSIVE functions
+- [ ] Async testing framework
+
+## Interface/UI
+
 - [ ] State graph visualization
 - [ ] Action name inference
 - [ ] Better TLA state representation/format
-- [ ] REPL-ish expression evaluation
-- [ ] Async testing framework
+- [ ] REPL like expression evaluation
 - [ ] Trace exploration/evaluation
