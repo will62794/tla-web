@@ -1339,55 +1339,6 @@ function computeReachableStates(treeObjs, constvals){
     return reachableStates;
 }
 
-// function generateStates(tree){
-//     console.log("Extracting definitions/declarations from syntax tree.");
-//     objs = walkTree(tree);
-
-//     let vars = objs["var_decls"];
-//     let defns = objs["op_defs"];
-
-//     let initDef = defns["Init"];
-//     console.log("<<<<< INIT >>>>>");
-//     console.log(initDef);
-//     console.log("initDef.childCount: ", initDef.childCount);
-//     console.log("initDef.type: ", initDef.type);
-
-//     let initStates = getInitStates(initDef, vars, defns);
-//     // Keep only the valid states.
-//     initStates = initStates.filter(ctx => ctx["val"]).map(ctx => ctx["state"]);
-//     console.log("initial states:", initStates);
-
-//     console.log("INITIAL STATES:");
-//     for(const state of initStates){
-//         console.log(state);
-//     }
-
-//     let nextDef = defns["Next"];
-//     console.log(defns);
-//     console.log("<<<< NEXT >>>>");
-//     console.log(nextDef);
-//     console.log("nextDef.childCount: ", nextDef.childCount);
-//     console.log("nextDef.type: ", nextDef.type);
-
-//     // // let currState = initStates[0]["state"];
-//     let allNext = []
-//     for(const istate of initStates){
-//         let currState = _.cloneDeep(istate);
-//         console.log("###### Computing next states from state: ", currState);
-//         let ret = getNextStates(nextDef, currState, defns);
-//         // console.log(ret);
-//         allNext = allNext.concat(ret);
-//     }
-
-//     console.log("NEXT STATES:");
-//     for(const ctx of allNext){
-//         console.log(ctx);
-//     }
-//     return {"initStates": initStates, "nextStates": allNext};
-// }
-
-
-
 //
 // For debugging/tracing expression evaluation.
 //
