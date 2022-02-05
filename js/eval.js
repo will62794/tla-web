@@ -1,8 +1,8 @@
-//
-// TLA+ interpreter. 
-//
-// Contains logic for expression evaluation and initial/next generation.
-//
+/**
+ * TLA+ interpreter. 
+ * 
+ * Contains logic for expression evaluation and initial/next generation.
+ */
 
 // For debugging.
 let depth = 0;
