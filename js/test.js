@@ -633,6 +633,34 @@ function unchanged_statement_tuple(){
     testStateGen("unchanged_statement_tuple", spec, initExpected, nextExpected);    
 }
 
+function comment_statements(){
+    let spec = `---- MODULE comment_statements ----
+    EXTENDS TLC, Naturals
+    
+    VARIABLE x
+    VARIABLE y
+    VARIABLE z
+
+    Init == 
+        /\\ x = 0 
+        \\* a comment inline.
+        /\\ y = 0 
+        \\* a comment inline.
+        /\\ z = 0
+    Next == 
+        /\\ x' = 1
+        \\* a comment.
+        /\\ y' = y \\* some comment.
+        \\* another comment line.
+        /\\ z' = z
+    ====`;
+    initExpected = [
+        {"x": 0, "y": 0, "z": 0 }
+    ];
+    nextExpected = [{"x": 0, "y": 0, "z": 0, "x'": 1, "y'": 0, "z'": 0}]
+    testStateGen("comment_statements", spec, initExpected, nextExpected);    
+}
+
 function simple5(){
     return testTLCEquiv("simple5");
 }
@@ -647,6 +675,7 @@ tests = {
     "record_literal_eval": record_literal_eval,
     "record_access_eval": record_access_eval,
     "tuple_literal": tuple_literal,
+    "comment_statements": comment_statements,
     // "primed_tuple": primed_tuple,  # TODO: Enable this test.
     "next_state_precond_disabled": next_state_precond_disabled,
     "bound_ops": bound_ops,

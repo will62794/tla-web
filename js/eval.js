@@ -706,27 +706,22 @@ function evalDisjList(parent, disjs, ctx){
     evalLog("eval: disjunction list!");
 
     // Split into separate evaluation cases for each disjunct.
-    return _.flattenDeep(disjs.map(disj => evalExpr(disj, ctx)));
-
-    // let newContexts = disjs.map(disj => evalExpr(disj, contexts));
-    // console.log("newContexts:", newContexts);
-    // return _.flatten(newContexts);
-
-    // let contextsLhs = evalExpr(lhs, contexts);
-    // let contextsRhs = evalExpr(rhs, contexts);
-    // return contextsLhs.concat(contextsRhs);
+    // Also filter out any comments in this disjunction list.
+    let res = disjs.filter(c => c.type !== "comment").map(disj => evalExpr(disj, ctx));
+    return _.flattenDeep(res);
 }
 
 function evalConjList(parent, conjs, ctx){
     assert(ctx instanceof Context);
 
-    evalLog("evalConjList -> ctx:", ctx);
+    evalLog("evalConjList -> ctx:", ctx, conjs);
 
     // Initialize boolean value if needed.
     if(ctx["val"]===null){
         ctx["val"]=true;
     }
-    return conjs.reduce((prev,conj) => {
+    // Filter out any comments contained in this conjunction.
+    return conjs.filter(c => c.type !== "comment").reduce((prev,conj) => {
         let res = prev.map(ctxPrev => {
             // If this context has already evaluated to false, then the overall
             // conjunction list will evaluate to false, so we can short-circuit
