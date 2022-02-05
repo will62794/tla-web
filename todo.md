@@ -19,5 +19,5 @@
 - [ ] REPL like expression evaluation
 - [ ] Trace exploration/evaluation
 - [ ] Loading/sharing traces via URLs (partially implemented)
-- [ ] Encode set CONSTANT values in URL
+- [ ] Encode CONSTANT values in URL
 - [ ] Definition overriding
