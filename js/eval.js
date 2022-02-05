@@ -666,7 +666,16 @@ function evalBoundInfix(node, ctx){
         let rhsVal = evalExpr(rhs, ctx)[0]["val"];
         evalLog("setminus rhs:", lhsVal);
         return [ctx.withVal(_.difference(lhsVal,rhsVal))];
-    }  
+    } 
+
+    // Enumerated set with dot notation e.g. 1..N
+    if(symbol.type ==="dots_2"){
+        // Assume both operands evaluate to numbers.
+        let lhsVal = evalExpr(lhs, ctx)[0]["val"];
+        let rhsVal = evalExpr(rhs, ctx)[0]["val"];
+        return [ctx.withVal(_.range(lhsVal, rhsVal + 1))];
+    }
+
 }
 
 function evalBoundPrefix(node, ctx){
