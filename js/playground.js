@@ -508,6 +508,7 @@ function displayStateGraph(){
         console.log("Instantiating spec constants.");
 
         let chooseConstsContainer = document.getElementById("choose-constants-container");
+        chooseConstsContainer.innerHTML = "";
         let chooseTitle = document.createElement("div");
         chooseTitle.innerHTML = "Choose constants";
         chooseTitle.classList.add("pane-title");
