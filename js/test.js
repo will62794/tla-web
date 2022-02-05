@@ -499,6 +499,40 @@ function tuple_literal(){
     testStateGen("tuple_literal", spec, initExpected, null);    
 }
 
+function multivar_decl(){
+    let spec = `---- MODULE multivar_decl ----
+    EXTENDS TLC, Naturals
+    
+    VARIABLE x,y
+
+    Init == x = 0 /\\ y = 1
+    Next == x' = x /\\ y' = y
+    
+    ====`;
+    initExpected = [
+        {"x": 0, "y": 1},
+    ];
+    testStateGen("multivar_decl", spec, initExpected, null);    
+}
+
+// TODO: Enable this test.
+function multiconst_decl(){
+    let spec = `---- MODULE multiconst_decl ----
+    EXTENDS TLC, Naturals
+    
+    CONSTANT A,B
+    VARIABLE x
+
+    Init == x = 0
+    Next == x' = x
+    
+    ====`;
+    initExpected = [
+        {"x": 0},
+    ];
+    testStateGen("multiconst_decl", spec, initExpected, null);    
+}
+
 function primed_tuple(){
     let spec = `---- MODULE primed_tuple ----
     EXTENDS TLC, Naturals
@@ -675,6 +709,7 @@ tests = {
     "record_literal_eval": record_literal_eval,
     "record_access_eval": record_access_eval,
     "tuple_literal": tuple_literal,
+    "multivar_decl": multivar_decl,
     "comment_statements": comment_statements,
     // "primed_tuple": primed_tuple,  # TODO: Enable this test.
     "next_state_precond_disabled": next_state_precond_disabled,

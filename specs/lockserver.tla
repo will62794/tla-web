@@ -10,12 +10,7 @@ EXTENDS TLC, Naturals
 \* client if it currently owns that lock. 
 \* 
 
-\* CONSTANT Server,Client
-Server == {"s1", "s2"}
-Client == {"c1", "c2"}
-Nil == "nil"
-
-\* CONSTANT Nil
+CONSTANT Server,Client
 
 VARIABLE semaphore
 VARIABLE clientlocks

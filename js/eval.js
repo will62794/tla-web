@@ -250,21 +250,17 @@ function parseSpec(specText){
 
 
         if(node.type === "constant_declaration"){
-            cursor.gotoFirstChild();
-            cursor.gotoNextSibling();
-            let const_ident = cursor.currentNode();
-            cursor.gotoParent();
-            // Save the constant declaration.
-            const_decls[const_ident.text] = {"id": node.id}; 
+            let constDecls = cursor.currentNode().namedChildren;
+            for(const declNode of constDecls){
+                const_decls[declNode.text] = {"id": declNode.id}; 
+            }
         }
 
         if(node.type === "variable_declaration"){
-            cursor.gotoFirstChild();
-            cursor.gotoNextSibling();
-            let var_ident = cursor.currentNode();
-            cursor.gotoParent();
-            // Save the variable declaration.
-            var_decls[var_ident.text] = {"id": node.id}; 
+            let varDecls = cursor.currentNode().namedChildren;
+            for(const declNode of varDecls){
+                var_decls[declNode.text] = {"id": declNode.id}; 
+            }
         }
 
         if(node.type === "operator_definition"){
