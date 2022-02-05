@@ -388,11 +388,12 @@ function displayStateGraph(){
     // Download example spec.
     // let specPath = "./specs/simple1.tla";
     // let specPath = "./specs/simple2.tla";
+    let specPath = "./specs/lockserver.tla";
     // let specPath = "./specs/lockserver_nodefs.tla";
     // let specPath = "./specs/MongoLoglessDynamicRaft.tla";
     // let specPath = "./specs/Paxos.tla";
     // let specPath = "./specs/simple_test.tla";
-    let specPath = "./specs/simple_lockserver.tla";
+    // let specPath = "./specs/simple_lockserver.tla";
 
     // Check for given spec in URL args.
     specPathArg = urlParams["specpath"];
