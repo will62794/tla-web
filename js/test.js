@@ -549,6 +549,22 @@ function set_dot_notation(){
     testStateGen("set_dot_notation", spec, initExpected, null);    
 }
 
+function seq_append(){
+    let spec = `---- MODULE seq_append ----
+    EXTENDS TLC, Naturals
+    
+    VARIABLE x
+
+    Init == x = Append(<<1,2>>,3)
+    Next == x' = x
+    
+    ====`;
+    initExpected = [
+        {"x": [1,2,3]},
+    ];
+    testStateGen("seq_append", spec, initExpected, null);    
+}
+
 function primed_tuple(){
     let spec = `---- MODULE primed_tuple ----
     EXTENDS TLC, Naturals
@@ -728,6 +744,7 @@ tests = {
     "multivar_decl": multivar_decl,
     "comment_statements": comment_statements,
     "set_dot_notation": set_dot_notation,
+    "seq_append": seq_append,
     // "primed_tuple": primed_tuple,  # TODO: Enable this test.
     "next_state_precond_disabled": next_state_precond_disabled,
     "bound_ops": bound_ops,

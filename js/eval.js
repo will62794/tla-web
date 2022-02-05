@@ -849,6 +849,17 @@ function evalBoundOp(node, ctx){
         return [ctx.withVal(argExprVal.length)];
     }
 
+    // Built in operator.
+    // Append(seq, v)
+    if(opName == "Append"){
+        let seqArgExpr = node.namedChildren[1];
+        let appendElemArgExpr = node.namedChildren[2];
+        let seqArgExprVal = evalExpr(seqArgExpr, ctx)[0]["val"]
+        let appendElemArgExprVal = evalExpr(appendElemArgExpr, ctx)[0]["val"]
+        // evalLog("Append val:", seqArgExpr.text);
+        return [ctx.withVal(seqArgExprVal.concat([appendElemArgExprVal]))];
+    }
+
     // Check for the bound op in the set of known definitions.
     if(ctx["defns"].hasOwnProperty(opName)){
         let opDefNode = ctx["defns"][opName]["node"];
