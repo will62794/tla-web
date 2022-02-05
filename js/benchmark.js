@@ -51,12 +51,9 @@ function testStateGraphEquiv(testId, stateGraph, specPath){
         // testHeader.setAttribute("onclick", `toggleTestDetails(\"${testId}\")`);
         testsDiv.appendChild(testHeader);
 
-        tree = null;
-        const newTree = parser.parse(specText + "\n", tree);
-        
         // Test correct initial states.
         // let initStates = computeInitStates(newTree);
-        let reachable = computeReachableStates(walkTree(newTree));
+        let reachable = computeReachableStates(parseSpec(specText));
         // console.log("spec5 init", initStates);
         let reachableTLC = stateGraph["states"].map(s => s["val"]);
         console.log("spec5 reachable:", reachable);
@@ -107,9 +104,7 @@ function testStateGraphEquiv(testId, stateGraph, specPath){
         specCodeDiv.appendChild(specCode);
         detailedResultsDiv.appendChild(specCodeDiv);
 
-        tree = null;
-        const newTree = parser.parse(specText + "\n", tree);
-        let treeObjs = walkTree(newTree);
+        let treeObjs = parseSpec(specText);
         
         // Test correct initial states.
         let initStates = computeInitStates(treeObjs);
@@ -290,8 +285,7 @@ function testPaxosNext(testId, specName){
         specText = data;
 
         tree = null;
-        const newTree = parser.parse(specText + "\n", tree);
-        let treeObjs = walkTree(newTree);
+        let treeObjs = parseSpec(specText);
 
         const num_iters = 5;
         let totalInitDuration = 0;

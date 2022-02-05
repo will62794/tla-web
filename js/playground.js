@@ -212,7 +212,7 @@ function setConstantValues(){
     const dummySpecTree = parser.parse(dummySpec, nullTree);
     console.log(dummySpecTree);
 
-    let dummyTreeObjs = walkTree(dummySpecTree);
+    let dummyTreeObjs = parseSpec(dummySpec);
     console.log(dummyTreeObjs);
 
     // Compute the single initial state.
@@ -402,7 +402,7 @@ function reloadSpec(){
 //     const newText = codeEditor.getValue() + '\n';
 //     const newTree = parser.parse(newText, tree);
 
-//     objs = walkTree(newTree);
+//     objs = OLD(newTree);
 //     let vars = objs["var_decls"];
 //     let defns = objs["op_defs"];
 
@@ -464,8 +464,7 @@ function reloadSpec(){
         tree.edit(edit);
       }
     }
-    const newTree = parser.parse(newText, tree);
-    specTreeObjs = walkTree(newTree);
+    specTreeObjs = parseSpec(newText);
 
     specConsts = specTreeObjs["const_decls"];
     specDefs = specTreeObjs["op_defs"];

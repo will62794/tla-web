@@ -208,12 +208,16 @@ function genSyntaxRewrites(treeArg) {
     return sourceRewrites
 }
 
+
+// function parseModule()
 /**
  * Extract all defintions and variable declarations from the given syntax tree
  * of a TLA+ module.
  */
-function walkTree(tree){
+// function walkTree(tree){
+function parseSpec(specText){
 
+    let tree = parser.parse(specText + "\n", null);
     let cursor = tree.walk();
     
     // One level down from the top level tree node should contain the overall TLA module.
@@ -1335,52 +1339,52 @@ function computeReachableStates(treeObjs, constvals){
     return reachableStates;
 }
 
-function generateStates(tree){
-    console.log("Extracting definitions/declarations from syntax tree.");
-    objs = walkTree(tree);
+// function generateStates(tree){
+//     console.log("Extracting definitions/declarations from syntax tree.");
+//     objs = walkTree(tree);
 
-    let vars = objs["var_decls"];
-    let defns = objs["op_defs"];
+//     let vars = objs["var_decls"];
+//     let defns = objs["op_defs"];
 
-    let initDef = defns["Init"];
-    console.log("<<<<< INIT >>>>>");
-    console.log(initDef);
-    console.log("initDef.childCount: ", initDef.childCount);
-    console.log("initDef.type: ", initDef.type);
+//     let initDef = defns["Init"];
+//     console.log("<<<<< INIT >>>>>");
+//     console.log(initDef);
+//     console.log("initDef.childCount: ", initDef.childCount);
+//     console.log("initDef.type: ", initDef.type);
 
-    let initStates = getInitStates(initDef, vars, defns);
-    // Keep only the valid states.
-    initStates = initStates.filter(ctx => ctx["val"]).map(ctx => ctx["state"]);
-    console.log("initial states:", initStates);
+//     let initStates = getInitStates(initDef, vars, defns);
+//     // Keep only the valid states.
+//     initStates = initStates.filter(ctx => ctx["val"]).map(ctx => ctx["state"]);
+//     console.log("initial states:", initStates);
 
-    console.log("INITIAL STATES:");
-    for(const state of initStates){
-        console.log(state);
-    }
+//     console.log("INITIAL STATES:");
+//     for(const state of initStates){
+//         console.log(state);
+//     }
 
-    let nextDef = defns["Next"];
-    console.log(defns);
-    console.log("<<<< NEXT >>>>");
-    console.log(nextDef);
-    console.log("nextDef.childCount: ", nextDef.childCount);
-    console.log("nextDef.type: ", nextDef.type);
+//     let nextDef = defns["Next"];
+//     console.log(defns);
+//     console.log("<<<< NEXT >>>>");
+//     console.log(nextDef);
+//     console.log("nextDef.childCount: ", nextDef.childCount);
+//     console.log("nextDef.type: ", nextDef.type);
 
-    // // let currState = initStates[0]["state"];
-    let allNext = []
-    for(const istate of initStates){
-        let currState = _.cloneDeep(istate);
-        console.log("###### Computing next states from state: ", currState);
-        let ret = getNextStates(nextDef, currState, defns);
-        // console.log(ret);
-        allNext = allNext.concat(ret);
-    }
+//     // // let currState = initStates[0]["state"];
+//     let allNext = []
+//     for(const istate of initStates){
+//         let currState = _.cloneDeep(istate);
+//         console.log("###### Computing next states from state: ", currState);
+//         let ret = getNextStates(nextDef, currState, defns);
+//         // console.log(ret);
+//         allNext = allNext.concat(ret);
+//     }
 
-    console.log("NEXT STATES:");
-    for(const ctx of allNext){
-        console.log(ctx);
-    }
-    return {"initStates": initStates, "nextStates": allNext};
-}
+//     console.log("NEXT STATES:");
+//     for(const ctx of allNext){
+//         console.log(ctx);
+//     }
+//     return {"initStates": initStates, "nextStates": allNext};
+// }
 
 
 
