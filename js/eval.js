@@ -209,15 +209,24 @@ function genSyntaxRewrites(treeArg) {
 }
 
 
-// function parseModule()
 /**
- * Extract all defintions and variable declarations from the given syntax tree
- * of a TLA+ module.
+ * Parse and extract definitions and declarations from the given TLA+ module
+ * text.
  */
-// function walkTree(tree){
 function parseSpec(specText){
+    let tree;
 
-    let tree = parser.parse(specText + "\n", null);
+    // Do a first pass that walks the syntax tree and then performs any
+    // specified syntactic rewrites (e.g. desugaring.)
+    tree = parser.parse(specText + "\n", null);
+    let rewrites = genSyntaxRewrites(tree);
+    let specTextRewritten = applySyntaxRewrites(specText, rewrites);
+
+    // Update the spec text to the rewritten version. Then continue parsing the spec
+    // to extract definitions, variables, etc.
+    specText = specTextRewritten;
+    
+    tree = parser.parse(specText + "\n", null);
     let cursor = tree.walk();
     
     // One level down from the top level tree node should contain the overall TLA module.
