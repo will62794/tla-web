@@ -1,7 +1,9 @@
 /**
+ * 
  * TLA+ interpreter. 
  * 
- * Contains logic for expression evaluation and initial/next generation.
+ * Contains logic for expression evaluation and initial/next state generation.
+ * 
  */
 
 // For debugging.
