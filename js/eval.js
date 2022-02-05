@@ -628,7 +628,7 @@ function evalBoundInfix(node, ctx){
 
         // Use '_.isEqual' method for checking equality based set inclusion.
         let sameElems = rhsVal.filter(o => _.isEqual(o, lhsVal));
-        let inSetVal = sameElems.length > 0
+        let inSetVal = sameElems.length > 0;
         
         let resVal = symbol.type === "in" ? inSetVal : !inSetVal; 
         evalLog("setin lhs in rhs:", resVal);

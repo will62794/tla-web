@@ -565,6 +565,22 @@ function set_literals(){
     testStateGen("set_literals", spec, initExpected, null);    
 }
 
+function set_inclusion(){
+    let spec = `---- MODULE set_inclusion ----
+    EXTENDS TLC, Naturals
+    
+    VARIABLE x
+    v == {1,2} \\in {{1,2}}
+    Init == x = v
+    Next == x' = x
+    
+    ====`;
+    initExpected = [
+        {"x": true}
+    ];
+    testStateGen("set_inclusion", spec, initExpected, null);    
+}
+
 function set_notin(){
     let spec = `---- MODULE set_notin ----
     EXTENDS TLC, Naturals
@@ -779,6 +795,7 @@ tests = {
     "set_dot_notation": set_dot_notation,
     "seq_append": seq_append,
     "set_literals": set_literals,
+    "set_inclusion": set_inclusion,
     "set_notin": set_notin,
     // "primed_tuple": primed_tuple,  # TODO: Enable this test.
     "next_state_precond_disabled": next_state_precond_disabled,
