@@ -108,7 +108,14 @@ function testStateGraphEquiv(testId, stateGraph, specPath){
         detailedResultsDiv.appendChild(specCodeDiv);
 
         tree = null;
-        const newTree = parser.parse(specText + "\n", tree);
+        let newTree = parser.parse(specText + "\n", tree);
+        let rewrites = genSyntaxRewrites(newTree);
+        console.log(rewrites);
+        let newText = applySyntaxRewrites(specText, rewrites);
+        console.log(newText);
+        newTree = parser.parse(newText + "\n", tree);
+
+        // return;
         let treeObjs = walkTree(newTree);
         
         // Test correct initial states.
@@ -559,7 +566,7 @@ function unchanged_statement(){
     initExpected = [
         {"x": 0, "y": 0}
     ];
-    nextExpected = [{"x": 1, "y": 0}]
+    nextExpected = [{"x": 0, "y": 0, "x'": 1, "y'": 0}]
     testStateGen("unchanged_statement", spec, initExpected, nextExpected);    
 }
 

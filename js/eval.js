@@ -86,6 +86,128 @@ class StringValue extends TLAValue{
     }
 }
 
+// Apply a given set of text rewrites to a given source text. Assumes the given
+// 'text' argument is a string given as a list of lines.
+function applySyntaxRewrites(text, rewrites){
+    let lines = text.split("\n");
+    for(const rewrite of rewrites){
+        // TODO: For now assume that rewrites are within the scope of a single line.
+        assert(rewrite["startPosition"]["row"] === rewrite["endPosition"]["row"]);
+        let lineInd = rewrite["startPosition"]["row"]
+        line = lines[lineInd];
+        let head = line.substring(0, rewrite["startPosition"]["column"])
+        let tail = line.substring(rewrite["endPosition"]["column"]);
+        lineNew = head + rewrite["newStr"] + tail;
+        lines[lineInd] = lineNew;
+    }
+    return lines.join("\n");
+}
+
+/**
+ * Walks a given TLA syntax tree and generates syntactic rewrites to be
+ * performed on the source module text before we do any evaluation/interpreting
+ * e.g. syntactic desugaring.
+ * 
+ * @param {TLASyntaxTree} treeArg 
+ */
+function genSyntaxRewrites(treeArg) {
+    // Records a set of transformations to make to the text that produced this
+    // parsed syntax tree. Each rewrite is specified by a replacement rule,
+    // given by a structure {startPosition: Pos, endPosition: Pos, newStr: Str}
+    // where startPosition/endPosition correspond to the start and end points of
+    // the source text to replace, and 'newStr' represents the string to insert
+    // at this position.
+    let sourceRewrites = [];
+
+    const cursor = treeArg.walk();
+    isRendering = false;
+
+    let currentRenderCount = 0;
+    let row = '';
+    let rows = [];
+    let finishedRow = false;
+    let visitedChildren = false;
+    let indentLevel = 0;
+
+    for (let i = 0;; i++) {
+      let displayName;
+      if (cursor.nodeIsMissing) {
+        displayName = `MISSING ${cursor.nodeType}`
+      } else if (cursor.nodeIsNamed) {
+        displayName = cursor.nodeType;
+      }
+
+      if (visitedChildren) {
+        if (displayName) {
+          finishedRow = true;
+        }
+
+        if (cursor.gotoNextSibling()) {
+          visitedChildren = false;
+        } else if (cursor.gotoParent()) {
+          visitedChildren = true;
+          indentLevel--;
+        } else {
+          break;
+        }
+      } else {
+        if (displayName) {
+          if (finishedRow) {
+            finishedRow = false;
+          }
+          const start = cursor.startPosition;
+          const end = cursor.endPosition;
+          const id = cursor.nodeId;
+          let fieldName = cursor.currentFieldName();
+        //   console.log(fieldName);
+          if (fieldName) {
+            fieldName += ': ';
+          } else {
+            fieldName = '';
+          }
+          let node = cursor.currentNode();
+        //   console.log(node);
+        //   console.log(node.type, node);
+          if(node.type === "bound_prefix_op"){
+            console.log("bound_prefix_op", node);
+            let symbol = node.childForFieldName("symbol");
+            let rhs = node.childForFieldName("rhs");
+            console.log(symbol);
+            if(symbol.type === "unchanged"){
+                symbol.startPosition
+                symbol.endPosition
+
+                // Desugar UNCHANGED statements to their equivalent form e.g.
+                // UNCHANGED <expr>  ~>  <expr>' = <expr>  
+                rewrite = {
+                    startPosition: symbol.startPosition,
+                    endPosition: symbol.endPosition,
+                    newStr : "" + rhs.text + "' ="
+                }
+                sourceRewrites.push(rewrite);
+            }
+        }
+          finishedRow = true;
+        }
+
+        if (cursor.gotoFirstChild()) {
+          visitedChildren = false;
+          indentLevel++;
+        } else {
+          visitedChildren = true;
+        }
+      }
+    }
+    if (finishedRow) {
+      row += '</div>';
+      rows.push(row);
+    }
+
+    cursor.delete();
+    treeRows = rows;
+    return sourceRewrites
+}
+
 /**
  * Extract all defintions and variable declarations from the given syntax tree
  * of a TLA+ module.
