@@ -250,14 +250,14 @@ function parseSpec(specText){
 
 
         if(node.type === "constant_declaration"){
-            let constDecls = cursor.currentNode().namedChildren;
+            let constDecls = cursor.currentNode().namedChildren.filter(c => c.type !== "comment");
             for(const declNode of constDecls){
                 const_decls[declNode.text] = {"id": declNode.id}; 
             }
         }
 
         if(node.type === "variable_declaration"){
-            let varDecls = cursor.currentNode().namedChildren;
+            let varDecls = cursor.currentNode().namedChildren.filter(c => c.type !== "comment");
             for(const declNode of varDecls){
                 var_decls[declNode.text] = {"id": declNode.id}; 
             }
@@ -712,7 +712,7 @@ function evalDisjList(parent, disjs, ctx){
 
     // Split into separate evaluation cases for each disjunct.
     // Also filter out any comments in this disjunction list.
-    let res = disjs.filter(c => c.type !== "comment").map(disj => evalExpr(disj, ctx));
+    let res = disjs.filter(c => !["comment","block_comment"].includes(c.type)).map(disj => evalExpr(disj, ctx));
     return _.flattenDeep(res);
 }
 
@@ -726,7 +726,7 @@ function evalConjList(parent, conjs, ctx){
         ctx["val"]=true;
     }
     // Filter out any comments contained in this conjunction.
-    return conjs.filter(c => c.type !== "comment").reduce((prev,conj) => {
+    return conjs.filter(c => !["comment","block_comment"].includes(c.type)).reduce((prev,conj) => {
         let res = prev.map(ctxPrev => {
             // If this context has already evaluated to false, then the overall
             // conjunction list will evaluate to false, so we can short-circuit
