@@ -265,6 +265,37 @@ function reloadSpec(){
     // loadTraceFromLink();
 }
 
+function displayStateGraph(){
+    //
+    // TODO: Will need to flesh out this functionality further.
+    //
+    
+    var cy = cytoscape({
+        container: document.getElementById('stategraph'), // container to render in
+        style: [
+            {
+              selector: 'node',
+              style: {
+                'label': 'data(id)'
+              }
+            }
+          ]
+    });
+
+    let reachable = computeReachableStates(specTreeObjs, specConstVals);
+    console.log(reachable);
+
+    for(const state of reachable){
+        cy.add({
+            group: 'nodes',
+            data: { id: hashStateShort(state)},
+            position: { x: 200, y: 200 }
+        });
+    }
+    let layout = cy.layout({name:"breadthfirst"});
+    layout.run();
+}
+
 (async () => {
 
   const scriptURL = document.currentScript.getAttribute('src');
