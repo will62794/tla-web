@@ -647,7 +647,7 @@ tests = {
     "record_literal_eval": record_literal_eval,
     "record_access_eval": record_access_eval,
     "tuple_literal": tuple_literal,
-    // "primed_tuple": primed_tuple,
+    // "primed_tuple": primed_tuple,  # TODO: Enable this test.
     "next_state_precond_disabled": next_state_precond_disabled,
     "bound_ops": bound_ops,
     "simple-lockserver-nodefs": simple_lockserver_nodefs,
@@ -655,7 +655,7 @@ tests = {
     "mldr-init": mldr_init,
     "mldr-next": mldr_next,
     "unchanged_statement": unchanged_statement,
-    // "unchanged_statement_tuple": unchanged_statement_tuple,
+    // "unchanged_statement_tuple": unchanged_statement_tuple, # TODO: Enable this test.
     "simple5-tlc-equiv": (() => testTLCEquiv("simple5-tlc-equiv", "simple5")),
     "mldr-init-only-tlc-equiv": (() => testTLCEquiv("mldr-init-only-tlc-equiv", "mldr_init_only"))
 }
