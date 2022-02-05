@@ -614,9 +614,9 @@ function evalBoundInfix(node, ctx){
     } 
 
     // Set membership.
-    if(symbol.type ==="in"){
+    if(symbol.type ==="in" || symbol.type ==="notin"){
         // console.log("bound_infix_op, symbol 'in', ctx:", ctx);
-        evalLog("bound_infix_op, symbol 'in', ctx:", ctx);
+        evalLog("bound_infix_op, symbol 'in/notin', ctx:", ctx);
         let lhs = node.namedChildren[0];
         let rhs = node.namedChildren[2];
 
@@ -626,8 +626,10 @@ function evalBoundInfix(node, ctx){
         let rhsVal = evalExpr(rhs, ctx)[0]["val"];
         evalLog("setin rhsval:", rhsVal, rhs.text, ctx);
 
-        evalLog("setin lhs in rhs:", rhsVal.includes(lhsVal));
-        return [ctx.withVal(rhsVal.includes(lhsVal))];
+        let inSetVal = rhsVal.includes(lhsVal);
+        let resVal = symbol.type === "in" ? inSetVal : !inSetVal; 
+        evalLog("setin lhs in rhs:", resVal);
+        return [ctx.withVal(resVal)];
     } 
     
     // Set intersection.
