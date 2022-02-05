@@ -519,8 +519,8 @@ function displayStateGraph(){
         for(const constDecl in specConsts){
             console.log(constDecl);
             let newDiv = document.createElement("div");
-            newDiv.innerHTML = "CONSTANT " + constDecl + " <- ";
-            newDiv.innerHTML += `<input id='const-val-input-${constDecl}'>`;
+            newDiv.innerHTML = "CONSTANT " + constDecl + " &#8592; ";
+            newDiv.innerHTML += `<input class='const-input' id='const-val-input-${constDecl}'>`;
             chooseConstsElem.appendChild(newDiv);
         }
 
