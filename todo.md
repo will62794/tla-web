@@ -4,7 +4,7 @@
 
 - [x] UNCHANGED construct
 - [x] Instantiation of CONSTANT values
-- [ ] Comments
+- [x] Comments
 - [ ] Tuple equality
 - [ ] RECURSIVE functions
 - [ ] Async testing framework
