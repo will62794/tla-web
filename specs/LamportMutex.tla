@@ -12,13 +12,13 @@ EXTENDS Naturals, Sequences
 (* The parameter maxClock is used only for model checking in order to      *)
 (* keep the state space finite.                                            *)
 (***************************************************************************)
-CONSTANT N, maxClock
+CONSTANT Nats, N, maxClock
 
-ASSUME NType == N \in Nat
-ASSUME maxClockType == maxClock \in Nat
+ASSUME NType == N \in Nats
+ASSUME maxClockType == maxClock \in Nats
 
 Proc == 1 .. N
-Clock == Nat \ {0}
+Clock == Nats \ {0}
 (***************************************************************************)
 (* For model checking, add ClockConstraint as a state constraint to ensure *)
 (* a finite state space and override the definition of Clock by            *)
@@ -48,7 +48,7 @@ TypeOK ==
      (* clock[p] is the local clock of process p *)
   /\ clock \in [Proc -> Clock]
      (* req[p][q] stores the clock associated with request from q received by p, 0 if none *)
-  /\ req \in [Proc -> [Proc -> Nat]]
+  /\ req \in [Proc -> [Proc -> Nats]]
      (* ack[p] stores the processes that have ack'ed p's request *)
   /\ ack \in [Proc -> SUBSET Proc]
      (* network[p][q]: queue of messages from p to q -- pairwise FIFO communication *)
