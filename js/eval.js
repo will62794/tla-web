@@ -654,7 +654,7 @@ function evalBoundInfix(node, ctx){
         evalLog("cup lhs:", lhsVal);
         let rhsVal = evalExpr(rhs, ctx)[0]["val"];
         evalLog("cup rhs:", lhsVal);
-        return [ctx.withVal(_.uniq(lhsVal.concat(rhsVal)))];
+        return [ctx.withVal(_.uniqWith(lhsVal.concat(rhsVal), _.isEqual))];
     }   
 
     // Set minus.
@@ -1128,13 +1128,7 @@ function evalExpr(node, ctx){
             console.assert(r.length === 1);
             return r[0]["val"];
         });
-        ret = _.flatten(ret);
-        // console.log(ret);
         return [ctx.withVal(ret)];
-
-        // let ret = node.children.map(child => evalExpr(child, ctx));
-        // console.log(_.flatten(ret));
-        return ret;
     }
 
     // <<e1,e2,...,en>>
