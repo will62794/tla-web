@@ -88,10 +88,14 @@ function testStateGraphEquiv(testId, stateGraph, specPath){
         let div;
 
         // Show the spec text and test name first.
-        let testHeader = document.createElement("h3");
+        let testHeader = document.createElement("a");
         testHeader.innerText = "Test: " + testId + "";
         testHeader.style = "cursor:pointer";
-        testHeader.setAttribute("onclick", `toggleTestDetails(\"${testId}\")`);
+        if(!urlParams.hasOwnProperty("test")){
+            testHeader.href = "?test=" + testId;
+        } else{
+            testHeader.setAttribute("onclick", `toggleTestDetails(\"${testId}\")`);
+        }
         testsDiv.appendChild(testHeader);
 
         let detailedResultsDiv = document.createElement("div");
@@ -170,7 +174,10 @@ function testStateGraphEquiv(testId, stateGraph, specPath){
         // Append the detailed results and make it hidden by default.
         // TODO: Re-enable hiding test results by default once it can work
         // separately for single tests and all tests.
-        detailedResultsDiv.setAttribute("hidden", true);
+        let hideByDefault = !urlParams.hasOwnProperty("test");
+        if(hideByDefault){
+            detailedResultsDiv.setAttribute("hidden", true);
+        }
         testsDiv.appendChild(detailedResultsDiv);
 
         let statusDiv = document.createElement("div");
@@ -471,6 +478,24 @@ function testTLCEquiv(testId, specName){
     });      
 }
 
+function primed_tuple(){
+    let spec = `---- MODULE primed_tuple ----
+    EXTENDS TLC, Naturals
+    
+    VARIABLE x
+    VARIABLE y
+
+    Init == x = 0 /\\ y = 0
+    Next == UNCHANGED <<x,y>>
+    
+    ====`;
+    initExpected = [
+        {"x": 0, "y": 0},
+    ];
+    nextExpected = [];
+    testStateGen("primed_tuple", spec, initExpected, nextExpected);    
+}
+
 function bound_ops(){
     let spec = `---- MODULE bound_ops ----
     EXTENDS TLC, Naturals
@@ -567,6 +592,26 @@ function unchanged_statement(){
     testStateGen("unchanged_statement", spec, initExpected, nextExpected);    
 }
 
+function unchanged_statement_tuple(){
+    let spec = `---- MODULE unchanged_statement_tuple ----
+    EXTENDS TLC, Naturals
+    
+    VARIABLE x
+    VARIABLE y
+    VARIABLE z
+
+    Init == x = 0 /\\ y = 0 /\\ z = 0
+    Next == 
+        /\\ x' = x + 1
+        /\\ UNCHANGED <<y,z>>
+    ====`;
+    initExpected = [
+        {"x": 0, "y": 0, "z": 0 }
+    ];
+    nextExpected = [{"x": 0, "y": 0, "z": 0, "x'": 1, "y'": 0, "z'": 0}]
+    testStateGen("unchanged_statement_tuple", spec, initExpected, nextExpected);    
+}
+
 function simple5(){
     return testTLCEquiv("simple5");
 }
@@ -580,6 +625,7 @@ tests = {
     "simple-spec5": simple_spec5,
     "record_literal_eval": record_literal_eval,
     "record_access_eval": record_access_eval,
+    "primed_tuple": primed_tuple,
     "next_state_precond_disabled": next_state_precond_disabled,
     "bound_ops": bound_ops,
     "simple-lockserver-nodefs": simple_lockserver_nodefs,
@@ -587,6 +633,7 @@ tests = {
     "mldr-init": mldr_init,
     "mldr-next": mldr_next,
     "unchanged_statement": unchanged_statement,
+    "unchanged_statement_tuple": unchanged_statement_tuple,
     "simple5-tlc-equiv": (() => testTLCEquiv("simple5-tlc-equiv", "simple5")),
     "mldr-init-only-tlc-equiv": (() => testTLCEquiv("mldr-init-only-tlc-equiv", "mldr_init_only"))
 }
