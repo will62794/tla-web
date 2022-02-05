@@ -15,3 +15,4 @@
 - [ ] Better TLA state representation/format
 - [ ] REPL like expression evaluation
 - [ ] Trace exploration/evaluation
+- [ ] Loading/sharing traces via URLs (partially implemented)
