@@ -10,6 +10,7 @@
 - [ ] RECURSIVE functions
 - [ ] Async testing framework
 - [ ] More unified method for comment filtering
+- [ ] Model values
 
 ## Interface/UI
 
