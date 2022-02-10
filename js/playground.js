@@ -388,9 +388,9 @@ function displayStateGraph(){
     // Download example spec.
     // let specPath = "./specs/simple1.tla";
     // let specPath = "./specs/simple2.tla";
-    let specPath = "./specs/lockserver.tla";
+    // let specPath = "./specs/lockserver.tla";
     // let specPath = "./specs/LamportMutex.tla";
-    // let specPath = "./specs/lockserver_nodefs.tla";
+    let specPath = "./specs/lockserver_nodefs.tla";
     // let specPath = "./specs/MongoLoglessDynamicRaft.tla";
     // let specPath = "./specs/Paxos.tla";
     // let specPath = "./specs/simple_test.tla";
