@@ -53,7 +53,7 @@ function testStateGraphEquiv(testId, stateGraph, specPath){
 
         // Test correct initial states.
         // let initStates = computeInitStates(newTree);
-        let reachable = computeReachableStates(parseSpec(specText));
+        let reachable = computeReachableStates(parseSpec(specText))["states"];
         // console.log("spec5 init", initStates);
         let reachableTLC = stateGraph["states"].map(s => s["val"]);
         console.log("spec5 reachable:", reachable);

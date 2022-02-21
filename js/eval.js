@@ -1342,6 +1342,7 @@ function computeReachableStates(treeObjs, constvals){
     let stateQueue = initStates;
     let seenStatesHashSet = new Set(); 
     let reachableStates = [];
+    let edges = [];
     while(stateQueue.length > 0){
         let currState = stateQueue.pop();
         // console.log(currState);
@@ -1366,8 +1367,14 @@ function computeReachableStates(treeObjs, constvals){
         // console.log("nextStates:", nextStates);
         // console.log("reachableStates:", reachableStates);
         stateQueue = stateQueue.concat(nextStates);
+        for(const nextSt of nextStates){
+            edges.push([currStateArg, nextSt])
+        }
     }
-    return reachableStates;
+    return {
+        "states": reachableStates,
+        "edges": edges
+    }
 }
 
 //

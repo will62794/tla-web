@@ -236,7 +236,7 @@ function setConstantValues(){
 // benchmarks page.
 function reachableBench(){
     let start  = performance.now();
-    let reachable = computeReachableStates(specTreeObjs, specConstVals);
+    let reachable = computeReachableStates(specTreeObjs, specConstVals)["states"];
     const duration = (performance.now() - start).toFixed(1);
     console.log(`Computed ${reachable.length} reachable states in ${duration}ms.`);
 }
@@ -263,12 +263,16 @@ function reloadSpec(){
 
     // Check for trace to load from given link.
     // loadTraceFromLink();
+    // displayStateGraph();
 }
 
 function displayStateGraph(){
     //
     // TODO: Will need to flesh out this functionality further.
     //
+
+    let stategraphDiv = document.getElementById('stategraph');
+    stategraphDiv.hidden = false;
     
     var cy = cytoscape({
         container: document.getElementById('stategraph'), // container to render in
@@ -276,21 +280,36 @@ function displayStateGraph(){
             {
               selector: 'node',
               style: {
-                'label': 'data(id)'
+                'label': 'data(semaphore)'
               }
             }
           ]
     });
 
     let reachable = computeReachableStates(specTreeObjs, specConstVals);
+    let edges = reachable["edges"];
+    console.log(reachable["edges"]);
     console.log(reachable);
 
-    for(const state of reachable){
+    for(const state of reachable["states"]){
         cy.add({
             group: 'nodes',
-            data: { id: hashStateShort(state)},
+            data: { id: hashStateShort(state), semaphore: JSON.stringify(state["semaphore"])},
             position: { x: 200, y: 200 }
         });
+
+    }
+
+    let eind = 0;
+    for(const edge of edges){
+        cy.add({
+            group: 'edges', data: { 
+                id: 'e' + eind, 
+                source: hashStateShort(edge[0]), 
+                target: hashStateShort(edge[1]) 
+            }
+        });
+        eind++;
     }
     let layout = cy.layout({name:"breadthfirst"});
     layout.run();
