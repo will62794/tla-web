@@ -6,7 +6,7 @@
 - [x] Instantiation of CONSTANT values
 - [x] Comments
 - [ ] Parentheses semantics
-- [ ] Tuple equality
+- [x] UNCHANGED for tuples
 - [ ] RECURSIVE functions
 - [ ] Async testing framework
 - [ ] More unified method for comment filtering

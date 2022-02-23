@@ -176,15 +176,25 @@ function genSyntaxRewrites(treeArg) {
             let rhs = node.childForFieldName("rhs");
             console.log(symbol);
             if(symbol.type === "unchanged"){
-                symbol.startPosition
-                symbol.endPosition
-
                 // Desugar UNCHANGED statements to their equivalent form e.g.
-                // UNCHANGED <expr>  ~>  <expr>' = <expr>  
-                rewrite = {
-                    startPosition: symbol.startPosition,
-                    endPosition: symbol.endPosition,
-                    newStr : "" + rhs.text + "' ="
+                //  UNCHANGED <expr>  ==>  <expr>' = <expr>. 
+                // If <expr> is a tuple literal i.e. <<x,y>>, then we de-sugar as
+                //  UNCHANGED <<x,y>> ==> x' = x /\ y' = y
+                let rewrite;
+                if(rhs.type === "tuple_literal"){
+                    let tup_elems = rhs.namedChildren.slice(1,rhs.namedChildren.length-1);
+                    let newText = tup_elems.map(el => el.text + "' = " + el.text ).join(" /\\ ");
+                    rewrite = {
+                        startPosition: node.startPosition,
+                        endPosition: node.endPosition,
+                        newStr: newText
+                    } 
+                } else{
+                    rewrite = {
+                        startPosition: symbol.startPosition,
+                        endPosition: symbol.endPosition,
+                        newStr: "" + rhs.text + "' ="
+                    } 
                 }
                 sourceRewrites.push(rewrite);
             }
@@ -223,6 +233,7 @@ function parseSpec(specText){
     tree = parser.parse(specText + "\n", null);
     let rewrites = genSyntaxRewrites(tree);
     let specTextRewritten = applySyntaxRewrites(specText, rewrites);
+    console.log(specTextRewritten);
 
     // Update the spec text to the rewritten version. Then continue parsing the spec
     // to extract definitions, variables, etc.

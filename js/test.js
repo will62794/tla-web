@@ -797,7 +797,7 @@ tests = {
     "set_literals": set_literals,
     "set_inclusion": set_inclusion,
     "set_notin": set_notin,
-    // "primed_tuple": primed_tuple,  # TODO: Enable this test.
+    "primed_tuple": primed_tuple,
     "next_state_precond_disabled": next_state_precond_disabled,
     "bound_ops": bound_ops,
     "simple-lockserver-nodefs": simple_lockserver_nodefs,
