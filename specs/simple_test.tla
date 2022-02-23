@@ -2,12 +2,15 @@
 EXTENDS Naturals
 
 VARIABLE x
+VARIABLE y
 
-Init == x = 0
+Init == 
+    /\ x = 0
+    /\ y = 0
 
-Add(a,b) == a + b
+Add == UNCHANGED <<x,y>>
 
-Next == x' = Add(x,2)
+Next == Add
 
 
 
