@@ -233,7 +233,7 @@ function parseSpec(specText){
     tree = parser.parse(specText + "\n", null);
     let rewrites = genSyntaxRewrites(tree);
     let specTextRewritten = applySyntaxRewrites(specText, rewrites);
-    console.log(specTextRewritten);
+    // console.log(specTextRewritten);
 
     // Update the spec text to the rewritten version. Then continue parsing the spec
     // to extract definitions, variables, etc.
