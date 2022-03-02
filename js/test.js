@@ -56,16 +56,14 @@ function testStateGraphEquiv(testId, stateGraph, specPath){
         // testHeader.setAttribute("onclick", `toggleTestDetails(\"${testId}\")`);
         testsDiv.appendChild(testHeader);
 
-        // Test correct initial states.
-        // let initStates = computeInitStates(newTree);
+        // Test correct states. 
+        // TODO: test correct edges as well.
         let reachable = computeReachableStates(parseSpec(specText))["states"];
-        // console.log("spec5 init", initStates);
         let reachableTLC = stateGraph["states"].map(s => s["val"]);
-        console.log("spec5 reachable:", reachable);
-        console.log("spec5 TLC oracle:", reachableTLC);
+        console.log("spec reachable:", reachable);
+        console.log("spec reachable TLC oracle:", reachableTLC);
         console.log("eq:", arrEq(reachable, reachableTLC));
         let areEquiv = arrEq(reachable, reachableTLC);
-        console.assert(areEquiv);
 
         let statusText = (areEquiv ? "PASS &#10003" : "FAIL &#10007");
         let statusColor = areEquiv ? "green" : "red";
@@ -73,6 +71,20 @@ function testStateGraphEquiv(testId, stateGraph, specPath){
         div.innerHTML = statusText;
         div.style = "font-weight: bold; color:" + statusColor;
         testsDiv.appendChild(div);
+
+        if(!areEquiv && urlParams.hasOwnProperty("test")){
+            infoDiv = document.createElement("div");
+            computedDiv = document.createElement("div");
+            computedDiv.innerHTML = "<h4>Computed</h4>";
+            computedDiv.innerHTML += JSON.stringify(reachable, null, 2)
+            oracleDiv = document.createElement("div");
+            oracleDiv.innerHTML = "<h4>Computed by TLC</h4>";
+            oracleDiv.innerHTML += JSON.stringify(reachableTLC,null, 2);
+            infoDiv.appendChild(computedDiv);
+            infoDiv.appendChild(oracleDiv);
+            testsDiv.appendChild(infoDiv);
+        }
+
     })
 }
 
@@ -476,7 +488,7 @@ function mldr_next(){
 }
 
 function testTLCEquiv(testId, specName){
-    let specStatesPath = `./specs/with_state_graphs/${specName}.json`;
+    let specStatesPath = `./specs/with_state_graphs/${specName}.tla.json`;
     res = $.get(specStatesPath).then(data => {
         let specPath = `./specs/with_state_graphs/${specName}.tla`;
         testStateGraphEquiv(testId, data, specPath);
@@ -806,6 +818,7 @@ tests = {
     "mldr-next": mldr_next,
     "unchanged_statement": unchanged_statement,
     "unchanged_statement_tuple": unchanged_statement_tuple,// # TODO: Enable this test.
+    "tla-expr-eval": (() => testTLCEquiv("tla-expr-eval", "tla_expr_eval")),
     "simple5-tlc-equiv": (() => testTLCEquiv("simple5-tlc-equiv", "simple5")),
     "mldr-init-only-tlc-equiv": (() => testTLCEquiv("mldr-init-only-tlc-equiv", "mldr_init_only"))
 }
