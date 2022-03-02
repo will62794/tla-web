@@ -805,7 +805,7 @@ tests = {
     "mldr-init": mldr_init,
     "mldr-next": mldr_next,
     "unchanged_statement": unchanged_statement,
-    // "unchanged_statement_tuple": unchanged_statement_tuple, # TODO: Enable this test.
+    "unchanged_statement_tuple": unchanged_statement_tuple,// # TODO: Enable this test.
     "simple5-tlc-equiv": (() => testTLCEquiv("simple5-tlc-equiv", "simple5")),
     "mldr-init-only-tlc-equiv": (() => testTLCEquiv("mldr-init-only-tlc-equiv", "mldr_init_only"))
 }
