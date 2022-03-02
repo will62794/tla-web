@@ -1396,6 +1396,11 @@ function computeReachableStates(treeObjs, constvals){
     }
 }
 
+class TlaPlusInterpreter{
+    // TODO: Implement a more well-defined interface to the functions in this
+    // file.
+} 
+
 //
 // For debugging/tracing expression evaluation.
 //
