@@ -18,6 +18,9 @@ Init == exprs = [
     setint2 |-> {1,2,3} \cap {1,2,3},
     setint3 |-> {1,2,3} \cap {},
     setdiff1 |-> {1,2,3} \ {2},
+    setmap1 |-> {x : x \in {1,2,3}},
+    setmap2 |-> {x + 2 : x \in {1,2,3}},
+    setmap3 |-> {x + 2 : x \in {1,2,3} \cup {2,3,4}},
     setfilter1 |-> {x \in {1,2,3} : x > 1},
     except1 |-> [[a |-> 1, b |-> 2] EXCEPT !["a"] = 12],
     fcnapp1 |-> [a |-> 1, b |-> 2]["a"]
@@ -31,6 +34,5 @@ Next == UNCHANGED exprs
 
 \* except2 |-> [[a |-> 1, b |-> 2] EXCEPT !["c"] = 3]
 \* fcngen1 |-> [i \in {1,2,3} |-> i+2]
-\* setmap1 |-> {x : x \in {1,2,3}}
 
 ====

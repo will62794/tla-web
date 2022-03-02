@@ -1096,11 +1096,24 @@ function evalExpr(node, ctx){
     }
 
     // {<bound_expr> : <setin_expr>}
-    // e.g. {2*x : x \in {1,2,3}}
+    // e.g. { x+2 : x \in {1,2,3}}
     if(node.type === "set_map"){
-        // TODO: implement this.
-        evalLog("ERROR: 'set_map' evaluation not implemented.");
-        return [ctx.withVal("ERROR: 'set_map' not implemented")];
+        evalLog("SET_MAP");
+        let lhsExpr = node.namedChildren[0];
+        let rightQuantBound = node.namedChildren[1];
+
+        let boundVarName = rightQuantBound.namedChildren[0].text;
+        let boundVarDomain = evalExpr(rightQuantBound.namedChildren[2], ctx)[0]["val"];
+
+        let retVal = boundVarDomain.map((val) => {
+            let boundContext = ctx.clone();
+            if(!boundContext.hasOwnProperty("quant_bound")){
+                boundContext["quant_bound"] = {};
+            }
+            boundContext["quant_bound"][boundVarName] = val;
+            return evalExpr(lhsExpr, boundContext)[0]["val"];
+        })
+        return [ctx.withVal(retVal)];
     }
 
     // {<single_quantifier_bound> : <expr>}
