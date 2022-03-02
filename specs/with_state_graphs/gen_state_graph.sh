@@ -6,5 +6,5 @@
 
 tlc="java -cp ../../tla2tools-checkall.jar tlc2.TLC"
 for spec in `ls *.tla`; do
-    $tlc -deadlock -metadir "states/$spec" -dump json $spec.json -noGenerateSpecTE $spec
+    $tlc -deadlock -fp 10 -seed 10 -metadir "states/$spec" -dump json $spec.json -noGenerateSpecTE $spec
 done
