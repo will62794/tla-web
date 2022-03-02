@@ -1095,6 +1095,14 @@ function evalExpr(node, ctx){
         }
     }
 
+    // {<bound_expr> : <setin_expr>}
+    // e.g. {2*x : x \in {1,2,3}}
+    if(node.type === "set_map"){
+        // TODO: implement this.
+        evalLog("ERROR: 'set_map' evaluation not implemented.");
+        return [ctx.withVal("ERROR: 'set_map' not implemented")];
+    }
+
     // {<single_quantifier_bound> : <expr>}
     // {i \in A : <expr>}
     if(node.type === "set_filter"){
