@@ -18,6 +18,10 @@ Client == {"c1", "c2"}
 VARIABLE semaphore
 VARIABLE clientlocks
 
+TypeOK ==
+    /\ semaphore \in [Server -> {TRUE, FALSE}]
+    /\ clientlocks \in [Client -> SUBSET Server]
+
 \* Initially each server holds its lock, and all clients hold no locks.
 Init == 
     /\ semaphore = [i \in Server |-> TRUE]
