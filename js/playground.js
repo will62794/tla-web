@@ -322,7 +322,8 @@ function displayStateGraph(){
         "curve-style": "straight",
         "target-arrow-shape": "triangle"
     })
-    let layout = cy.layout({name:"cose"});
+    // let layout = cy.layout({name:"cose"});
+    let layout = cy.layout({name:"breadthfirst"});
     layout.run();
 }
 
