@@ -34,5 +34,6 @@ Next == UNCHANGED exprs
 
 \* except2 |-> [[a |-> 1, b |-> 2] EXCEPT !["c"] = 3]
 \* fcngen1 |-> [i \in {1,2,3} |-> i+2]
+\* fcnset1 |-> [{1,2} -> {3,4}]
 
 ====
