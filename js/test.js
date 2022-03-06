@@ -75,11 +75,12 @@ function testStateGraphEquiv(testId, stateGraph, specPath){
         if(!areEquiv && urlParams.hasOwnProperty("test")){
             infoDiv = document.createElement("div");
             computedDiv = document.createElement("div");
+            // computedDiv.style = "float:left";
             computedDiv.innerHTML = "<h4>Computed</h4>";
-            computedDiv.innerHTML += JSON.stringify(reachable, null, 2)
+            computedDiv.innerHTML += "<pre>" + JSON.stringify(reachable, null, 2) + "</pre>"
             oracleDiv = document.createElement("div");
             oracleDiv.innerHTML = "<h4>Computed by TLC</h4>";
-            oracleDiv.innerHTML += JSON.stringify(reachableTLC,null, 2);
+            oracleDiv.innerHTML += "<pre>" + JSON.stringify(reachableTLC,null, 2) + "</pre>";
             infoDiv.appendChild(computedDiv);
             infoDiv.appendChild(oracleDiv);
             testsDiv.appendChild(infoDiv);
