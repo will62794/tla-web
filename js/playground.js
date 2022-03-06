@@ -280,9 +280,15 @@ function displayStateGraph(){
             {
               selector: 'node',
               style: {
-                'label': 'data(semaphore)'
+                'label': function(el){
+                    return JSON.stringify(el.data()["state"]);
+                },
+                "background-color": "lightgray",
+                "border-style": "solid",
+                "border-width": "1",
+                "border-color": "black"
               }
-            }
+            },
           ]
     });
 
@@ -292,12 +298,13 @@ function displayStateGraph(){
     console.log(reachable);
 
     for(const state of reachable["states"]){
+        dataVal = {id: hashStateShort(state), state: state};
+        console.log(dataVal);
         cy.add({
             group: 'nodes',
-            data: { id: hashStateShort(state), semaphore: JSON.stringify(state["semaphore"])},
+            data: dataVal,
             position: { x: 200, y: 200 }
         });
-
     }
 
     let eind = 0;
@@ -311,7 +318,11 @@ function displayStateGraph(){
         });
         eind++;
     }
-    let layout = cy.layout({name:"breadthfirst"});
+    cy.edges('edge').style({
+        "curve-style": "straight",
+        "target-arrow-shape": "triangle"
+    })
+    let layout = cy.layout({name:"cose"});
     layout.run();
 }
 
