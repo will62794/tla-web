@@ -1095,10 +1095,20 @@ function evalExpr(node, ctx){
         }
     }
 
-    // [<dom1_expr> -> <dom2_expr>]
+    // [<D_expr> -> <R_expr>]
     // e.g. [{"x","y"} -> {1,2}]
     if(node.type === "set_of_functions"){
-        return [ctx.withVal("set_of_functions not implemented!")];
+        console.log("set_of_functions", node);
+        // Domain.
+        let Dval = evalExpr(node.namedChildren[0], ctx)[0]["val"];
+        // Range.
+        let Rval = evalExpr(node.namedChildren[2], ctx)[0]["val"];
+
+        // Compute [Dval -> Rval].
+        let RvalRepeat = _.times(Dval.length, _.constant(Rval));
+        // console.log("rval repeat:", RvalRepeat);
+        let fcnSetVal = cartesianProductOf(...RvalRepeat).map(r => _.fromPairs(_.zip(Dval,r)));
+        return [ctx.withVal(fcnSetVal)];
     }
 
 
