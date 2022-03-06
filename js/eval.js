@@ -1095,6 +1095,13 @@ function evalExpr(node, ctx){
         }
     }
 
+    // [<dom1_expr> -> <dom2_expr>]
+    // e.g. [{"x","y"} -> {1,2}]
+    if(node.type === "set_of_functions"){
+        return [ctx.withVal("set_of_functions not implemented!")];
+    }
+
+
     // {<bound_expr> : <setin_expr>}
     // e.g. { x+2 : x \in {1,2,3}}
     if(node.type === "set_map"){
