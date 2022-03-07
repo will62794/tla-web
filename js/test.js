@@ -75,7 +75,7 @@ function testStateGraphEquiv(testId, stateGraph, specPath){
         if(!areEquiv && urlParams.hasOwnProperty("test")){
             infoDiv = document.createElement("div");
             computedDiv = document.createElement("div");
-            // computedDiv.style = "float:left";
+            computedDiv.style = "float:left";
             computedDiv.innerHTML = "<h4>Computed</h4>";
             computedDiv.innerHTML += "<pre>" + JSON.stringify(reachable, null, 2) + "</pre>"
             oracleDiv = document.createElement("div");
