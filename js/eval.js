@@ -68,13 +68,29 @@ class TLAValue{
     }
 }
 
-class NatValue extends TLAValue{
+class IntValue extends TLAValue{
     constructor(n){
         super(n);
         this.val = n;
     }
     toString(){
         return this.val.toString();
+    }
+    toJSON(){
+        return this.val;
+    }
+}
+
+class BoolValue extends TLAValue{
+    constructor(n){
+        super(n);
+        this.val = n;
+    }
+    toString(){
+        return this.val ? "TRUE" : "FALSE";
+    }
+    toJSON(){
+        return this.val;
     }
 }
 
@@ -87,6 +103,16 @@ class StringValue extends TLAValue{
         return this.val;
     }
 }
+
+// class TupleValue extends TLAValue{
+//     constructor(s){
+//         super(s);
+//         this.val = s;
+//     }
+//     toString(){
+//         return this.val;
+//     }
+// }
 
 // Apply a given set of text rewrites to a given source text. Assumes the given
 // 'text' argument is a string given as a list of lines.
@@ -1062,20 +1088,20 @@ function evalExpr(node, ctx){
 
     if(node.type === "nat_number"){
         // console.log(node.type, node.text);
-        return [ctx.withVal(parseInt(node.text))];
+        return [ctx.withVal(new IntValue(parseInt(node.text)))];
     }
 
     if(node.type === "boolean"){
         evalLog(node.type, node.text);
         let boolVal = node.text === "TRUE" ? true : false;
-        return [ctx.withVal(boolVal)];
+        return [ctx.withVal(new BoolValue(boolVal))];
     }
 
     if(node.type === "string"){
         evalLog("string node", node.text);
         // Remove the quotes.
         let rawStr = node.text.substring(1,node.text.length-1);
-        return [ctx.withVal(rawStr)];
+        return [ctx.withVal(new StringValue(rawStr))];
     }
 
     if(node.type === "if_then_else"){
