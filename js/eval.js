@@ -63,6 +63,12 @@ function renamePrimedVars(state){
     return _.mapKeys(state, (val,k,obj) => k.slice(0,k.length-1));
 }
 
+//
+//
+// TLA+ Value type definitions.
+//
+//
+
 class TLAValue{
     constructor() {
     }
