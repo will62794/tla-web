@@ -939,6 +939,20 @@ function evalBoundOp(node, ctx){
     }
 }
 
+function evalFiniteSetLiteral(node, ctx){
+    // Remove the outer braces, "{" and "}"
+    let innerChildren = node.children.slice(1,node.children.length-1);
+    // Remove commas and then evaluate each set element.
+    let ret = innerChildren.filter(child => child.type !== ",")
+    ret = ret.map(child => {
+        // TODO: For now assume set elements don't fork evaluation context.
+        let r = evalExpr(child, ctx);
+        console.assert(r.length === 1);
+        return r[0]["val"];
+    });
+    return [ctx.withVal(ret)];
+}
+
 /**
  * Evaluate a TLC expression for generating initial/next states.
  * 
@@ -1213,19 +1227,7 @@ function evalExpr(node, ctx){
 
     // TODO: Re-examine whether this implementation is correct.
     if(node.type ==="finite_set_literal"){
-        // TODO: Check the computation below for correctness.
-
-        // Remove the outer braces, "{" and "}"
-        let innerChildren = node.children.slice(1,node.children.length-1);
-        // Remove commas and then evaluate each set element.
-        let ret = innerChildren.filter(child => child.type !== ",")
-        ret = ret.map(child => {
-            // TODO: For now assume set elements don't fork evaluation context.
-            let r = evalExpr(child, ctx);
-            console.assert(r.length === 1);
-            return r[0]["val"];
-        });
-        return [ctx.withVal(ret)];
+        return evalFiniteSetLiteral(node, ctx);
     }
 
     // <<e1,e2,...,en>>
