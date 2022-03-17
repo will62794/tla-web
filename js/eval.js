@@ -107,6 +107,9 @@ class StringValue extends TLAValue{
         this.val = s;
     }
     toString(){
+        return "\"" + this.val + "\"";
+    }
+    toJSON(){
         return this.val;
     }
 }
@@ -165,9 +168,11 @@ class FcnRcdValue extends TLAValue{
         super(domain, values);
         this.domain = domain;
         this.values = values
+        // TODO: Track record values explicitly?
+        // Clarify function vs. record distinction.
     }
     toString(){
-        return "fcn_val_toString_unimplemented";
+        return "[" + this.domain.map((dv,idx) => dv + " |-> " + this.values[idx]).join(", ") + "]";
     }
 
     toJSON(){

@@ -37,7 +37,8 @@ function renderNextStateChoices(nextStates){
         stateDiv.classList.add("init-state");
         for(const varname in state){
             stateDiv.innerHTML += `<span class='state-varname'>${varname}</span> = `
-            stateDiv.innerHTML += JSON.stringify(state[varname]);
+            // stateDiv.innerHTML += JSON.stringify(state[varname]);
+            stateDiv.innerHTML += state[varname];
             stateDiv.innerHTML += "<br>"
         }
         let hash = hashStateShort(state);
@@ -120,7 +121,7 @@ function renderCurrentTrace(){
         traceStateDiv.classList.add("trace-state");
         console.log(state);
         for(const varname in state){
-            traceStateDiv.innerHTML += "<span><span class='state-varname'>" + varname +"</span> = "+ JSON.stringify(state[varname]) + "</span>";
+            traceStateDiv.innerHTML += "<span><span class='state-varname'>" + varname +"</span> = "+ state[varname] + "</span>";
             traceStateDiv.innerHTML += "<br>"
         }
 
