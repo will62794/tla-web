@@ -236,8 +236,8 @@ function simple_spec1(){
     Init == x = 1 
     Next == x' = 2
     ====`;
-    initExpected = [{x:1}];
-    nextExpected = [{"x":1, "x'":2}]
+    initExpected = [{x:new IntValue(1)}];
+    nextExpected = [{"x":new IntValue(1), "x'":new IntValue(2)}]
     testStateGen("simple-spec1", spec1, initExpected, nextExpected);
 }
 
@@ -247,8 +247,8 @@ function simple_spec2(){
     Init == x = 1 \\/ x = 2 
     Next == x' = 2
     ====`;
-    initExpected = [{x:1}, {x:2}];    
-    nextExpected = [{"x":1, "x'":2}]
+    initExpected = [{x:new IntValue(1)}, {x:new IntValue(2)}];    
+    nextExpected = [{"x":new IntValue(1), "x'":new IntValue(2)}]
     testStateGen("simple-spec2", spec2, initExpected, nextExpected);
 }
 
@@ -262,12 +262,15 @@ function simple_spec3(){
     
     Next == x' = 2 /\\ y' = 2
     ====`;
-    initExpected = [{x:1,y:3},{x:2,y:3},{x:1,y:4},{x:2,y:4}];
+    initExpected = [{x:new IntValue(1),y:new IntValue(3)},
+                    {x:new IntValue(2),y:new IntValue(3)},
+                    {x:new IntValue(1),y:new IntValue(4)},
+                    {x:new IntValue(2),y:new IntValue(4)}];
     nextExpected = [
-        {"x":1, "y":3, "x'":2, "y'": 2}, 
-        {"x":1, "y":4, "x'":2, "y'": 2}, 
-        {"x":2, "y":3, "x'":2, "y'": 2}, 
-        {"x":2, "y":4, "x'":2, "y'": 2}, 
+        {"x":new IntValue(1), "y":new IntValue(3), "x'":new IntValue(2), "y'": new IntValue(2)}, 
+        {"x":new IntValue(1), "y":new IntValue(4), "x'":new IntValue(2), "y'": new IntValue(2)}, 
+        {"x":new IntValue(2), "y":new IntValue(3), "x'":new IntValue(2), "y'": new IntValue(2)}, 
+        {"x":new IntValue(2), "y":new IntValue(4), "x'":new IntValue(2), "y'": new IntValue(2)}, 
     ]
     testStateGen("simple-spec3", spec3, initExpected, nextExpected);
 }
