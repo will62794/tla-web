@@ -1086,24 +1086,6 @@ function evalExpr(node, ctx){
         return evalIdentifierRef(node, ctx);
     }
 
-    if(node.type === "nat_number"){
-        // console.log(node.type, node.text);
-        return [ctx.withVal(new IntValue(parseInt(node.text)))];
-    }
-
-    if(node.type === "boolean"){
-        evalLog(node.type, node.text);
-        let boolVal = node.text === "TRUE" ? true : false;
-        return [ctx.withVal(new BoolValue(boolVal))];
-    }
-
-    if(node.type === "string"){
-        evalLog("string node", node.text);
-        // Remove the quotes.
-        let rawStr = node.text.substring(1,node.text.length-1);
-        return [ctx.withVal(new StringValue(rawStr))];
-    }
-
     if(node.type === "if_then_else"){
         let cond = node.namedChildren[0];
         let thenNode = node.namedChildren[1];
@@ -1193,6 +1175,41 @@ function evalExpr(node, ctx){
         return [ctx.withVal(filteredVals)];
     }
 
+    // <record>.<field>
+    if(node.type === "record_value"){
+        evalLog("RECVAL", node);
+        let rec = node.namedChildren[0];
+        let recField = node.namedChildren[1].text;
+
+        let recVal = evalExpr(rec, ctx)[0]["val"];
+        evalLog("recVal", recVal);
+        evalLog("recField", recField);
+        let fieldVal = recVal[recField];
+        return [ctx.withVal(fieldVal)];
+
+    }
+
+    //
+    // Evaluation of raw literal values.
+    //
+
+    if(node.type === "nat_number"){
+        // console.log(node.type, node.text);
+        return [ctx.withVal(new IntValue(parseInt(node.text)))];
+    }
+
+    if(node.type === "boolean"){
+        evalLog(node.type, node.text);
+        let boolVal = node.text === "TRUE" ? true : false;
+        return [ctx.withVal(new BoolValue(boolVal))];
+    }
+
+    if(node.type === "string"){
+        evalLog("string node", node.text);
+        // Remove the quotes.
+        let rawStr = node.text.substring(1,node.text.length-1);
+        return [ctx.withVal(new StringValue(rawStr))];
+    }
 
     // TODO: Re-examine whether this implementation is correct.
     if(node.type ==="finite_set_literal"){
@@ -1219,22 +1236,6 @@ function evalExpr(node, ctx){
         tupleVals = elems.map(el => evalExpr(el, ctx)[0]["val"]);
         return [ctx.withVal(tupleVals)];
     }
-
-
-    // <record>.<field>
-    if(node.type === "record_value"){
-        evalLog("RECVAL", node);
-        let rec = node.namedChildren[0];
-        let recField = node.namedChildren[1].text;
-
-        let recVal = evalExpr(rec, ctx)[0]["val"];
-        evalLog("recVal", recVal);
-        evalLog("recField", recField);
-        let fieldVal = recVal[recField];
-        return [ctx.withVal(fieldVal)];
-
-    }
-
 
     // [<identifier> |-> <expr>, <identifier> |-> <expr>, ...]
     // "|->" is of type 'all_map_to'.
