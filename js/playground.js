@@ -55,7 +55,8 @@ function traceStepBack(){
         currNextStates = _.cloneDeep(allInitStates);
     } else{
         let lastState = currTrace[currTrace.length-1];
-        let nextStates = computeNextStates(specTreeObjs, specConstVals, [_.cloneDeep(lastState)])
+        let interp = new TlaInterpreter();
+        let nextStates = interp.computeNextStates(specTreeObjs, specConstVals, [_.cloneDeep(lastState)])
                             .map(c => c["state"])
                             .map(renamedPrimedVars);
         currNextStates = _.cloneDeep(nextStates);
@@ -164,7 +165,8 @@ function handleChooseState(statehash_short){
     console.log("nextStatePred:", nextStatePred);
     const start = performance.now();
 
-    let nextStates = computeNextStates(specTreeObjs, specConstVals, [nextState])
+    let interp = new TlaInterpreter();
+    let nextStates = interp.computeNextStates(specTreeObjs, specConstVals, [nextState])
                         .map(c => c["state"])
                         .map(renamedPrimedVars);
     currNextStates = _.cloneDeep(nextStates);
@@ -216,7 +218,8 @@ function setConstantValues(){
     console.log(dummyTreeObjs);
 
     // Compute the single initial state.
-    let dummyInitStates = computeInitStates(dummyTreeObjs);
+    let interp = new TlaInterpreter();
+    let dummyInitStates = interp.computeInitStates(dummyTreeObjs);
     console.log("dummy init states:", dummyInitStates);
     assert(dummyInitStates.length === 1);
     let initStateEval = dummyInitStates[0];
@@ -250,7 +253,8 @@ function reloadSpec(){
     renderCurrentTrace();
 
     console.log("Generating initial states.");
-    let initStates = computeInitStates(specTreeObjs, specConstVals);
+    let interp = new TlaInterpreter();
+    let initStates = interp.computeInitStates(specTreeObjs, specConstVals);
     allInitStates = initStates;
 
     // Display states in HTML.

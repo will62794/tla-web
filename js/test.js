@@ -58,7 +58,8 @@ function testStateGraphEquiv(testId, stateGraph, specPath){
 
         // Test correct states. 
         // TODO: test correct edges as well.
-        let reachable = computeReachableStates(parseSpec(specText))["states"];
+        let interp = new TlaInterpreter();
+        let reachable = interp.computeReachableStates(parseSpec(specText))["states"];
         let reachableTLC = stateGraph["states"].map(s => s["val"]);
         console.log("spec reachable:", reachable);
         console.log("spec reachable TLC oracle:", reachableTLC);
@@ -138,7 +139,8 @@ function testStateGraphEquiv(testId, stateGraph, specPath){
         let treeObjs = parseSpec(specText);
         
         // Test correct initial states.
-        let initStates = computeInitStates(treeObjs, {});
+        let interp = new TlaInterpreter();
+        let initStates = interp.computeInitStates(treeObjs, {});
         const passInit = arrEq(initExpected, initStates);
 
         // Print expected initial states.
@@ -165,7 +167,7 @@ function testStateGraphEquiv(testId, stateGraph, specPath){
         let passNext;
         if(nextExpected!==null){
             // Test correct next states.
-            let nextStates = computeNextStates(treeObjs, {}, initStates).map(c => c["state"]);
+            let nextStates = interp.computeNextStates(treeObjs, {}, initStates).map(c => c["state"]);
             passNext = arrEq(nextExpected, nextStates);
 
             // Print expected next states.

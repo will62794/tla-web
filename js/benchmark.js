@@ -53,7 +53,8 @@ function testStateGraphEquiv(testId, stateGraph, specPath){
 
         // Test correct initial states.
         // let initStates = computeInitStates(newTree);
-        let reachable = computeReachableStates(parseSpec(specText))["states"];
+        let interp = new TlaInterpreter();
+        let reachable = interp.computeReachableStates(parseSpec(specText))["states"];
         // console.log("spec5 init", initStates);
         let reachableTLC = stateGraph["states"].map(s => s["val"]);
         console.log("spec5 reachable:", reachable);
@@ -107,7 +108,8 @@ function testStateGraphEquiv(testId, stateGraph, specPath){
         let treeObjs = parseSpec(specText);
         
         // Test correct initial states.
-        let initStates = computeInitStates(treeObjs);
+        let interp = new TlaInterpreter();
+        let initStates = interp.computeInitStates(treeObjs);
         const passInit = arrEq(initExpected, initStates);
 
         // Print expected initial states.
@@ -134,7 +136,8 @@ function testStateGraphEquiv(testId, stateGraph, specPath){
         let passNext;
         if(nextExpected!==null){
             // Test correct next states.
-            let nextStates = computeNextStates(treeObjs, {}, initStates).map(c => c["state"]);
+            let interp = new TlaInterpreter();
+            let nextStates = interp.computeNextStates(treeObjs, {}, initStates).map(c => c["state"]);
             passNext = arrEq(nextExpected, nextStates);
 
             // Print expected next states.
@@ -294,7 +297,8 @@ function testPaxosNext(testId, specName){
         let start;
         for(var k=0;k<num_iters;k++){
             start = performance.now();
-            initStates = computeInitStates(treeObjs);
+            let interp = new TlaInterpreter();
+            initStates = interp.computeInitStates(treeObjs);
             let initDuration = (performance.now() - start);
             totalInitDuration += initDuration;
         }
@@ -304,7 +308,8 @@ function testPaxosNext(testId, specName){
         for(var k=0;k<num_iters;k++){
             start = performance.now();
             console.log("Computing next states for Paxos.");
-            nextStates = computeNextStates(treeObjs, {}, initStates).map(c => c["state"]);
+            let interp = new TlaInterpreter();
+            nextStates = interp.computeNextStates(treeObjs, {}, initStates).map(c => c["state"]);
             let nextDuration = (performance.now() - start);
             totalNextDuration += nextDuration;
         }

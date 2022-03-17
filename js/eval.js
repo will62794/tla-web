@@ -1334,101 +1334,97 @@ function getNextStates(nextDef, currStateVars, defns, constvals){
     });
 }
 
-// TODO: Consider reconciling this with 'getInitStates' function.
-function computeInitStates(treeObjs, constvals){
-    let consts = treeObjs["const_decls"];
-    let vars = treeObjs["var_decls"];
-    let defns = treeObjs["op_defs"];
+class TlaInterpreter{
 
-    console.log("consts:", consts);
-
-    let initDef = defns["Init"];
-    console.log("<<<<< INIT >>>>>");
-    console.log(initDef);
-    console.log("initDef.childCount: ", initDef["node"].childCount);
-    console.log("initDef.type: ", initDef["node"].type);
-
-    let initStates = getInitStates(initDef["node"], vars, defns, constvals);
-    // Keep only the valid states.
-    initStates = initStates.filter(actx => actx["val"]).map(actx => actx["state"]);
-    return initStates;
-}
-
-// TODO: Consider reconciling this with 'getNextStates' function.
-function computeNextStates(treeObjs, constvals, initStates){
-    let consts = treeObjs["const_decls"];
-    let vars = treeObjs["var_decls"];
-    let defns = treeObjs["op_defs"];
-
-    let nextDef = defns["Next"];
-    console.log(defns);
-    console.log("<<<< NEXT >>>>");
-    console.log(nextDef);
-    // console.log("nextDef.childCount: ", nextDef["node"].childCount);
-    // console.log("nextDef.type: ", nextDef["node"].type);
-
-    let allNext = []
-    for(const istate of initStates){
-        let currState = _.cloneDeep(istate);
-        // console.log("###### Computing next states from state: ", currState);
-        let ret = getNextStates(nextDef["node"], currState, defns, constvals);
-        allNext = allNext.concat(ret);
+    computeInitStates(treeObjs, constvals){
+        let consts = treeObjs["const_decls"];
+        let vars = treeObjs["var_decls"];
+        let defns = treeObjs["op_defs"];
+    
+        console.log("consts:", consts);
+    
+        let initDef = defns["Init"];
+        console.log("<<<<< INIT >>>>>");
+        console.log(initDef);
+        console.log("initDef.childCount: ", initDef["node"].childCount);
+        console.log("initDef.type: ", initDef["node"].type);
+    
+        let initStates = getInitStates(initDef["node"], vars, defns, constvals);
+        // Keep only the valid states.
+        initStates = initStates.filter(actx => actx["val"]).map(actx => actx["state"]);
+        return initStates;
     }
-    return allNext;
-}
 
-function computeReachableStates(treeObjs, constvals){
-    let vars = treeObjs["var_decls"];
-    let defns = treeObjs["op_defs"];
-
-    let initDef = defns["Init"];
-    let nextDef = defns["Next"];
-
-    // Compute initial states and keep only the valid ones.
-    // let initStates = getInitStates(initDef["node"], vars, defns, constvals);
-    let initStates = computeInitStates(treeObjs, constvals);
-
-    let stateQueue = initStates;
-    let seenStatesHashSet = new Set(); 
-    let reachableStates = [];
-    let edges = [];
-    while(stateQueue.length > 0){
-        let currState = stateQueue.pop();
-        // console.log(currState);
-        let currStateHash = hashState(currState);
-        // console.log(currStateHash);
-
-        // If we've already seen this state, we don't need to explore it.
-        if(seenStatesHashSet.has(currStateHash)){
-            continue;
+    computeNextStates(treeObjs, constvals, initStates){
+        let consts = treeObjs["const_decls"];
+        let vars = treeObjs["var_decls"];
+        let defns = treeObjs["op_defs"];
+    
+        let nextDef = defns["Next"];
+        console.log(defns);
+        console.log("<<<< NEXT >>>>");
+        console.log(nextDef);
+        // console.log("nextDef.childCount: ", nextDef["node"].childCount);
+        // console.log("nextDef.type: ", nextDef["node"].type);
+    
+        let allNext = []
+        for(const istate of initStates){
+            let currState = _.cloneDeep(istate);
+            // console.log("###### Computing next states from state: ", currState);
+            let ret = getNextStates(nextDef["node"], currState, defns, constvals);
+            allNext = allNext.concat(ret);
         }
+        return allNext;
+    }
 
-        // Mark the state as seen and record it as reachable.
-        seenStatesHashSet.add(currStateHash);
-        reachableStates.push(currState);
-
-        // Compute next states reachable from the current state, and add
-        // them to the state queue.
-        let currStateArg = _.cloneDeep(currState);
-        let nextStates = computeNextStates(treeObjs, constvals, [currStateArg])
-                            .map(c => c["state"])
-                            .map(renamePrimedVars);
-        // console.log("nextStates:", nextStates);
-        // console.log("reachableStates:", reachableStates);
-        stateQueue = stateQueue.concat(nextStates);
-        for(const nextSt of nextStates){
-            edges.push([currStateArg, nextSt])
+    computeReachableStates(treeObjs, constvals){
+        let vars = treeObjs["var_decls"];
+        let defns = treeObjs["op_defs"];
+    
+        let initDef = defns["Init"];
+        let nextDef = defns["Next"];
+    
+        // Compute initial states and keep only the valid ones.
+        // let initStates = getInitStates(initDef["node"], vars, defns, constvals);
+        let initStates = this.computeInitStates(treeObjs, constvals);
+    
+        let stateQueue = initStates;
+        let seenStatesHashSet = new Set(); 
+        let reachableStates = [];
+        let edges = [];
+        while(stateQueue.length > 0){
+            let currState = stateQueue.pop();
+            // console.log(currState);
+            let currStateHash = hashState(currState);
+            // console.log(currStateHash);
+    
+            // If we've already seen this state, we don't need to explore it.
+            if(seenStatesHashSet.has(currStateHash)){
+                continue;
+            }
+    
+            // Mark the state as seen and record it as reachable.
+            seenStatesHashSet.add(currStateHash);
+            reachableStates.push(currState);
+    
+            // Compute next states reachable from the current state, and add
+            // them to the state queue.
+            let currStateArg = _.cloneDeep(currState);
+            let nextStates = this.computeNextStates(treeObjs, constvals, [currStateArg])
+                                .map(c => c["state"])
+                                .map(renamePrimedVars);
+            // console.log("nextStates:", nextStates);
+            // console.log("reachableStates:", reachableStates);
+            stateQueue = stateQueue.concat(nextStates);
+            for(const nextSt of nextStates){
+                edges.push([currStateArg, nextSt])
+            }
+        }
+        return {
+            "states": reachableStates,
+            "edges": edges
         }
     }
-    return {
-        "states": reachableStates,
-        "edges": edges
-    }
-}
-
-class TlaPlusInterpreter{
-    // TODO: Implement a more well-defined interface to the functions in this
-    // file.
 } 
 
 //
