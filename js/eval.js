@@ -79,6 +79,13 @@ class IntValue extends TLAValue{
     toJSON(){
         return this.val;
     }
+    getVal(){
+        return this.val;
+    }
+    plus(other){
+        assert(other instanceof IntValue);
+        return new IntValue(this.val + other.getVal())
+    }
 }
 
 class BoolValue extends TLAValue{
@@ -104,15 +111,99 @@ class StringValue extends TLAValue{
     }
 }
 
-// class TupleValue extends TLAValue{
-//     constructor(s){
-//         super(s);
-//         this.val = s;
-//     }
-//     toString(){
-//         return this.val;
-//     }
-// }
+class SetValue extends TLAValue{
+    constructor(elems){
+        super(elems);
+        this.elems = elems;
+    }
+    toString(){
+        return "{" + this.elems.map(x => x.toString()).join(",") + "}";
+    }
+
+    toJSON(){
+        return this.elems;
+    }
+
+    getElems(){
+        return this.elems;
+    }
+
+    unionWith(otherSet){
+       return new SetValue(_.uniqWith(this.elems.concat(otherSet.getElems()), _.isEqual));
+    }
+
+    intersectionWith(otherSet){
+        return new SetValue(_.intersectionWith(this.elems, otherSet.getElems(), _.isEqual));
+    }
+
+    diffWith(otherSet){
+        return new SetValue(_.differenceWith(this.elems, otherSet.getElems(), _.isEqual));
+    }
+    
+}
+
+class TupleValue extends TLAValue{
+    constructor(elems){
+        super(elems);
+        this.elems = elems;
+    }
+    toString(){
+        return "<<" + this.elems.map(x => x.toString()).join(",") + ">>";
+    }
+
+    toJSON(){
+        return this.elems;
+    }
+
+    getElems(){
+        return this.elems;
+    }
+}
+
+class FcnRcdValue extends TLAValue{
+    constructor(domain, values){
+        super(domain, values);
+        this.domain = domain;
+        this.values = values
+    }
+    toString(){
+        return "fcn_val_toString_unimplemented";
+    }
+
+    toJSON(){
+        return _.fromPairs(_.zip(this.domain, this.values))
+    }
+
+    getDomain(){
+        return this.domain;
+    }
+
+    getValues(){
+        return this.values;
+    }
+
+    // Get index of function argument in the function's domain.
+    argIndex(arg){
+        return _.findIndex(this.domain, (v) => {
+            return _.isEqual(v, arg);
+        });
+    }
+
+    /**
+     * Apply the function to the argument 'arg'.
+     */ 
+    applyArg(arg){
+        let idx = this.argIndex(arg);
+        return this.values[idx];
+    }
+
+    updateWith(arg, newVal){
+        let idx = this.argIndex(arg);
+        let newFn = _.cloneDeep(this);
+        newFn.values[idx] = newVal;
+        return newFn;
+    }
+}
 
 // Apply a given set of text rewrites to a given source text. Assumes the given
 // 'text' argument is a string given as a list of lines.
@@ -586,7 +677,7 @@ function evalBoundInfix(node, ctx){
         evalLog("mul lhs val:", mulLhsVal);
         let lhsVal = mulLhsVal[0]["val"];
         let rhsVal = evalExpr(rhs, ctx)[0]["val"];
-        let outVal = lhsVal * rhsVal;
+        let outVal = lhsVal.getVal() * rhsVal.getVal();
         // console.log("mul overall val:", outVal);
         return [ctx.withVal(outVal)];
     }
@@ -598,7 +689,9 @@ function evalBoundInfix(node, ctx){
         evalLog("plus lhs val:", plusLhsVal);
         let lhsVal = plusLhsVal[0]["val"];
         let rhsVal = evalExpr(rhs, ctx)[0]["val"];
-        let outVal = lhsVal + rhsVal;
+        assert(lhsVal instanceof IntValue);
+        assert(rhsVal instanceof IntValue);
+        let outVal = lhsVal.plus(rhsVal);
         return [ctx.withVal(outVal)];
     }
 
@@ -606,14 +699,18 @@ function evalBoundInfix(node, ctx){
     if(symbol.type === "gt"){
         let lhsVal = evalExpr(lhs, ctx)[0]["val"];
         let rhsVal = evalExpr(rhs, ctx)[0]["val"];
-        let outVal = lhsVal > rhsVal;
+        assert(lhsVal instanceof IntValue);
+        assert(rhsVal instanceof IntValue);
+        let outVal = lhsVal.getVal() > rhsVal.getVal();
         return [ctx.withVal(outVal)];
     }
 
     if(symbol.type === "geq"){
         let lhsVal = evalExpr(lhs, ctx)[0]["val"];
         let rhsVal = evalExpr(rhs, ctx)[0]["val"];
-        let outVal = lhsVal >= rhsVal;
+        assert(lhsVal instanceof IntValue);
+        assert(rhsVal instanceof IntValue);
+        let outVal = lhsVal.getVal() >= rhsVal.getVal();
         return [ctx.withVal(outVal)];
     }
 
@@ -663,10 +760,11 @@ function evalBoundInfix(node, ctx){
         evalLog("setin lhsval:", lhsVal, lhs.text, ctx);
 
         let rhsVal = evalExpr(rhs, ctx)[0]["val"];
+        // assert(rhsVal instanceof SetValue);
         evalLog("setin rhsval:", rhsVal, rhs.text, ctx);
 
         // Use '_.isEqual' method for checking equality based set inclusion.
-        let sameElems = rhsVal.filter(o => _.isEqual(o, lhsVal));
+        let sameElems = rhsVal.getElems().filter(o => _.isEqual(o, lhsVal));
         let inSetVal = sameElems.length > 0;
         
         let resVal = symbol.type === "in" ? inSetVal : !inSetVal; 
@@ -682,8 +780,9 @@ function evalBoundInfix(node, ctx){
         evalLog("cap lhs:", lhsVal);
         let rhsVal = evalExpr(rhs, ctx)[0]["val"];
         evalLog("cap rhs:", rhsVal);
-        let capVal = _.intersectionWith(lhsVal, rhsVal, _.isEqual);
-        return [ctx.withVal(capVal)];
+        assert(lhsVal instanceof SetValue);
+        assert(rhsVal instanceof SetValue);
+        return [ctx.withVal(lhsVal.intersectionWith(rhsVal))];
     } 
 
     // Set union.
@@ -696,7 +795,9 @@ function evalBoundInfix(node, ctx){
         evalLog("cup lhs:", lhsVal);
         let rhsVal = evalExpr(rhs, ctx)[0]["val"];
         evalLog("cup rhs:", lhsVal);
-        return [ctx.withVal(_.uniqWith(lhsVal.concat(rhsVal), _.isEqual))];
+        assert(lhsVal instanceof SetValue);
+        assert(rhsVal instanceof SetValue);
+        return [ctx.withVal(lhsVal.unionWith(rhsVal))];
     }   
 
     // Set minus.
@@ -709,7 +810,9 @@ function evalBoundInfix(node, ctx){
         evalLog("setminus lhs:", lhsVal);
         let rhsVal = evalExpr(rhs, ctx)[0]["val"];
         evalLog("setminus rhs:", lhsVal);
-        return [ctx.withVal(_.difference(lhsVal,rhsVal))];
+        assert(lhsVal instanceof SetValue);
+        assert(rhsVal instanceof SetValue);
+        return [ctx.withVal(lhsVal.diffWith(rhsVal))];
     } 
 
     // Enumerated set with dot notation e.g. 1..N
@@ -849,7 +952,7 @@ function evalBoundedQuantification(node, ctx){
     let quantDomains = quantBounds.map(qbound =>{
         expr = evalExpr(qbound.children[2], ctx);
         let domain = expr[0]["val"];
-        return domain;
+        return domain.getElems();
     });
     let quantIdents = quantBounds.map(qbound => qbound.children[0].text);
 
@@ -950,7 +1053,7 @@ function evalFiniteSetLiteral(node, ctx){
         console.assert(r.length === 1);
         return r[0]["val"];
     });
-    return [ctx.withVal(ret)];
+    return [ctx.withVal(new SetValue(ret))];
 }
 
 /**
@@ -1026,6 +1129,7 @@ function evalExpr(node, ctx){
         // console.assert(lExprVal.type === "function");
         let fnVal = lExprVal[0]["val"];
         evalLog("fnVal:",fnVal);
+        assert(fnVal instanceof FcnRcdValue);
 
         evalLog(updateExpr);
         let updateExprVal = evalExpr(updateExpr, ctx)[0]["val"];
@@ -1033,9 +1137,10 @@ function evalExpr(node, ctx){
 
         let rExprVal = evalExpr(rExpr, ctx)[0]["val"];
         evalLog("rExprVal:", rExprVal);
-        fnVal[updateExprVal] = rExprVal;
+        // fnVal[updateExprVal] = rExprVal;
 
-        return [ctx.withVal(_.cloneDeep(fnVal))];
+        let updatedFnVal = fnVal.updateWith(updateExprVal, rExprVal);
+        return [ctx.withVal(updatedFnVal)];
 
         throw Error("Evaluation of 'except' node type not implemented.");
 
@@ -1051,6 +1156,7 @@ function evalExpr(node, ctx){
         // console.log("fnArgVal:", fnArgVal);
         let fnArgVal = evalExpr(node.namedChildren[1], ctx)[0]["val"];
         evalLog("fneval (arg,val): ", fnVal, ",", fnArgVal);
+        return [ctx.withVal(fnVal.applyArg(fnArgVal))];
         return [ctx.withVal(fnVal[fnArgVal])];
     }
 
@@ -1143,8 +1249,9 @@ function evalExpr(node, ctx){
 
         let boundVarName = rightQuantBound.namedChildren[0].text;
         let boundVarDomain = evalExpr(rightQuantBound.namedChildren[2], ctx)[0]["val"];
+        console.log(boundVarDomain);
 
-        let retVal = boundVarDomain.map((val) => {
+        let retVal = boundVarDomain.getElems().map((val) => {
             let boundContext = ctx.clone();
             if(!boundContext.hasOwnProperty("quant_bound")){
                 boundContext["quant_bound"] = {};
@@ -1174,7 +1281,7 @@ function evalExpr(node, ctx){
         evalLog("domainExprVal:", domainExprVal);
 
         // Return all values in domain for which the set filter evaluates to true.
-        let filteredVals = domainExprVal.filter(exprVal => {
+        let filteredVals = domainExprVal.getElems().filter(exprVal => {
             // Evaluate rhs in context of the bound value and check its truth value.
             let boundContext = ctx.clone();
             if(!boundContext.hasOwnProperty("quant_bound")){
@@ -1236,14 +1343,16 @@ function evalExpr(node, ctx){
         let elems = node.namedChildren.slice(1, node.namedChildren.length - 1);
 
         tupleVals = elems.map(el => evalExpr(el, ctx)[0]["val"]);
-        return [ctx.withVal(tupleVals)];
+        return [ctx.withVal(new TupleValue(tupleVals))];
     }
 
     // [<identifier> |-> <expr>, <identifier> |-> <expr>, ...]
     // "|->" is of type 'all_map_to'.
     if(node.type === "record_literal"){
         evalLog("RECLIT", node);
-        let record_obj = {}
+        let record_obj = {};
+        let recordDom = [];
+        let recordVals = [];
         for(var i=0;i<node.namedChildren.length;i+=3){
             let ident = node.namedChildren[i]
             let exprNode = node.namedChildren[i+2]
@@ -1251,9 +1360,12 @@ function evalExpr(node, ctx){
             let identName = ident.text;
             let exprVal = evalExpr(exprNode, ctx);
             record_obj[identName] = exprVal[0]["val"];
+            recordDom.push(new StringValue(identName));
+            recordVals.push(exprVal[0]["val"]);
         }
-        evalLog("RECOBJ", record_obj);
-        return [ctx.withVal(record_obj)];
+        let recVal = new FcnRcdValue(recordDom, recordVals);
+        evalLog("RECOBJ", recVal);
+        return [ctx.withVal(recVal)];
     }
 
 
@@ -1281,8 +1393,10 @@ function evalExpr(node, ctx){
         // quantifier domain.
         // TODO: For now assume that quantifier domain doesn't fork evaluation.
         let domain = quant_expr[0]["val"];
+        assert(domain instanceof SetValue);
         let fnVal = {}; //_.fromPairs(domain.map(x => [x,null]));
-        for(const v of domain){
+        let fnValRange = [];
+        for(const v of domain.getElems()){
             // Evaluate the expression in a context with the the current domain 
             // value bound to the identifier.
             // let boundContext = {"val": ctx["val"], "state": ctx["state"]};
@@ -1298,9 +1412,11 @@ function evalExpr(node, ctx){
             evalLog("fexpr vals:", vals);
             console.assert(vals.length === 1);
             fnVal[v] = vals[0]["val"];
+            fnValRange.push(vals[0]["val"]);
         }
         evalLog("fnVal:", fnVal);
-        return [ctx.withVal(fnVal)];
+        let newFnVal = new FcnRcdValue(domain.getElems(), fnValRange);
+        return [ctx.withVal(newFnVal)];
     }
 }
 

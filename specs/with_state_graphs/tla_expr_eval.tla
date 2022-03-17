@@ -23,9 +23,10 @@ Init == exprs = [
     setmap3 |-> {x + 2 : x \in {1,2,3} \cup {2,3,4}},
     setfilter1 |-> {x \in {1,2,3} : x > 1},
     except1 |-> [[a |-> 1, b |-> 2] EXCEPT !["a"] = 12],
-    fcnapp1 |-> [a |-> 1, b |-> 2]["a"],
-    fcnset1 |-> [{"x","y"} -> {1,2,3}]
+    fcnapp1 |-> [a |-> 1, b |-> 2]["a"]
 ]
+
+\* fcnset1 |-> [{"x","y"} -> {1,2,3}]
     
 Next == UNCHANGED exprs
 
