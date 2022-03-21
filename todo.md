@@ -11,6 +11,7 @@
 - [ ] Async testing framework
 - [ ] More unified method for comment filtering
 - [ ] Model values
+- [ ] Make ITF state comparison order insensitive
 
 ## Interface/UI
 

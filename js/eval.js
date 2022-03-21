@@ -57,12 +57,6 @@ function hashStateShort(stateObj){
     return objectHash.sha1(stateObj).slice(0,shortHashPrefixLen);
 }
 
-// Rename primed variables to unprimed variables.
-function renamePrimedVars(state){
-    state = _.pickBy(state, (val,k,obj) => k.endsWith("'"));
-    return _.mapKeys(state, (val,k,obj) => k.slice(0,k.length-1));
-}
-
 //
 //
 // TLA+ Value type definitions.
@@ -71,6 +65,10 @@ function renamePrimedVars(state){
 
 class TLAValue{
     constructor() {
+    }
+
+    toJSONITF(){
+        return "'toJSONITF' unimplemented";
     }
 }
 
@@ -84,6 +82,9 @@ class IntValue extends TLAValue{
     }
     toJSON(){
         return this.val;
+    }
+    toJSONITF(){
+        return {"#type": "int", "#value": this.val};
     }
     getVal(){
         return this.val;
@@ -105,6 +106,9 @@ class BoolValue extends TLAValue{
     toJSON(){
         return this.val;
     }
+    toJSONITF(){
+        return {"#type": "bool", "#value": this.val};
+    }
 }
 
 class StringValue extends TLAValue{
@@ -112,11 +116,17 @@ class StringValue extends TLAValue{
         super(s);
         this.val = s;
     }
+    getVal(){
+        return this.val;
+    }
     toString(){
         return "\"" + this.val + "\"";
     }
     toJSON(){
         return this.val;
+    }
+    toJSONITF(){
+        return {"#type": "string", "#value": this.val};
     }
 }
 
@@ -131,6 +141,11 @@ class SetValue extends TLAValue{
 
     toJSON(){
         return this.elems;
+    }
+
+    toJSONITF(){
+        // return {"#type": "set", "#value": _.reverse(this.elems.map(el => el.toJSONITF()))};
+        return {"#type": "set", "#value": this.elems.map(el => el.toJSONITF())};
     }
 
     getElems(){
@@ -148,7 +163,6 @@ class SetValue extends TLAValue{
     diffWith(otherSet){
         return new SetValue(_.differenceWith(this.elems, otherSet.getElems(), _.isEqual));
     }
-    
 }
 
 class TupleValue extends TLAValue{
@@ -167,15 +181,18 @@ class TupleValue extends TLAValue{
     getElems(){
         return this.elems;
     }
+    toJSONITF(){
+        return {"#type": "tup", "#value": this.elems.map(el => el.toJSONITF())};
+    }
 }
 
 class FcnRcdValue extends TLAValue{
-    constructor(domain, values){
+    constructor(domain, values, isRecord){
         super(domain, values);
         this.domain = domain;
         this.values = values
-        // TODO: Track record values explicitly?
-        // Clarify function vs. record distinction.
+        // Trace 'record' types explicitly.
+        this.isRecord = isRecord || false;
     }
     toString(){
         return "[" + this.domain.map((dv,idx) => dv + " |-> " + this.values[idx]).join(", ") + "]";
@@ -213,6 +230,24 @@ class FcnRcdValue extends TLAValue{
         let newFn = _.cloneDeep(this);
         newFn.values[idx] = newVal;
         return newFn;
+    }
+    toJSONITF(){
+        if(this.isRecord){
+            console.log(this.domain);
+            console.log(this.values);
+            // Record domains should always be over strings.
+            return {
+                "#type": "record", 
+                "#value": _.zipObject(this.domain.map(x => x.getVal()), 
+                                      this.values.map(x => x.toJSONITF()))
+            };
+        } else{
+            return {
+                "#type": "map", 
+                "#value": _.zip(this.domain.map(x => x.toJSONITF()), 
+                                this.values.map(x => x.toJSONITF()))
+            };
+        }
     }
 }
 
@@ -252,6 +287,16 @@ class TLAState{
     deprimeVars(){
         let newVars = _.pickBy(this.vars, (val,k,obj) => k.endsWith("'"));
         return new TLAState(_.mapKeys(newVars, (val,k,obj) => k.slice(0,k.length-1)));
+    }
+
+    /**
+     * Return an object representing this state using the Informal Trace Format
+     * (ITF) serialization conventions for TLA values.
+     * 
+     * See https://apalache.informal.systems/docs/adr/015adr-trace.html.
+     */
+    toJSONITF(){
+        return _.mapValues(this.vars, (v) => v.toJSONITF());
     }
 
     // toString(){
@@ -893,8 +938,9 @@ function evalBoundPrefix(node, ctx){
         evalLog("rhsVal: ", rhsVal);
         rhsVal = rhsVal[0]["val"];
         let powersetRhs = subsets(rhsVal);
+        powersetRhs = powersetRhs.map(x => new SetValue(x));
         evalLog("powerset:",powersetRhs);
-        return [ctx.withVal(powersetRhs)];
+        return [ctx.withVal(new SetValue(powersetRhs))];
     }
     if(symbol.type === "negative"){
         let rhsVal = evalExpr(rhs, ctx);
@@ -1009,6 +1055,7 @@ function evalBoundedQuantification(node, ctx){
     let quantDomains = quantBounds.map(qbound =>{
         expr = evalExpr(qbound.children[2], ctx);
         let domain = expr[0]["val"];
+        console.log(domain);
         return domain.getElems();
     });
     let quantIdents = quantBounds.map(qbound => qbound.children[0].text);
@@ -1316,7 +1363,7 @@ function evalExpr(node, ctx){
             boundContext["quant_bound"][boundVarName] = val;
             return evalExpr(lhsExpr, boundContext)[0]["val"];
         })
-        return [ctx.withVal(retVal)];
+        return [ctx.withVal(new SetValue(retVal))];
     }
 
     // {<single_quantifier_bound> : <expr>}
@@ -1350,7 +1397,7 @@ function evalExpr(node, ctx){
             return rhsFilterVal;
         });
         evalLog("domainExprVal filtered:", filteredVals);
-        return [ctx.withVal(filteredVals)];
+        return [ctx.withVal(new SetValue(filteredVals))];
     }
 
     // <record>.<field>
@@ -1420,7 +1467,8 @@ function evalExpr(node, ctx){
             recordDom.push(new StringValue(identName));
             recordVals.push(exprVal[0]["val"]);
         }
-        let recVal = new FcnRcdValue(recordDom, recordVals);
+        let isRecord = true;
+        let recVal = new FcnRcdValue(recordDom, recordVals, isRecord);
         evalLog("RECOBJ", recVal);
         return [ctx.withVal(recVal)];
     }
@@ -1616,8 +1664,7 @@ class TlaInterpreter{
             // them to the state queue.
             let currStateArg = _.cloneDeep(currState);
             let nextStates = this.computeNextStates(treeObjs, constvals, [currStateArg])
-                                .map(c => c["state"])
-                                .map(renamePrimedVars);
+                                .map(c => c["state"].deprimeVars());
             // console.log("nextStates:", nextStates);
             // console.log("reachableStates:", reachableStates);
             stateQueue = stateQueue.concat(nextStates);
