@@ -937,9 +937,10 @@ function evalBoundPrefix(node, ctx){
         let rhsVal = evalExpr(rhs, ctx);
         evalLog("rhsVal: ", rhsVal);
         rhsVal = rhsVal[0]["val"];
-        let powersetRhs = subsets(rhsVal);
+        let powersetRhs = subsets(rhsVal.getElems());
+        // console.log("powersetRhs:", powersetRhs);
         powersetRhs = powersetRhs.map(x => new SetValue(x));
-        evalLog("powerset:",powersetRhs);
+        // evalLog("powerset:",powersetRhs);
         return [ctx.withVal(new SetValue(powersetRhs))];
     }
     if(symbol.type === "negative"){
@@ -1056,6 +1057,7 @@ function evalBoundedQuantification(node, ctx){
         expr = evalExpr(qbound.children[2], ctx);
         let domain = expr[0]["val"];
         console.log(domain);
+        assert(domain instanceof SetValue);
         return domain.getElems();
     });
     let quantIdents = quantBounds.map(qbound => qbound.children[0].text);
@@ -1065,7 +1067,7 @@ function evalBoundedQuantification(node, ctx){
     let quantDomainTuples = cartesianProductOf(...quantDomains);
     evalLog("quantDomain tuples:", quantDomainTuples);
     if(quantDomainTuples.length === 0){
-        return [ctx.withVal(false)];
+        return [ctx.withVal(new BoolValue(false))];
     }
 
     return _.flattenDeep(quantDomainTuples.map(qtup => {
@@ -1491,8 +1493,7 @@ function evalExpr(node, ctx){
         quant_ident = quant_bound.children[0];
         quant_expr = evalExpr(quant_bound.children[2], ctx);
         evalLog("function_literal quant_expr:", quant_expr);
-        evalLog(quant_ident.type);
-        evalLog(quant_expr.type);
+        console.log(quant_expr)
 
         // Evaluate the quantified expression for each element in the 
         // quantifier domain.
