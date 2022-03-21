@@ -4,56 +4,179 @@
       "fp": -5955847067280558955,
       "val": {
         "exprs": {
-          "add": 10,
-          "setunion1": [
-            1,
-            2,
-            3
-          ],
-          "setunion2": [
-            1,
-            2,
-            3
-          ],
-          "setint1": [
-            2,
-            3
-          ],
-          "setint2": [
-            1,
-            2,
-            3
-          ],
-          "setint3": [],
-          "setdiff1": [
-            1,
-            3
-          ],
-          "setmap1": [
-            1,
-            2,
-            3
-          ],
-          "setmap2": [
-            3,
-            4,
-            5
-          ],
-          "setmap3": [
-            3,
-            4,
-            5,
-            6
-          ],
-          "setfilter1": [
-            2,
-            3
-          ],
-          "except1": {
-            "a": 12,
-            "b": 2
-          },
-          "fcnapp1": 1
+          "#type": "record",
+          "#value": {
+            "add": {
+              "#type": "int",
+              "#value": 10
+            },
+            "setunion1": {
+              "#type": "set",
+              "#value": [
+                {
+                  "#type": "int",
+                  "#value": 1
+                },
+                {
+                  "#type": "int",
+                  "#value": 2
+                },
+                {
+                  "#type": "int",
+                  "#value": 3
+                }
+              ]
+            },
+            "setunion2": {
+              "#type": "set",
+              "#value": [
+                {
+                  "#type": "int",
+                  "#value": 1
+                },
+                {
+                  "#type": "int",
+                  "#value": 2
+                },
+                {
+                  "#type": "int",
+                  "#value": 3
+                }
+              ]
+            },
+            "setint1": {
+              "#type": "set",
+              "#value": [
+                {
+                  "#type": "int",
+                  "#value": 2
+                },
+                {
+                  "#type": "int",
+                  "#value": 3
+                }
+              ]
+            },
+            "setint2": {
+              "#type": "set",
+              "#value": [
+                {
+                  "#type": "int",
+                  "#value": 1
+                },
+                {
+                  "#type": "int",
+                  "#value": 2
+                },
+                {
+                  "#type": "int",
+                  "#value": 3
+                }
+              ]
+            },
+            "setint3": {
+              "#type": "set",
+              "#value": []
+            },
+            "setdiff1": {
+              "#type": "set",
+              "#value": [
+                {
+                  "#type": "int",
+                  "#value": 1
+                },
+                {
+                  "#type": "int",
+                  "#value": 3
+                }
+              ]
+            },
+            "setmap1": {
+              "#type": "set",
+              "#value": [
+                {
+                  "#type": "int",
+                  "#value": 1
+                },
+                {
+                  "#type": "int",
+                  "#value": 2
+                },
+                {
+                  "#type": "int",
+                  "#value": 3
+                }
+              ]
+            },
+            "setmap2": {
+              "#type": "set",
+              "#value": [
+                {
+                  "#type": "int",
+                  "#value": 3
+                },
+                {
+                  "#type": "int",
+                  "#value": 4
+                },
+                {
+                  "#type": "int",
+                  "#value": 5
+                }
+              ]
+            },
+            "setmap3": {
+              "#type": "set",
+              "#value": [
+                {
+                  "#type": "int",
+                  "#value": 3
+                },
+                {
+                  "#type": "int",
+                  "#value": 4
+                },
+                {
+                  "#type": "int",
+                  "#value": 5
+                },
+                {
+                  "#type": "int",
+                  "#value": 6
+                }
+              ]
+            },
+            "setfilter1": {
+              "#type": "set",
+              "#value": [
+                {
+                  "#type": "int",
+                  "#value": 2
+                },
+                {
+                  "#type": "int",
+                  "#value": 3
+                }
+              ]
+            },
+            "except1": {
+              "#type": "record",
+              "#value": {
+                "a": {
+                  "#type": "int",
+                  "#value": 12
+                },
+                "b": {
+                  "#type": "int",
+                  "#value": 2
+                }
+              }
+            },
+            "fcnapp1": {
+              "#type": "int",
+              "#value": 1
+            }
+          }
         }
       }
     }

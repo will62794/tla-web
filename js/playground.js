@@ -15,13 +15,6 @@ const urlSearchParams = new URLSearchParams(window.location.search);
 const urlParams = Object.fromEntries(urlSearchParams.entries());
 let enableEvalTracing = parseInt(urlParams["debug"]);
 
-// Given a state with primed and unprimed variables, remove the original
-// unprimed variables and rename the primed variables to unprimed versions. 
-function renamedPrimedVars(state){
-    state = _.pickBy(state, (val,k,obj) => k.endsWith("'"));
-    return _.mapKeys(state, (val,k,obj) => k.slice(0,k.length-1));
-}
-
 // TODO: Implement this properly.
 function toggleSpec(){
     let pane = document.getElementById("input-pane");
@@ -35,10 +28,11 @@ function renderNextStateChoices(nextStates){
     for(const state of nextStates){
         let stateDiv = document.createElement("div");
         stateDiv.classList.add("init-state");
-        for(const varname in state){
+        // console.log("render next:", state);
+        for(const varname in state.getStateObj()){
             stateDiv.innerHTML += `<span class='state-varname'>${varname}</span> = `
             // stateDiv.innerHTML += JSON.stringify(state[varname]);
-            stateDiv.innerHTML += state[varname];
+            stateDiv.innerHTML += state.getVarVal(varname);
             stateDiv.innerHTML += "<br>"
         }
         let hash = hashStateShort(state);
@@ -58,8 +52,7 @@ function traceStepBack(){
         let lastState = currTrace[currTrace.length-1];
         let interp = new TlaInterpreter();
         let nextStates = interp.computeNextStates(specTreeObjs, specConstVals, [_.cloneDeep(lastState)])
-                            .map(c => c["state"])
-                            .map(renamedPrimedVars);
+                            .map(c => c["state"].deprimeVars());
         currNextStates = _.cloneDeep(nextStates);
     }
     renderCurrentTrace();
@@ -119,27 +112,11 @@ function renderCurrentTrace(){
         let traceStateDiv = document.createElement("div");
         // traceStateDiv.innerHTML += "<b>State " + stateInd + "</b><br>"
         traceStateDiv.classList.add("trace-state");
-        console.log(state);
-        for(const varname in state){
-            traceStateDiv.innerHTML += "<span><span class='state-varname'>" + varname +"</span> = "+ state[varname] + "</span>";
+        // console.log("trace state:", state);
+        for(const varname in state.getStateObj()){
+            traceStateDiv.innerHTML += "<span><span class='state-varname'>" + varname +"</span> = "+ state.getVarVal(varname) + "</span>";
             traceStateDiv.innerHTML += "<br>"
         }
-
-        // let backButton = document.getElementById("trace-back-button");
-        // backButton.setAttribute("hidden", "true");
-
-        //     let backButton = document.createElement("div");
-
-
-        // Remove in favor of back button at top of trace.
-        // // If this is the last state, add a "step back" button.
-        // if(isLastState){
-        //     let backButton = document.createElement("div");
-        //     backButton.innerHTML = "Back"
-        //     backButton.id = "trace-back-button";
-        //     backButton.setAttribute("onclick", `traceStepBack()`);
-        //     traceStateDiv.appendChild(backButton);
-        // }
 
         traceDiv.appendChild(traceStateDiv);
         stateInd += 1;
@@ -168,8 +145,7 @@ function handleChooseState(statehash_short){
 
     let interp = new TlaInterpreter();
     let nextStates = interp.computeNextStates(specTreeObjs, specConstVals, [nextState])
-                        .map(c => c["state"])
-                        .map(renamedPrimedVars);
+                        .map(c => c["state"].deprimeVars());
     currNextStates = _.cloneDeep(nextStates);
     const duration = (performance.now() - start).toFixed(1);
     console.log(`Generation of next states took ${duration}ms`)

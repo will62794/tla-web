@@ -216,6 +216,53 @@ class FcnRcdValue extends TLAValue{
     }
 }
 
+/**
+ * Represents a concrete TLA+ state i.e. a mapping from variable names to values.
+ */
+class TLAState{
+    /**
+     * Construct with a mapping from variable names to their corresponding TLAValue.
+     */
+    constructor(var_map){
+        this.vars = var_map;
+    }
+
+    hasVar(varname){
+        return this.vars.hasOwnProperty(varname);
+    }
+
+    /**
+     * Return the assigned value for the given variable name in this state.
+     */
+    getVarVal(varname){
+        return this.vars[varname];
+    }
+
+    /**
+     * Return the state as an object mapping variables to values.
+     */
+    getStateObj(){
+        return this.vars;
+    }
+
+    /**
+     * Given a state with primed and unprimed variables, remove the original
+     * unprimed variables and rename the primed variables to unprimed versions. 
+     */
+    deprimeVars(){
+        let newVars = _.pickBy(this.vars, (val,k,obj) => k.endsWith("'"));
+        return new TLAState(_.mapKeys(newVars, (val,k,obj) => k.slice(0,k.length-1)));
+    }
+
+    // toString(){
+    //     return "[" + this.domain.map((dv,idx) => dv + " |-> " + this.values[idx]).join(", ") + "]";
+    // }
+
+    // toJSON(){
+    //     return _.fromPairs(_.zip(this.domain, this.values))
+    // }    
+}
+
 // Apply a given set of text rewrites to a given source text. Assumes the given
 // 'text' argument is a string given as a list of lines.
 function applySyntaxRewrites(text, rewrites){
@@ -484,7 +531,7 @@ class Context{
 
         // @type: TLAState
         // Represents the current assignment of values to variables in an
-        // in-progress expression evaluation. Right now simply a mapping from
+        // in-progress expression evaluation i.e. simply a mapping from
         // variable names to TLA values.
         this.state = state;
 
@@ -606,9 +653,8 @@ function evalEq(lhs, rhs, ctx){
     // Deal with equality of variable on left hand side.
     let identName = lhs.text;
 
-    // let isUnprimedVar = ctx[0]["state"].hasOwnProperty(varName) && !isPrimedVar(lhs);
-    let isUnprimedVar = ctx["state"].hasOwnProperty(identName) && !isPrimedVar(lhs);
-    // console.log("isUnprimedVar:", isUnprimedVar);
+    // let isUnprimedVar = ctx["state"].hasOwnProperty(identName) && !isPrimedVar(lhs);
+    let isUnprimedVar = ctx.state.hasVar(identName) && !isPrimedVar(lhs);
 
     if(isPrimedVar(lhs) || (isUnprimedVar && !ASSIGN_PRIMED)){
         // Update assignments for all current evaluation ctx.
@@ -617,20 +663,20 @@ function evalEq(lhs, rhs, ctx){
         // been assigned a value, then assign it.If it has already been assigned,
         // then check for equality.
         // Variable already assigned in this context. So, check for equality.
-        if(ctx["state"].hasOwnProperty(identName) && ctx["state"][identName] !== null){
+        if(ctx.state.hasVar(identName) && ctx.state.getVarVal(identName) !== null){
             evalLog("Variable '" + identName + "' already assigned in ctx:",  ctx);
             let rhsVals = evalExpr(rhs, ctx);
             console.assert(rhsVals.length === 1);
             let rhsVal = rhsVals[0]["val"]
             evalLog("rhsVal:", rhsVal);
-            let boolVal = (ctx["state"][identName] === rhsVal)
+            let boolVal = (ctx.state.getVarVal(identName) === rhsVal)
             evalLog("boolVal:", boolVal);
 
             return [ctx.withVal(boolVal)];
         }
 
         // Variable not already assigned. So, update variable assignment as necessary.
-        let stateUpdated = _.mapValues(ctx["state"], (val,key,obj) => {
+        let stateUpdated = _.mapValues(ctx.state.getStateObj(), (val,key,obj) => {
             if(key === identName){
                 evalLog("Variable (" + identName + ") not already assigned in ctx:",  ctx);
                 let rhsVals = evalExpr(rhs, ctx.clone());
@@ -642,7 +688,7 @@ function evalEq(lhs, rhs, ctx){
             return val;
         });
         evalLog("state updated:", stateUpdated);
-        return [ctx.withValAndState(true, stateUpdated)];
+        return [ctx.withValAndState(true, new TLAState(stateUpdated))];
 
     } else{
         evalLog(`Checking for equality of ident '${identName}' with '${rhs.text}'.`, ctx);
@@ -908,9 +954,9 @@ function evalIdentifierRef(node, ctx){
 
     // If this identifier refers to a variable, return the value bound
     // to that variable in the current context.
-    if(ctx["state"].hasOwnProperty(ident_name)){
+    if(ctx.state.hasVar(ident_name)){
         evalLog("variable identifier: ", ident_name);
-        let var_val = ctx["state"][ident_name];
+        let var_val = ctx.state.getVarVal(ident_name);
         evalLog("var ident context:", ctx["state"], var_val);
         return [ctx.withVal(var_val)];
     }
@@ -1445,11 +1491,12 @@ function getInitStates(initDef, vars, defns, constvals){
     for(v in vars){
         init_var_vals[v] = null;
     }
+    let emptyInitState = new TLAState(init_var_vals);
 
     // We refer to a 'context' as the context for a single evaluation
     // branch, which contains a computed value along with a list of 
     // generated states.
-    let initCtx = new Context(null, init_var_vals, defns, {}, constvals);
+    let initCtx = new Context(null, emptyInitState, defns, {}, constvals);
     let ret_ctxs = evalExpr(initDef, initCtx);
     if(ret_ctxs === undefined){
         console.error("Set of generated initial states is 'undefined'.");
@@ -1468,26 +1515,28 @@ function getInitStates(initDef, vars, defns, constvals){
 function getNextStates(nextDef, currStateVars, defns, constvals){
     // TODO: Pass this variable value as an argument to the evaluation functions.
     ASSIGN_PRIMED = true;
-    let origVars = Object.keys(currStateVars);
+    let origVars = Object.keys(currStateVars.vars);
 
-    for(var k in currStateVars){
+    for(var k in currStateVars.vars){
         let primedVar = k + "'";
-        currStateVars[primedVar] = null;
+        currStateVars.vars[primedVar] = null;
     }
     console.log("currStateVars:", currStateVars);
 
     let initCtx = new Context(null, currStateVars, defns, {}, constvals);
     // console.log("currStateVars:", currStateVars);
     let ret = evalExpr(nextDef, initCtx);
-    // console.log("getNextStates ret:", ret);
+    console.log("getNextStates ret:", ret);
 
     // Filter out disabled transitions.
     ret = ret.filter(c => c["val"] === true);
 
     // Filter out transitions that do not modify the state.
-    return ret.filter(c => {
-        return !_.every(origVars, (v) => _.isEqual(c["state"][v], c["state"][v+"'"]));
+    let all_next_states = ret.filter(c => {
+        return !_.every(origVars, (v) => _.isEqual(c.state.getVarVal(v), c.state.getVarVal(v+"'")));
     });
+    console.log("all_next:", all_next_states);
+    return all_next_states;
 }
 
 class TlaInterpreter{
