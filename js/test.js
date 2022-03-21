@@ -84,12 +84,12 @@ function testStateGraphEquiv(testId, stateGraph, specPath){
             infoDiv = document.createElement("div");
             infoDiv.style="width:100%";
             computedDiv = document.createElement("div");
-            computedDiv.style = "float:left;border:solid;padding:4px;margin:3px; min-width:15%;";
-            computedDiv.innerHTML = "<h4>Computed</h4>";
+            computedDiv.style = "float:left;border:solid;padding:4px;margin:3px; min-width:20%;";
+            computedDiv.innerHTML = "<h4>Computed by JS, " + reachable.length + " reachable states</h4>";
             computedDiv.innerHTML += "<pre>" + JSON.stringify(reachable, null, 2) + "</pre>"
             oracleDiv = document.createElement("div");
-            oracleDiv.style="float:left;border:solid;padding:4px;margin:3px; min-width:15%;";
-            oracleDiv.innerHTML = "<h4>Computed by TLC</h4>";
+            oracleDiv.style="float:left;border:solid;padding:4px;margin:3px; min-width:20%;";
+            oracleDiv.innerHTML = "<h4>Computed by TLC, " + reachableTLC.length + " reachable states</h4>";
             oracleDiv.innerHTML += "<pre>" + JSON.stringify(reachableTLC,null, 2) + "</pre>";
             infoDiv.appendChild(computedDiv);
             infoDiv.appendChild(oracleDiv);
