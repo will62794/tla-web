@@ -1,0 +1,4349 @@
+{
+  "states": [
+    {
+      "fp": -8920658829714034288,
+      "val": {
+        "msgs": {
+          "#type": "set",
+          "#value": []
+        },
+        "tmState": {
+          "#type": "string",
+          "#value": "init"
+        },
+        "tmPrepared": {
+          "#type": "set",
+          "#value": []
+        },
+        "rmState": {
+          "#type": "map",
+          "#value": [
+            [
+              {
+                "#type": "string",
+                "#value": "rm1"
+              },
+              {
+                "#type": "string",
+                "#value": "working"
+              }
+            ],
+            [
+              {
+                "#type": "string",
+                "#value": "rm2"
+              },
+              {
+                "#type": "string",
+                "#value": "working"
+              }
+            ]
+          ]
+        }
+      }
+    },
+    {
+      "fp": -8413633901183986534,
+      "val": {
+        "msgs": {
+          "#type": "set",
+          "#value": [
+            {
+              "#type": "record",
+              "#value": {
+                "type": {
+                  "#type": "string",
+                  "#value": "Abort"
+                }
+              }
+            }
+          ]
+        },
+        "tmState": {
+          "#type": "string",
+          "#value": "aborted"
+        },
+        "tmPrepared": {
+          "#type": "set",
+          "#value": []
+        },
+        "rmState": {
+          "#type": "map",
+          "#value": [
+            [
+              {
+                "#type": "string",
+                "#value": "rm1"
+              },
+              {
+                "#type": "string",
+                "#value": "working"
+              }
+            ],
+            [
+              {
+                "#type": "string",
+                "#value": "rm2"
+              },
+              {
+                "#type": "string",
+                "#value": "working"
+              }
+            ]
+          ]
+        }
+      }
+    },
+    {
+      "fp": 2799359148307773057,
+      "val": {
+        "msgs": {
+          "#type": "set",
+          "#value": [
+            {
+              "#type": "record",
+              "#value": {
+                "type": {
+                  "#type": "string",
+                  "#value": "Prepared"
+                },
+                "rm": {
+                  "#type": "string",
+                  "#value": "rm1"
+                }
+              }
+            }
+          ]
+        },
+        "tmState": {
+          "#type": "string",
+          "#value": "init"
+        },
+        "tmPrepared": {
+          "#type": "set",
+          "#value": []
+        },
+        "rmState": {
+          "#type": "map",
+          "#value": [
+            [
+              {
+                "#type": "string",
+                "#value": "rm1"
+              },
+              {
+                "#type": "string",
+                "#value": "prepared"
+              }
+            ],
+            [
+              {
+                "#type": "string",
+                "#value": "rm2"
+              },
+              {
+                "#type": "string",
+                "#value": "working"
+              }
+            ]
+          ]
+        }
+      }
+    },
+    {
+      "fp": -6442784625528721290,
+      "val": {
+        "msgs": {
+          "#type": "set",
+          "#value": [
+            {
+              "#type": "record",
+              "#value": {
+                "type": {
+                  "#type": "string",
+                  "#value": "Prepared"
+                },
+                "rm": {
+                  "#type": "string",
+                  "#value": "rm2"
+                }
+              }
+            }
+          ]
+        },
+        "tmState": {
+          "#type": "string",
+          "#value": "init"
+        },
+        "tmPrepared": {
+          "#type": "set",
+          "#value": []
+        },
+        "rmState": {
+          "#type": "map",
+          "#value": [
+            [
+              {
+                "#type": "string",
+                "#value": "rm1"
+              },
+              {
+                "#type": "string",
+                "#value": "working"
+              }
+            ],
+            [
+              {
+                "#type": "string",
+                "#value": "rm2"
+              },
+              {
+                "#type": "string",
+                "#value": "prepared"
+              }
+            ]
+          ]
+        }
+      }
+    },
+    {
+      "fp": -5791436952050957132,
+      "val": {
+        "msgs": {
+          "#type": "set",
+          "#value": []
+        },
+        "tmState": {
+          "#type": "string",
+          "#value": "init"
+        },
+        "tmPrepared": {
+          "#type": "set",
+          "#value": []
+        },
+        "rmState": {
+          "#type": "map",
+          "#value": [
+            [
+              {
+                "#type": "string",
+                "#value": "rm1"
+              },
+              {
+                "#type": "string",
+                "#value": "aborted"
+              }
+            ],
+            [
+              {
+                "#type": "string",
+                "#value": "rm2"
+              },
+              {
+                "#type": "string",
+                "#value": "working"
+              }
+            ]
+          ]
+        }
+      }
+    },
+    {
+      "fp": 6057263474616491232,
+      "val": {
+        "msgs": {
+          "#type": "set",
+          "#value": []
+        },
+        "tmState": {
+          "#type": "string",
+          "#value": "init"
+        },
+        "tmPrepared": {
+          "#type": "set",
+          "#value": []
+        },
+        "rmState": {
+          "#type": "map",
+          "#value": [
+            [
+              {
+                "#type": "string",
+                "#value": "rm1"
+              },
+              {
+                "#type": "string",
+                "#value": "working"
+              }
+            ],
+            [
+              {
+                "#type": "string",
+                "#value": "rm2"
+              },
+              {
+                "#type": "string",
+                "#value": "aborted"
+              }
+            ]
+          ]
+        }
+      }
+    },
+    {
+      "fp": 2682210257876994615,
+      "val": {
+        "msgs": {
+          "#type": "set",
+          "#value": [
+            {
+              "#type": "record",
+              "#value": {
+                "type": {
+                  "#type": "string",
+                  "#value": "Abort"
+                }
+              }
+            },
+            {
+              "#type": "record",
+              "#value": {
+                "type": {
+                  "#type": "string",
+                  "#value": "Prepared"
+                },
+                "rm": {
+                  "#type": "string",
+                  "#value": "rm1"
+                }
+              }
+            }
+          ]
+        },
+        "tmState": {
+          "#type": "string",
+          "#value": "aborted"
+        },
+        "tmPrepared": {
+          "#type": "set",
+          "#value": []
+        },
+        "rmState": {
+          "#type": "map",
+          "#value": [
+            [
+              {
+                "#type": "string",
+                "#value": "rm1"
+              },
+              {
+                "#type": "string",
+                "#value": "prepared"
+              }
+            ],
+            [
+              {
+                "#type": "string",
+                "#value": "rm2"
+              },
+              {
+                "#type": "string",
+                "#value": "working"
+              }
+            ]
+          ]
+        }
+      }
+    },
+    {
+      "fp": 1127276891527907462,
+      "val": {
+        "msgs": {
+          "#type": "set",
+          "#value": [
+            {
+              "#type": "record",
+              "#value": {
+                "type": {
+                  "#type": "string",
+                  "#value": "Abort"
+                }
+              }
+            },
+            {
+              "#type": "record",
+              "#value": {
+                "type": {
+                  "#type": "string",
+                  "#value": "Prepared"
+                },
+                "rm": {
+                  "#type": "string",
+                  "#value": "rm2"
+                }
+              }
+            }
+          ]
+        },
+        "tmState": {
+          "#type": "string",
+          "#value": "aborted"
+        },
+        "tmPrepared": {
+          "#type": "set",
+          "#value": []
+        },
+        "rmState": {
+          "#type": "map",
+          "#value": [
+            [
+              {
+                "#type": "string",
+                "#value": "rm1"
+              },
+              {
+                "#type": "string",
+                "#value": "working"
+              }
+            ],
+            [
+              {
+                "#type": "string",
+                "#value": "rm2"
+              },
+              {
+                "#type": "string",
+                "#value": "prepared"
+              }
+            ]
+          ]
+        }
+      }
+    },
+    {
+      "fp": -8222076592725511764,
+      "val": {
+        "msgs": {
+          "#type": "set",
+          "#value": [
+            {
+              "#type": "record",
+              "#value": {
+                "type": {
+                  "#type": "string",
+                  "#value": "Abort"
+                }
+              }
+            }
+          ]
+        },
+        "tmState": {
+          "#type": "string",
+          "#value": "aborted"
+        },
+        "tmPrepared": {
+          "#type": "set",
+          "#value": []
+        },
+        "rmState": {
+          "#type": "map",
+          "#value": [
+            [
+              {
+                "#type": "string",
+                "#value": "rm1"
+              },
+              {
+                "#type": "string",
+                "#value": "aborted"
+              }
+            ],
+            [
+              {
+                "#type": "string",
+                "#value": "rm2"
+              },
+              {
+                "#type": "string",
+                "#value": "working"
+              }
+            ]
+          ]
+        }
+      }
+    },
+    {
+      "fp": 3733821554928638361,
+      "val": {
+        "msgs": {
+          "#type": "set",
+          "#value": [
+            {
+              "#type": "record",
+              "#value": {
+                "type": {
+                  "#type": "string",
+                  "#value": "Abort"
+                }
+              }
+            }
+          ]
+        },
+        "tmState": {
+          "#type": "string",
+          "#value": "aborted"
+        },
+        "tmPrepared": {
+          "#type": "set",
+          "#value": []
+        },
+        "rmState": {
+          "#type": "map",
+          "#value": [
+            [
+              {
+                "#type": "string",
+                "#value": "rm1"
+              },
+              {
+                "#type": "string",
+                "#value": "working"
+              }
+            ],
+            [
+              {
+                "#type": "string",
+                "#value": "rm2"
+              },
+              {
+                "#type": "string",
+                "#value": "aborted"
+              }
+            ]
+          ]
+        }
+      }
+    },
+    {
+      "fp": 8289229465998568391,
+      "val": {
+        "msgs": {
+          "#type": "set",
+          "#value": [
+            {
+              "#type": "record",
+              "#value": {
+                "type": {
+                  "#type": "string",
+                  "#value": "Prepared"
+                },
+                "rm": {
+                  "#type": "string",
+                  "#value": "rm1"
+                }
+              }
+            }
+          ]
+        },
+        "tmState": {
+          "#type": "string",
+          "#value": "init"
+        },
+        "tmPrepared": {
+          "#type": "set",
+          "#value": [
+            {
+              "#type": "string",
+              "#value": "rm1"
+            }
+          ]
+        },
+        "rmState": {
+          "#type": "map",
+          "#value": [
+            [
+              {
+                "#type": "string",
+                "#value": "rm1"
+              },
+              {
+                "#type": "string",
+                "#value": "prepared"
+              }
+            ],
+            [
+              {
+                "#type": "string",
+                "#value": "rm2"
+              },
+              {
+                "#type": "string",
+                "#value": "working"
+              }
+            ]
+          ]
+        }
+      }
+    },
+    {
+      "fp": 5367962927226497022,
+      "val": {
+        "msgs": {
+          "#type": "set",
+          "#value": [
+            {
+              "#type": "record",
+              "#value": {
+                "type": {
+                  "#type": "string",
+                  "#value": "Prepared"
+                },
+                "rm": {
+                  "#type": "string",
+                  "#value": "rm1"
+                }
+              }
+            },
+            {
+              "#type": "record",
+              "#value": {
+                "type": {
+                  "#type": "string",
+                  "#value": "Prepared"
+                },
+                "rm": {
+                  "#type": "string",
+                  "#value": "rm2"
+                }
+              }
+            }
+          ]
+        },
+        "tmState": {
+          "#type": "string",
+          "#value": "init"
+        },
+        "tmPrepared": {
+          "#type": "set",
+          "#value": []
+        },
+        "rmState": {
+          "#type": "map",
+          "#value": [
+            [
+              {
+                "#type": "string",
+                "#value": "rm1"
+              },
+              {
+                "#type": "string",
+                "#value": "prepared"
+              }
+            ],
+            [
+              {
+                "#type": "string",
+                "#value": "rm2"
+              },
+              {
+                "#type": "string",
+                "#value": "prepared"
+              }
+            ]
+          ]
+        }
+      }
+    },
+    {
+      "fp": -655942974188266511,
+      "val": {
+        "msgs": {
+          "#type": "set",
+          "#value": [
+            {
+              "#type": "record",
+              "#value": {
+                "type": {
+                  "#type": "string",
+                  "#value": "Prepared"
+                },
+                "rm": {
+                  "#type": "string",
+                  "#value": "rm1"
+                }
+              }
+            }
+          ]
+        },
+        "tmState": {
+          "#type": "string",
+          "#value": "init"
+        },
+        "tmPrepared": {
+          "#type": "set",
+          "#value": []
+        },
+        "rmState": {
+          "#type": "map",
+          "#value": [
+            [
+              {
+                "#type": "string",
+                "#value": "rm1"
+              },
+              {
+                "#type": "string",
+                "#value": "prepared"
+              }
+            ],
+            [
+              {
+                "#type": "string",
+                "#value": "rm2"
+              },
+              {
+                "#type": "string",
+                "#value": "aborted"
+              }
+            ]
+          ]
+        }
+      }
+    },
+    {
+      "fp": -3305653773075563207,
+      "val": {
+        "msgs": {
+          "#type": "set",
+          "#value": [
+            {
+              "#type": "record",
+              "#value": {
+                "type": {
+                  "#type": "string",
+                  "#value": "Prepared"
+                },
+                "rm": {
+                  "#type": "string",
+                  "#value": "rm2"
+                }
+              }
+            }
+          ]
+        },
+        "tmState": {
+          "#type": "string",
+          "#value": "init"
+        },
+        "tmPrepared": {
+          "#type": "set",
+          "#value": [
+            {
+              "#type": "string",
+              "#value": "rm2"
+            }
+          ]
+        },
+        "rmState": {
+          "#type": "map",
+          "#value": [
+            [
+              {
+                "#type": "string",
+                "#value": "rm1"
+              },
+              {
+                "#type": "string",
+                "#value": "working"
+              }
+            ],
+            [
+              {
+                "#type": "string",
+                "#value": "rm2"
+              },
+              {
+                "#type": "string",
+                "#value": "prepared"
+              }
+            ]
+          ]
+        }
+      }
+    },
+    {
+      "fp": -6296271659737267364,
+      "val": {
+        "msgs": {
+          "#type": "set",
+          "#value": [
+            {
+              "#type": "record",
+              "#value": {
+                "type": {
+                  "#type": "string",
+                  "#value": "Prepared"
+                },
+                "rm": {
+                  "#type": "string",
+                  "#value": "rm2"
+                }
+              }
+            }
+          ]
+        },
+        "tmState": {
+          "#type": "string",
+          "#value": "init"
+        },
+        "tmPrepared": {
+          "#type": "set",
+          "#value": []
+        },
+        "rmState": {
+          "#type": "map",
+          "#value": [
+            [
+              {
+                "#type": "string",
+                "#value": "rm1"
+              },
+              {
+                "#type": "string",
+                "#value": "aborted"
+              }
+            ],
+            [
+              {
+                "#type": "string",
+                "#value": "rm2"
+              },
+              {
+                "#type": "string",
+                "#value": "prepared"
+              }
+            ]
+          ]
+        }
+      }
+    },
+    {
+      "fp": 9195334222094084548,
+      "val": {
+        "msgs": {
+          "#type": "set",
+          "#value": []
+        },
+        "tmState": {
+          "#type": "string",
+          "#value": "init"
+        },
+        "tmPrepared": {
+          "#type": "set",
+          "#value": []
+        },
+        "rmState": {
+          "#type": "map",
+          "#value": [
+            [
+              {
+                "#type": "string",
+                "#value": "rm1"
+              },
+              {
+                "#type": "string",
+                "#value": "aborted"
+              }
+            ],
+            [
+              {
+                "#type": "string",
+                "#value": "rm2"
+              },
+              {
+                "#type": "string",
+                "#value": "aborted"
+              }
+            ]
+          ]
+        }
+      }
+    },
+    {
+      "fp": -7207180050420037711,
+      "val": {
+        "msgs": {
+          "#type": "set",
+          "#value": [
+            {
+              "#type": "record",
+              "#value": {
+                "type": {
+                  "#type": "string",
+                  "#value": "Abort"
+                }
+              }
+            },
+            {
+              "#type": "record",
+              "#value": {
+                "type": {
+                  "#type": "string",
+                  "#value": "Prepared"
+                },
+                "rm": {
+                  "#type": "string",
+                  "#value": "rm1"
+                }
+              }
+            },
+            {
+              "#type": "record",
+              "#value": {
+                "type": {
+                  "#type": "string",
+                  "#value": "Prepared"
+                },
+                "rm": {
+                  "#type": "string",
+                  "#value": "rm2"
+                }
+              }
+            }
+          ]
+        },
+        "tmState": {
+          "#type": "string",
+          "#value": "aborted"
+        },
+        "tmPrepared": {
+          "#type": "set",
+          "#value": []
+        },
+        "rmState": {
+          "#type": "map",
+          "#value": [
+            [
+              {
+                "#type": "string",
+                "#value": "rm1"
+              },
+              {
+                "#type": "string",
+                "#value": "prepared"
+              }
+            ],
+            [
+              {
+                "#type": "string",
+                "#value": "rm2"
+              },
+              {
+                "#type": "string",
+                "#value": "prepared"
+              }
+            ]
+          ]
+        }
+      }
+    },
+    {
+      "fp": -7073793387624429772,
+      "val": {
+        "msgs": {
+          "#type": "set",
+          "#value": [
+            {
+              "#type": "record",
+              "#value": {
+                "type": {
+                  "#type": "string",
+                  "#value": "Abort"
+                }
+              }
+            },
+            {
+              "#type": "record",
+              "#value": {
+                "type": {
+                  "#type": "string",
+                  "#value": "Prepared"
+                },
+                "rm": {
+                  "#type": "string",
+                  "#value": "rm1"
+                }
+              }
+            }
+          ]
+        },
+        "tmState": {
+          "#type": "string",
+          "#value": "aborted"
+        },
+        "tmPrepared": {
+          "#type": "set",
+          "#value": []
+        },
+        "rmState": {
+          "#type": "map",
+          "#value": [
+            [
+              {
+                "#type": "string",
+                "#value": "rm1"
+              },
+              {
+                "#type": "string",
+                "#value": "prepared"
+              }
+            ],
+            [
+              {
+                "#type": "string",
+                "#value": "rm2"
+              },
+              {
+                "#type": "string",
+                "#value": "aborted"
+              }
+            ]
+          ]
+        }
+      }
+    },
+    {
+      "fp": -6485556054471938815,
+      "val": {
+        "msgs": {
+          "#type": "set",
+          "#value": [
+            {
+              "#type": "record",
+              "#value": {
+                "type": {
+                  "#type": "string",
+                  "#value": "Abort"
+                }
+              }
+            },
+            {
+              "#type": "record",
+              "#value": {
+                "type": {
+                  "#type": "string",
+                  "#value": "Prepared"
+                },
+                "rm": {
+                  "#type": "string",
+                  "#value": "rm1"
+                }
+              }
+            }
+          ]
+        },
+        "tmState": {
+          "#type": "string",
+          "#value": "aborted"
+        },
+        "tmPrepared": {
+          "#type": "set",
+          "#value": []
+        },
+        "rmState": {
+          "#type": "map",
+          "#value": [
+            [
+              {
+                "#type": "string",
+                "#value": "rm1"
+              },
+              {
+                "#type": "string",
+                "#value": "aborted"
+              }
+            ],
+            [
+              {
+                "#type": "string",
+                "#value": "rm2"
+              },
+              {
+                "#type": "string",
+                "#value": "working"
+              }
+            ]
+          ]
+        }
+      }
+    },
+    {
+      "fp": -4994670545779502928,
+      "val": {
+        "msgs": {
+          "#type": "set",
+          "#value": [
+            {
+              "#type": "record",
+              "#value": {
+                "type": {
+                  "#type": "string",
+                  "#value": "Abort"
+                }
+              }
+            },
+            {
+              "#type": "record",
+              "#value": {
+                "type": {
+                  "#type": "string",
+                  "#value": "Prepared"
+                },
+                "rm": {
+                  "#type": "string",
+                  "#value": "rm2"
+                }
+              }
+            }
+          ]
+        },
+        "tmState": {
+          "#type": "string",
+          "#value": "aborted"
+        },
+        "tmPrepared": {
+          "#type": "set",
+          "#value": []
+        },
+        "rmState": {
+          "#type": "map",
+          "#value": [
+            [
+              {
+                "#type": "string",
+                "#value": "rm1"
+              },
+              {
+                "#type": "string",
+                "#value": "aborted"
+              }
+            ],
+            [
+              {
+                "#type": "string",
+                "#value": "rm2"
+              },
+              {
+                "#type": "string",
+                "#value": "prepared"
+              }
+            ]
+          ]
+        }
+      }
+    },
+    {
+      "fp": -1202193228100226649,
+      "val": {
+        "msgs": {
+          "#type": "set",
+          "#value": [
+            {
+              "#type": "record",
+              "#value": {
+                "type": {
+                  "#type": "string",
+                  "#value": "Abort"
+                }
+              }
+            },
+            {
+              "#type": "record",
+              "#value": {
+                "type": {
+                  "#type": "string",
+                  "#value": "Prepared"
+                },
+                "rm": {
+                  "#type": "string",
+                  "#value": "rm2"
+                }
+              }
+            }
+          ]
+        },
+        "tmState": {
+          "#type": "string",
+          "#value": "aborted"
+        },
+        "tmPrepared": {
+          "#type": "set",
+          "#value": []
+        },
+        "rmState": {
+          "#type": "map",
+          "#value": [
+            [
+              {
+                "#type": "string",
+                "#value": "rm1"
+              },
+              {
+                "#type": "string",
+                "#value": "working"
+              }
+            ],
+            [
+              {
+                "#type": "string",
+                "#value": "rm2"
+              },
+              {
+                "#type": "string",
+                "#value": "aborted"
+              }
+            ]
+          ]
+        }
+      }
+    },
+    {
+      "fp": 3821487378330287279,
+      "val": {
+        "msgs": {
+          "#type": "set",
+          "#value": [
+            {
+              "#type": "record",
+              "#value": {
+                "type": {
+                  "#type": "string",
+                  "#value": "Abort"
+                }
+              }
+            }
+          ]
+        },
+        "tmState": {
+          "#type": "string",
+          "#value": "aborted"
+        },
+        "tmPrepared": {
+          "#type": "set",
+          "#value": []
+        },
+        "rmState": {
+          "#type": "map",
+          "#value": [
+            [
+              {
+                "#type": "string",
+                "#value": "rm1"
+              },
+              {
+                "#type": "string",
+                "#value": "aborted"
+              }
+            ],
+            [
+              {
+                "#type": "string",
+                "#value": "rm2"
+              },
+              {
+                "#type": "string",
+                "#value": "aborted"
+              }
+            ]
+          ]
+        }
+      }
+    },
+    {
+      "fp": 3094543397045919466,
+      "val": {
+        "msgs": {
+          "#type": "set",
+          "#value": [
+            {
+              "#type": "record",
+              "#value": {
+                "type": {
+                  "#type": "string",
+                  "#value": "Abort"
+                }
+              }
+            },
+            {
+              "#type": "record",
+              "#value": {
+                "type": {
+                  "#type": "string",
+                  "#value": "Prepared"
+                },
+                "rm": {
+                  "#type": "string",
+                  "#value": "rm1"
+                }
+              }
+            }
+          ]
+        },
+        "tmState": {
+          "#type": "string",
+          "#value": "aborted"
+        },
+        "tmPrepared": {
+          "#type": "set",
+          "#value": [
+            {
+              "#type": "string",
+              "#value": "rm1"
+            }
+          ]
+        },
+        "rmState": {
+          "#type": "map",
+          "#value": [
+            [
+              {
+                "#type": "string",
+                "#value": "rm1"
+              },
+              {
+                "#type": "string",
+                "#value": "prepared"
+              }
+            ],
+            [
+              {
+                "#type": "string",
+                "#value": "rm2"
+              },
+              {
+                "#type": "string",
+                "#value": "working"
+              }
+            ]
+          ]
+        }
+      }
+    },
+    {
+      "fp": 4588829850524629921,
+      "val": {
+        "msgs": {
+          "#type": "set",
+          "#value": [
+            {
+              "#type": "record",
+              "#value": {
+                "type": {
+                  "#type": "string",
+                  "#value": "Prepared"
+                },
+                "rm": {
+                  "#type": "string",
+                  "#value": "rm1"
+                }
+              }
+            },
+            {
+              "#type": "record",
+              "#value": {
+                "type": {
+                  "#type": "string",
+                  "#value": "Prepared"
+                },
+                "rm": {
+                  "#type": "string",
+                  "#value": "rm2"
+                }
+              }
+            }
+          ]
+        },
+        "tmState": {
+          "#type": "string",
+          "#value": "init"
+        },
+        "tmPrepared": {
+          "#type": "set",
+          "#value": [
+            {
+              "#type": "string",
+              "#value": "rm1"
+            }
+          ]
+        },
+        "rmState": {
+          "#type": "map",
+          "#value": [
+            [
+              {
+                "#type": "string",
+                "#value": "rm1"
+              },
+              {
+                "#type": "string",
+                "#value": "prepared"
+              }
+            ],
+            [
+              {
+                "#type": "string",
+                "#value": "rm2"
+              },
+              {
+                "#type": "string",
+                "#value": "prepared"
+              }
+            ]
+          ]
+        }
+      }
+    },
+    {
+      "fp": -547557727701130961,
+      "val": {
+        "msgs": {
+          "#type": "set",
+          "#value": [
+            {
+              "#type": "record",
+              "#value": {
+                "type": {
+                  "#type": "string",
+                  "#value": "Prepared"
+                },
+                "rm": {
+                  "#type": "string",
+                  "#value": "rm1"
+                }
+              }
+            }
+          ]
+        },
+        "tmState": {
+          "#type": "string",
+          "#value": "init"
+        },
+        "tmPrepared": {
+          "#type": "set",
+          "#value": [
+            {
+              "#type": "string",
+              "#value": "rm1"
+            }
+          ]
+        },
+        "rmState": {
+          "#type": "map",
+          "#value": [
+            [
+              {
+                "#type": "string",
+                "#value": "rm1"
+              },
+              {
+                "#type": "string",
+                "#value": "prepared"
+              }
+            ],
+            [
+              {
+                "#type": "string",
+                "#value": "rm2"
+              },
+              {
+                "#type": "string",
+                "#value": "aborted"
+              }
+            ]
+          ]
+        }
+      }
+    },
+    {
+      "fp": -6645829419012953448,
+      "val": {
+        "msgs": {
+          "#type": "set",
+          "#value": [
+            {
+              "#type": "record",
+              "#value": {
+                "type": {
+                  "#type": "string",
+                  "#value": "Prepared"
+                },
+                "rm": {
+                  "#type": "string",
+                  "#value": "rm1"
+                }
+              }
+            },
+            {
+              "#type": "record",
+              "#value": {
+                "type": {
+                  "#type": "string",
+                  "#value": "Prepared"
+                },
+                "rm": {
+                  "#type": "string",
+                  "#value": "rm2"
+                }
+              }
+            }
+          ]
+        },
+        "tmState": {
+          "#type": "string",
+          "#value": "init"
+        },
+        "tmPrepared": {
+          "#type": "set",
+          "#value": [
+            {
+              "#type": "string",
+              "#value": "rm2"
+            }
+          ]
+        },
+        "rmState": {
+          "#type": "map",
+          "#value": [
+            [
+              {
+                "#type": "string",
+                "#value": "rm1"
+              },
+              {
+                "#type": "string",
+                "#value": "prepared"
+              }
+            ],
+            [
+              {
+                "#type": "string",
+                "#value": "rm2"
+              },
+              {
+                "#type": "string",
+                "#value": "prepared"
+              }
+            ]
+          ]
+        }
+      }
+    },
+    {
+      "fp": 8243095556099944936,
+      "val": {
+        "msgs": {
+          "#type": "set",
+          "#value": [
+            {
+              "#type": "record",
+              "#value": {
+                "type": {
+                  "#type": "string",
+                  "#value": "Abort"
+                }
+              }
+            },
+            {
+              "#type": "record",
+              "#value": {
+                "type": {
+                  "#type": "string",
+                  "#value": "Prepared"
+                },
+                "rm": {
+                  "#type": "string",
+                  "#value": "rm2"
+                }
+              }
+            }
+          ]
+        },
+        "tmState": {
+          "#type": "string",
+          "#value": "aborted"
+        },
+        "tmPrepared": {
+          "#type": "set",
+          "#value": [
+            {
+              "#type": "string",
+              "#value": "rm2"
+            }
+          ]
+        },
+        "rmState": {
+          "#type": "map",
+          "#value": [
+            [
+              {
+                "#type": "string",
+                "#value": "rm1"
+              },
+              {
+                "#type": "string",
+                "#value": "working"
+              }
+            ],
+            [
+              {
+                "#type": "string",
+                "#value": "rm2"
+              },
+              {
+                "#type": "string",
+                "#value": "prepared"
+              }
+            ]
+          ]
+        }
+      }
+    },
+    {
+      "fp": 2820411753389850698,
+      "val": {
+        "msgs": {
+          "#type": "set",
+          "#value": [
+            {
+              "#type": "record",
+              "#value": {
+                "type": {
+                  "#type": "string",
+                  "#value": "Prepared"
+                },
+                "rm": {
+                  "#type": "string",
+                  "#value": "rm2"
+                }
+              }
+            }
+          ]
+        },
+        "tmState": {
+          "#type": "string",
+          "#value": "init"
+        },
+        "tmPrepared": {
+          "#type": "set",
+          "#value": [
+            {
+              "#type": "string",
+              "#value": "rm2"
+            }
+          ]
+        },
+        "rmState": {
+          "#type": "map",
+          "#value": [
+            [
+              {
+                "#type": "string",
+                "#value": "rm1"
+              },
+              {
+                "#type": "string",
+                "#value": "aborted"
+              }
+            ],
+            [
+              {
+                "#type": "string",
+                "#value": "rm2"
+              },
+              {
+                "#type": "string",
+                "#value": "prepared"
+              }
+            ]
+          ]
+        }
+      }
+    },
+    {
+      "fp": 1351184073851375264,
+      "val": {
+        "msgs": {
+          "#type": "set",
+          "#value": [
+            {
+              "#type": "record",
+              "#value": {
+                "type": {
+                  "#type": "string",
+                  "#value": "Abort"
+                }
+              }
+            },
+            {
+              "#type": "record",
+              "#value": {
+                "type": {
+                  "#type": "string",
+                  "#value": "Prepared"
+                },
+                "rm": {
+                  "#type": "string",
+                  "#value": "rm1"
+                }
+              }
+            },
+            {
+              "#type": "record",
+              "#value": {
+                "type": {
+                  "#type": "string",
+                  "#value": "Prepared"
+                },
+                "rm": {
+                  "#type": "string",
+                  "#value": "rm2"
+                }
+              }
+            }
+          ]
+        },
+        "tmState": {
+          "#type": "string",
+          "#value": "aborted"
+        },
+        "tmPrepared": {
+          "#type": "set",
+          "#value": []
+        },
+        "rmState": {
+          "#type": "map",
+          "#value": [
+            [
+              {
+                "#type": "string",
+                "#value": "rm1"
+              },
+              {
+                "#type": "string",
+                "#value": "aborted"
+              }
+            ],
+            [
+              {
+                "#type": "string",
+                "#value": "rm2"
+              },
+              {
+                "#type": "string",
+                "#value": "prepared"
+              }
+            ]
+          ]
+        }
+      }
+    },
+    {
+      "fp": -7949813836668280235,
+      "val": {
+        "msgs": {
+          "#type": "set",
+          "#value": [
+            {
+              "#type": "record",
+              "#value": {
+                "type": {
+                  "#type": "string",
+                  "#value": "Abort"
+                }
+              }
+            },
+            {
+              "#type": "record",
+              "#value": {
+                "type": {
+                  "#type": "string",
+                  "#value": "Prepared"
+                },
+                "rm": {
+                  "#type": "string",
+                  "#value": "rm1"
+                }
+              }
+            },
+            {
+              "#type": "record",
+              "#value": {
+                "type": {
+                  "#type": "string",
+                  "#value": "Prepared"
+                },
+                "rm": {
+                  "#type": "string",
+                  "#value": "rm2"
+                }
+              }
+            }
+          ]
+        },
+        "tmState": {
+          "#type": "string",
+          "#value": "aborted"
+        },
+        "tmPrepared": {
+          "#type": "set",
+          "#value": []
+        },
+        "rmState": {
+          "#type": "map",
+          "#value": [
+            [
+              {
+                "#type": "string",
+                "#value": "rm1"
+              },
+              {
+                "#type": "string",
+                "#value": "prepared"
+              }
+            ],
+            [
+              {
+                "#type": "string",
+                "#value": "rm2"
+              },
+              {
+                "#type": "string",
+                "#value": "aborted"
+              }
+            ]
+          ]
+        }
+      }
+    },
+    {
+      "fp": 2095118590143995906,
+      "val": {
+        "msgs": {
+          "#type": "set",
+          "#value": [
+            {
+              "#type": "record",
+              "#value": {
+                "type": {
+                  "#type": "string",
+                  "#value": "Abort"
+                }
+              }
+            },
+            {
+              "#type": "record",
+              "#value": {
+                "type": {
+                  "#type": "string",
+                  "#value": "Prepared"
+                },
+                "rm": {
+                  "#type": "string",
+                  "#value": "rm1"
+                }
+              }
+            }
+          ]
+        },
+        "tmState": {
+          "#type": "string",
+          "#value": "aborted"
+        },
+        "tmPrepared": {
+          "#type": "set",
+          "#value": []
+        },
+        "rmState": {
+          "#type": "map",
+          "#value": [
+            [
+              {
+                "#type": "string",
+                "#value": "rm1"
+              },
+              {
+                "#type": "string",
+                "#value": "aborted"
+              }
+            ],
+            [
+              {
+                "#type": "string",
+                "#value": "rm2"
+              },
+              {
+                "#type": "string",
+                "#value": "aborted"
+              }
+            ]
+          ]
+        }
+      }
+    },
+    {
+      "fp": -1618648460754381679,
+      "val": {
+        "msgs": {
+          "#type": "set",
+          "#value": [
+            {
+              "#type": "record",
+              "#value": {
+                "type": {
+                  "#type": "string",
+                  "#value": "Abort"
+                }
+              }
+            },
+            {
+              "#type": "record",
+              "#value": {
+                "type": {
+                  "#type": "string",
+                  "#value": "Prepared"
+                },
+                "rm": {
+                  "#type": "string",
+                  "#value": "rm2"
+                }
+              }
+            }
+          ]
+        },
+        "tmState": {
+          "#type": "string",
+          "#value": "aborted"
+        },
+        "tmPrepared": {
+          "#type": "set",
+          "#value": []
+        },
+        "rmState": {
+          "#type": "map",
+          "#value": [
+            [
+              {
+                "#type": "string",
+                "#value": "rm1"
+              },
+              {
+                "#type": "string",
+                "#value": "aborted"
+              }
+            ],
+            [
+              {
+                "#type": "string",
+                "#value": "rm2"
+              },
+              {
+                "#type": "string",
+                "#value": "aborted"
+              }
+            ]
+          ]
+        }
+      }
+    },
+    {
+      "fp": -8172781862168529814,
+      "val": {
+        "msgs": {
+          "#type": "set",
+          "#value": [
+            {
+              "#type": "record",
+              "#value": {
+                "type": {
+                  "#type": "string",
+                  "#value": "Abort"
+                }
+              }
+            },
+            {
+              "#type": "record",
+              "#value": {
+                "type": {
+                  "#type": "string",
+                  "#value": "Prepared"
+                },
+                "rm": {
+                  "#type": "string",
+                  "#value": "rm1"
+                }
+              }
+            },
+            {
+              "#type": "record",
+              "#value": {
+                "type": {
+                  "#type": "string",
+                  "#value": "Prepared"
+                },
+                "rm": {
+                  "#type": "string",
+                  "#value": "rm2"
+                }
+              }
+            }
+          ]
+        },
+        "tmState": {
+          "#type": "string",
+          "#value": "aborted"
+        },
+        "tmPrepared": {
+          "#type": "set",
+          "#value": [
+            {
+              "#type": "string",
+              "#value": "rm1"
+            }
+          ]
+        },
+        "rmState": {
+          "#type": "map",
+          "#value": [
+            [
+              {
+                "#type": "string",
+                "#value": "rm1"
+              },
+              {
+                "#type": "string",
+                "#value": "prepared"
+              }
+            ],
+            [
+              {
+                "#type": "string",
+                "#value": "rm2"
+              },
+              {
+                "#type": "string",
+                "#value": "prepared"
+              }
+            ]
+          ]
+        }
+      }
+    },
+    {
+      "fp": 3020669804692647254,
+      "val": {
+        "msgs": {
+          "#type": "set",
+          "#value": [
+            {
+              "#type": "record",
+              "#value": {
+                "type": {
+                  "#type": "string",
+                  "#value": "Abort"
+                }
+              }
+            },
+            {
+              "#type": "record",
+              "#value": {
+                "type": {
+                  "#type": "string",
+                  "#value": "Prepared"
+                },
+                "rm": {
+                  "#type": "string",
+                  "#value": "rm1"
+                }
+              }
+            }
+          ]
+        },
+        "tmState": {
+          "#type": "string",
+          "#value": "aborted"
+        },
+        "tmPrepared": {
+          "#type": "set",
+          "#value": [
+            {
+              "#type": "string",
+              "#value": "rm1"
+            }
+          ]
+        },
+        "rmState": {
+          "#type": "map",
+          "#value": [
+            [
+              {
+                "#type": "string",
+                "#value": "rm1"
+              },
+              {
+                "#type": "string",
+                "#value": "prepared"
+              }
+            ],
+            [
+              {
+                "#type": "string",
+                "#value": "rm2"
+              },
+              {
+                "#type": "string",
+                "#value": "aborted"
+              }
+            ]
+          ]
+        }
+      }
+    },
+    {
+      "fp": -5865752388962987464,
+      "val": {
+        "msgs": {
+          "#type": "set",
+          "#value": [
+            {
+              "#type": "record",
+              "#value": {
+                "type": {
+                  "#type": "string",
+                  "#value": "Abort"
+                }
+              }
+            },
+            {
+              "#type": "record",
+              "#value": {
+                "type": {
+                  "#type": "string",
+                  "#value": "Prepared"
+                },
+                "rm": {
+                  "#type": "string",
+                  "#value": "rm1"
+                }
+              }
+            }
+          ]
+        },
+        "tmState": {
+          "#type": "string",
+          "#value": "aborted"
+        },
+        "tmPrepared": {
+          "#type": "set",
+          "#value": [
+            {
+              "#type": "string",
+              "#value": "rm1"
+            }
+          ]
+        },
+        "rmState": {
+          "#type": "map",
+          "#value": [
+            [
+              {
+                "#type": "string",
+                "#value": "rm1"
+              },
+              {
+                "#type": "string",
+                "#value": "aborted"
+              }
+            ],
+            [
+              {
+                "#type": "string",
+                "#value": "rm2"
+              },
+              {
+                "#type": "string",
+                "#value": "working"
+              }
+            ]
+          ]
+        }
+      }
+    },
+    {
+      "fp": -7330602228064716247,
+      "val": {
+        "msgs": {
+          "#type": "set",
+          "#value": [
+            {
+              "#type": "record",
+              "#value": {
+                "type": {
+                  "#type": "string",
+                  "#value": "Prepared"
+                },
+                "rm": {
+                  "#type": "string",
+                  "#value": "rm1"
+                }
+              }
+            },
+            {
+              "#type": "record",
+              "#value": {
+                "type": {
+                  "#type": "string",
+                  "#value": "Prepared"
+                },
+                "rm": {
+                  "#type": "string",
+                  "#value": "rm2"
+                }
+              }
+            }
+          ]
+        },
+        "tmState": {
+          "#type": "string",
+          "#value": "init"
+        },
+        "tmPrepared": {
+          "#type": "set",
+          "#value": [
+            {
+              "#type": "string",
+              "#value": "rm1"
+            },
+            {
+              "#type": "string",
+              "#value": "rm2"
+            }
+          ]
+        },
+        "rmState": {
+          "#type": "map",
+          "#value": [
+            [
+              {
+                "#type": "string",
+                "#value": "rm1"
+              },
+              {
+                "#type": "string",
+                "#value": "prepared"
+              }
+            ],
+            [
+              {
+                "#type": "string",
+                "#value": "rm2"
+              },
+              {
+                "#type": "string",
+                "#value": "prepared"
+              }
+            ]
+          ]
+        }
+      }
+    },
+    {
+      "fp": 1369088822992610643,
+      "val": {
+        "msgs": {
+          "#type": "set",
+          "#value": [
+            {
+              "#type": "record",
+              "#value": {
+                "type": {
+                  "#type": "string",
+                  "#value": "Abort"
+                }
+              }
+            },
+            {
+              "#type": "record",
+              "#value": {
+                "type": {
+                  "#type": "string",
+                  "#value": "Prepared"
+                },
+                "rm": {
+                  "#type": "string",
+                  "#value": "rm1"
+                }
+              }
+            },
+            {
+              "#type": "record",
+              "#value": {
+                "type": {
+                  "#type": "string",
+                  "#value": "Prepared"
+                },
+                "rm": {
+                  "#type": "string",
+                  "#value": "rm2"
+                }
+              }
+            }
+          ]
+        },
+        "tmState": {
+          "#type": "string",
+          "#value": "aborted"
+        },
+        "tmPrepared": {
+          "#type": "set",
+          "#value": [
+            {
+              "#type": "string",
+              "#value": "rm2"
+            }
+          ]
+        },
+        "rmState": {
+          "#type": "map",
+          "#value": [
+            [
+              {
+                "#type": "string",
+                "#value": "rm1"
+              },
+              {
+                "#type": "string",
+                "#value": "prepared"
+              }
+            ],
+            [
+              {
+                "#type": "string",
+                "#value": "rm2"
+              },
+              {
+                "#type": "string",
+                "#value": "prepared"
+              }
+            ]
+          ]
+        }
+      }
+    },
+    {
+      "fp": 1876315348854968027,
+      "val": {
+        "msgs": {
+          "#type": "set",
+          "#value": [
+            {
+              "#type": "record",
+              "#value": {
+                "type": {
+                  "#type": "string",
+                  "#value": "Abort"
+                }
+              }
+            },
+            {
+              "#type": "record",
+              "#value": {
+                "type": {
+                  "#type": "string",
+                  "#value": "Prepared"
+                },
+                "rm": {
+                  "#type": "string",
+                  "#value": "rm2"
+                }
+              }
+            }
+          ]
+        },
+        "tmState": {
+          "#type": "string",
+          "#value": "aborted"
+        },
+        "tmPrepared": {
+          "#type": "set",
+          "#value": [
+            {
+              "#type": "string",
+              "#value": "rm2"
+            }
+          ]
+        },
+        "rmState": {
+          "#type": "map",
+          "#value": [
+            [
+              {
+                "#type": "string",
+                "#value": "rm1"
+              },
+              {
+                "#type": "string",
+                "#value": "aborted"
+              }
+            ],
+            [
+              {
+                "#type": "string",
+                "#value": "rm2"
+              },
+              {
+                "#type": "string",
+                "#value": "prepared"
+              }
+            ]
+          ]
+        }
+      }
+    },
+    {
+      "fp": 9014706993114373674,
+      "val": {
+        "msgs": {
+          "#type": "set",
+          "#value": [
+            {
+              "#type": "record",
+              "#value": {
+                "type": {
+                  "#type": "string",
+                  "#value": "Abort"
+                }
+              }
+            },
+            {
+              "#type": "record",
+              "#value": {
+                "type": {
+                  "#type": "string",
+                  "#value": "Prepared"
+                },
+                "rm": {
+                  "#type": "string",
+                  "#value": "rm2"
+                }
+              }
+            }
+          ]
+        },
+        "tmState": {
+          "#type": "string",
+          "#value": "aborted"
+        },
+        "tmPrepared": {
+          "#type": "set",
+          "#value": [
+            {
+              "#type": "string",
+              "#value": "rm2"
+            }
+          ]
+        },
+        "rmState": {
+          "#type": "map",
+          "#value": [
+            [
+              {
+                "#type": "string",
+                "#value": "rm1"
+              },
+              {
+                "#type": "string",
+                "#value": "working"
+              }
+            ],
+            [
+              {
+                "#type": "string",
+                "#value": "rm2"
+              },
+              {
+                "#type": "string",
+                "#value": "aborted"
+              }
+            ]
+          ]
+        }
+      }
+    },
+    {
+      "fp": -5206513212752804696,
+      "val": {
+        "msgs": {
+          "#type": "set",
+          "#value": [
+            {
+              "#type": "record",
+              "#value": {
+                "type": {
+                  "#type": "string",
+                  "#value": "Abort"
+                }
+              }
+            },
+            {
+              "#type": "record",
+              "#value": {
+                "type": {
+                  "#type": "string",
+                  "#value": "Prepared"
+                },
+                "rm": {
+                  "#type": "string",
+                  "#value": "rm1"
+                }
+              }
+            },
+            {
+              "#type": "record",
+              "#value": {
+                "type": {
+                  "#type": "string",
+                  "#value": "Prepared"
+                },
+                "rm": {
+                  "#type": "string",
+                  "#value": "rm2"
+                }
+              }
+            }
+          ]
+        },
+        "tmState": {
+          "#type": "string",
+          "#value": "aborted"
+        },
+        "tmPrepared": {
+          "#type": "set",
+          "#value": []
+        },
+        "rmState": {
+          "#type": "map",
+          "#value": [
+            [
+              {
+                "#type": "string",
+                "#value": "rm1"
+              },
+              {
+                "#type": "string",
+                "#value": "aborted"
+              }
+            ],
+            [
+              {
+                "#type": "string",
+                "#value": "rm2"
+              },
+              {
+                "#type": "string",
+                "#value": "aborted"
+              }
+            ]
+          ]
+        }
+      }
+    },
+    {
+      "fp": -7372170600185143588,
+      "val": {
+        "msgs": {
+          "#type": "set",
+          "#value": [
+            {
+              "#type": "record",
+              "#value": {
+                "type": {
+                  "#type": "string",
+                  "#value": "Abort"
+                }
+              }
+            },
+            {
+              "#type": "record",
+              "#value": {
+                "type": {
+                  "#type": "string",
+                  "#value": "Prepared"
+                },
+                "rm": {
+                  "#type": "string",
+                  "#value": "rm1"
+                }
+              }
+            },
+            {
+              "#type": "record",
+              "#value": {
+                "type": {
+                  "#type": "string",
+                  "#value": "Prepared"
+                },
+                "rm": {
+                  "#type": "string",
+                  "#value": "rm2"
+                }
+              }
+            }
+          ]
+        },
+        "tmState": {
+          "#type": "string",
+          "#value": "aborted"
+        },
+        "tmPrepared": {
+          "#type": "set",
+          "#value": [
+            {
+              "#type": "string",
+              "#value": "rm1"
+            }
+          ]
+        },
+        "rmState": {
+          "#type": "map",
+          "#value": [
+            [
+              {
+                "#type": "string",
+                "#value": "rm1"
+              },
+              {
+                "#type": "string",
+                "#value": "aborted"
+              }
+            ],
+            [
+              {
+                "#type": "string",
+                "#value": "rm2"
+              },
+              {
+                "#type": "string",
+                "#value": "prepared"
+              }
+            ]
+          ]
+        }
+      }
+    },
+    {
+      "fp": -8806765344440116330,
+      "val": {
+        "msgs": {
+          "#type": "set",
+          "#value": [
+            {
+              "#type": "record",
+              "#value": {
+                "type": {
+                  "#type": "string",
+                  "#value": "Abort"
+                }
+              }
+            },
+            {
+              "#type": "record",
+              "#value": {
+                "type": {
+                  "#type": "string",
+                  "#value": "Prepared"
+                },
+                "rm": {
+                  "#type": "string",
+                  "#value": "rm1"
+                }
+              }
+            },
+            {
+              "#type": "record",
+              "#value": {
+                "type": {
+                  "#type": "string",
+                  "#value": "Prepared"
+                },
+                "rm": {
+                  "#type": "string",
+                  "#value": "rm2"
+                }
+              }
+            }
+          ]
+        },
+        "tmState": {
+          "#type": "string",
+          "#value": "aborted"
+        },
+        "tmPrepared": {
+          "#type": "set",
+          "#value": [
+            {
+              "#type": "string",
+              "#value": "rm1"
+            }
+          ]
+        },
+        "rmState": {
+          "#type": "map",
+          "#value": [
+            [
+              {
+                "#type": "string",
+                "#value": "rm1"
+              },
+              {
+                "#type": "string",
+                "#value": "prepared"
+              }
+            ],
+            [
+              {
+                "#type": "string",
+                "#value": "rm2"
+              },
+              {
+                "#type": "string",
+                "#value": "aborted"
+              }
+            ]
+          ]
+        }
+      }
+    },
+    {
+      "fp": -5944403255706410620,
+      "val": {
+        "msgs": {
+          "#type": "set",
+          "#value": [
+            {
+              "#type": "record",
+              "#value": {
+                "type": {
+                  "#type": "string",
+                  "#value": "Abort"
+                }
+              }
+            },
+            {
+              "#type": "record",
+              "#value": {
+                "type": {
+                  "#type": "string",
+                  "#value": "Prepared"
+                },
+                "rm": {
+                  "#type": "string",
+                  "#value": "rm1"
+                }
+              }
+            }
+          ]
+        },
+        "tmState": {
+          "#type": "string",
+          "#value": "aborted"
+        },
+        "tmPrepared": {
+          "#type": "set",
+          "#value": [
+            {
+              "#type": "string",
+              "#value": "rm1"
+            }
+          ]
+        },
+        "rmState": {
+          "#type": "map",
+          "#value": [
+            [
+              {
+                "#type": "string",
+                "#value": "rm1"
+              },
+              {
+                "#type": "string",
+                "#value": "aborted"
+              }
+            ],
+            [
+              {
+                "#type": "string",
+                "#value": "rm2"
+              },
+              {
+                "#type": "string",
+                "#value": "aborted"
+              }
+            ]
+          ]
+        }
+      }
+    },
+    {
+      "fp": -8118617434379586058,
+      "val": {
+        "msgs": {
+          "#type": "set",
+          "#value": [
+            {
+              "#type": "record",
+              "#value": {
+                "type": {
+                  "#type": "string",
+                  "#value": "Commit"
+                }
+              }
+            },
+            {
+              "#type": "record",
+              "#value": {
+                "type": {
+                  "#type": "string",
+                  "#value": "Prepared"
+                },
+                "rm": {
+                  "#type": "string",
+                  "#value": "rm1"
+                }
+              }
+            },
+            {
+              "#type": "record",
+              "#value": {
+                "type": {
+                  "#type": "string",
+                  "#value": "Prepared"
+                },
+                "rm": {
+                  "#type": "string",
+                  "#value": "rm2"
+                }
+              }
+            }
+          ]
+        },
+        "tmState": {
+          "#type": "string",
+          "#value": "committed"
+        },
+        "tmPrepared": {
+          "#type": "set",
+          "#value": [
+            {
+              "#type": "string",
+              "#value": "rm1"
+            },
+            {
+              "#type": "string",
+              "#value": "rm2"
+            }
+          ]
+        },
+        "rmState": {
+          "#type": "map",
+          "#value": [
+            [
+              {
+                "#type": "string",
+                "#value": "rm1"
+              },
+              {
+                "#type": "string",
+                "#value": "prepared"
+              }
+            ],
+            [
+              {
+                "#type": "string",
+                "#value": "rm2"
+              },
+              {
+                "#type": "string",
+                "#value": "prepared"
+              }
+            ]
+          ]
+        }
+      }
+    },
+    {
+      "fp": -5747929816737390280,
+      "val": {
+        "msgs": {
+          "#type": "set",
+          "#value": [
+            {
+              "#type": "record",
+              "#value": {
+                "type": {
+                  "#type": "string",
+                  "#value": "Abort"
+                }
+              }
+            },
+            {
+              "#type": "record",
+              "#value": {
+                "type": {
+                  "#type": "string",
+                  "#value": "Prepared"
+                },
+                "rm": {
+                  "#type": "string",
+                  "#value": "rm1"
+                }
+              }
+            },
+            {
+              "#type": "record",
+              "#value": {
+                "type": {
+                  "#type": "string",
+                  "#value": "Prepared"
+                },
+                "rm": {
+                  "#type": "string",
+                  "#value": "rm2"
+                }
+              }
+            }
+          ]
+        },
+        "tmState": {
+          "#type": "string",
+          "#value": "aborted"
+        },
+        "tmPrepared": {
+          "#type": "set",
+          "#value": [
+            {
+              "#type": "string",
+              "#value": "rm1"
+            },
+            {
+              "#type": "string",
+              "#value": "rm2"
+            }
+          ]
+        },
+        "rmState": {
+          "#type": "map",
+          "#value": [
+            [
+              {
+                "#type": "string",
+                "#value": "rm1"
+              },
+              {
+                "#type": "string",
+                "#value": "prepared"
+              }
+            ],
+            [
+              {
+                "#type": "string",
+                "#value": "rm2"
+              },
+              {
+                "#type": "string",
+                "#value": "prepared"
+              }
+            ]
+          ]
+        }
+      }
+    },
+    {
+      "fp": 422002267197804517,
+      "val": {
+        "msgs": {
+          "#type": "set",
+          "#value": [
+            {
+              "#type": "record",
+              "#value": {
+                "type": {
+                  "#type": "string",
+                  "#value": "Abort"
+                }
+              }
+            },
+            {
+              "#type": "record",
+              "#value": {
+                "type": {
+                  "#type": "string",
+                  "#value": "Prepared"
+                },
+                "rm": {
+                  "#type": "string",
+                  "#value": "rm1"
+                }
+              }
+            },
+            {
+              "#type": "record",
+              "#value": {
+                "type": {
+                  "#type": "string",
+                  "#value": "Prepared"
+                },
+                "rm": {
+                  "#type": "string",
+                  "#value": "rm2"
+                }
+              }
+            }
+          ]
+        },
+        "tmState": {
+          "#type": "string",
+          "#value": "aborted"
+        },
+        "tmPrepared": {
+          "#type": "set",
+          "#value": [
+            {
+              "#type": "string",
+              "#value": "rm2"
+            }
+          ]
+        },
+        "rmState": {
+          "#type": "map",
+          "#value": [
+            [
+              {
+                "#type": "string",
+                "#value": "rm1"
+              },
+              {
+                "#type": "string",
+                "#value": "aborted"
+              }
+            ],
+            [
+              {
+                "#type": "string",
+                "#value": "rm2"
+              },
+              {
+                "#type": "string",
+                "#value": "prepared"
+              }
+            ]
+          ]
+        }
+      }
+    },
+    {
+      "fp": 1847492488239237807,
+      "val": {
+        "msgs": {
+          "#type": "set",
+          "#value": [
+            {
+              "#type": "record",
+              "#value": {
+                "type": {
+                  "#type": "string",
+                  "#value": "Abort"
+                }
+              }
+            },
+            {
+              "#type": "record",
+              "#value": {
+                "type": {
+                  "#type": "string",
+                  "#value": "Prepared"
+                },
+                "rm": {
+                  "#type": "string",
+                  "#value": "rm1"
+                }
+              }
+            },
+            {
+              "#type": "record",
+              "#value": {
+                "type": {
+                  "#type": "string",
+                  "#value": "Prepared"
+                },
+                "rm": {
+                  "#type": "string",
+                  "#value": "rm2"
+                }
+              }
+            }
+          ]
+        },
+        "tmState": {
+          "#type": "string",
+          "#value": "aborted"
+        },
+        "tmPrepared": {
+          "#type": "set",
+          "#value": [
+            {
+              "#type": "string",
+              "#value": "rm2"
+            }
+          ]
+        },
+        "rmState": {
+          "#type": "map",
+          "#value": [
+            [
+              {
+                "#type": "string",
+                "#value": "rm1"
+              },
+              {
+                "#type": "string",
+                "#value": "prepared"
+              }
+            ],
+            [
+              {
+                "#type": "string",
+                "#value": "rm2"
+              },
+              {
+                "#type": "string",
+                "#value": "aborted"
+              }
+            ]
+          ]
+        }
+      }
+    },
+    {
+      "fp": -6397182459148755106,
+      "val": {
+        "msgs": {
+          "#type": "set",
+          "#value": [
+            {
+              "#type": "record",
+              "#value": {
+                "type": {
+                  "#type": "string",
+                  "#value": "Abort"
+                }
+              }
+            },
+            {
+              "#type": "record",
+              "#value": {
+                "type": {
+                  "#type": "string",
+                  "#value": "Prepared"
+                },
+                "rm": {
+                  "#type": "string",
+                  "#value": "rm2"
+                }
+              }
+            }
+          ]
+        },
+        "tmState": {
+          "#type": "string",
+          "#value": "aborted"
+        },
+        "tmPrepared": {
+          "#type": "set",
+          "#value": [
+            {
+              "#type": "string",
+              "#value": "rm2"
+            }
+          ]
+        },
+        "rmState": {
+          "#type": "map",
+          "#value": [
+            [
+              {
+                "#type": "string",
+                "#value": "rm1"
+              },
+              {
+                "#type": "string",
+                "#value": "aborted"
+              }
+            ],
+            [
+              {
+                "#type": "string",
+                "#value": "rm2"
+              },
+              {
+                "#type": "string",
+                "#value": "aborted"
+              }
+            ]
+          ]
+        }
+      }
+    },
+    {
+      "fp": 2791115220610284006,
+      "val": {
+        "msgs": {
+          "#type": "set",
+          "#value": [
+            {
+              "#type": "record",
+              "#value": {
+                "type": {
+                  "#type": "string",
+                  "#value": "Abort"
+                }
+              }
+            },
+            {
+              "#type": "record",
+              "#value": {
+                "type": {
+                  "#type": "string",
+                  "#value": "Prepared"
+                },
+                "rm": {
+                  "#type": "string",
+                  "#value": "rm1"
+                }
+              }
+            },
+            {
+              "#type": "record",
+              "#value": {
+                "type": {
+                  "#type": "string",
+                  "#value": "Prepared"
+                },
+                "rm": {
+                  "#type": "string",
+                  "#value": "rm2"
+                }
+              }
+            }
+          ]
+        },
+        "tmState": {
+          "#type": "string",
+          "#value": "aborted"
+        },
+        "tmPrepared": {
+          "#type": "set",
+          "#value": [
+            {
+              "#type": "string",
+              "#value": "rm1"
+            }
+          ]
+        },
+        "rmState": {
+          "#type": "map",
+          "#value": [
+            [
+              {
+                "#type": "string",
+                "#value": "rm1"
+              },
+              {
+                "#type": "string",
+                "#value": "aborted"
+              }
+            ],
+            [
+              {
+                "#type": "string",
+                "#value": "rm2"
+              },
+              {
+                "#type": "string",
+                "#value": "aborted"
+              }
+            ]
+          ]
+        }
+      }
+    },
+    {
+      "fp": -3083507713076643024,
+      "val": {
+        "msgs": {
+          "#type": "set",
+          "#value": [
+            {
+              "#type": "record",
+              "#value": {
+                "type": {
+                  "#type": "string",
+                  "#value": "Commit"
+                }
+              }
+            },
+            {
+              "#type": "record",
+              "#value": {
+                "type": {
+                  "#type": "string",
+                  "#value": "Prepared"
+                },
+                "rm": {
+                  "#type": "string",
+                  "#value": "rm1"
+                }
+              }
+            },
+            {
+              "#type": "record",
+              "#value": {
+                "type": {
+                  "#type": "string",
+                  "#value": "Prepared"
+                },
+                "rm": {
+                  "#type": "string",
+                  "#value": "rm2"
+                }
+              }
+            }
+          ]
+        },
+        "tmState": {
+          "#type": "string",
+          "#value": "committed"
+        },
+        "tmPrepared": {
+          "#type": "set",
+          "#value": [
+            {
+              "#type": "string",
+              "#value": "rm1"
+            },
+            {
+              "#type": "string",
+              "#value": "rm2"
+            }
+          ]
+        },
+        "rmState": {
+          "#type": "map",
+          "#value": [
+            [
+              {
+                "#type": "string",
+                "#value": "rm1"
+              },
+              {
+                "#type": "string",
+                "#value": "committed"
+              }
+            ],
+            [
+              {
+                "#type": "string",
+                "#value": "rm2"
+              },
+              {
+                "#type": "string",
+                "#value": "prepared"
+              }
+            ]
+          ]
+        }
+      }
+    },
+    {
+      "fp": 1331180586667458750,
+      "val": {
+        "msgs": {
+          "#type": "set",
+          "#value": [
+            {
+              "#type": "record",
+              "#value": {
+                "type": {
+                  "#type": "string",
+                  "#value": "Commit"
+                }
+              }
+            },
+            {
+              "#type": "record",
+              "#value": {
+                "type": {
+                  "#type": "string",
+                  "#value": "Prepared"
+                },
+                "rm": {
+                  "#type": "string",
+                  "#value": "rm1"
+                }
+              }
+            },
+            {
+              "#type": "record",
+              "#value": {
+                "type": {
+                  "#type": "string",
+                  "#value": "Prepared"
+                },
+                "rm": {
+                  "#type": "string",
+                  "#value": "rm2"
+                }
+              }
+            }
+          ]
+        },
+        "tmState": {
+          "#type": "string",
+          "#value": "committed"
+        },
+        "tmPrepared": {
+          "#type": "set",
+          "#value": [
+            {
+              "#type": "string",
+              "#value": "rm1"
+            },
+            {
+              "#type": "string",
+              "#value": "rm2"
+            }
+          ]
+        },
+        "rmState": {
+          "#type": "map",
+          "#value": [
+            [
+              {
+                "#type": "string",
+                "#value": "rm1"
+              },
+              {
+                "#type": "string",
+                "#value": "prepared"
+              }
+            ],
+            [
+              {
+                "#type": "string",
+                "#value": "rm2"
+              },
+              {
+                "#type": "string",
+                "#value": "committed"
+              }
+            ]
+          ]
+        }
+      }
+    },
+    {
+      "fp": 1958133943292273574,
+      "val": {
+        "msgs": {
+          "#type": "set",
+          "#value": [
+            {
+              "#type": "record",
+              "#value": {
+                "type": {
+                  "#type": "string",
+                  "#value": "Abort"
+                }
+              }
+            },
+            {
+              "#type": "record",
+              "#value": {
+                "type": {
+                  "#type": "string",
+                  "#value": "Prepared"
+                },
+                "rm": {
+                  "#type": "string",
+                  "#value": "rm1"
+                }
+              }
+            },
+            {
+              "#type": "record",
+              "#value": {
+                "type": {
+                  "#type": "string",
+                  "#value": "Prepared"
+                },
+                "rm": {
+                  "#type": "string",
+                  "#value": "rm2"
+                }
+              }
+            }
+          ]
+        },
+        "tmState": {
+          "#type": "string",
+          "#value": "aborted"
+        },
+        "tmPrepared": {
+          "#type": "set",
+          "#value": [
+            {
+              "#type": "string",
+              "#value": "rm1"
+            },
+            {
+              "#type": "string",
+              "#value": "rm2"
+            }
+          ]
+        },
+        "rmState": {
+          "#type": "map",
+          "#value": [
+            [
+              {
+                "#type": "string",
+                "#value": "rm1"
+              },
+              {
+                "#type": "string",
+                "#value": "aborted"
+              }
+            ],
+            [
+              {
+                "#type": "string",
+                "#value": "rm2"
+              },
+              {
+                "#type": "string",
+                "#value": "prepared"
+              }
+            ]
+          ]
+        }
+      }
+    },
+    {
+      "fp": 5047795015551354289,
+      "val": {
+        "msgs": {
+          "#type": "set",
+          "#value": [
+            {
+              "#type": "record",
+              "#value": {
+                "type": {
+                  "#type": "string",
+                  "#value": "Abort"
+                }
+              }
+            },
+            {
+              "#type": "record",
+              "#value": {
+                "type": {
+                  "#type": "string",
+                  "#value": "Prepared"
+                },
+                "rm": {
+                  "#type": "string",
+                  "#value": "rm1"
+                }
+              }
+            },
+            {
+              "#type": "record",
+              "#value": {
+                "type": {
+                  "#type": "string",
+                  "#value": "Prepared"
+                },
+                "rm": {
+                  "#type": "string",
+                  "#value": "rm2"
+                }
+              }
+            }
+          ]
+        },
+        "tmState": {
+          "#type": "string",
+          "#value": "aborted"
+        },
+        "tmPrepared": {
+          "#type": "set",
+          "#value": [
+            {
+              "#type": "string",
+              "#value": "rm1"
+            },
+            {
+              "#type": "string",
+              "#value": "rm2"
+            }
+          ]
+        },
+        "rmState": {
+          "#type": "map",
+          "#value": [
+            [
+              {
+                "#type": "string",
+                "#value": "rm1"
+              },
+              {
+                "#type": "string",
+                "#value": "prepared"
+              }
+            ],
+            [
+              {
+                "#type": "string",
+                "#value": "rm2"
+              },
+              {
+                "#type": "string",
+                "#value": "aborted"
+              }
+            ]
+          ]
+        }
+      }
+    },
+    {
+      "fp": -4983371851939469089,
+      "val": {
+        "msgs": {
+          "#type": "set",
+          "#value": [
+            {
+              "#type": "record",
+              "#value": {
+                "type": {
+                  "#type": "string",
+                  "#value": "Abort"
+                }
+              }
+            },
+            {
+              "#type": "record",
+              "#value": {
+                "type": {
+                  "#type": "string",
+                  "#value": "Prepared"
+                },
+                "rm": {
+                  "#type": "string",
+                  "#value": "rm1"
+                }
+              }
+            },
+            {
+              "#type": "record",
+              "#value": {
+                "type": {
+                  "#type": "string",
+                  "#value": "Prepared"
+                },
+                "rm": {
+                  "#type": "string",
+                  "#value": "rm2"
+                }
+              }
+            }
+          ]
+        },
+        "tmState": {
+          "#type": "string",
+          "#value": "aborted"
+        },
+        "tmPrepared": {
+          "#type": "set",
+          "#value": [
+            {
+              "#type": "string",
+              "#value": "rm2"
+            }
+          ]
+        },
+        "rmState": {
+          "#type": "map",
+          "#value": [
+            [
+              {
+                "#type": "string",
+                "#value": "rm1"
+              },
+              {
+                "#type": "string",
+                "#value": "aborted"
+              }
+            ],
+            [
+              {
+                "#type": "string",
+                "#value": "rm2"
+              },
+              {
+                "#type": "string",
+                "#value": "aborted"
+              }
+            ]
+          ]
+        }
+      }
+    },
+    {
+      "fp": 907472759882536340,
+      "val": {
+        "msgs": {
+          "#type": "set",
+          "#value": [
+            {
+              "#type": "record",
+              "#value": {
+                "type": {
+                  "#type": "string",
+                  "#value": "Commit"
+                }
+              }
+            },
+            {
+              "#type": "record",
+              "#value": {
+                "type": {
+                  "#type": "string",
+                  "#value": "Prepared"
+                },
+                "rm": {
+                  "#type": "string",
+                  "#value": "rm1"
+                }
+              }
+            },
+            {
+              "#type": "record",
+              "#value": {
+                "type": {
+                  "#type": "string",
+                  "#value": "Prepared"
+                },
+                "rm": {
+                  "#type": "string",
+                  "#value": "rm2"
+                }
+              }
+            }
+          ]
+        },
+        "tmState": {
+          "#type": "string",
+          "#value": "committed"
+        },
+        "tmPrepared": {
+          "#type": "set",
+          "#value": [
+            {
+              "#type": "string",
+              "#value": "rm1"
+            },
+            {
+              "#type": "string",
+              "#value": "rm2"
+            }
+          ]
+        },
+        "rmState": {
+          "#type": "map",
+          "#value": [
+            [
+              {
+                "#type": "string",
+                "#value": "rm1"
+              },
+              {
+                "#type": "string",
+                "#value": "committed"
+              }
+            ],
+            [
+              {
+                "#type": "string",
+                "#value": "rm2"
+              },
+              {
+                "#type": "string",
+                "#value": "committed"
+              }
+            ]
+          ]
+        }
+      }
+    },
+    {
+      "fp": -1707743384938484671,
+      "val": {
+        "msgs": {
+          "#type": "set",
+          "#value": [
+            {
+              "#type": "record",
+              "#value": {
+                "type": {
+                  "#type": "string",
+                  "#value": "Abort"
+                }
+              }
+            },
+            {
+              "#type": "record",
+              "#value": {
+                "type": {
+                  "#type": "string",
+                  "#value": "Prepared"
+                },
+                "rm": {
+                  "#type": "string",
+                  "#value": "rm1"
+                }
+              }
+            },
+            {
+              "#type": "record",
+              "#value": {
+                "type": {
+                  "#type": "string",
+                  "#value": "Prepared"
+                },
+                "rm": {
+                  "#type": "string",
+                  "#value": "rm2"
+                }
+              }
+            }
+          ]
+        },
+        "tmState": {
+          "#type": "string",
+          "#value": "aborted"
+        },
+        "tmPrepared": {
+          "#type": "set",
+          "#value": [
+            {
+              "#type": "string",
+              "#value": "rm1"
+            },
+            {
+              "#type": "string",
+              "#value": "rm2"
+            }
+          ]
+        },
+        "rmState": {
+          "#type": "map",
+          "#value": [
+            [
+              {
+                "#type": "string",
+                "#value": "rm1"
+              },
+              {
+                "#type": "string",
+                "#value": "aborted"
+              }
+            ],
+            [
+              {
+                "#type": "string",
+                "#value": "rm2"
+              },
+              {
+                "#type": "string",
+                "#value": "aborted"
+              }
+            ]
+          ]
+        }
+      }
+    }
+  ],
+  "edges": [
+    [
+      -8920658829714034288,
+      -8413633901183986534
+    ],
+    [
+      -8920658829714034288,
+      2799359148307773057
+    ],
+    [
+      -8920658829714034288,
+      -6442784625528721290
+    ],
+    [
+      -8920658829714034288,
+      -5791436952050957132
+    ],
+    [
+      -8920658829714034288,
+      6057263474616491232
+    ],
+    [
+      -8413633901183986534,
+      2682210257876994615
+    ],
+    [
+      -8413633901183986534,
+      1127276891527907462
+    ],
+    [
+      -8413633901183986534,
+      -8222076592725511764
+    ],
+    [
+      -8413633901183986534,
+      3733821554928638361
+    ],
+    [
+      -8413633901183986534,
+      -8222076592725511764
+    ],
+    [
+      -8413633901183986534,
+      3733821554928638361
+    ],
+    [
+      2799359148307773057,
+      2682210257876994615
+    ],
+    [
+      2799359148307773057,
+      8289229465998568391
+    ],
+    [
+      2799359148307773057,
+      5367962927226497022
+    ],
+    [
+      2799359148307773057,
+      -655942974188266511
+    ],
+    [
+      -6442784625528721290,
+      1127276891527907462
+    ],
+    [
+      -6442784625528721290,
+      -3305653773075563207
+    ],
+    [
+      -6442784625528721290,
+      5367962927226497022
+    ],
+    [
+      -6442784625528721290,
+      -6296271659737267364
+    ],
+    [
+      -5791436952050957132,
+      -8222076592725511764
+    ],
+    [
+      -5791436952050957132,
+      -6296271659737267364
+    ],
+    [
+      -5791436952050957132,
+      9195334222094084548
+    ],
+    [
+      6057263474616491232,
+      3733821554928638361
+    ],
+    [
+      6057263474616491232,
+      -655942974188266511
+    ],
+    [
+      6057263474616491232,
+      9195334222094084548
+    ],
+    [
+      2682210257876994615,
+      -7207180050420037711
+    ],
+    [
+      2682210257876994615,
+      -7073793387624429772
+    ],
+    [
+      2682210257876994615,
+      -6485556054471938815
+    ],
+    [
+      2682210257876994615,
+      -7073793387624429772
+    ],
+    [
+      1127276891527907462,
+      -7207180050420037711
+    ],
+    [
+      1127276891527907462,
+      -4994670545779502928
+    ],
+    [
+      1127276891527907462,
+      -4994670545779502928
+    ],
+    [
+      1127276891527907462,
+      -1202193228100226649
+    ],
+    [
+      -8222076592725511764,
+      -4994670545779502928
+    ],
+    [
+      -8222076592725511764,
+      3821487378330287279
+    ],
+    [
+      -8222076592725511764,
+      3821487378330287279
+    ],
+    [
+      3733821554928638361,
+      -7073793387624429772
+    ],
+    [
+      3733821554928638361,
+      3821487378330287279
+    ],
+    [
+      3733821554928638361,
+      3821487378330287279
+    ],
+    [
+      8289229465998568391,
+      3094543397045919466
+    ],
+    [
+      8289229465998568391,
+      8289229465998568391
+    ],
+    [
+      8289229465998568391,
+      4588829850524629921
+    ],
+    [
+      8289229465998568391,
+      -547557727701130961
+    ],
+    [
+      5367962927226497022,
+      -7207180050420037711
+    ],
+    [
+      5367962927226497022,
+      4588829850524629921
+    ],
+    [
+      5367962927226497022,
+      -6645829419012953448
+    ],
+    [
+      -655942974188266511,
+      -7073793387624429772
+    ],
+    [
+      -655942974188266511,
+      -547557727701130961
+    ],
+    [
+      -3305653773075563207,
+      8243095556099944936
+    ],
+    [
+      -3305653773075563207,
+      -3305653773075563207
+    ],
+    [
+      -3305653773075563207,
+      -6645829419012953448
+    ],
+    [
+      -3305653773075563207,
+      2820411753389850698
+    ],
+    [
+      -6296271659737267364,
+      -4994670545779502928
+    ],
+    [
+      -6296271659737267364,
+      2820411753389850698
+    ],
+    [
+      9195334222094084548,
+      3821487378330287279
+    ],
+    [
+      -7207180050420037711,
+      1351184073851375264
+    ],
+    [
+      -7207180050420037711,
+      -7949813836668280235
+    ],
+    [
+      -7073793387624429772,
+      2095118590143995906
+    ],
+    [
+      -6485556054471938815,
+      1351184073851375264
+    ],
+    [
+      -6485556054471938815,
+      2095118590143995906
+    ],
+    [
+      -6485556054471938815,
+      2095118590143995906
+    ],
+    [
+      -4994670545779502928,
+      -1618648460754381679
+    ],
+    [
+      -1202193228100226649,
+      -7949813836668280235
+    ],
+    [
+      -1202193228100226649,
+      -1618648460754381679
+    ],
+    [
+      -1202193228100226649,
+      -1618648460754381679
+    ],
+    [
+      3094543397045919466,
+      -8172781862168529814
+    ],
+    [
+      3094543397045919466,
+      3020669804692647254
+    ],
+    [
+      3094543397045919466,
+      -5865752388962987464
+    ],
+    [
+      3094543397045919466,
+      3020669804692647254
+    ],
+    [
+      4588829850524629921,
+      -8172781862168529814
+    ],
+    [
+      4588829850524629921,
+      4588829850524629921
+    ],
+    [
+      4588829850524629921,
+      -7330602228064716247
+    ],
+    [
+      -547557727701130961,
+      3020669804692647254
+    ],
+    [
+      -547557727701130961,
+      -547557727701130961
+    ],
+    [
+      -6645829419012953448,
+      1369088822992610643
+    ],
+    [
+      -6645829419012953448,
+      -7330602228064716247
+    ],
+    [
+      -6645829419012953448,
+      -6645829419012953448
+    ],
+    [
+      8243095556099944936,
+      1369088822992610643
+    ],
+    [
+      8243095556099944936,
+      1876315348854968027
+    ],
+    [
+      8243095556099944936,
+      1876315348854968027
+    ],
+    [
+      8243095556099944936,
+      9014706993114373674
+    ],
+    [
+      2820411753389850698,
+      1876315348854968027
+    ],
+    [
+      2820411753389850698,
+      2820411753389850698
+    ],
+    [
+      1351184073851375264,
+      -5206513212752804696
+    ],
+    [
+      -7949813836668280235,
+      -5206513212752804696
+    ],
+    [
+      -8172781862168529814,
+      -7372170600185143588
+    ],
+    [
+      -8172781862168529814,
+      -8806765344440116330
+    ],
+    [
+      3020669804692647254,
+      -5944403255706410620
+    ],
+    [
+      -5865752388962987464,
+      -7372170600185143588
+    ],
+    [
+      -5865752388962987464,
+      -5944403255706410620
+    ],
+    [
+      -5865752388962987464,
+      -5944403255706410620
+    ],
+    [
+      -7330602228064716247,
+      -8118617434379586058
+    ],
+    [
+      -7330602228064716247,
+      -5747929816737390280
+    ],
+    [
+      -7330602228064716247,
+      -7330602228064716247
+    ],
+    [
+      -7330602228064716247,
+      -7330602228064716247
+    ],
+    [
+      1369088822992610643,
+      422002267197804517
+    ],
+    [
+      1369088822992610643,
+      1847492488239237807
+    ],
+    [
+      1876315348854968027,
+      -6397182459148755106
+    ],
+    [
+      9014706993114373674,
+      1847492488239237807
+    ],
+    [
+      9014706993114373674,
+      -6397182459148755106
+    ],
+    [
+      9014706993114373674,
+      -6397182459148755106
+    ],
+    [
+      -7372170600185143588,
+      2791115220610284006
+    ],
+    [
+      -8806765344440116330,
+      2791115220610284006
+    ],
+    [
+      -8118617434379586058,
+      -3083507713076643024
+    ],
+    [
+      -8118617434379586058,
+      1331180586667458750
+    ],
+    [
+      -5747929816737390280,
+      1958133943292273574
+    ],
+    [
+      -5747929816737390280,
+      5047795015551354289
+    ],
+    [
+      422002267197804517,
+      -4983371851939469089
+    ],
+    [
+      1847492488239237807,
+      -4983371851939469089
+    ],
+    [
+      -3083507713076643024,
+      907472759882536340
+    ],
+    [
+      1331180586667458750,
+      907472759882536340
+    ],
+    [
+      1958133943292273574,
+      -1707743384938484671
+    ],
+    [
+      5047795015551354289,
+      -1707743384938484671
+    ]
+  ]
+}
