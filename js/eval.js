@@ -922,7 +922,10 @@ function evalBoundInfix(node, ctx){
         // Assume both operands evaluate to numbers.
         let lhsVal = evalExpr(lhs, ctx)[0]["val"];
         let rhsVal = evalExpr(rhs, ctx)[0]["val"];
-        return [ctx.withVal(_.range(lhsVal, rhsVal + 1))];
+        assert(lhsVal instanceof IntValue);
+        assert(rhsVal instanceof IntValue);
+        let rangeVal = _.range(lhsVal.getVal(), rhsVal.getVal() + 1).map(x => new IntValue(x));
+        return [ctx.withVal(new SetValue(rangeVal))];
     }
 
 }

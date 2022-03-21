@@ -837,7 +837,7 @@ tests = [
     "simple2",
     "simple3",
     "simple5",
-    // "set_dot_notation",
+    "set_dot_notation",
     "mldr_init_only",
     "tla_expr_eval"
 ]
