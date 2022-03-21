@@ -178,6 +178,10 @@ class TupleValue extends TLAValue{
         return this.elems;
     }
 
+    append(el){
+        return new TupleValue(this.elems.concat([el]));
+    }
+
     getElems(){
         return this.elems;
     }
@@ -1102,7 +1106,7 @@ function evalBoundOp(node, ctx){
         let argExpr = node.namedChildren[1];
         let argExprVal = evalExpr(argExpr, ctx)[0]["val"]
         evalLog("Cardinality val:", argExpr.text, argExprVal.length);
-        return [ctx.withVal(argExprVal.length)];
+        return [ctx.withVal(new IntValue(argExprVal.length))];
     }
 
     // Built in operator.
@@ -1112,8 +1116,11 @@ function evalBoundOp(node, ctx){
         let appendElemArgExpr = node.namedChildren[2];
         let seqArgExprVal = evalExpr(seqArgExpr, ctx)[0]["val"]
         let appendElemArgExprVal = evalExpr(appendElemArgExpr, ctx)[0]["val"]
+
+        assert(seqArgExprVal instanceof TupleValue);
+
         // evalLog("Append val:", seqArgExpr.text);
-        return [ctx.withVal(seqArgExprVal.concat([appendElemArgExprVal]))];
+        return [ctx.withVal(seqArgExprVal.append(appendElemArgExprVal))];
     }
 
     // Check for the bound op in the set of known definitions.

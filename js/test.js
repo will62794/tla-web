@@ -839,6 +839,7 @@ tests = [
     "simple5",
     "set_dot_notation",
     "record_literal_eval",
+    "seq_append",
     "mldr_init_only",
     "tla_expr_eval"
 ]
