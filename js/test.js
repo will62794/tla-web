@@ -840,6 +840,7 @@ tests = [
     "set_dot_notation",
     "record_literal_eval",
     "seq_append",
+    "primed_tuple",
     "mldr_init_only",
     "tla_expr_eval"
 ]
