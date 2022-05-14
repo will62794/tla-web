@@ -368,14 +368,20 @@ class TLAState{
 function applySyntaxRewrites(text, rewrites){
     let lines = text.split("\n");
     for(const rewrite of rewrites){
-        // TODO: For now assume that rewrites are within the scope of a single line.
-        assert(rewrite["startPosition"]["row"] === rewrite["endPosition"]["row"]);
-        let lineInd = rewrite["startPosition"]["row"]
-        line = lines[lineInd];
-        let head = line.substring(0, rewrite["startPosition"]["column"])
-        let tail = line.substring(rewrite["endPosition"]["column"]);
-        lineNew = head + rewrite["newStr"] + tail;
-        lines[lineInd] = lineNew;
+
+        // Delete line entirely.
+        if(rewrite["deleteRow"]!==undefined){
+            lines[rewrite["deleteRow"]] = "";
+        } else{
+            // TODO: For now assume that rewrites are within the scope of a single line.
+            assert(rewrite["startPosition"]["row"] === rewrite["endPosition"]["row"]);
+            let lineInd = rewrite["startPosition"]["row"]
+            line = lines[lineInd];
+            let head = line.substring(0, rewrite["startPosition"]["column"])
+            let tail = line.substring(rewrite["endPosition"]["column"]);
+            lineNew = head + rewrite["newStr"] + tail;
+            lines[lineInd] = lineNew;
+        }
 
         // TODO: Consider removing line entirely if it is empty after rewrite.
         // if(lineNew.length > 0){
@@ -454,7 +460,39 @@ function genSyntaxRewrites(treeArg) {
         //   console.log("syntax rewriting:", node.type, node);
 
           // Delete everything inside comments.
-          if(node.type === "block_comment" || node.type === "comment"){
+          if(node.type === "block_comment"){
+            // If the comment spans multiple lines, break this down into a
+            // rewrite for each line, using a special 'deleteRow' specifier for
+            // the internal block comment rewrite.
+            if(node.startPosition.row !== node.endPosition.row){
+                let currRow = node.startPosition.row;
+                while(currRow < node.endPosition.row){
+                    rewrite = {
+                        deleteRow: currRow,
+                        startPosition: undefined,
+                        endPosition: undefined,
+                        newStr: undefined
+                    } 
+                    currRow += 1;
+                }
+
+                // Add rewrite for the last row of the block comment.
+                sourceRewrites.push({
+                    startPosition: {"row": node.endPosition.row, "column": 0},
+                    endPosition: {"row": node.endPosition.row, "column": node.endPosition.column},
+                    newStr: "" 
+                });      
+            } else{
+                rewrite = {
+                    startPosition: node.startPosition,
+                    endPosition: node.endPosition,
+                    newStr: ""
+                }
+                sourceRewrites.push(rewrite);              
+            }
+          } 
+          
+          if(node.type === "comment"){
             rewrite = {
                 startPosition: node.startPosition,
                 endPosition: node.endPosition,

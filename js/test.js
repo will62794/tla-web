@@ -245,6 +245,7 @@ let nextExpected;
 // Set of specs whose reachable states we test for JS <-> TLC conformance.
 tests = [
     {"spec": "simple1", "constvals": undefined},
+    {"spec": "simple1_multiline_block_comment", "constvals": undefined},
     {"spec": "simple2", "constvals": undefined},
     {"spec": "simple3", "constvals": undefined},
     {"spec": "simple5", "constvals": undefined},
