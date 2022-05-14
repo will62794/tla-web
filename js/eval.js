@@ -70,6 +70,10 @@ class TLAValue{
     toJSONITF(){
         return "'toJSONITF' unimplemented";
     }
+
+    fingerprint(){
+        return "no_fingerprint";
+    }
 }
 
 class IntValue extends TLAValue{
@@ -93,6 +97,9 @@ class IntValue extends TLAValue{
         assert(other instanceof IntValue);
         return new IntValue(this.val + other.getVal())
     }
+    fingerprint(){
+        return objectHash.sha1(this.val);
+    }
 }
 
 class BoolValue extends TLAValue{
@@ -108,6 +115,9 @@ class BoolValue extends TLAValue{
     }
     toJSONITF(){
         return {"#type": "bool", "#value": this.val};
+    }
+    fingerprint(){
+        return objectHash.sha1(this.val);
     }
 }
 
@@ -128,6 +138,9 @@ class StringValue extends TLAValue{
     toJSONITF(){
         return {"#type": "string", "#value": this.val};
     }
+    fingerprint(){
+        return this.val;
+    }
 }
 
 class SetValue extends TLAValue{
@@ -144,8 +157,13 @@ class SetValue extends TLAValue{
     }
 
     toJSONITF(){
-        // return {"#type": "set", "#value": _.reverse(this.elems.map(el => el.toJSONITF()))};
-        return {"#type": "set", "#value": this.elems.map(el => el.toJSONITF())};
+        // Do a crude normalization by sorting by stringified version of each value
+        // TODO: Eventually will need a more principled way to do normalization
+        // and/or equality checking.
+        return {
+            "#type": "set", 
+            "#value": _.sortBy(this.elems, (e) => e.toString()).map(el => el.toJSONITF())
+        };
     }
 
     getElems(){
@@ -162,6 +180,9 @@ class SetValue extends TLAValue{
 
     diffWith(otherSet){
         return new SetValue(_.differenceWith(this.elems, otherSet.getElems(), _.isEqual));
+    }
+    fingerprint(){
+        return objectHash.sha1(this.elems.map(e => e.fingerprint()).sort());
     }
 }
 
@@ -187,6 +208,9 @@ class TupleValue extends TLAValue{
     }
     toJSONITF(){
         return {"#type": "tup", "#value": this.elems.map(el => el.toJSONITF())};
+    }
+    fingerprint(){
+        return objectHash.sha1(this.elems.map(e => e.fingerprint()));
     }
 }
 
@@ -253,6 +277,11 @@ class FcnRcdValue extends TLAValue{
             };
         }
     }
+    fingerprint(){
+        let domHash = objectHash.sha1(this.domain.map(e => e.fingerprint()));
+        let valsHash = objectHash.sha1(this.values.map(e => e.fingerprint()));
+        return objectHash.sha1([domHash, valsHash]);
+    }
 }
 
 /**
@@ -300,7 +329,29 @@ class TLAState{
      * See https://apalache.informal.systems/docs/adr/015adr-trace.html.
      */
     toJSONITF(){
-        return _.mapValues(this.vars, (v) => v.toJSONITF());
+        // Sort keys for now.
+        let outObj = {};
+        for(var k of Object.keys(this.vars).sort()){
+            outObj[k] = this.vars[k].toJSONITF();
+        }
+        return outObj;
+        // return _.mapValues(this.vars, (v) => v.toJSONITF());
+    }
+
+    /**
+     * Return a unique, string hash of this state.
+     */
+    fingerprint(){
+        let stateKeys = Object.keys(this.vars).sort();
+        // Construct an array that is sequence of each state varialbe name and a
+        // fingerprint of its TLA value. Then we hash this array to produce the
+        // fingerprint for this state.
+        let valsToHash = [];
+        for(var k of stateKeys){
+            valsToHash.push(k);
+            valsToHash.push(this.vars[k].fingerprint());
+        }
+        return objectHash.sha1(valsToHash);
     }
 
     // toString(){
@@ -1677,8 +1728,9 @@ class TlaInterpreter{
         while(stateQueue.length > 0){
             let currState = stateQueue.pop();
             // console.log(currState);
-            let currStateHash = hashState(currState);
-            // console.log(currStateHash);
+            // let currStateHash = hashState(currState);
+            let currStateHash = currState.fingerprint();
+            console.log(currStateHash);
     
             // If we've already seen this state, we don't need to explore it.
             if(seenStatesHashSet.has(currStateHash)){

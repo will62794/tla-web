@@ -29,8 +29,13 @@ function toggleTestDetails(testId){
 
 // Do two arrays (treated as sets) contain the same elements.
 function arrEq(a1,a2){
+    console.log("arrEq a1:", a1);
+    console.log("arrEq a1:", a2);
     let a1Uniq = _.uniqWith(a1, _.isEqual)
     let a2Uniq = _.uniqWith(a2, _.isEqual)
+
+    console.log("arrEq a1 uniqwith:", a1);
+    console.log("arrEq a2 uniqwith:", a2);
 
     let sameSize = a1Uniq.length === a2Uniq.length;
     let sameEls = _.every(a1Uniq, (s) => _.find(a2Uniq, t => _.isEqual(s,t)));
@@ -252,7 +257,7 @@ tests = [
     {
         "spec": "lockserver_constant_comment", 
         "constvals": {
-            "Server": new SetValue([new StringValue("s1")]), 
+            "Server": new SetValue([new StringValue("s1"), new StringValue("s2")]), 
             "Client": new SetValue([new StringValue("c1"), new StringValue("c2")])
         }
     },
