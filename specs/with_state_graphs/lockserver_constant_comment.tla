@@ -8,6 +8,13 @@ EXTENDS TLC, Naturals
 \* owns that lock. 
 \* 
 
+(***************************************************************************)
+(* This specification describes a protocol                                 *)
+(* This specification describes a protocol                                 *)
+(* This specification describes a protocol                                 *)
+(* This specification describes a protocol                                 *)
+(***************************************************************************)
+
 \* Hard-code constants inline for now.
 CONSTANT Server, (**)
          Client 
@@ -20,6 +27,9 @@ VARIABLE semaphore
 VARIABLE clientlocks
 
 TypeOK ==
+    (*
+        block comment.
+    *)
     /\ semaphore \in [Server -> {TRUE, FALSE}]
     /\ clientlocks \in [Client -> SUBSET Server]
 

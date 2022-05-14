@@ -473,6 +473,7 @@ function genSyntaxRewrites(treeArg) {
                         endPosition: undefined,
                         newStr: undefined
                     } 
+                    sourceRewrites.push(rewrite);
                     currRow += 1;
                 }
 
@@ -564,7 +565,7 @@ function parseSpec(specText){
     tree = parser.parse(specText + "\n", null);
     let rewrites = genSyntaxRewrites(tree);
     let specTextRewritten = applySyntaxRewrites(specText, rewrites);
-    // console.log("REWRITTEN:", specTextRewritten);
+    console.log("REWRITTEN:", specTextRewritten);
 
     // Update the spec text to the rewritten version. Then continue parsing the spec
     // to extract definitions, variables, etc.
