@@ -202,7 +202,7 @@ function setConstantValues(){
     let initStateEval = dummyInitStates[0];
     let constTlaVals = {};
     for(var constDecl in specConsts){
-        constTlaVals[constDecl] = initStateEval[`var_${constDecl}`];
+        constTlaVals[constDecl] = initStateEval.getVarVal(`var_${constDecl}`);
     }
 
     // TODO: Thread these assigned values through standard spec evaluation.
@@ -545,6 +545,9 @@ function displayStateGraph(){
         chooseConstsElem.appendChild(setButtonDiv);
 
         chooseConstsContainer.appendChild(chooseConstsElem);
+
+        // Don't try to reload the spec if we have to instantiate constants.
+        return;
     }
 
     const duration = (performance.now() - start).toFixed(1);

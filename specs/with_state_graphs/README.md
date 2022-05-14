@@ -1,0 +1,1 @@
+To re-generate the JSON state graphs for the TLA+ specs in this directory, run the `gen_state_graphs.sh` script. These JSON state graph dumps for each spec are used for the TLC <-> Javascript interpreter conformance tests located [here](https://github.com/will62794/tla-web/blob/65c7e9f1febb21eecce4cf86e5ffd57578c4f90e/js/test.js#L834-L854).

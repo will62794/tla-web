@@ -1,0 +1,167 @@
+{
+  "states": [
+    {
+      "fp": -5243937821963724064,
+      "val": {
+        "clientlocks": {
+          "#type": "map",
+          "#value": [
+            [
+              {
+                "#type": "string",
+                "#value": "c1"
+              },
+              {
+                "#type": "set",
+                "#value": []
+              }
+            ],
+            [
+              {
+                "#type": "string",
+                "#value": "c2"
+              },
+              {
+                "#type": "set",
+                "#value": []
+              }
+            ]
+          ]
+        },
+        "semaphore": {
+          "#type": "map",
+          "#value": [
+            [
+              {
+                "#type": "string",
+                "#value": "s1"
+              },
+              {
+                "#type": "bool",
+                "#value": true
+              }
+            ]
+          ]
+        }
+      }
+    },
+    {
+      "fp": -4880708616217313441,
+      "val": {
+        "clientlocks": {
+          "#type": "map",
+          "#value": [
+            [
+              {
+                "#type": "string",
+                "#value": "c1"
+              },
+              {
+                "#type": "set",
+                "#value": [
+                  {
+                    "#type": "string",
+                    "#value": "s1"
+                  }
+                ]
+              }
+            ],
+            [
+              {
+                "#type": "string",
+                "#value": "c2"
+              },
+              {
+                "#type": "set",
+                "#value": []
+              }
+            ]
+          ]
+        },
+        "semaphore": {
+          "#type": "map",
+          "#value": [
+            [
+              {
+                "#type": "string",
+                "#value": "s1"
+              },
+              {
+                "#type": "bool",
+                "#value": false
+              }
+            ]
+          ]
+        }
+      }
+    },
+    {
+      "fp": 8752875407585158124,
+      "val": {
+        "clientlocks": {
+          "#type": "map",
+          "#value": [
+            [
+              {
+                "#type": "string",
+                "#value": "c1"
+              },
+              {
+                "#type": "set",
+                "#value": []
+              }
+            ],
+            [
+              {
+                "#type": "string",
+                "#value": "c2"
+              },
+              {
+                "#type": "set",
+                "#value": [
+                  {
+                    "#type": "string",
+                    "#value": "s1"
+                  }
+                ]
+              }
+            ]
+          ]
+        },
+        "semaphore": {
+          "#type": "map",
+          "#value": [
+            [
+              {
+                "#type": "string",
+                "#value": "s1"
+              },
+              {
+                "#type": "bool",
+                "#value": false
+              }
+            ]
+          ]
+        }
+      }
+    }
+  ],
+  "edges": [
+    [
+      -5243937821963724064,
+      -4880708616217313441
+    ],
+    [
+      -5243937821963724064,
+      8752875407585158124
+    ],
+    [
+      -4880708616217313441,
+      -5243937821963724064
+    ],
+    [
+      8752875407585158124,
+      -5243937821963724064
+    ]
+  ]
+}
