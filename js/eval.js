@@ -325,6 +325,14 @@ function applySyntaxRewrites(text, rewrites){
         let tail = line.substring(rewrite["endPosition"]["column"]);
         lineNew = head + rewrite["newStr"] + tail;
         lines[lineInd] = lineNew;
+
+        // TODO: Consider removing line entirely if it is empty after rewrite.
+        // if(lineNew.length > 0){
+            // lines[lineInd] = lineNew;
+        // } else{
+            // If line is empty, remove it.
+            // lines.splice(lineInd, 1);
+        // }
     }
     return lines.join("\n");
 }
@@ -392,13 +400,23 @@ function genSyntaxRewrites(treeArg) {
             fieldName = '';
           }
           let node = cursor.currentNode();
-        //   console.log(node);
-        //   console.log(node.type, node);
-          if(node.type === "bound_prefix_op"){
+        //   console.log("syntax rewriting:", node.type, node);
+
+          // Delete everything inside comments.
+          if(node.type === "block_comment" || node.type === "comment"){
+            rewrite = {
+                startPosition: node.startPosition,
+                endPosition: node.endPosition,
+                newStr: ""
+            } 
+            sourceRewrites.push(rewrite);
+          }
+          else if(node.type === "bound_prefix_op"){
             console.log("bound_prefix_op", node);
             let symbol = node.childForFieldName("symbol");
             let rhs = node.childForFieldName("rhs");
-            console.log(symbol);
+            console.log("syntax rewriting:", symbol);
+            console.log("syntax rewriting, type:", symbol.type);
             if(symbol.type === "unchanged"){
                 // Desugar UNCHANGED statements to their equivalent form e.g.
                 //  UNCHANGED <expr>  ==>  <expr>' = <expr>. 
@@ -457,7 +475,7 @@ function parseSpec(specText){
     tree = parser.parse(specText + "\n", null);
     let rewrites = genSyntaxRewrites(tree);
     let specTextRewritten = applySyntaxRewrites(specText, rewrites);
-    // console.log(specTextRewritten);
+    // console.log("REWRITTEN:", specTextRewritten);
 
     // Update the spec text to the rewritten version. Then continue parsing the spec
     // to extract definitions, variables, etc.
