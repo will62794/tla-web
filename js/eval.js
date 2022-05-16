@@ -1729,6 +1729,11 @@ function getNextStates(nextDef, currStateVars, defns, constvals){
     let all_next_states = ret.filter(c => {
         return !_.every(origVars, (v) => _.isEqual(c.state.getVarVal(v), c.state.getVarVal(v+"'")));
     });
+
+    // TODO: Check if we are correctly keeping only unique states.
+    // all_next_states = _.uniqBy(all_next_states, c => c.state.fingerprint());
+
+    // Keep only unique states, based on hashed fingerprint value.
     console.log("all_next:", all_next_states);
     return all_next_states;
 }
