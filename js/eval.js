@@ -259,6 +259,28 @@ class FcnRcdValue extends TLAValue{
         newFn.values[idx] = newVal;
         return newFn;
     }
+    // Update a record value given a key sequence, representing a nested update.
+    // e.g. given ["x", "y", "z"], we make the update rcd["x"]["y"]["z"] := newVal.
+    updateWithPath(args, newVal){
+        evalLog("updateWithPath args:", args);
+        // Base case, when the update is non-nested.
+        if(args.length === 1){
+            evalLog("Hit non-nested update", args);
+            let idx = this.argIndex(args[0]);
+            let newFn = _.cloneDeep(this);
+            evalLog("newVal", newVal);
+            newFn.values[idx] = newVal;
+            return newFn;
+        }
+
+        // Otherwise, recursively update.
+        let idx = this.argIndex(args[0]);
+        let newFn = _.cloneDeep(this);
+        evalLog("newFn", newFn);
+        newFn.values[idx] = newFn.values[idx].updateWithPath(args.slice(1), newVal);
+        return newFn;
+    }
+
     toJSONITF(){
         if(this.isRecord){
             console.log(this.domain);
@@ -1344,7 +1366,15 @@ function evalExpr(node, ctx){
         evalLog("EXCEPT node, ctx:", ctx);
         let lExpr = node.namedChildren[0];
         let updateExpr = node.namedChildren[1];
-        let rExpr = node.namedChildren[2];
+
+        // EXCEPT syntax allows for nested updates e.g.
+        // [[a |-> [x |-> 1]] EXCEPT !["a"]["x"] = 12]
+        let numUpdateExprs = node.namedChildren.length - 2;
+        let updateExprs = node.namedChildren.slice(1,node.namedChildren.length-1);
+
+        let rExpr = node.namedChildren[node.namedChildren.length-1];
+        evalLog("EXCEPT NAMED CHILDREN:", node.namedChildren);
+        evalLog("EXCEPT numUpdateExprs:", numUpdateExprs);
 
         // This value should be a function.
         evalLog("lExpr:",lExpr); 
@@ -1355,19 +1385,16 @@ function evalExpr(node, ctx){
         evalLog("fnVal:",fnVal);
         assert(fnVal instanceof FcnRcdValue);
 
-        evalLog(updateExpr);
-        let updateExprVal = evalExpr(updateExpr, ctx)[0]["val"];
-        evalLog("updateExprVal:", updateExprVal);
+        evalLog(updateExprs);
+        let updateExprVals = updateExprs.map(e => evalExpr(e, ctx)[0]["val"]);
+        evalLog("updateExprVals:", updateExprVals);
 
         let rExprVal = evalExpr(rExpr, ctx)[0]["val"];
         evalLog("rExprVal:", rExprVal);
         // fnVal[updateExprVal] = rExprVal;
 
-        let updatedFnVal = fnVal.updateWith(updateExprVal, rExprVal);
+        let updatedFnVal = fnVal.updateWithPath(updateExprVals, rExprVal);
         return [ctx.withVal(updatedFnVal)];
-
-        throw Error("Evaluation of 'except' node type not implemented.");
-
     }
 
     // <fnVal>[<fnArgVal>] e.g. 'f[3]'
