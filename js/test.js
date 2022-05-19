@@ -261,8 +261,15 @@ tests = [
             "Server": new SetValue([new StringValue("s1"), new StringValue("s2")]), 
             "Client": new SetValue([new StringValue("c1"), new StringValue("c2")])
         }
-    },
-    // "TwoPhase"
+    }
+    // {
+    //     "spec": "DieHarder", 
+    //     "constvals": {
+    //         "Jug": new SetValue([new StringValue("j1"), new StringValue("j2")]), 
+    //         // TODO: Set this to correct function value.
+    //         "Capacity": new SetValue([new StringValue("c1"), new StringValue("c2")])
+    //     }        
+    // }
 ]
 
 const urlSearchParams = new URLSearchParams(window.location.search);
