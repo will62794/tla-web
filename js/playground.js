@@ -231,9 +231,29 @@ function reloadSpec(){
 
     console.log("Generating initial states.");
     let interp = new TlaInterpreter();
-    let initStates = interp.computeInitStates(specTreeObjs, specConstVals);
-    allInitStates = initStates;
+    let allInitStates;
+    let initStates;
+    try{
+      initStates = interp.computeInitStates(specTreeObjs, specConstVals);
+      allInitStates = initStates;
+    } catch(e){
+      console.error("Error computing initial states.");
+      if(currEvalNode !== null){
+        // Display line where evaluation error occurred.
+        const $codeEditor = document.querySelector('.CodeMirror');
+        // console.log(currEvalNode["startPosition"]);
+        // console.log(currEvalNode["endPosition"]);
 
+        let errorLine = currEvalNode["startPosition"]["row"];
+        $codeEditor.CodeMirror.addLineClass(errorLine, 'background', 'line-error');
+        console.log("error evaluating node: ", currEvalNode);
+        console.log(e);
+      }
+      return;
+    }
+
+    console.log("Computed " + allInitStates.length + " initial states.");
+    
     // Display states in HTML.
     let initStatesDiv = document.getElementById("initial-states");
     initStatesDiv.innerHTML = "";
@@ -500,6 +520,13 @@ function displayStateGraph(){
 //   }
 
   async function handleCodeChange(editor, changes) {
+
+    // Remove any existing line error highlights.
+    var nlines = codeEditor.lineCount();
+    for (var i = 0; i < nlines; i++) {
+      codeEditor.removeLineClass(i, "background");
+    }
+
     const newText = codeEditor.getValue() + '\n';
     const edits = tree && changes && changes.map(treeEditForEditorChange);
 
