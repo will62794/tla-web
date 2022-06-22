@@ -25,7 +25,8 @@ Init == exprs = [
     except1 |-> [[a |-> 1, b |-> 2] EXCEPT !["a"] = 12],
     exceptnested1 |-> [[a |-> [x |-> 1], b |-> 2] EXCEPT !["a"]["x"] = 12],
     exceptnested2 |-> [[a |-> [x |-> [y |-> 3]], b |-> 2] EXCEPT !["a"]["x"]["y"] = 12],
-    fcnapp1 |-> [a |-> 1, b |-> 2]["a"]
+    fcnapp1 |-> [a |-> 1, b |-> 2]["a"],
+    booleanset |-> BOOLEAN
 ]
 
 \* fcnset1 |-> [{"x","y"} -> {1,2,3}]
