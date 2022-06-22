@@ -97,6 +97,10 @@ class IntValue extends TLAValue{
         assert(other instanceof IntValue);
         return new IntValue(this.val + other.getVal())
     }
+    minus(other){
+        assert(other instanceof IntValue);
+        return new IntValue(this.val - other.getVal())
+    }
     fingerprint(){
         return objectHash.sha1(this.val);
     }
@@ -848,6 +852,7 @@ function evalEq(lhs, rhs, ctx){
             console.assert(rhsVals.length === 1);
             let rhsVal = rhsVals[0]["val"]
             evalLog("rhsVal:", rhsVal);
+            // TODO: Fix equality checks properly here.
             let boolVal = (ctx.state.getVarVal(identName) === rhsVal)
             evalLog("boolVal:", boolVal);
 
@@ -928,6 +933,19 @@ function evalBoundInfix(node, ctx){
         assert(lhsVal instanceof IntValue);
         assert(rhsVal instanceof IntValue);
         let outVal = lhsVal.plus(rhsVal);
+        return [ctx.withVal(outVal)];
+    }
+
+    // Plus.
+    if(symbol.type === "minus"){
+        evalLog("minus lhs:", lhs, lhs.text);
+        let minusLhsVal = evalExpr(lhs, ctx);
+        evalLog("minus lhs val:", minusLhsVal);
+        let lhsVal = minusLhsVal[0]["val"];
+        let rhsVal = evalExpr(rhs, ctx)[0]["val"];
+        assert(lhsVal instanceof IntValue);
+        assert(rhsVal instanceof IntValue);
+        let outVal = lhsVal.minus(rhsVal);
         return [ctx.withVal(outVal)];
     }
 
@@ -1302,6 +1320,10 @@ function evalFiniteSetLiteral(node, ctx){
     return [ctx.withVal(new SetValue(ret))];
 }
 
+// For debugging.
+// TODO: Eventually move this all inside a dedicated class.
+let currEvalNode = null;
+
 /**
  * Evaluate a TLC expression for generating initial/next states.
  * 
@@ -1357,6 +1379,10 @@ function evalFiniteSetLiteral(node, ctx){
 function evalExpr(node, ctx){
     // TODO: Enable this after argument conversion.
     assert(ctx instanceof Context);
+
+    // Record for debugging purposes.
+    currEvalNode = node;
+    // console.log("currEvalNode:", currEvalNode);
 
     // console.log("$$ evalExpr, node: ", node, node.text);
     evalLog("evalExpr -> ("+ node.type + ") '" + node.text + "'");
@@ -1484,10 +1510,18 @@ function evalExpr(node, ctx){
         let Rval = evalExpr(node.namedChildren[2], ctx)[0]["val"];
 
         // Compute [Dval -> Rval].
-        let RvalRepeat = _.times(Dval.length, _.constant(Rval));
-        // console.log("rval repeat:", RvalRepeat);
-        let fcnSetVal = cartesianProductOf(...RvalRepeat).map(r => _.fromPairs(_.zip(Dval,r)));
-        return [ctx.withVal(fcnSetVal)];
+        let fcnSetVal = cartesianProductOf(Dval.getElems(), Rval.getElems());
+        // console.log("dval", Dval);
+        // console.log(Rval);
+        // console.log("fcnSetVal:", fcnSetVal);
+        let domain = [];
+        let range = [];
+        for(var k=0;k<fcnSetVal.length;k++){
+            val = fcnSetVal[k];
+            domain.push(val[0]);
+            range.push(val[1]);
+        }
+        return [ctx.withVal(new FcnRcdValue(domain, range, false))];
     }
 
 
@@ -1560,6 +1594,18 @@ function evalExpr(node, ctx){
         return [ctx.withVal(fieldVal)];
 
     }
+
+    //
+    // Evaluation of some built-in constants.
+    //
+
+    // The 'BOOLEAN' built-in constant representing the set of all boolean values.
+    if(node.type === "boolean_set"){
+        // console.log(node.type, node.text);
+        let boolSet = [new BoolValue(true), new BoolValue(false)];
+        return [ctx.withVal(new SetValue(boolSet))];
+    }
+
 
     //
     // Evaluation of raw literal values.
