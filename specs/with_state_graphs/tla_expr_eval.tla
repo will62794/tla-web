@@ -12,6 +12,10 @@ VARIABLE exprs
 
 Init == exprs = [
     add |-> 5 + 5,
+    mul |-> 3 * 4,
+    minus |-> 10 - 3,
+    addparens |-> ((1+2)*4),
+    addparens2 |-> (1+2*4),
     setunion1 |-> {1,2} \cup {2,3},
     setunion2 |-> {1,2,3} \cup {2,3},
     setint1 |-> {1,2,3} \cap {2,3},

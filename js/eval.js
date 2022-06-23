@@ -944,7 +944,7 @@ function evalBoundInfix(node, ctx){
         let rhsVal = evalExpr(rhs, ctx)[0]["val"];
         let outVal = lhsVal.getVal() * rhsVal.getVal();
         // console.log("mul overall val:", outVal);
-        return [ctx.withVal(outVal)];
+        return [ctx.withVal(new IntValue(outVal))];
     }
 
     // Plus.
@@ -1472,6 +1472,11 @@ function evalExpr(node, ctx){
 
     // console.log("$$ evalExpr, node: ", node, node.text);
     evalLog("evalExpr -> ("+ node.type + ") '" + node.text + "'");
+
+    if(node.type === "parentheses"){
+        // evalLog(node);
+        return evalExpr(node.namedChildren[0], ctx);
+    }
 
     if(node.type === "prev_func_val"){
         evalLog(ctx);
