@@ -1464,7 +1464,6 @@ let currEvalNode = null;
  * @returns 
  */
 function evalExpr(node, ctx){
-    // TODO: Enable this after argument conversion.
     assert(ctx instanceof Context);
 
     // Record for debugging purposes.
