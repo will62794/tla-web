@@ -208,6 +208,9 @@ function setConstantValues(){
     let dummyTreeObjs = parseSpec(dummySpec);
     console.log(dummyTreeObjs);
 
+    // TODO: Make sure we evaluate the expression we're assigning to a constant
+    // value first.
+
     // Compute the single initial state.
     let interp = new TlaInterpreter();
     let dummyInitStates = interp.computeInitStates(dummyTreeObjs);
