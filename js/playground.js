@@ -144,12 +144,26 @@ function handleChooseState(statehash_short){
     const start = performance.now();
 
     let interp = new TlaInterpreter();
-    let nextStates = interp.computeNextStates(specTreeObjs, specConstVals, [nextState])
-                        .map(c => c["state"].deprimeVars());
-    currNextStates = _.cloneDeep(nextStates);
-    const duration = (performance.now() - start).toFixed(1);
-    console.log(`Generation of next states took ${duration}ms`)
 
+    try {
+        let nextStates = interp.computeNextStates(specTreeObjs, specConstVals, [nextState])
+            .map(c => c["state"].deprimeVars());
+        currNextStates = _.cloneDeep(nextStates);
+        const duration = (performance.now() - start).toFixed(1);
+        console.log(`Generation of next states took ${duration}ms`)
+    } catch (e) {
+        console.error("Error computing next states.");
+        if (currEvalNode !== null) {
+            // Display line where evaluation error occurred.
+            const $codeEditor = document.querySelector('.CodeMirror');
+            let errorLine = currEvalNode["startPosition"]["row"];
+            $codeEditor.CodeMirror.addLineClass(errorLine, 'background', 'line-error');
+            $codeEditor.CodeMirror.scrollIntoView(errorLine, 200);
+            console.log("error evaluating node: ", currEvalNode);
+            console.log(e);
+        }
+        return;
+    }
 
     // Re-render.
     renderCurrentTrace();
