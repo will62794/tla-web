@@ -23,6 +23,8 @@ Init == exprs = [
     setmap3 |-> {x + 2 : x \in {1,2,3} \cup {2,3,4}},
     setfilter1 |-> {x \in {1,2,3} : x > 1},
     except1 |-> [[a |-> 1, b |-> 2] EXCEPT !["a"] = 12],
+    except1prev |-> [[a |-> 1, b |-> 2] EXCEPT !["a"] = @ + 44],
+    \* except1multi |-> [[a |-> 1, b |-> 2] EXCEPT !["a"] = 10, !["b"] = 11], \* TODO: Handle this case in intepreter.
     exceptnested1 |-> [[a |-> [x |-> 1], b |-> 2] EXCEPT !["a"]["x"] = 12],
     exceptnested2 |-> [[a |-> [x |-> [y |-> 3]], b |-> 2] EXCEPT !["a"]["x"]["y"] = 12],
     fcnapp1 |-> [a |-> 1, b |-> 2]["a"],

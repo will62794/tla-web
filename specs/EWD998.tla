@@ -31,7 +31,7 @@ Init ==
     (* Rule 0 *)
     /\ color \in [Node -> Color]
     /\ counter = [i \in Node |-> 0]
-    /\ pending = [i \in Node |-> 0]
+    \* /\ pending = [i \in Node |-> 0]
     /\ token = [pos |-> 0, q |-> 0, color |-> "black"]
 
 -----------------------------------------------------------------------------

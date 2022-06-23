@@ -750,6 +750,11 @@ class Context{
         // Currently bound identifiers in the in-progress expression evaluation,
         // stored as a mapping from identifier names to their TLC values.
         this.quant_bound = quant_bound;
+
+        // @type: TLAValue
+        // Stores a binding of a previous function value (e.g. the @ symbol) for 
+        // EXCEPT based record updates.
+        this.prev_func_val = null;
     }
 
     /**
@@ -1469,6 +1474,13 @@ function evalExpr(node, ctx){
     // console.log("$$ evalExpr, node: ", node, node.text);
     evalLog("evalExpr -> ("+ node.type + ") '" + node.text + "'");
 
+    if(node.type === "prev_func_val"){
+        evalLog(ctx);
+        assert(ctx.prev_func_val !== null);
+        evalLog("eval prev func");
+        return [ctx.withVal(ctx.prev_func_val)];
+    }
+
     // [<lExpr> EXCEPT ![<updateExpr>] = <rExpr>]
     if(node.type === "except"){
         evalLog("EXCEPT node, ctx:", ctx);
@@ -1493,11 +1505,19 @@ function evalExpr(node, ctx){
         evalLog("fnVal:",fnVal);
         assert(fnVal instanceof FcnRcdValue);
 
+        // TODO: Properly handle case of multi-update i.e.
+        // [[a |-> 1, b |-> 2] EXCEPT !["a"] = 10, !["b"] = 11]
         evalLog(updateExprs);
         let updateExprVals = updateExprs.map(e => evalExpr(e, ctx)[0]["val"]);
         evalLog("updateExprVals:", updateExprVals);
 
-        let rExprVal = evalExpr(rExpr, ctx)[0]["val"];
+        // Account for occurrence of "@" in the EXCEPT expression, which
+        // represents the previous (i.e pre-update) val of the function value.
+        let rExprVal;
+        let newCtx = ctx.clone();
+        newCtx.prev_func_val = fnVal.applyArg(updateExprVals[0]);
+        rExprVal = evalExpr(rExpr, newCtx)[0]["val"];
+
         evalLog("rExprVal:", rExprVal);
         // fnVal[updateExprVal] = rExprVal;
 
