@@ -47,6 +47,25 @@ function subsets(vals) {
 	return powerset;
 }
 
+// Combinations with replacement.
+// See: https://stackoverflow.com/questions/32543936/combination-with-repetition
+function combinations(arr, l) {
+    if (l === void 0) l = arr.length; // Length of the combinations
+    var data = Array(l),             // Used to store state
+        results = [];                // Array of results
+    (function f(pos, start) {        // Recursive function
+        if (pos === l) {                // End reached
+            results.push(data.slice());  // Add a copy of data to results
+            return;
+        }
+        for (var i = start; i < arr.length; ++i) {
+            data[pos] = arr[i];          // Update data
+            f(pos + 1, i);                 // Call f recursively
+        }
+    })(0, 0);                        // Start at index 0
+    return results;                  // Return results
+}
+
 function hashState(stateObj){
     return objectHash.sha1(stateObj);
 }
@@ -1010,6 +1029,69 @@ function evalBoundInfix(node, ctx){
         let lhs = node.namedChildren[0];
         let rhs = node.namedChildren[2];
 
+        // If, in the current state assignment, the variable has not already
+        // been assigned a value, then allow it to non-deterministically take on any 
+        // value in the rhs set value.
+        let identName = lhs.text;
+
+        // let isUnprimedVar = ctx["state"].hasOwnProperty(identName) && !isPrimedVar(lhs);
+        let isUnprimedVar = ctx.state.hasVar(identName) && !isPrimedVar(lhs);
+    
+        // if(isPrimedVar(lhs) || (isUnprimedVar && !ASSIGN_PRIMED)){
+
+        evalLog("identName: ", identName);
+        evalLog("identName is unprimed var: ", isUnprimedVar);
+
+
+        // TODO: Clean up this logic.
+
+        if(isUnprimedVar){
+
+            if(ctx.state.getVarVal(identName) == null){
+                
+                let rhsVal = evalExpr(rhs, ctx)[0]["val"];
+                // assert(rhsVal instanceof SetValue);
+                evalLog("setin rhsval assignment:", rhsVal, rhs.text, ctx);
+
+                // Variable not already assigned. So, update variable assignment as necessary.
+                // let stateUpdated = _.mapValues(ctx.state.getStateObj(), (val,key,obj) => {
+                //     if(key === identName){
+                //         evalLog("Variable (" + identName + ") not already assigned in ctx:",  ctx);
+                //         let rhsVals = evalExpr(rhsVal, ctx.clone());
+                //         console.assert(rhsVals.length === 1);
+                //         let rhsVal = rhsVals[0]["val"];
+                //         evalLog("Variable (" + identName + ") getting value:",  rhsVal);
+                //         return (val === null) ? rhsVal : val;
+                //     } 
+                //     return val;
+                // });
+                // evalLog("state updated:", stateUpdated);
+                return rhsVal.getElems().map(el =>{
+                    let stateUpdated = _.mapValues(ctx.state.getStateObj(), (val,key,obj) => {
+                        if(key === identName){
+                            evalLog("Variable (" + identName + ") not already assigned in ctx:",  ctx);
+                            // let rhsVals = evalExpr(rhsVal, ctx.clone());
+                            // console.assert(rhsVals.length === 1);
+                            // let rhsVal = rhsVals[0]["val"];
+                            let rhsVal = el;
+                            evalLog("Variable (" + identName + ") getting value:",  rhsVal);
+                            return (val === null) ? rhsVal : val;
+                        } 
+                        return val;
+                    });
+                    return ctx.withValAndState(true, new TLAState(stateUpdated))
+                })
+                // return [ctx.withValAndState(true, new TLAState(stateUpdated))];
+            }
+
+        }
+
+
+
+
+
+
+
         let lhsVal = evalExpr(lhs, ctx)[0]["val"];
         evalLog("setin lhsval:", lhsVal, lhs.text, ctx);
 
@@ -1509,19 +1591,47 @@ function evalExpr(node, ctx){
         // Range.
         let Rval = evalExpr(node.namedChildren[2], ctx)[0]["val"];
 
+        let Delems = Dval.getElems();
+        let Relems = Rval.getElems();
+
+        // TODO: Clean up this logic.
+
         // Compute [Dval -> Rval].
-        let fcnSetVal = cartesianProductOf(Dval.getElems(), Rval.getElems());
-        // console.log("dval", Dval);
-        // console.log(Rval);
-        // console.log("fcnSetVal:", fcnSetVal);
-        let domain = [];
-        let range = [];
-        for(var k=0;k<fcnSetVal.length;k++){
-            val = fcnSetVal[k];
-            domain.push(val[0]);
-            range.push(val[1]);
+        let RvalRepeat = _.times(Dval.getElems().length, _.constant(Rval.getElems()));
+        // console.log("rval repeat:", RvalRepeat);
+        let oldfcnSetVal = cartesianProductOf(...RvalRepeat).map(r => _.fromPairs(_.zip(Dval.getElems(),r)));
+        console.log("oldfcnSetVal:", oldfcnSetVal);
+
+        // Compute set of all functions from D -> R by first computing combinations 
+        // with replacement i.e. choosing |D| elements from R.
+        let combs = combinations(Relems, Delems.length);
+        console.log("combs:", combs);
+
+        let fcnVals = [];
+        for(var comb of combs){
+            console.log(comb);
+            let re = comb.map((c,ind) => [Delems[ind], c]);
+            console.log("cre", re);
+            let fv = new FcnRcdValue(re.map(x => x[0]), re.map(x => x[1]));
+            console.log("cre", fv);
+            fcnVals.push(fv);
         }
-        return [ctx.withVal(new FcnRcdValue(domain, range, false))];
+
+        return [ctx.withVal(new SetValue(fcnVals))];
+
+        // // Compute [Dval -> Rval].
+        // let fcnSetVal = cartesianProductOf(Dval.getElems(), Rval.getElems());
+        // // console.log("dval", Dval);
+        // // console.log(Rval);
+        // // console.log("fcnSetVal:", fcnSetVal);
+        // let domain = [];
+        // let range = [];
+        // for(var k=0;k<fcnSetVal.length;k++){
+        //     val = fcnSetVal[k];
+        //     domain.push(val[0]);
+        //     range.push(val[1]);
+        // }
+        // return [ctx.withVal(new FcnRcdValue(domain, range, false))];
     }
 
 
