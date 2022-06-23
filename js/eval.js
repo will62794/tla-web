@@ -1308,7 +1308,7 @@ function evalBoundedQuantification(node, ctx){
     let quantDomains = quantBounds.map(qbound =>{
         expr = evalExpr(qbound.children[2], ctx);
         let domain = expr[0]["val"];
-        console.log(domain);
+        // console.log(domain);
         assert(domain instanceof SetValue);
         return domain.getElems();
     });
@@ -1626,7 +1626,7 @@ function evalExpr(node, ctx){
     // [<D_expr> -> <R_expr>]
     // e.g. [{"x","y"} -> {1,2}]
     if(node.type === "set_of_functions"){
-        console.log("set_of_functions", node);
+        // console.log("set_of_functions", node);
         // Domain.
         let Dval = evalExpr(node.namedChildren[0], ctx)[0]["val"];
         // Range.
@@ -1638,23 +1638,20 @@ function evalExpr(node, ctx){
         // TODO: Clean up this logic.
 
         // Compute [Dval -> Rval].
-        let RvalRepeat = _.times(Dval.getElems().length, _.constant(Rval.getElems()));
+        // let RvalRepeat = _.times(Dval.getElems().length, _.constant(Rval.getElems()));
         // console.log("rval repeat:", RvalRepeat);
-        let oldfcnSetVal = cartesianProductOf(...RvalRepeat).map(r => _.fromPairs(_.zip(Dval.getElems(),r)));
-        console.log("oldfcnSetVal:", oldfcnSetVal);
+        // let oldfcnSetVal = cartesianProductOf(...RvalRepeat).map(r => _.fromPairs(_.zip(Dval.getElems(),r)));
+        // console.log("oldfcnSetVal:", oldfcnSetVal);
 
         // Compute set of all functions from D -> R by first computing combinations 
         // with replacement i.e. choosing |D| elements from R.
         let combs = combinations(Relems, Delems.length);
-        console.log("combs:", combs);
+        // console.log("combs:", combs);
 
         let fcnVals = [];
         for(var comb of combs){
-            console.log(comb);
             let re = comb.map((c,ind) => [Delems[ind], c]);
-            console.log("cre", re);
             let fv = new FcnRcdValue(re.map(x => x[0]), re.map(x => x[1]));
-            console.log("cre", fv);
             fcnVals.push(fv);
         }
 
@@ -1894,7 +1891,7 @@ function getInitStates(initDef, vars, defns, constvals){
     }
     console.log("Possible initial state assignments:");
     for(const ctx of ret_ctxs){
-        console.log(ctx);
+        // console.log(ctx);
     }
     return ret_ctxs;
 }
@@ -1917,7 +1914,7 @@ function getNextStates(nextDef, currStateVars, defns, constvals){
     let initCtx = new Context(null, currStateVars, defns, {}, constvals);
     // console.log("currStateVars:", currStateVars);
     let ret = evalExpr(nextDef, initCtx);
-    console.log("getNextStates ret:", ret);
+    // console.log("getNextStates ret:", ret);
 
     // Filter out disabled transitions.
     ret = ret.filter(c => c["val"] === true);
