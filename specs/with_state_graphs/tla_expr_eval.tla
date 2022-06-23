@@ -1,5 +1,5 @@
 ---- MODULE tla_expr_eval ----
-EXTENDS TLC, Naturals
+EXTENDS TLC, Naturals, Integers
 
 \*
 \* Spec used to test that evaluation of TLA expressions is consistent between
@@ -14,8 +14,11 @@ Init == exprs = [
     add |-> 5 + 5,
     mul |-> 3 * 4,
     minus |-> 10 - 3,
+    negative1 |-> -3 + 5,
     addparens |-> ((1+2)*4),
     addparens2 |-> (1+2*4),
+    not |-> ~TRUE,
+    \* implication |-> TRUE => FALSE,
     setunion1 |-> {1,2} \cup {2,3},
     setunion2 |-> {1,2,3} \cup {2,3},
     setint1 |-> {1,2,3} \cap {2,3},

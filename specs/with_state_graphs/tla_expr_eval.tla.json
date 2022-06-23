@@ -1,7 +1,7 @@
 {
   "states": [
     {
-      "fp": -4950202682126225947,
+      "fp": -1178026266788433015,
       "val": {
         "exprs": {
           "#type": "record",
@@ -18,6 +18,10 @@
               "#type": "int",
               "#value": 7
             },
+            "negative1": {
+              "#type": "int",
+              "#value": 2
+            },
             "addparens": {
               "#type": "int",
               "#value": 12
@@ -25,6 +29,10 @@
             "addparens2": {
               "#type": "int",
               "#value": 9
+            },
+            "not": {
+              "#type": "bool",
+              "#value": false
             },
             "setunion1": {
               "#type": "set",
@@ -266,8 +274,8 @@
   ],
   "edges": [
     [
-      -4950202682126225947,
-      -4950202682126225947
+      -1178026266788433015,
+      -1178026266788433015
     ]
   ]
 }

@@ -810,6 +810,10 @@ class Context{
     }
 }
 
+function evalLnot(v, ctx){
+    lval = evalExpr(v, ctx)[0]["val"];
+    return [ctx.withVal(new BoolValue(!lval))];
+}
 
 function evalLand(lhs, rhs, ctx){
     assert(ctx instanceof Context);
@@ -1001,6 +1005,14 @@ function evalBoundInfix(node, ctx){
         return evalLand(lhs, rhs, ctx);
     }
 
+    // Implication.
+    if(symbol.type === "implies"){
+        // (a => b) <=> (~a \/ b)
+        let a = evalExpr(lhs, ctx)[0]["val"];
+        let b = evalExpr(rhs, ctx)[0]["val"];
+        return  [ctx.withVal(new BoolValue(!a || b))];
+    }
+
     // Equality.
     if(symbol.type ==="eq"){
         // console.log("bound_infix_op, symbol 'eq', ctx:", JSON.stringify(ctx));
@@ -1041,6 +1053,7 @@ function evalBoundInfix(node, ctx){
 
         // let isUnprimedVar = ctx["state"].hasOwnProperty(identName) && !isPrimedVar(lhs);
         let isUnprimedVar = ctx.state.hasVar(identName) && !isPrimedVar(lhs);
+        let isAPrimedVar = ctx.state.hasVar(identName) && isPrimedVar(lhs);
     
         // if(isPrimedVar(lhs) || (isUnprimedVar && !ASSIGN_PRIMED)){
 
@@ -1051,26 +1064,9 @@ function evalBoundInfix(node, ctx){
         // TODO: Clean up this logic.
 
         if(isUnprimedVar){
-
             if(ctx.state.getVarVal(identName) == null){
-                
                 let rhsVal = evalExpr(rhs, ctx)[0]["val"];
-                // assert(rhsVal instanceof SetValue);
                 evalLog("setin rhsval assignment:", rhsVal, rhs.text, ctx);
-
-                // Variable not already assigned. So, update variable assignment as necessary.
-                // let stateUpdated = _.mapValues(ctx.state.getStateObj(), (val,key,obj) => {
-                //     if(key === identName){
-                //         evalLog("Variable (" + identName + ") not already assigned in ctx:",  ctx);
-                //         let rhsVals = evalExpr(rhsVal, ctx.clone());
-                //         console.assert(rhsVals.length === 1);
-                //         let rhsVal = rhsVals[0]["val"];
-                //         evalLog("Variable (" + identName + ") getting value:",  rhsVal);
-                //         return (val === null) ? rhsVal : val;
-                //     } 
-                //     return val;
-                // });
-                // evalLog("state updated:", stateUpdated);
                 return rhsVal.getElems().map(el =>{
                     let stateUpdated = _.mapValues(ctx.state.getStateObj(), (val,key,obj) => {
                         if(key === identName){
@@ -1088,11 +1084,27 @@ function evalBoundInfix(node, ctx){
                 })
                 // return [ctx.withValAndState(true, new TLAState(stateUpdated))];
             }
-
+        } 
+        
+        // Handle primed variable.
+        if(isAPrimedVar){
+            if(ctx.state.getVarVal(identName) == null){
+                let rhsVal = evalExpr(rhs, ctx)[0]["val"];
+                evalLog("setin rhsval assignment:", rhsVal, rhs.text, ctx);
+                return rhsVal.getElems().map(el =>{
+                    let stateUpdated = _.mapValues(ctx.state.getStateObj(), (val,key,obj) => {
+                        if(key === identName){
+                            evalLog("Variable (" + identName + ") not already assigned in ctx:",  ctx);
+                            let rhsVal = el;
+                            evalLog("Variable (" + identName + ") getting value:",  rhsVal);
+                            return (val === null) ? rhsVal : val;
+                        } 
+                        return val;
+                    });
+                    return ctx.withValAndState(true, new TLAState(stateUpdated))
+                })
+            }
         }
-
-
-
 
 
 
@@ -1188,13 +1200,11 @@ function evalBoundPrefix(node, ctx){
     if(symbol.type === "negative"){
         let rhsVal = evalExpr(rhs, ctx);
         rhsVal = rhsVal[0]["val"];
-        return [ctx.withVal(-rhsVal)];
+        return [ctx.withVal(new IntValue(-rhsVal))];
     }   
 
     if(symbol.type === "lnot"){
-        let rhsVal = evalExpr(rhs, ctx);
-        rhsVal = rhsVal[0]["val"];
-        return [ctx.withVal(!rhsVal)];
+        return evalLnot(rhs, ctx);
     } 
 }
 
@@ -1541,6 +1551,13 @@ function evalExpr(node, ctx){
         evalLog("fneval (arg,val): ", fnVal, ",", fnArgVal);
         return [ctx.withVal(fnVal.applyArg(fnArgVal))];
         return [ctx.withVal(fnVal[fnArgVal])];
+    }
+
+    if(isPrimedVar(node)){
+        // See if this variable is already assigned a value in the current context, and if so, return it.
+        if(ctx.state.getVarVal(node.text) !== null){
+            return [ctx.withVal(ctx.state.getVarVal(node.text))];
+        }
     }
 
 
