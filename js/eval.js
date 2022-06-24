@@ -142,6 +142,9 @@ class BoolValue extends TLAValue{
     fingerprint(){
         return objectHash.sha1(this.val);
     }
+    getVal(){
+        return this.val;
+    }
 }
 
 class StringValue extends TLAValue{
@@ -1620,6 +1623,21 @@ function evalExpr(node, ctx){
             let elseVal = evalExpr(elseNode, ctx.clone());
             evalLog("elseVal", elseVal, elseNode.text, ctx);
             return elseVal;
+        }
+    }
+
+    // CASE statement.
+    if (node.type === "case") {
+        let caseArms = node.namedChildren.filter(n => n.type === "case_arm");
+        for (var caseArm of caseArms) {
+            let cond = caseArm.namedChildren[0];
+            let out = caseArm.namedChildren[2];
+            let condVal = evalExpr(cond, ctx)[0]["val"];
+            // Short-circuit on the first true condition out of the CASE branches.
+            if (condVal) {
+                let outVal = evalExpr(out, ctx)[0];
+                return [ctx.withVal(outVal)];
+            }
         }
     }
 

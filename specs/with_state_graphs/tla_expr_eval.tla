@@ -18,6 +18,10 @@ Init == exprs = [
     addparens |-> ((1+2)*4),
     addparens2 |-> (1+2*4),
     not |-> ~TRUE,
+    \* TODO: Enable when CASE is fully working.
+    \* case1 |-> CASE TRUE -> 3 [] FALSE -> 5,
+    \* case2 |-> CASE FALSE -> 3 [] TRUE -> 5,
+
     \* implication |-> TRUE => FALSE,
     setunion1 |-> {1,2} \cup {2,3},
     setunion2 |-> {1,2,3} \cup {2,3},
