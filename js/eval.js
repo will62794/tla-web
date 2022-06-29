@@ -145,6 +145,9 @@ class BoolValue extends TLAValue{
     getVal(){
         return this.val;
     }
+    neg(){
+        return !this.val;
+    }
 }
 
 class StringValue extends TLAValue{
@@ -814,8 +817,10 @@ class Context{
 }
 
 function evalLnot(v, ctx){
+    evalLog("evalLnot: ", v);
     lval = evalExpr(v, ctx)[0]["val"];
-    return [ctx.withVal(new BoolValue(!lval))];
+    evalLog("lnot lval: ", lval);
+    return [ctx.withVal(new BoolValue(lval.neg()))];
 }
 
 function evalLand(lhs, rhs, ctx){
@@ -1946,7 +1951,7 @@ function getNextStates(nextDef, currStateVars, defns, constvals){
     // all_next_states = _.uniqBy(all_next_states, c => c.state.fingerprint());
 
     // Keep only unique states, based on hashed fingerprint value.
-    console.log("all_next:", all_next_states);
+    // console.log("getNextStates all:", all_next_states);
     return all_next_states;
 }
 
