@@ -1,7 +1,7 @@
 {
   "states": [
     {
-      "fp": 633113669140579617,
+      "fp": 6896828707337108464,
       "val": {
         "exprs": {
           "#type": "record",
@@ -35,6 +35,18 @@
               "#value": false
             },
             "not2": {
+              "#type": "bool",
+              "#value": true
+            },
+            "implication": {
+              "#type": "bool",
+              "#value": false
+            },
+            "implication1": {
+              "#type": "bool",
+              "#value": true
+            },
+            "implication2": {
               "#type": "bool",
               "#value": true
             },
@@ -278,8 +290,8 @@
   ],
   "edges": [
     [
-      633113669140579617,
-      633113669140579617
+      6896828707337108464,
+      6896828707337108464
     ]
   ]
 }

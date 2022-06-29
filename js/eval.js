@@ -145,9 +145,6 @@ class BoolValue extends TLAValue{
     getVal(){
         return this.val;
     }
-    neg(){
-        return !this.val;
-    }
 }
 
 class StringValue extends TLAValue{
@@ -820,7 +817,7 @@ function evalLnot(v, ctx){
     evalLog("evalLnot: ", v);
     lval = evalExpr(v, ctx)[0]["val"];
     evalLog("lnot lval: ", lval);
-    return [ctx.withVal(new BoolValue(lval.neg()))];
+    return [ctx.withVal(new BoolValue(!lval.getVal()))];
 }
 
 function evalLand(lhs, rhs, ctx){
@@ -1018,7 +1015,7 @@ function evalBoundInfix(node, ctx){
         // (a => b) <=> (~a \/ b)
         let a = evalExpr(lhs, ctx)[0]["val"];
         let b = evalExpr(rhs, ctx)[0]["val"];
-        return  [ctx.withVal(new BoolValue(!a || b))];
+        return  [ctx.withVal(new BoolValue(!a.getVal() || b.getVal()))];
     }
 
     // Equality.

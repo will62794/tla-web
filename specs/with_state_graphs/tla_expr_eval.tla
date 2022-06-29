@@ -22,8 +22,9 @@ Init == exprs = [
     \* TODO: Enable when CASE is fully working.
     \* case1 |-> CASE TRUE -> 3 [] FALSE -> 5,
     \* case2 |-> CASE FALSE -> 3 [] TRUE -> 5,
-
-    \* implication |-> TRUE => FALSE,
+    implication |-> TRUE => FALSE,
+    implication1 |-> FALSE => FALSE,
+    implication2 |-> FALSE => TRUE,
     setunion1 |-> {1,2} \cup {2,3},
     setunion2 |-> {1,2,3} \cup {2,3},
     setint1 |-> {1,2,3} \cap {2,3},
