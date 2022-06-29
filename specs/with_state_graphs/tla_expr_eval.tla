@@ -1,5 +1,5 @@
 ---- MODULE tla_expr_eval ----
-EXTENDS TLC, Naturals, Integers, Sequences
+EXTENDS TLC, Naturals, Integers, Sequences, FiniteSets
 
 \*
 \* Spec used to test that evaluation of TLA expressions is consistent between
@@ -24,6 +24,8 @@ Init == exprs = [
     head2 |-> Head(<<3,2,1>>),
     tail1 |-> Tail(<<1,2,3>>),
     tail2 |-> Tail(<<1>>),
+    card1 |-> Cardinality({1,2,3}),
+    \* card2 |-> Cardinality({1,2,3,3}),
     domain1 |-> DOMAIN [a |-> 1, b |-> 2, c |-> 3],
     case1 |-> CASE TRUE -> 3 [] FALSE -> 5,
     case2 |-> CASE FALSE -> 3 [] TRUE -> 5,

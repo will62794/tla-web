@@ -196,6 +196,11 @@ class SetValue extends TLAValue{
         return this.elems;
     }
 
+    size(){
+        // TODO: Need to consider duplicates. Will likely require better equality handling for all types.
+        return this.elems.length;
+    }
+
     unionWith(otherSet){
        return new SetValue(_.uniqWith(this.elems.concat(otherSet.getElems()), _.isEqual));
     }
@@ -1394,7 +1399,7 @@ function evalBoundOp(node, ctx){
         let argExpr = node.namedChildren[1];
         let argExprVal = evalExpr(argExpr, ctx)[0]["val"]
         evalLog("Cardinality val:", argExpr.text, argExprVal.length);
-        return [ctx.withVal(new IntValue(argExprVal.length))];
+        return [ctx.withVal(new IntValue(argExprVal.size()))];
     }
 
     // Sequences 
