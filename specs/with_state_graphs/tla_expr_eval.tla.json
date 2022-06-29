@@ -1,7 +1,7 @@
 {
   "states": [
     {
-      "fp": 6896828707337108464,
+      "fp": -4094093235756707179,
       "val": {
         "exprs": {
           "#type": "record",
@@ -37,6 +37,22 @@
             "not2": {
               "#type": "bool",
               "#value": true
+            },
+            "case1": {
+              "#type": "int",
+              "#value": 3
+            },
+            "case2": {
+              "#type": "int",
+              "#value": 5
+            },
+            "case3": {
+              "#type": "int",
+              "#value": 7
+            },
+            "caseother": {
+              "#type": "int",
+              "#value": 9
             },
             "implication": {
               "#type": "bool",
@@ -290,8 +306,8 @@
   ],
   "edges": [
     [
-      6896828707337108464,
-      6896828707337108464
+      -4094093235756707179,
+      -4094093235756707179
     ]
   ]
 }

@@ -1631,15 +1631,30 @@ function evalExpr(node, ctx){
     // CASE statement.
     if (node.type === "case") {
         let caseArms = node.namedChildren.filter(n => n.type === "case_arm");
+        let otherArms = node.namedChildren.filter(n => n.type === "other_arm");
         for (var caseArm of caseArms) {
             let cond = caseArm.namedChildren[0];
             let out = caseArm.namedChildren[2];
             let condVal = evalExpr(cond, ctx)[0]["val"];
+            evalLog("condVal: ", condVal);
             // Short-circuit on the first true condition out of the CASE branches.
-            if (condVal) {
-                let outVal = evalExpr(out, ctx)[0];
+            if (condVal.getVal()) {
+                let outVal = evalExpr(out, ctx)[0]["val"];
+                evalLog("outVal: ", outVal);
                 return [ctx.withVal(outVal)];
             }
+        }
+
+        // If we get here, it means none of the case arm conditions evaluated to
+        // true, so we now check for an OTHER arm. If none exists, throw an
+        // error.
+        if(otherArms.length === 0){
+            throw new Exception("No CASE condition was TRUE.")
+        } else{
+            let out = otherArms[0].namedChildren[1];
+            evalLog("Evaluating OTHER case arm.", out);
+            let otherExprVal = evalExpr(out, ctx)[0]["val"];
+            return [ctx.withVal(otherExprVal)];
         }
     }
 

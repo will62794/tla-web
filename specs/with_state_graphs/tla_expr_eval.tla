@@ -19,9 +19,10 @@ Init == exprs = [
     addparens2 |-> (1+2*4),
     not |-> ~TRUE,
     not2 |-> ~FALSE,
-    \* TODO: Enable when CASE is fully working.
-    \* case1 |-> CASE TRUE -> 3 [] FALSE -> 5,
-    \* case2 |-> CASE FALSE -> 3 [] TRUE -> 5,
+    case1 |-> CASE TRUE -> 3 [] FALSE -> 5,
+    case2 |-> CASE FALSE -> 3 [] TRUE -> 5,
+    case3 |-> CASE FALSE -> 3 [] FALSE -> 5 [] TRUE -> 7,
+    caseother |-> CASE FALSE -> 3 [] FALSE -> 5 [] FALSE -> 7 [] OTHER -> 9,
     implication |-> TRUE => FALSE,
     implication1 |-> FALSE => FALSE,
     implication2 |-> FALSE => TRUE,
