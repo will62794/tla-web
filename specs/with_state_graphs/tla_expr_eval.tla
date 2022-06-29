@@ -24,6 +24,7 @@ Init == exprs = [
     head2 |-> Head(<<3,2,1>>),
     tail1 |-> Tail(<<1,2,3>>),
     tail2 |-> Tail(<<1>>),
+    domain1 |-> DOMAIN [a |-> 1, b |-> 2, c |-> 3],
     case1 |-> CASE TRUE -> 3 [] FALSE -> 5,
     case2 |-> CASE FALSE -> 3 [] TRUE -> 5,
     case3 |-> CASE FALSE -> 3 [] FALSE -> 5 [] TRUE -> 7,

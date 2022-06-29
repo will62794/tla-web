@@ -1207,6 +1207,18 @@ function evalBoundPrefix(node, ctx){
     let symbol = node.children[0];
     let rhs = node.children[1];
     evalLog("evalBoundPrefix: ", node.type, ", ", node.text, `, prefix symbol: '${symbol.type}' `, "ctx:", ctx);
+
+    // DOMAIN.
+    if(symbol.type === "domain"){
+        evalLog("DOMAIN op");
+        evalLog(rhs);
+        let rhsVal = evalExpr(rhs, ctx)[0]["val"];
+        evalLog("rhsVal: ", rhsVal);
+        let domainVal = new SetValue(rhsVal.getDomain());
+        evalLog("domain val: ", domainVal);
+        return [ctx.withVal(domainVal)];
+    }
+
     if(symbol.type === "powerset"){
         evalLog("POWERSET op");
         evalLog(rhs);
