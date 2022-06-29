@@ -229,6 +229,20 @@ class TupleValue extends TLAValue{
         return new TupleValue(this.elems.concat([el]));
     }
 
+    head(){
+        if(this.elems.length === 0){
+            throw new Exception("Tried to get head of empty list");
+        }
+        return this.elems[0];
+    }
+
+    tail(){
+        if(this.elems.length === 0){
+            throw new Exception("Tried to get tail of empty list");
+        }
+        return new TupleValue(this.elems.slice(1));    
+    }
+
     getElems(){
         return this.elems;
     }
@@ -237,6 +251,9 @@ class TupleValue extends TLAValue{
     }
     fingerprint(){
         return objectHash.sha1(this.elems.map(e => e.fingerprint()));
+    }
+    length(){
+        return this.elems.length;
     }
 }
 
@@ -1351,6 +1368,15 @@ function evalBoundOp(node, ctx){
     evalLog("bound_op:", opName);
     evalLog("bound_op context:",ctx);
 
+    //
+    // Operators from the TLA+ Standard Modules.
+    //
+    // Treat these all as built-in operators for now.
+    //
+
+    // FiniteSets 
+    // https://github.com/tlaplus/tlaplus/blob/421bc3d16f869d9c9bb493e5950c445c25c916ea/tlatools/org.lamport.tlatools/src/tla2sany/StandardModules/FiniteSets.tla
+    
     // Built in operator.
     if(opName == "Cardinality"){
         let argExpr = node.namedChildren[1];
@@ -1359,7 +1385,22 @@ function evalBoundOp(node, ctx){
         return [ctx.withVal(new IntValue(argExprVal.length))];
     }
 
-    // Built in operator.
+    // Sequences 
+    // https://github.com/tlaplus/tlaplus/blob/421bc3d16f869d9c9bb493e5950c445c25c916ea/tlatools/org.lamport.tlatools/src/tla2sany/StandardModules/Sequences.tla    
+
+    if(opName == "Seq"){
+        // TODO.
+        throw new Exception("'Seq' operator unimplemented.");
+    }
+
+    if(opName == "Len"){
+        let seqArgExpr = node.namedChildren[1];
+        let seqArgExprVal = evalExpr(seqArgExpr, ctx)[0]["val"]
+        assert(seqArgExprVal instanceof TupleValue);
+        // evalLog("Append val:", seqArgExpr.text);
+        return [ctx.withVal(new IntValue(seqArgExprVal.length()))];
+    }
+
     // Append(seq, v)
     if(opName == "Append"){
         let seqArgExpr = node.namedChildren[1];
@@ -1371,6 +1412,22 @@ function evalBoundOp(node, ctx){
 
         // evalLog("Append val:", seqArgExpr.text);
         return [ctx.withVal(seqArgExprVal.append(appendElemArgExprVal))];
+    }
+
+    if(opName == "Head"){
+        let seqArgExpr = node.namedChildren[1];
+        let seqArgExprVal = evalExpr(seqArgExpr, ctx)[0]["val"]
+        assert(seqArgExprVal instanceof TupleValue);
+        // evalLog("Append val:", seqArgExpr.text);
+        return [ctx.withVal(seqArgExprVal.head())];
+    }
+
+    if(opName == "Tail"){
+        let seqArgExpr = node.namedChildren[1];
+        let seqArgExprVal = evalExpr(seqArgExpr, ctx)[0]["val"]
+        assert(seqArgExprVal instanceof TupleValue);
+        // evalLog("Append val:", seqArgExpr.text);
+        return [ctx.withVal(seqArgExprVal.tail())];
     }
 
     // Check for the bound op in the set of known definitions.

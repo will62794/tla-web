@@ -1,5 +1,5 @@
 ---- MODULE tla_expr_eval ----
-EXTENDS TLC, Naturals, Integers
+EXTENDS TLC, Naturals, Integers, Sequences
 
 \*
 \* Spec used to test that evaluation of TLA expressions is consistent between
@@ -19,6 +19,11 @@ Init == exprs = [
     addparens2 |-> (1+2*4),
     not |-> ~TRUE,
     not2 |-> ~FALSE,
+    seqlen |-> Len(<<1,2,3>>),
+    head1 |-> Head(<<1,2,3>>),
+    head2 |-> Head(<<3,2,1>>),
+    tail1 |-> Tail(<<1,2,3>>),
+    tail2 |-> Tail(<<1>>),
     case1 |-> CASE TRUE -> 3 [] FALSE -> 5,
     case2 |-> CASE FALSE -> 3 [] TRUE -> 5,
     case3 |-> CASE FALSE -> 3 [] FALSE -> 5 [] TRUE -> 7,

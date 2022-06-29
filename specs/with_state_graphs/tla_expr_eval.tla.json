@@ -1,7 +1,7 @@
 {
   "states": [
     {
-      "fp": -4094093235756707179,
+      "fp": 787083421091669876,
       "val": {
         "exprs": {
           "#type": "record",
@@ -37,6 +37,35 @@
             "not2": {
               "#type": "bool",
               "#value": true
+            },
+            "seqlen": {
+              "#type": "int",
+              "#value": 3
+            },
+            "head1": {
+              "#type": "int",
+              "#value": 1
+            },
+            "head2": {
+              "#type": "int",
+              "#value": 3
+            },
+            "tail1": {
+              "#type": "tup",
+              "#value": [
+                {
+                  "#type": "int",
+                  "#value": 2
+                },
+                {
+                  "#type": "int",
+                  "#value": 3
+                }
+              ]
+            },
+            "tail2": {
+              "#type": "tup",
+              "#value": []
             },
             "case1": {
               "#type": "int",
@@ -306,8 +335,8 @@
   ],
   "edges": [
     [
-      -4094093235756707179,
-      -4094093235756707179
+      787083421091669876,
+      787083421091669876
     ]
   ]
 }
