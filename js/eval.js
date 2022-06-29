@@ -12,6 +12,10 @@ let depth = 0;
 // Simple assertion utility.
 function assert(condition, message) {
     if (!condition) {
+        console.error("assertion failed");
+        if(message){
+            console.error(message);
+        }
         throw new Error(message || 'Assertion failed');
     }
 }
@@ -1218,6 +1222,16 @@ function evalBoundPrefix(node, ctx){
         evalLog("DOMAIN op");
         evalLog(rhs);
         let rhsVal = evalExpr(rhs, ctx)[0]["val"];
+
+        // Tuples are considered as functions with natural number domains.
+        if(rhsVal instanceof TupleValue){
+            evalLog("rhsVal is Tuple");
+            // Tuples are 1-indexed in TLA+.
+            let rangeVals = _.range(1,rhsVal.length()+1).map(v => new IntValue(v));
+            let domainVal = new SetValue(rangeVals);
+            return [ctx.withVal(domainVal)];
+        }
+
         evalLog("rhsVal: ", rhsVal);
         let domainVal = new SetValue(rhsVal.getDomain());
         evalLog("domain val: ", domainVal);
@@ -2101,7 +2115,7 @@ class TlaInterpreter{
         let edges = [];
         while(stateQueue.length > 0){
             let currState = stateQueue.pop();
-            // console.log(currState);
+            console.log(currState);
             // let currStateHash = hashState(currState);
             let currStateHash = currState.fingerprint();
             console.log(currStateHash);

@@ -27,6 +27,8 @@ Init == exprs = [
     card1 |-> Cardinality({1,2,3}),
     \* card2 |-> Cardinality({1,2,3,3}),
     domain1 |-> DOMAIN [a |-> 1, b |-> 2, c |-> 3],
+    domain2 |-> DOMAIN <<1,2,3>>,
+    domain3 |-> DOMAIN <<>>,
     case1 |-> CASE TRUE -> 3 [] FALSE -> 5,
     case2 |-> CASE FALSE -> 3 [] TRUE -> 5,
     case3 |-> CASE FALSE -> 3 [] FALSE -> 5 [] TRUE -> 7,

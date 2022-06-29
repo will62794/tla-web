@@ -250,6 +250,7 @@ tests = [
     {"spec": "simple3", "constvals": undefined},
     {"spec": "simple5", "constvals": undefined},
     {"spec": "simple_negation", "constvals": undefined},
+    // {"spec": "simple_domain", "constvals": undefined},
     // {"spec": "simple6", "constvals": undefined},
     {"spec": "simple7", "constvals": undefined},
     {"spec": "set_dot_notation", "constvals": undefined},
