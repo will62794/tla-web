@@ -259,6 +259,7 @@ tests = [
     {"spec": "primed_tuple", "constvals": undefined},
     {"spec": "mldr_init_only", "constvals": undefined},
     {"spec": "tla_expr_eval", "constvals": undefined},
+    // {"spec": "EWD998_regression1", "constvals": undefined},
     {
         "spec": "lockserver_constant_comment", 
         "constvals": {

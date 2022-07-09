@@ -1,0 +1,510 @@
+{
+  "states": [
+    {
+      "fp": 7906452766160522007,
+      "val": {
+        "color": {
+          "#type": "map",
+          "#value": [
+            [
+              {
+                "#type": "int",
+                "#value": 0
+              },
+              {
+                "#type": "string",
+                "#value": "white"
+              }
+            ],
+            [
+              {
+                "#type": "int",
+                "#value": 1
+              },
+              {
+                "#type": "string",
+                "#value": "white"
+              }
+            ]
+          ]
+        },
+        "pending": {
+          "#type": "map",
+          "#value": [
+            [
+              {
+                "#type": "int",
+                "#value": 0
+              },
+              {
+                "#type": "int",
+                "#value": 0
+              }
+            ],
+            [
+              {
+                "#type": "int",
+                "#value": 1
+              },
+              {
+                "#type": "int",
+                "#value": 0
+              }
+            ]
+          ]
+        },
+        "active": {
+          "#type": "map",
+          "#value": [
+            [
+              {
+                "#type": "int",
+                "#value": 0
+              },
+              {
+                "#type": "bool",
+                "#value": false
+              }
+            ],
+            [
+              {
+                "#type": "int",
+                "#value": 1
+              },
+              {
+                "#type": "bool",
+                "#value": false
+              }
+            ]
+          ]
+        },
+        "counter": {
+          "#type": "map",
+          "#value": [
+            [
+              {
+                "#type": "int",
+                "#value": 0
+              },
+              {
+                "#type": "int",
+                "#value": 0
+              }
+            ],
+            [
+              {
+                "#type": "int",
+                "#value": 1
+              },
+              {
+                "#type": "int",
+                "#value": 0
+              }
+            ]
+          ]
+        },
+        "token": {
+          "#type": "record",
+          "#value": {
+            "color": {
+              "#type": "string",
+              "#value": "black"
+            },
+            "pos": {
+              "#type": "int",
+              "#value": 0
+            },
+            "q": {
+              "#type": "int",
+              "#value": 0
+            }
+          }
+        }
+      }
+    },
+    {
+      "fp": 8219218107305827940,
+      "val": {
+        "color": {
+          "#type": "map",
+          "#value": [
+            [
+              {
+                "#type": "int",
+                "#value": 0
+              },
+              {
+                "#type": "string",
+                "#value": "white"
+              }
+            ],
+            [
+              {
+                "#type": "int",
+                "#value": 1
+              },
+              {
+                "#type": "string",
+                "#value": "white"
+              }
+            ]
+          ]
+        },
+        "pending": {
+          "#type": "map",
+          "#value": [
+            [
+              {
+                "#type": "int",
+                "#value": 0
+              },
+              {
+                "#type": "int",
+                "#value": 0
+              }
+            ],
+            [
+              {
+                "#type": "int",
+                "#value": 1
+              },
+              {
+                "#type": "int",
+                "#value": 0
+              }
+            ]
+          ]
+        },
+        "active": {
+          "#type": "map",
+          "#value": [
+            [
+              {
+                "#type": "int",
+                "#value": 0
+              },
+              {
+                "#type": "bool",
+                "#value": false
+              }
+            ],
+            [
+              {
+                "#type": "int",
+                "#value": 1
+              },
+              {
+                "#type": "bool",
+                "#value": true
+              }
+            ]
+          ]
+        },
+        "counter": {
+          "#type": "map",
+          "#value": [
+            [
+              {
+                "#type": "int",
+                "#value": 0
+              },
+              {
+                "#type": "int",
+                "#value": 0
+              }
+            ],
+            [
+              {
+                "#type": "int",
+                "#value": 1
+              },
+              {
+                "#type": "int",
+                "#value": 0
+              }
+            ]
+          ]
+        },
+        "token": {
+          "#type": "record",
+          "#value": {
+            "color": {
+              "#type": "string",
+              "#value": "black"
+            },
+            "pos": {
+              "#type": "int",
+              "#value": 0
+            },
+            "q": {
+              "#type": "int",
+              "#value": 0
+            }
+          }
+        }
+      }
+    },
+    {
+      "fp": 8959602218231628591,
+      "val": {
+        "color": {
+          "#type": "map",
+          "#value": [
+            [
+              {
+                "#type": "int",
+                "#value": 0
+              },
+              {
+                "#type": "string",
+                "#value": "white"
+              }
+            ],
+            [
+              {
+                "#type": "int",
+                "#value": 1
+              },
+              {
+                "#type": "string",
+                "#value": "white"
+              }
+            ]
+          ]
+        },
+        "pending": {
+          "#type": "map",
+          "#value": [
+            [
+              {
+                "#type": "int",
+                "#value": 0
+              },
+              {
+                "#type": "int",
+                "#value": 0
+              }
+            ],
+            [
+              {
+                "#type": "int",
+                "#value": 1
+              },
+              {
+                "#type": "int",
+                "#value": 0
+              }
+            ]
+          ]
+        },
+        "active": {
+          "#type": "map",
+          "#value": [
+            [
+              {
+                "#type": "int",
+                "#value": 0
+              },
+              {
+                "#type": "bool",
+                "#value": true
+              }
+            ],
+            [
+              {
+                "#type": "int",
+                "#value": 1
+              },
+              {
+                "#type": "bool",
+                "#value": false
+              }
+            ]
+          ]
+        },
+        "counter": {
+          "#type": "map",
+          "#value": [
+            [
+              {
+                "#type": "int",
+                "#value": 0
+              },
+              {
+                "#type": "int",
+                "#value": 0
+              }
+            ],
+            [
+              {
+                "#type": "int",
+                "#value": 1
+              },
+              {
+                "#type": "int",
+                "#value": 0
+              }
+            ]
+          ]
+        },
+        "token": {
+          "#type": "record",
+          "#value": {
+            "color": {
+              "#type": "string",
+              "#value": "black"
+            },
+            "pos": {
+              "#type": "int",
+              "#value": 0
+            },
+            "q": {
+              "#type": "int",
+              "#value": 0
+            }
+          }
+        }
+      }
+    },
+    {
+      "fp": 7205545048609691228,
+      "val": {
+        "color": {
+          "#type": "map",
+          "#value": [
+            [
+              {
+                "#type": "int",
+                "#value": 0
+              },
+              {
+                "#type": "string",
+                "#value": "white"
+              }
+            ],
+            [
+              {
+                "#type": "int",
+                "#value": 1
+              },
+              {
+                "#type": "string",
+                "#value": "white"
+              }
+            ]
+          ]
+        },
+        "pending": {
+          "#type": "map",
+          "#value": [
+            [
+              {
+                "#type": "int",
+                "#value": 0
+              },
+              {
+                "#type": "int",
+                "#value": 0
+              }
+            ],
+            [
+              {
+                "#type": "int",
+                "#value": 1
+              },
+              {
+                "#type": "int",
+                "#value": 0
+              }
+            ]
+          ]
+        },
+        "active": {
+          "#type": "map",
+          "#value": [
+            [
+              {
+                "#type": "int",
+                "#value": 0
+              },
+              {
+                "#type": "bool",
+                "#value": true
+              }
+            ],
+            [
+              {
+                "#type": "int",
+                "#value": 1
+              },
+              {
+                "#type": "bool",
+                "#value": true
+              }
+            ]
+          ]
+        },
+        "counter": {
+          "#type": "map",
+          "#value": [
+            [
+              {
+                "#type": "int",
+                "#value": 0
+              },
+              {
+                "#type": "int",
+                "#value": 0
+              }
+            ],
+            [
+              {
+                "#type": "int",
+                "#value": 1
+              },
+              {
+                "#type": "int",
+                "#value": 0
+              }
+            ]
+          ]
+        },
+        "token": {
+          "#type": "record",
+          "#value": {
+            "color": {
+              "#type": "string",
+              "#value": "black"
+            },
+            "pos": {
+              "#type": "int",
+              "#value": 0
+            },
+            "q": {
+              "#type": "int",
+              "#value": 0
+            }
+          }
+        }
+      }
+    }
+  ],
+  "edges": [
+    [
+      7906452766160522007,
+      7906452766160522007
+    ],
+    [
+      8219218107305827940,
+      8219218107305827940
+    ],
+    [
+      8959602218231628591,
+      8959602218231628591
+    ],
+    [
+      7205545048609691228,
+      7205545048609691228
+    ]
+  ]
+}
