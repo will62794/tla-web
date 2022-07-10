@@ -1084,16 +1084,37 @@ function evalBoundInfix(node, ctx){
         assert(lhsVal instanceof IntValue);
         assert(rhsVal instanceof IntValue);
         let outVal = lhsVal.getVal() > rhsVal.getVal();
-        return [ctx.withVal(outVal)];
+        return [ctx.withVal(new BoolValue(outVal))];
     }
 
+    // Less than.
+    if(symbol.type === "lt"){
+        let lhsVal = evalExpr(lhs, ctx)[0]["val"];
+        let rhsVal = evalExpr(rhs, ctx)[0]["val"];
+        assert(lhsVal instanceof IntValue);
+        assert(rhsVal instanceof IntValue);
+        let outVal = lhsVal.getVal() < rhsVal.getVal();
+        return [ctx.withVal(new BoolValue(outVal))];
+    }
+
+    // Greater than or equal.
     if(symbol.type === "geq"){
         let lhsVal = evalExpr(lhs, ctx)[0]["val"];
         let rhsVal = evalExpr(rhs, ctx)[0]["val"];
         assert(lhsVal instanceof IntValue);
         assert(rhsVal instanceof IntValue);
         let outVal = lhsVal.getVal() >= rhsVal.getVal();
-        return [ctx.withVal(outVal)];
+        return [ctx.withVal(new BoolValue(outVal))];
+    }
+
+    // Less than or equal.
+    if(symbol.type === "leq"){
+        let lhsVal = evalExpr(lhs, ctx)[0]["val"];
+        let rhsVal = evalExpr(rhs, ctx)[0]["val"];
+        assert(lhsVal instanceof IntValue);
+        assert(rhsVal instanceof IntValue);
+        let outVal = lhsVal.getVal() <= rhsVal.getVal();
+        return [ctx.withVal(new BoolValue(outVal))];
     }
 
     // Disjunction.

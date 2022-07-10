@@ -11,6 +11,14 @@ EXTENDS TLC, Naturals, Integers, Sequences, FiniteSets
 VARIABLE exprs
 
 Init == exprs = [
+    lt1 |-> 5 < 6,
+    lt2 |-> 6 < 5,
+    gt1 |-> 6 > 5,
+    gt2 |-> 5 > 6,
+    geq1 |-> 5 <= 6,
+    geq2 |-> 6 <= 5,
+    leq1 |-> 5 >= 6,
+    leq2 |-> 6 >= 5,
     add |-> 5 + 5,
     mul |-> 3 * 4,
     minus |-> 10 - 3,
