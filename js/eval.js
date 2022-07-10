@@ -274,7 +274,12 @@ class TupleValue extends TLAValue{
         return {"#type": "tup", "#value": this.elems.map(el => el.toJSONITF())};
     }
     fingerprint(){
-        return objectHash.sha1(this.elems.map(e => e.fingerprint()));
+        // Tuples are functions with contiguous natural number domains.
+        let domainVals = _.range(1, this.elems.length + 1).map(v => new IntValue(v));
+        let rcd = new FcnRcdValue(domainVals, this.elems);
+        console.log("tuprcd:", rcd);
+        return rcd.fingerprint();
+        // return objectHash.sha1(this.elems.map(e => e.fingerprint()));
     }
     length(){
         return this.elems.length;
@@ -348,6 +353,43 @@ class FcnRcdValue extends TLAValue{
         return newFn;
     }
 
+    /**
+     * Compose this function with the given function value and return the result.
+     * @param {FcnRcdValue} other 
+     */
+    compose(other){
+        assert(other instanceof FcnRcdValue);
+
+        // [x \in (DOMAIN f) \cup (DOMAIN g) |-> IF x \in DOMAIN f THEN f[x] ELSE g[x]]
+
+        // Construct the new domain.
+        // Take the union of the two domains, based on fingerprint equality.
+        let thisDomainFps = this.domain.map(x => x.fingerprint());
+        let newDomain = _.cloneDeep(this.domain);
+        for(const v of other.getDomain()){
+            if(!thisDomainFps.includes(v.fingerprint())){
+                newDomain.push(v);
+            }
+        }
+
+        evalLog("new domain:", newDomain);
+
+        let newRange = [];
+        // Construct the new range. If a domain value appeared in domains of both functions,
+        // we prefer the range value of ourselves.
+        for(const v of newDomain){
+            if(thisDomainFps.includes(v.fingerprint())){
+                // use our value.
+                newRange.push(this.applyArg(v));
+            } else{
+                // use the other value.
+                newRange.push(other.applyArg(v));
+            }
+        }
+
+        return new FcnRcdValue(newDomain, newRange);
+    }
+
     toJSONITF(){
         if(this.isRecord){
             console.log(this.domain);
@@ -367,8 +409,12 @@ class FcnRcdValue extends TLAValue{
         }
     }
     fingerprint(){
-        let domHash = objectHash.sha1(this.domain.map(e => e.fingerprint()));
-        let valsHash = objectHash.sha1(this.values.map(e => e.fingerprint()));
+        // Attempt normalization by sorting by fingerprints before hashing.
+        let domainNormalized = _.sortBy(this.domain, (v) => v.fingerprint())
+        let rangeNormalized = _.sortBy(this.range, (v) => v.fingerprint())
+
+        let domHash = objectHash.sha1(domainNormalized.map(e => e.fingerprint()));
+        let valsHash = objectHash.sha1(rangeNormalized.map(e => e.fingerprint()));
         return objectHash.sha1([domHash, valsHash]);
     }
 }
@@ -425,6 +471,14 @@ class TLAState{
         }
         return outObj;
         // return _.mapValues(this.vars, (v) => v.toJSONITF());
+    }
+
+    toString(){
+        let out = "";
+        for(var k of Object.keys(this.vars).sort()){
+            out += "/\\ " + k + " = " + this.vars[k].toString() + "\n";
+        }
+        return out;        
     }
 
     /**
@@ -1152,9 +1206,6 @@ function evalBoundInfix(node, ctx){
             }
         }
 
-
-
-
         let lhsVal = evalExpr(lhs, ctx)[0]["val"];
         evalLog("setin lhsval:", lhsVal, lhs.text, ctx);
 
@@ -1223,6 +1274,35 @@ function evalBoundInfix(node, ctx){
         assert(rhsVal instanceof IntValue);
         let rangeVal = _.range(lhsVal.getVal(), rhsVal.getVal() + 1).map(x => new IntValue(x));
         return [ctx.withVal(new SetValue(rangeVal))];
+    }
+
+    //
+    // Infix operators from TLC.tla standard module.
+    //
+
+    // d :> e == [x \in {d} |-> e]
+    if(symbol.type === "map_to"){
+        evalLog("bound_infix_op, symbol 'map_to', ctx:", ctx);
+        let lhs = node.namedChildren[0];
+        let rhs = node.namedChildren[2];
+
+        let lhsVal = evalExpr(lhs, ctx)[0]["val"];
+        let rhsVal = evalExpr(rhs, ctx)[0]["val"];
+
+        let fcnVal = new FcnRcdValue([lhsVal],[rhsVal]);
+        return [ctx.withVal(fcnVal)];
+    }
+
+    // f @@ g == [x \in (DOMAIN f) \cup (DOMAIN g) |-> IF x \in DOMAIN f THEN f[x] ELSE g[x]]
+    if(symbol.type ==="compose"){
+        evalLog("bound_infix_op, symbol 'compose', ctx:", ctx);
+        let lhs = node.namedChildren[0];
+        let rhs = node.namedChildren[2];
+
+        let lhsVal = evalExpr(lhs, ctx)[0]["val"];
+        let rhsVal = evalExpr(rhs, ctx)[0]["val"];
+
+        return [ctx.withVal(lhsVal.compose(rhsVal))];
     }
 
 }
@@ -1525,6 +1605,63 @@ function evalFiniteSetLiteral(node, ctx){
     return [ctx.withVal(new SetValue(ret))];
 }
 
+/**
+ * Compute all mappings from 'domain' to 'range'
+ */
+function combs(domain, range) {
+    if(domain.length === 0){
+        // An empty domain gives us a single "empty" mapping.
+        // Use lists of key-value pairs to represent mappings.
+        return [[]];
+    }
+    let out = [];
+    for(const v of range){
+        // Recursively compute combinations for the rest of the domain.
+        for(const c of combs(domain.slice(1), range)){
+            c.push([domain[0], v])
+            out.push(c);
+        }
+    }
+    return out;
+}
+
+function evalSetOfFunctions(node, ctx){
+                    
+    // console.log("set_of_functions", node);
+
+    // Domain.
+    let Dval = evalExpr(node.namedChildren[0], ctx)[0]["val"];
+    // Range.
+    let Rval = evalExpr(node.namedChildren[2], ctx)[0]["val"];
+
+    let Delems = Dval.getElems();
+    let Relems = Rval.getElems();
+
+    // Compute set of all functions from D -> R by first computing combinations 
+    // with replacement i.e. choosing |D| elements from R.
+    // 
+    // e.g.
+    // D : [a,b,c]
+    // R : [1,2]
+    // |[D -> R]| = 2^3 = 8
+    //
+
+    let combVals = combs(Delems, Relems);
+    console.log("COMBS: ", combVals);
+
+    let fcnVals = [];
+    for(var comb of combVals){
+        // Each combination should be a list of key-value pairs.
+        let domainVals = comb.map(c => c[0]);
+        let rangeVals = comb.map(c => c[1]);
+
+        let fv = new FcnRcdValue(domainVals, rangeVals);
+        fcnVals.push(fv);
+    }
+
+    return [ctx.withVal(new SetValue(fcnVals))];                                                        
+}
+
 // For debugging.
 // TODO: Eventually move this all inside a dedicated class.
 let currEvalNode = null;
@@ -1764,50 +1901,7 @@ function evalExpr(node, ctx){
     // [<D_expr> -> <R_expr>]
     // e.g. [{"x","y"} -> {1,2}]
     if(node.type === "set_of_functions"){
-        // console.log("set_of_functions", node);
-        // Domain.
-        let Dval = evalExpr(node.namedChildren[0], ctx)[0]["val"];
-        // Range.
-        let Rval = evalExpr(node.namedChildren[2], ctx)[0]["val"];
-
-        let Delems = Dval.getElems();
-        let Relems = Rval.getElems();
-
-        // TODO: Clean up this logic.
-
-        // Compute [Dval -> Rval].
-        // let RvalRepeat = _.times(Dval.getElems().length, _.constant(Rval.getElems()));
-        // console.log("rval repeat:", RvalRepeat);
-        // let oldfcnSetVal = cartesianProductOf(...RvalRepeat).map(r => _.fromPairs(_.zip(Dval.getElems(),r)));
-        // console.log("oldfcnSetVal:", oldfcnSetVal);
-
-        // Compute set of all functions from D -> R by first computing combinations 
-        // with replacement i.e. choosing |D| elements from R.
-        let combs = combinations(Relems, Delems.length);
-        // console.log("combs:", combs);
-
-        let fcnVals = [];
-        for(var comb of combs){
-            let re = comb.map((c,ind) => [Delems[ind], c]);
-            let fv = new FcnRcdValue(re.map(x => x[0]), re.map(x => x[1]));
-            fcnVals.push(fv);
-        }
-
-        return [ctx.withVal(new SetValue(fcnVals))];
-
-        // // Compute [Dval -> Rval].
-        // let fcnSetVal = cartesianProductOf(Dval.getElems(), Rval.getElems());
-        // // console.log("dval", Dval);
-        // // console.log(Rval);
-        // // console.log("fcnSetVal:", fcnSetVal);
-        // let domain = [];
-        // let range = [];
-        // for(var k=0;k<fcnSetVal.length;k++){
-        //     val = fcnSetVal[k];
-        //     domain.push(val[0]);
-        //     range.push(val[1]);
-        // }
-        // return [ctx.withVal(new FcnRcdValue(domain, range, false))];
+        return evalSetOfFunctions(node, ctx);
     }
 
 

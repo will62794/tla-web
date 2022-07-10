@@ -68,6 +68,7 @@ function testStateGraphEquiv(testId, stateGraph, specText, constvals){
     // TODO: test correct edges as well.
     let interp = new TlaInterpreter();
     let parsedSpec = parseSpec(specText);
+    console.log("### TEST: Computing reachable states with JS interpreter")
     let reachable = interp.computeReachableStates(parsedSpec, constvals)["states"];
 
     // Construct a new spec with an initial state that is the disjunction of all
@@ -95,16 +96,15 @@ function testStateGraphEquiv(testId, stateGraph, specText, constvals){
     }
     specOfTLCReachableStates += "Next == UNCHANGED <<" + Object.keys(specVariables).join(",") + ">>\n"
     specOfTLCReachableStates += "===="
+    console.log("specOfTLCReachableStates");
+    console.log(specOfTLCReachableStates);
 
     // Parse this generated spec and record its initial states, which should
     // correspond to the reachable states of the TLC state graph for the spec
     // we're testing.
+    console.log("### TEST: Reconstructing reachable states of TLC state graph")
     parsedTLCSpec = parseSpec(specOfTLCReachableStates);
-    console.log("parsedTLC:", parsedTLCSpec);
-    let reachableTLCStates = interp.computeReachableStates(parsedTLCSpec, constvals)["states"];
-    console.log("reachableTLC:", reachableTLCStates);
-
-    reachableTLC = reachableTLCStates;
+    let reachableTLC = interp.computeReachableStates(parsedTLCSpec, constvals)["states"];
 
     // let reachableTLC = stateGraph["states"].map(s => s["val"]);
     // reachable = reachable.map(s => s.toJSONITF());
@@ -146,12 +146,20 @@ function testStateGraphEquiv(testId, stateGraph, specText, constvals){
         infoDiv.style="width:100%";
         computedDiv = document.createElement("div");
         computedDiv.style = "float:left;border:solid;padding:4px;margin:3px; min-width:20%;";
-        computedDiv.innerHTML = "<h4>Computed by JS, " + reachable.length + " reachable states</h4>";
-        computedDiv.innerHTML += "<pre>" + JSON.stringify(reachable, null, 2) + "</pre>"
+        computedDiv.innerHTML = "<h4>Computed by JS</h4>";
+        computedDiv.innerHTML += reachable.length + " reachable states";
+        for(const s of reachable){
+            computedDiv.innerHTML += "<pre>" + s.toString() + "</pre>";
+        }
+        // computedDiv.innerHTML += "<pre>" + JSON.stringify(reachable, null, 2) + "</pre>"
         oracleDiv = document.createElement("div");
         oracleDiv.style="float:left;border:solid;padding:4px;margin:3px; min-width:20%;";
-        oracleDiv.innerHTML = "<h4>Computed by TLC, " + reachableTLC.length + " reachable states</h4>";
-        oracleDiv.innerHTML += "<pre>" + JSON.stringify(reachableTLC,null, 2) + "</pre>";
+        oracleDiv.innerHTML = "<h4>Computed by TLC</h4>";
+        oracleDiv.innerHTML += reachableTLC.length + " reachable states";
+        // oracleDiv.innerHTML += "<pre>" + JSON.stringify(reachableTLC,null, 2) + "</pre>";
+        for(const s of reachableTLC){
+            oracleDiv.innerHTML += "<pre>" + s.toString() + "</pre>";
+        }
         infoDiv.appendChild(computedDiv);
         infoDiv.appendChild(oracleDiv);
         testsDiv.appendChild(infoDiv);
@@ -308,7 +316,7 @@ tests = [
     {"spec": "simple5", "constvals": undefined},
     {"spec": "simple_negation", "constvals": undefined},
     // {"spec": "simple_domain", "constvals": undefined},
-    // {"spec": "simple6", "constvals": undefined},
+    {"spec": "simple6", "constvals": undefined},
     {"spec": "simple7", "constvals": undefined},
     {"spec": "set_dot_notation", "constvals": undefined},
     {"spec": "record_literal_eval", "constvals": undefined},
@@ -316,7 +324,7 @@ tests = [
     {"spec": "primed_tuple", "constvals": undefined},
     {"spec": "mldr_init_only", "constvals": undefined},
     {"spec": "tla_expr_eval", "constvals": undefined},
-    // {"spec": "EWD998_regression1", "constvals": undefined},
+    {"spec": "EWD998_regression1", "constvals": undefined},
     {
         "spec": "lockserver_constant_comment", 
         "constvals": {

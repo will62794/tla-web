@@ -52,11 +52,16 @@ Init == exprs = [
     exceptnested1 |-> [[a |-> [x |-> 1], b |-> 2] EXCEPT !["a"]["x"] = 12],
     exceptnested2 |-> [[a |-> [x |-> [y |-> 3]], b |-> 2] EXCEPT !["a"]["x"]["y"] = 12],
     fcnapp1 |-> [a |-> 1, b |-> 2]["a"],
+    fcnset1 |-> [{1,2} -> {4,5}],
+    fcnset2 |-> [{"a","b","c"} -> {4,5}],
+    fcnset3 |-> [{"a","b","c"} -> {{1,2},{3,4}}],
+    fcnbuild1 |-> [i \in {0,1} |-> 0],
+    fcnexpr1 |-> (0 :> 1),
+    fcnexpr2 |-> (0 :> 1 @@ 2 :> 3),
+    fcnexpr3 |-> (0 :> 1 @@ 2 :> 3 @@ 2 :> 4),
     booleanset |-> BOOLEAN
 ]
 
-\* fcnset1 |-> [{"x","y"} -> {1,2,3}]
-    
 Next == UNCHANGED exprs
 
 \* 
