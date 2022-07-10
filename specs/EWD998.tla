@@ -53,9 +53,9 @@ PassToken(i) ==
     /\ ~ active[i]
     /\ token.pos = i
     \* Rule 2 + 4
-    /\ token' = [ token EXCEPT !.pos = @ - 1,
-                               !.q   = @ + counter[i],
-                               !.color = IF color[i] = "black" THEN "black" ELSE @ ]
+    /\ token' = [ pos |-> token["pos"] - 1, 
+                    q |-> token["q"] + counter[i],
+                color |-> IF color[i] = "black" THEN "black" ELSE token["color"] ]
     \* Rule 7
     /\ color' = [ color EXCEPT ![i] = "white" ]
     /\ UNCHANGED <<active, pending, counter>>
@@ -83,16 +83,21 @@ RecvMsg(i) ==
     /\ UNCHANGED <<token>>
 
 \* Terminate(i) in AsyncTerminationDetection.
-Deactivate ==
-    /\ active' \in { f \in [ Node -> BOOLEAN] : \A n \in Node: ~active[n] => ~f[n] }
-    /\ active' # active
+Deactivate(i) ==
+    /\ active[i]
+    \* * ...in the next state (the prime operator ').
+    \* * The previous expression didn't say anything about the other values of the
+     \* * function, or even state that active' is a function (function update).
+    /\ active' = [ active EXCEPT ![i] = FALSE ]
+    \*/\ active' \in { f \in [ Node -> BOOLEAN] : \A n \in Node: ~active[n] => ~f[n] }
+    \*//\ active' # active
     /\ UNCHANGED <<pending, color, counter, token>>
 
 Environment == 
     \E n \in Node:
         \/ SendMsg(n)
         \/ RecvMsg(n)
-        \/ Deactivate
+        \/ Deactivate(n)
 
 -----------------------------------------------------------------------------
 

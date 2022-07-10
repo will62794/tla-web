@@ -5,6 +5,7 @@ This is a prototype of a web based TLA+ interface for exploring and sharing spec
 - [Lock server](https://will62794.github.io/tla-web/?specpath=.%2Fspecs%2Flockserver.tla)
 - [Two phase commit](https://will62794.github.io/tla-web/?specpath=.%2Fspecs%2FTwoPhase.tla)
 - [Paxos](https://will62794.github.io/tla-web/?specpath=.%2Fspecs%2FPaxos.tla#)
+- [EWD998](https://will62794.github.io/tla-web/?specpath=.%2Fspecs%2FEWD998.tla)
 
 The current version utilizes the [TLA+ tree-sitter grammar](https://github.com/tlaplus-community/tree-sitter-tlaplus) for parsing TLA+ specs and implements a [TLA+ interpreter/executor](https://github.com/will62794/tla-web/blob/89d763c6001fa91dfc55780fedd47a9fbbf4e934/js/eval.js#L726-L778) on top of this in Javascript. This allows the tool to interpret specs natively in the browser, without relying on an external language server. The Javascript interpreter is likely much less efficient than TLC, but doing efficient model checking isn't a goal of the tool. Note also that you can basically use the existing web interface as a simple TLA+ expression evaluator, since making changes to definitions in the spec should automatically update the set of generated initial states.
 
