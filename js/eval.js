@@ -720,7 +720,15 @@ function parseSpec(specText){
     // One level down from the top level tree node should contain the overall TLA module.
     cursor.gotoFirstChild();
     let node = cursor.currentNode();
-    console.assert(node.type === "module")
+    assert(node.type === "module" || node.type === "extramodular_text");
+
+    // Extramodular text is considered as comments, to be ignored.
+    if(node.type === "extramodular_text"){
+        console.log("ignoring extramodular_text");
+        cursor.gotoNextSibling();
+        node = cursor.currentNode();
+        assert(node.type === "module");
+    }
 
     op_defs = {};
     var_decls = {};
