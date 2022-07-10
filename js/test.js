@@ -96,7 +96,7 @@ function testStateGraphEquiv(testId, stateGraph, specText, constvals){
     specOfTLCReachableStates += "Next == UNCHANGED <<" + Object.keys(specVariables).join(",") + ">>\n"
     specOfTLCReachableStates += "===="
 
-    // Parse this generate spec and record its initial states, which should
+    // Parse this generated spec and record its initial states, which should
     // correspond to the reachable states of the TLC state graph for the spec
     // we're testing.
     parsedTLCSpec = parseSpec(specOfTLCReachableStates);
