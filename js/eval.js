@@ -97,6 +97,14 @@ class TLAValue{
     fingerprint(){
         return "no_fingerprint";
     }
+
+    /**
+     * Check if this value is equal to the value 'other'.
+     * @param {TLAValue} other 
+     */
+    equals(other){
+        throw new Exception("equality check unimplemented!");
+    }
 }
 
 class IntValue extends TLAValue{
@@ -126,6 +134,13 @@ class IntValue extends TLAValue{
     }
     fingerprint(){
         return objectHash.sha1(this.val);
+    }
+    equals(other){
+        if(!other instanceof IntValue){
+            return false;
+        } else{
+            return this.val === other.getVal();
+        }
     }
 }
 
