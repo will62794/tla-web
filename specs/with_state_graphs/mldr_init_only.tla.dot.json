@@ -1,0 +1,134 @@
+{
+  "name": "DiskGraph",
+  "directed": true,
+  "strict": true,
+  "nodesep": "0.35",
+  "_subgraph_cnt": 2,
+  "objects": [
+    {
+      "name": "cluster_graph",
+      "color": "white",
+      "nodesep": "0.35",
+      "_gvid": 0,
+      "subgraphs": [
+        1
+      ],
+      "nodes": [
+        2,3,4,5,6,7,8
+      ],
+      "edges": [
+        0,1,2,3,4,5,6
+      ]
+    },
+    {
+      "name": "%17",
+      "color": "white",
+      "nodesep": "0.35",
+      "rank": "same",
+      "_gvid": 1,
+      "nodes": [
+        2,3,4,5,6,7,8
+      ]
+    },
+    {
+      "_gvid": 2,
+      "name": "-4808214752695993107",
+      "label": "\/\\\\ state = [n0 |-> \"Secondary\", n1 |-> \"Secondary\", n2 |-> \"Secondary\"]\\n\/\\\\ currentTerm = [n0 |-> 0, n1 |-> 0, n2 |-> 0]\\n\/\\\\ config = [n0 |-> {\"n0\"}, n1 |-> {\"n0\"}, n2 |-> {\"n0\"}]\\n\/\\\\ configTerm = [n0 |-> 0, n1 |-> 0, n2 |-> 0]\\n\/\\\\ configVersion = [n0 |-> 1, n1 |-> 1, n2 |-> 1]",
+      "style": "filled"
+    },
+    {
+      "_gvid": 3,
+      "name": "-3243623560933385537",
+      "label": "\/\\\\ state = [n0 |-> \"Secondary\", n1 |-> \"Secondary\", n2 |-> \"Secondary\"]\\n\/\\\\ currentTerm = [n0 |-> 0, n1 |-> 0, n2 |-> 0]\\n\/\\\\ config = [n0 |-> {\"n1\"}, n1 |-> {\"n1\"}, n2 |-> {\"n1\"}]\\n\/\\\\ configTerm = [n0 |-> 0, n1 |-> 0, n2 |-> 0]\\n\/\\\\ configVersion = [n0 |-> 1, n1 |-> 1, n2 |-> 1]",
+      "style": "filled"
+    },
+    {
+      "_gvid": 4,
+      "name": "7077113681899810889",
+      "label": "\/\\\\ state = [n0 |-> \"Secondary\", n1 |-> \"Secondary\", n2 |-> \"Secondary\"]\\n\/\\\\ currentTerm = [n0 |-> 0, n1 |-> 0, n2 |-> 0]\\n\/\\\\ config = [n0 |-> {\"n2\"}, n1 |-> {\"n2\"}, n2 |-> {\"n2\"}]\\n\/\\\\ configTerm = [n0 |-> 0, n1 |-> 0, n2 |-> 0]\\n\/\\\\ configVersion = [n0 |-> 1, n1 |-> 1, n2 |-> 1]",
+      "style": "filled"
+    },
+    {
+      "_gvid": 5,
+      "name": "-8708900959474180357",
+      "label": "\/\\\\ state = [n0 |-> \"Secondary\", n1 |-> \"Secondary\", n2 |-> \"Secondary\"]\\n\/\\\\ currentTerm = [n0 |-> 0, n1 |-> 0, n2 |-> 0]\\n\/\\\\ config = [n0 |-> {\"n0\", \"n1\"}, n1 |-> {\"n0\", \"n1\"}, n2 |-> {\"n0\", \"n1\"}]\\n\/\\\\ configTerm = [n0 |-> 0, n1 |-> 0, n2 |-> 0]\\n\/\\\\ configVersion = [n0 |-> 1, n1 |-> 1, n2 |-> 1]",
+      "style": "filled"
+    },
+    {
+      "_gvid": 6,
+      "name": "6690292496430890625",
+      "label": "\/\\\\ state = [n0 |-> \"Secondary\", n1 |-> \"Secondary\", n2 |-> \"Secondary\"]\\n\/\\\\ currentTerm = [n0 |-> 0, n1 |-> 0, n2 |-> 0]\\n\/\\\\ config = [n0 |-> {\"n0\", \"n2\"}, n1 |-> {\"n0\", \"n2\"}, n2 |-> {\"n0\", \"n2\"}]\\n\/\\\\ configTerm = [n0 |-> 0, n1 |-> 0, n2 |-> 0]\\n\/\\\\ configVersion = [n0 |-> 1, n1 |-> 1, n2 |-> 1]",
+      "style": "filled"
+    },
+    {
+      "_gvid": 7,
+      "name": "-6830368896284226295",
+      "label": "\/\\\\ state = [n0 |-> \"Secondary\", n1 |-> \"Secondary\", n2 |-> \"Secondary\"]\\n\/\\\\ currentTerm = [n0 |-> 0, n1 |-> 0, n2 |-> 0]\\n\/\\\\ config = [n0 |-> {\"n1\", \"n2\"}, n1 |-> {\"n1\", \"n2\"}, n2 |-> {\"n1\", \"n2\"}]\\n\/\\\\ configTerm = [n0 |-> 0, n1 |-> 0, n2 |-> 0]\\n\/\\\\ configVersion = [n0 |-> 1, n1 |-> 1, n2 |-> 1]",
+      "style": "filled"
+    },
+    {
+      "_gvid": 8,
+      "name": "6757413897263136980",
+      "label": "\/\\\\ state = [n0 |-> \"Secondary\", n1 |-> \"Secondary\", n2 |-> \"Secondary\"]\\n\/\\\\ currentTerm = [n0 |-> 0, n1 |-> 0, n2 |-> 0]\\n\/\\\\ config = [ n0 |-> {\"n0\", \"n1\", \"n2\"},\\n  n1 |-> {\"n0\", \"n1\", \"n2\"},\\n  n2 |-> {\"n0\", \"n1\", \"n2\"} ]\\n\/\\\\ configTerm = [n0 |-> 0, n1 |-> 0, n2 |-> 0]\\n\/\\\\ configVersion = [n0 |-> 1, n1 |-> 1, n2 |-> 1]",
+      "style": "filled"
+    }
+  ],
+  "edges": [
+    {
+      "_gvid": 0,
+      "tail": 2,
+      "head": 2,
+      "color": "black",
+      "fontcolor": "black",
+      "label": ""
+    },
+    {
+      "_gvid": 1,
+      "tail": 3,
+      "head": 3,
+      "color": "black",
+      "fontcolor": "black",
+      "label": ""
+    },
+    {
+      "_gvid": 2,
+      "tail": 4,
+      "head": 4,
+      "color": "black",
+      "fontcolor": "black",
+      "label": ""
+    },
+    {
+      "_gvid": 3,
+      "tail": 5,
+      "head": 5,
+      "color": "black",
+      "fontcolor": "black",
+      "label": ""
+    },
+    {
+      "_gvid": 4,
+      "tail": 6,
+      "head": 6,
+      "color": "black",
+      "fontcolor": "black",
+      "label": ""
+    },
+    {
+      "_gvid": 5,
+      "tail": 7,
+      "head": 7,
+      "color": "black",
+      "fontcolor": "black",
+      "label": ""
+    },
+    {
+      "_gvid": 6,
+      "tail": 8,
+      "head": 8,
+      "color": "black",
+      "fontcolor": "black",
+      "label": ""
+    }
+  ]
+}

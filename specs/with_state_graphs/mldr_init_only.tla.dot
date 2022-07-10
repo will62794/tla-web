@@ -1,0 +1,21 @@
+strict digraph DiskGraph {
+nodesep=0.35;
+subgraph cluster_graph {
+color="white";
+-4808214752695993107 [label="/\\ state = [n0 |-> \"Secondary\", n1 |-> \"Secondary\", n2 |-> \"Secondary\"]\n/\\ currentTerm = [n0 |-> 0, n1 |-> 0, n2 |-> 0]\n/\\ config = [n0 |-> {\"n0\"}, n1 |-> {\"n0\"}, n2 |-> {\"n0\"}]\n/\\ configTerm = [n0 |-> 0, n1 |-> 0, n2 |-> 0]\n/\\ configVersion = [n0 |-> 1, n1 |-> 1, n2 |-> 1]",style = filled]
+-3243623560933385537 [label="/\\ state = [n0 |-> \"Secondary\", n1 |-> \"Secondary\", n2 |-> \"Secondary\"]\n/\\ currentTerm = [n0 |-> 0, n1 |-> 0, n2 |-> 0]\n/\\ config = [n0 |-> {\"n1\"}, n1 |-> {\"n1\"}, n2 |-> {\"n1\"}]\n/\\ configTerm = [n0 |-> 0, n1 |-> 0, n2 |-> 0]\n/\\ configVersion = [n0 |-> 1, n1 |-> 1, n2 |-> 1]",style = filled]
+7077113681899810889 [label="/\\ state = [n0 |-> \"Secondary\", n1 |-> \"Secondary\", n2 |-> \"Secondary\"]\n/\\ currentTerm = [n0 |-> 0, n1 |-> 0, n2 |-> 0]\n/\\ config = [n0 |-> {\"n2\"}, n1 |-> {\"n2\"}, n2 |-> {\"n2\"}]\n/\\ configTerm = [n0 |-> 0, n1 |-> 0, n2 |-> 0]\n/\\ configVersion = [n0 |-> 1, n1 |-> 1, n2 |-> 1]",style = filled]
+-8708900959474180357 [label="/\\ state = [n0 |-> \"Secondary\", n1 |-> \"Secondary\", n2 |-> \"Secondary\"]\n/\\ currentTerm = [n0 |-> 0, n1 |-> 0, n2 |-> 0]\n/\\ config = [n0 |-> {\"n0\", \"n1\"}, n1 |-> {\"n0\", \"n1\"}, n2 |-> {\"n0\", \"n1\"}]\n/\\ configTerm = [n0 |-> 0, n1 |-> 0, n2 |-> 0]\n/\\ configVersion = [n0 |-> 1, n1 |-> 1, n2 |-> 1]",style = filled]
+6690292496430890625 [label="/\\ state = [n0 |-> \"Secondary\", n1 |-> \"Secondary\", n2 |-> \"Secondary\"]\n/\\ currentTerm = [n0 |-> 0, n1 |-> 0, n2 |-> 0]\n/\\ config = [n0 |-> {\"n0\", \"n2\"}, n1 |-> {\"n0\", \"n2\"}, n2 |-> {\"n0\", \"n2\"}]\n/\\ configTerm = [n0 |-> 0, n1 |-> 0, n2 |-> 0]\n/\\ configVersion = [n0 |-> 1, n1 |-> 1, n2 |-> 1]",style = filled]
+-6830368896284226295 [label="/\\ state = [n0 |-> \"Secondary\", n1 |-> \"Secondary\", n2 |-> \"Secondary\"]\n/\\ currentTerm = [n0 |-> 0, n1 |-> 0, n2 |-> 0]\n/\\ config = [n0 |-> {\"n1\", \"n2\"}, n1 |-> {\"n1\", \"n2\"}, n2 |-> {\"n1\", \"n2\"}]\n/\\ configTerm = [n0 |-> 0, n1 |-> 0, n2 |-> 0]\n/\\ configVersion = [n0 |-> 1, n1 |-> 1, n2 |-> 1]",style = filled]
+6757413897263136980 [label="/\\ state = [n0 |-> \"Secondary\", n1 |-> \"Secondary\", n2 |-> \"Secondary\"]\n/\\ currentTerm = [n0 |-> 0, n1 |-> 0, n2 |-> 0]\n/\\ config = [ n0 |-> {\"n0\", \"n1\", \"n2\"},\n  n1 |-> {\"n0\", \"n1\", \"n2\"},\n  n2 |-> {\"n0\", \"n1\", \"n2\"} ]\n/\\ configTerm = [n0 |-> 0, n1 |-> 0, n2 |-> 0]\n/\\ configVersion = [n0 |-> 1, n1 |-> 1, n2 |-> 1]",style = filled]
+-4808214752695993107 -> -4808214752695993107 [label="",color="black",fontcolor="black"];
+-3243623560933385537 -> -3243623560933385537 [label="",color="black",fontcolor="black"];
+7077113681899810889 -> 7077113681899810889 [label="",color="black",fontcolor="black"];
+-8708900959474180357 -> -8708900959474180357 [label="",color="black",fontcolor="black"];
+6690292496430890625 -> 6690292496430890625 [label="",color="black",fontcolor="black"];
+-6830368896284226295 -> -6830368896284226295 [label="",color="black",fontcolor="black"];
+6757413897263136980 -> 6757413897263136980 [label="",color="black",fontcolor="black"];
+{rank = same; -4808214752695993107;6690292496430890625;-3243623560933385537;6757413897263136980;7077113681899810889;-8708900959474180357;-6830368896284226295;}
+}
+}

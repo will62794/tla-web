@@ -1,0 +1,15 @@
+strict digraph DiskGraph {
+nodesep=0.35;
+subgraph cluster_graph {
+color="white";
+7906452766160522007 [label="/\\ pending = (0 :> 0 @@ 1 :> 0)\n/\\ counter = (0 :> 0 @@ 1 :> 0)\n/\\ token = [color |-> \"black\", pos |-> 0, q |-> 0]\n/\\ active = (0 :> FALSE @@ 1 :> FALSE)\n/\\ color = (0 :> \"white\" @@ 1 :> \"white\")",style = filled]
+8219218107305827940 [label="/\\ pending = (0 :> 0 @@ 1 :> 0)\n/\\ counter = (0 :> 0 @@ 1 :> 0)\n/\\ token = [color |-> \"black\", pos |-> 0, q |-> 0]\n/\\ active = (0 :> FALSE @@ 1 :> TRUE)\n/\\ color = (0 :> \"white\" @@ 1 :> \"white\")",style = filled]
+8959602218231628591 [label="/\\ pending = (0 :> 0 @@ 1 :> 0)\n/\\ counter = (0 :> 0 @@ 1 :> 0)\n/\\ token = [color |-> \"black\", pos |-> 0, q |-> 0]\n/\\ active = (0 :> TRUE @@ 1 :> FALSE)\n/\\ color = (0 :> \"white\" @@ 1 :> \"white\")",style = filled]
+7205545048609691228 [label="/\\ pending = (0 :> 0 @@ 1 :> 0)\n/\\ counter = (0 :> 0 @@ 1 :> 0)\n/\\ token = [color |-> \"black\", pos |-> 0, q |-> 0]\n/\\ active = (0 :> TRUE @@ 1 :> TRUE)\n/\\ color = (0 :> \"white\" @@ 1 :> \"white\")",style = filled]
+7906452766160522007 -> 7906452766160522007 [label="",color="black",fontcolor="black"];
+8219218107305827940 -> 8219218107305827940 [label="",color="black",fontcolor="black"];
+8959602218231628591 -> 8959602218231628591 [label="",color="black",fontcolor="black"];
+7205545048609691228 -> 7205545048609691228 [label="",color="black",fontcolor="black"];
+{rank = same; 8959602218231628591;8219218107305827940;7205545048609691228;7906452766160522007;}
+}
+}

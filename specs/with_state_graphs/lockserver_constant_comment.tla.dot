@@ -1,0 +1,42 @@
+strict digraph DiskGraph {
+nodesep=0.35;
+subgraph cluster_graph {
+color="white";
+7965223218566750886 [label="/\\ semaphore = [s1 |-> TRUE, s2 |-> TRUE]\n/\\ clientlocks = [c1 |-> {}, c2 |-> {}]",style = filled]
+7965223218566750886 -> -3869350277559185334 [label="",color="black",fontcolor="black"];
+-3869350277559185334 [label="/\\ semaphore = [s1 |-> FALSE, s2 |-> TRUE]\n/\\ clientlocks = [c1 |-> {\"s1\"}, c2 |-> {}]"];
+7965223218566750886 -> 1112678269938207993 [label="",color="black",fontcolor="black"];
+1112678269938207993 [label="/\\ semaphore = [s1 |-> FALSE, s2 |-> TRUE]\n/\\ clientlocks = [c1 |-> {}, c2 |-> {\"s1\"}]"];
+7965223218566750886 -> -834755249371022274 [label="",color="black",fontcolor="black"];
+-834755249371022274 [label="/\\ semaphore = [s1 |-> TRUE, s2 |-> FALSE]\n/\\ clientlocks = [c1 |-> {\"s2\"}, c2 |-> {}]"];
+7965223218566750886 -> -2054372272787591425 [label="",color="black",fontcolor="black"];
+-2054372272787591425 [label="/\\ semaphore = [s1 |-> TRUE, s2 |-> FALSE]\n/\\ clientlocks = [c1 |-> {}, c2 |-> {\"s2\"}]"];
+-3869350277559185334 -> 888121137857464639 [label="",color="black",fontcolor="black"];
+888121137857464639 [label="/\\ semaphore = [s1 |-> FALSE, s2 |-> FALSE]\n/\\ clientlocks = [c1 |-> {\"s1\", \"s2\"}, c2 |-> {}]"];
+-3869350277559185334 -> -4792259345078682458 [label="",color="black",fontcolor="black"];
+-4792259345078682458 [label="/\\ semaphore = [s1 |-> FALSE, s2 |-> FALSE]\n/\\ clientlocks = [c1 |-> {\"s1\"}, c2 |-> {\"s2\"}]"];
+-3869350277559185334 -> 7965223218566750886 [label="",color="black",fontcolor="black"];
+1112678269938207993 -> -2824563601081670636 [label="",color="black",fontcolor="black"];
+-2824563601081670636 [label="/\\ semaphore = [s1 |-> FALSE, s2 |-> FALSE]\n/\\ clientlocks = [c1 |-> {\"s2\"}, c2 |-> {\"s1\"}]"];
+1112678269938207993 -> 2919849052318415370 [label="",color="black",fontcolor="black"];
+2919849052318415370 [label="/\\ semaphore = [s1 |-> FALSE, s2 |-> FALSE]\n/\\ clientlocks = [c1 |-> {}, c2 |-> {\"s1\", \"s2\"}]"];
+1112678269938207993 -> 7965223218566750886 [label="",color="black",fontcolor="black"];
+-834755249371022274 -> 888121137857464639 [label="",color="black",fontcolor="black"];
+-834755249371022274 -> -2824563601081670636 [label="",color="black",fontcolor="black"];
+-834755249371022274 -> 7965223218566750886 [label="",color="black",fontcolor="black"];
+-2054372272787591425 -> -4792259345078682458 [label="",color="black",fontcolor="black"];
+-2054372272787591425 -> 2919849052318415370 [label="",color="black",fontcolor="black"];
+-2054372272787591425 -> 7965223218566750886 [label="",color="black",fontcolor="black"];
+888121137857464639 -> -834755249371022274 [label="",color="black",fontcolor="black"];
+888121137857464639 -> -3869350277559185334 [label="",color="black",fontcolor="black"];
+-4792259345078682458 -> -2054372272787591425 [label="",color="black",fontcolor="black"];
+-4792259345078682458 -> -3869350277559185334 [label="",color="black",fontcolor="black"];
+-2824563601081670636 -> -834755249371022274 [label="",color="black",fontcolor="black"];
+-2824563601081670636 -> 1112678269938207993 [label="",color="black",fontcolor="black"];
+2919849052318415370 -> -2054372272787591425 [label="",color="black",fontcolor="black"];
+2919849052318415370 -> 1112678269938207993 [label="",color="black",fontcolor="black"];
+{rank = same; 7965223218566750886;}
+{rank = same; 1112678269938207993;-834755249371022274;-2054372272787591425;-3869350277559185334;}
+{rank = same; -2824563601081670636;2919849052318415370;-4792259345078682458;888121137857464639;}
+}
+}

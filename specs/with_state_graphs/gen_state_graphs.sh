@@ -1,10 +1,16 @@
 #!/bin/sh
 #
-# Re-generate JSON state graphs for specs that are used for "oracle tests" i.e.
-# testing equivalence between TLC output and Javascript TLA interpreter output.
+# Re-generate DOT/JSON state graphs for specs that are used for "conformance tests" i.e.
+# testing equivalence between the Javascript interpreter and TLC. We treat TLC as our 
+# test oracle.
 #
 
-tlc="java -cp ../../tla2tools-checkall.jar tlc2.TLC"
+# tlc="java -cp ../../tla2tools-checkall.jar tlc2.TLC"
+tlc="java -cp tla2tools.jar tlc2.TLC"
 for spec in `ls *.tla`; do
-    $tlc -deadlock -fp 10 -seed 10 -metadir "states/$spec" -dump jsonitf $spec.json -noGenerateSpecTE $spec
+    # $tlc -deadlock -fp 10 -seed 10 -metadir "states/$spec" -dump jsonitf $spec.json -noGenerateSpecTE $spec
+    
+    # Generate DOT state graph and then convert it to JSON.
+    $tlc -fp 10 -seed 10 -deadlock -dump dot $spec.dot $spec
+    dot -Txdot_json -o $spec.dot.json $spec.dot
 done

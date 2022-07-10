@@ -1,0 +1,33 @@
+strict digraph DiskGraph {
+nodesep=0.35;
+subgraph cluster_graph {
+color="white";
+8434273694576049580 [label="x = 0",style = filled]
+8434273694576049580 -> -856210481893321100 [label="",color="black",fontcolor="black"];
+-856210481893321100 [label="x = 1"];
+8434273694576049580 -> 4769201700746619243 [label="",color="black",fontcolor="black"];
+4769201700746619243 [label="x = 2"];
+8434273694576049580 -> -4378284392266022221 [label="",color="black",fontcolor="black"];
+-4378284392266022221 [label="x = 3"];
+8434273694576049580 -> 1966566828478125090 [label="",color="black",fontcolor="black"];
+1966566828478125090 [label="x = 4"];
+-856210481893321100 -> 8434273694576049580 [label="",color="black",fontcolor="black"];
+-856210481893321100 -> 4769201700746619243 [label="",color="black",fontcolor="black"];
+-856210481893321100 -> -4378284392266022221 [label="",color="black",fontcolor="black"];
+-856210481893321100 -> 1966566828478125090 [label="",color="black",fontcolor="black"];
+4769201700746619243 -> 8434273694576049580 [label="",color="black",fontcolor="black"];
+4769201700746619243 -> -856210481893321100 [label="",color="black",fontcolor="black"];
+4769201700746619243 -> -4378284392266022221 [label="",color="black",fontcolor="black"];
+4769201700746619243 -> 1966566828478125090 [label="",color="black",fontcolor="black"];
+-4378284392266022221 -> 8434273694576049580 [label="",color="black",fontcolor="black"];
+-4378284392266022221 -> -856210481893321100 [label="",color="black",fontcolor="black"];
+-4378284392266022221 -> 4769201700746619243 [label="",color="black",fontcolor="black"];
+-4378284392266022221 -> 1966566828478125090 [label="",color="black",fontcolor="black"];
+1966566828478125090 -> 8434273694576049580 [label="",color="black",fontcolor="black"];
+1966566828478125090 -> -856210481893321100 [label="",color="black",fontcolor="black"];
+1966566828478125090 -> 4769201700746619243 [label="",color="black",fontcolor="black"];
+1966566828478125090 -> -4378284392266022221 [label="",color="black",fontcolor="black"];
+{rank = same; 8434273694576049580;}
+{rank = same; 1966566828478125090;-856210481893321100;4769201700746619243;-4378284392266022221;}
+}
+}

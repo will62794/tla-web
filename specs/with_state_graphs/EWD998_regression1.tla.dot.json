@@ -1,0 +1,92 @@
+{
+  "name": "DiskGraph",
+  "directed": true,
+  "strict": true,
+  "nodesep": "0.35",
+  "_subgraph_cnt": 2,
+  "objects": [
+    {
+      "name": "cluster_graph",
+      "color": "white",
+      "nodesep": "0.35",
+      "_gvid": 0,
+      "subgraphs": [
+        1
+      ],
+      "nodes": [
+        2,3,4,5
+      ],
+      "edges": [
+        0,1,2,3
+      ]
+    },
+    {
+      "name": "%11",
+      "color": "white",
+      "nodesep": "0.35",
+      "rank": "same",
+      "_gvid": 1,
+      "nodes": [
+        2,3,4,5
+      ]
+    },
+    {
+      "_gvid": 2,
+      "name": "7906452766160522007",
+      "label": "\/\\\\ pending = (0 :> 0 @@ 1 :> 0)\\n\/\\\\ counter = (0 :> 0 @@ 1 :> 0)\\n\/\\\\ token = [color |-> \"black\", pos |-> 0, q |-> 0]\\n\/\\\\ active = (0 :> FALSE @@ 1 :> FALSE)\\n\/\\\\ color = (0 :> \"white\" @@ 1 :> \"white\")",
+      "style": "filled"
+    },
+    {
+      "_gvid": 3,
+      "name": "8219218107305827940",
+      "label": "\/\\\\ pending = (0 :> 0 @@ 1 :> 0)\\n\/\\\\ counter = (0 :> 0 @@ 1 :> 0)\\n\/\\\\ token = [color |-> \"black\", pos |-> 0, q |-> 0]\\n\/\\\\ active = (0 :> FALSE @@ 1 :> TRUE)\\n\/\\\\ color = (0 :> \"white\" @@ 1 :> \"white\")",
+      "style": "filled"
+    },
+    {
+      "_gvid": 4,
+      "name": "8959602218231628591",
+      "label": "\/\\\\ pending = (0 :> 0 @@ 1 :> 0)\\n\/\\\\ counter = (0 :> 0 @@ 1 :> 0)\\n\/\\\\ token = [color |-> \"black\", pos |-> 0, q |-> 0]\\n\/\\\\ active = (0 :> TRUE @@ 1 :> FALSE)\\n\/\\\\ color = (0 :> \"white\" @@ 1 :> \"white\")",
+      "style": "filled"
+    },
+    {
+      "_gvid": 5,
+      "name": "7205545048609691228",
+      "label": "\/\\\\ pending = (0 :> 0 @@ 1 :> 0)\\n\/\\\\ counter = (0 :> 0 @@ 1 :> 0)\\n\/\\\\ token = [color |-> \"black\", pos |-> 0, q |-> 0]\\n\/\\\\ active = (0 :> TRUE @@ 1 :> TRUE)\\n\/\\\\ color = (0 :> \"white\" @@ 1 :> \"white\")",
+      "style": "filled"
+    }
+  ],
+  "edges": [
+    {
+      "_gvid": 0,
+      "tail": 2,
+      "head": 2,
+      "color": "black",
+      "fontcolor": "black",
+      "label": ""
+    },
+    {
+      "_gvid": 1,
+      "tail": 3,
+      "head": 3,
+      "color": "black",
+      "fontcolor": "black",
+      "label": ""
+    },
+    {
+      "_gvid": 2,
+      "tail": 4,
+      "head": 4,
+      "color": "black",
+      "fontcolor": "black",
+      "label": ""
+    },
+    {
+      "_gvid": 3,
+      "tail": 5,
+      "head": 5,
+      "color": "black",
+      "fontcolor": "black",
+      "label": ""
+    }
+  ]
+}
