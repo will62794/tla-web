@@ -35,7 +35,7 @@ function renderNextStateChoices(nextStates){
             stateDiv.innerHTML += state.getVarVal(varname);
             stateDiv.innerHTML += "<br>"
         }
-        let hash = hashStateShort(state);
+        let hash = hashSum(state);
         stateDiv.setAttribute("onclick", `handleChooseState("${hash}")`);
         initStatesDiv.appendChild(stateDiv);
     }
@@ -61,7 +61,7 @@ function traceStepBack(){
 
 function updateTraceLink(){
     var url_ob = new URL(document.URL);
-    var traceHashes = currTrace.map(s => hashStateShort(s));
+    var traceHashes = currTrace.map(s => hashSum(s));
     console.log(traceHashes);
     url_ob.hash = '#' + traceHashes.join(",");
 
@@ -131,8 +131,8 @@ function renderCurrentTrace(){
 }
 
 function handleChooseState(statehash_short){
-    console.log("currNextStates:", JSON.stringify(currNextStates));
-    let nextStateChoices = currNextStates.filter(s => hashStateShort(s)===statehash_short);
+    // console.log("currNextStates:", JSON.stringify(currNextStates));
+    let nextStateChoices = currNextStates.filter(s => hashSum(s)===statehash_short);
     if(nextStateChoices.length === 0){
         throw Error("Given state hash does not exist among possible next states.")
     }
@@ -316,7 +316,7 @@ function displayStateGraph(){
     console.log(reachable);
 
     for(const state of reachable["states"]){
-        dataVal = {id: hashStateShort(state), state: state};
+        dataVal = {id: hashSum(state), state: state};
         console.log(dataVal);
         cy.add({
             group: 'nodes',
@@ -330,8 +330,8 @@ function displayStateGraph(){
         cy.add({
             group: 'edges', data: { 
                 id: 'e' + eind, 
-                source: hashStateShort(edge[0]), 
-                target: hashStateShort(edge[1]) 
+                source: hashSum(edge[0]), 
+                target: hashSum(edge[1]) 
             }
         });
         eind++;

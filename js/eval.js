@@ -71,13 +71,7 @@ function combinations(arr, l) {
 }
 
 function hashState(stateObj){
-    return objectHash.sha1(stateObj);
-}
-
-// 8 character prefix of the full hash.
-function hashStateShort(stateObj){
-    const shortHashPrefixLen = 6;
-    return objectHash.sha1(stateObj).slice(0,shortHashPrefixLen);
+    return hashSum(stateObj);
 }
 
 //
@@ -133,7 +127,7 @@ class IntValue extends TLAValue{
         return new IntValue(this.val - other.getVal())
     }
     fingerprint(){
-        return objectHash.sha1(this.val);
+        return hashSum(this.val);
     }
     equals(other){
         if(!other instanceof IntValue){
@@ -159,7 +153,7 @@ class BoolValue extends TLAValue{
         return {"#type": "bool", "#value": this.val};
     }
     fingerprint(){
-        return objectHash.sha1(this.val);
+        return hashSum(this.val);
     }
     getVal(){
         return this.val;
@@ -232,7 +226,7 @@ class SetValue extends TLAValue{
         return new SetValue(_.differenceWith(this.elems, otherSet.getElems(), _.isEqual));
     }
     fingerprint(){
-        return objectHash.sha1(this.elems.map(e => e.fingerprint()).sort());
+        return hashSum(this.elems.map(e => e.fingerprint()).sort());
     }
 }
 
@@ -279,7 +273,6 @@ class TupleValue extends TLAValue{
         let rcd = new FcnRcdValue(domainVals, this.elems);
         console.log("tuprcd:", rcd);
         return rcd.fingerprint();
-        // return objectHash.sha1(this.elems.map(e => e.fingerprint()));
     }
     length(){
         return this.elems.length;
@@ -413,9 +406,9 @@ class FcnRcdValue extends TLAValue{
         let domainNormalized = _.sortBy(this.domain, (v) => v.fingerprint())
         let rangeNormalized = _.sortBy(this.range, (v) => v.fingerprint())
 
-        let domHash = objectHash.sha1(domainNormalized.map(e => e.fingerprint()));
-        let valsHash = objectHash.sha1(rangeNormalized.map(e => e.fingerprint()));
-        return objectHash.sha1([domHash, valsHash]);
+        let domHash = hashSum(domainNormalized.map(e => e.fingerprint()));
+        let valsHash = hashSum(rangeNormalized.map(e => e.fingerprint()));
+        return hashSum([domHash, valsHash]);
     }
 }
 
@@ -494,7 +487,7 @@ class TLAState{
             valsToHash.push(k);
             valsToHash.push(this.vars[k].fingerprint());
         }
-        return objectHash.sha1(valsToHash);
+        return hashSum(valsToHash);
     }
 
     // toString(){
@@ -1676,7 +1669,7 @@ function evalSetOfFunctions(node, ctx){
     //
 
     let combVals = combs(Delems, Relems);
-    console.log("COMBS: ", combVals);
+    // console.log("COMBS: ", combVals);
 
     let fcnVals = [];
     for(var comb of combVals){
@@ -2093,7 +2086,6 @@ function evalExpr(node, ctx){
         quant_ident = quant_bound.children[0];
         quant_expr = evalExpr(quant_bound.children[2], ctx);
         evalLog("function_literal quant_expr:", quant_expr);
-        console.log(quant_expr)
 
         // Evaluate the quantified expression for each element in the 
         // quantifier domain.
@@ -2254,7 +2246,6 @@ class TlaInterpreter{
         while(stateQueue.length > 0){
             let currState = stateQueue.pop();
             console.log(currState);
-            // let currStateHash = hashState(currState);
             let currStateHash = currState.fingerprint();
             console.log(currStateHash);
     
