@@ -54,6 +54,11 @@
             </div>
             <div id="trace" class="tlc-state"></div>
         </div>
+
+        <!--div id="repl-container">
+            <input id="repl-text-input">
+            <div id="repl-value"></div>
+        </div-->
     </div>
 
     
@@ -165,6 +170,20 @@
         height: 100%;
         display: flex;
         flex-direction: column;
+      }
+
+      #repl-container{
+        position:absolute;
+        right:0;
+        bottom:0;
+        background-color: gray;
+        margin-right:20px;
+      }
+
+      #repl-text-input{
+        padding:10px;
+        font-size:16px;
+        font-family: monospace;
       }
   
       header {
