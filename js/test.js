@@ -325,6 +325,7 @@ tests = [
     {"spec": "simple_setfilter", "constvals": undefined},
     {"spec": "simple_set_of_fns", "constvals": undefined},
     // {"spec": "simple_unchanged", "constvals": undefined},
+    // {"spec": "simple_quant_multi", "constvals": undefined},
     {"spec": "set_dot_notation", "constvals": undefined},
     {"spec": "record_literal_eval", "constvals": undefined},
     {"spec": "seq_append", "constvals": undefined},

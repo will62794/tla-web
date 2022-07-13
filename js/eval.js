@@ -1489,13 +1489,29 @@ function evalBoundedQuantification(node, ctx){
     evalLog("quant expr:", quant_expr);
 
     let quantDomains = quantBounds.map(qbound =>{
-        expr = evalExpr(qbound.children[2], ctx);
-        let domain = expr[0]["val"];
+        evalLog("qbound child:", qbound.namedChildren);
+
+        // let idents = qbound.namedChildren.filter(c => c.type === "identifier");
+        // evalLog("qbound idents:", idents);
+
+        let domainVal = evalExpr(qbound.lastNamedChild, ctx)[0]["val"];
+
+        // expr = evalExpr(qbound.children[2], ctx);
+        // let domain = expr[0]["val"];
         // console.log(domain);
-        assert(domain instanceof SetValue);
-        return domain.getElems();
+        assert(domainVal instanceof SetValue);
+        return domainVal.getElems();
     });
-    let quantIdents = quantBounds.map(qbound => qbound.children[0].text);
+
+    // TODO: Properly handle case of multiple quantifier identifiers.
+    // e.g. \E i,j \in {1,2,3}
+    let quantIdents = _.flatten(quantBounds.map(qbound => {
+        qbound.children[0].text
+        let idents = qbound.namedChildren.filter(c => c.type === "identifier");
+        return idents.map(i => i.text);
+    }));
+    evalLog("quantIdents: ", quantIdents);
+    // qbound.children[0].text
 
     // Iterate over the product of all quantified domains and evaluate
     // the quantified expression with the appropriately bound values.
