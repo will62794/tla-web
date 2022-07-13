@@ -310,7 +310,7 @@ class FcnRcdValue extends TLAValue{
     // Get index of function argument in the function's domain.
     argIndex(arg){
         return _.findIndex(this.domain, (v) => {
-            return _.isEqual(v, arg);
+            return v.fingerprint() === arg.fingerprint();
         });
     }
 
@@ -319,6 +319,7 @@ class FcnRcdValue extends TLAValue{
      */ 
     applyArg(arg){
         let idx = this.argIndex(arg);
+        assert(idx >= 0, "argument " + arg + " doesn't exist in function domain.");
         return this.values[idx];
     }
 
@@ -1881,8 +1882,9 @@ function evalExpr(node, ctx){
         // console.log("fnArgVal:", fnArgVal);
         let fnArgVal = evalExpr(node.namedChildren[1], ctx)[0]["val"];
         evalLog("fneval (arg,val): ", fnVal, ",", fnArgVal);
-        return [ctx.withVal(fnVal.applyArg(fnArgVal))];
-        return [ctx.withVal(fnVal[fnArgVal])];
+        let fnValRes = fnVal.applyArg(fnArgVal);
+        evalLog("fnValRes:", fnValRes);
+        return [ctx.withVal(fnValRes)];
     }
 
     if(isPrimedVar(node)){

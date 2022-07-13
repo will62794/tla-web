@@ -19,13 +19,11 @@ terminated == \A n \in Node : ~ active[n] /\ pending[n] = 0
 -----------------------------------------------------------------------------
 
 Init ==
-    \* /\ active \in [ Node -> BOOLEAN ]
-    \* /\ pending \in [ Node -> 0..1 ]
-    /\ active = [i \in {0} |-> TRUE]
-    /\ pending = [i \in {0} |-> TRUE]
+    /\ active \in [ Node -> BOOLEAN ]
+    /\ pending \in [ Node -> 0..1 ]
     /\ terminationDetected \in {FALSE, terminated}
 
-Next ==
-	UNCHANGED vars
+Next == 
+    /\ UNCHANGED <<active,pending,terminationDetected>>
 
 ====

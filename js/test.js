@@ -331,7 +331,7 @@ tests = [
     {"spec": "mldr_init_only", "constvals": undefined},
     {"spec": "tla_expr_eval", "constvals": undefined},
     {"spec": "EWD998_regression1", "constvals": undefined},
-    // {"spec": "AsyncTerminationDetection", "constvals": undefined},
+    {"spec": "AsyncTerminationDetection", "constvals": undefined},
     {"spec": "pre_module_comments", "constvals": undefined},
     // {"spec": "DieHard", "constvals": undefined},
     {

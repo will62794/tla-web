@@ -2,8 +2,40 @@ strict digraph DiskGraph {
 nodesep=0.35;
 subgraph cluster_graph {
 color="white";
--7209772969763754353 [label="/\\ pending = (0 :> TRUE)\n/\\ active = (0 :> TRUE)\n/\\ terminationDetected = FALSE",style = filled]
--7209772969763754353 -> -7209772969763754353 [label="",color="black",fontcolor="black"];
-{rank = same; -7209772969763754353;}
+-9121656034994604825 [label="/\\ pending = (0 :> 0 @@ 1 :> 0)\n/\\ active = (0 :> FALSE @@ 1 :> FALSE)\n/\\ terminationDetected = FALSE",style = filled]
+4199090350807004203 [label="/\\ pending = (0 :> 0 @@ 1 :> 0)\n/\\ active = (0 :> FALSE @@ 1 :> FALSE)\n/\\ terminationDetected = TRUE",style = filled]
+-733080130391068949 [label="/\\ pending = (0 :> 0 @@ 1 :> 1)\n/\\ active = (0 :> FALSE @@ 1 :> FALSE)\n/\\ terminationDetected = FALSE",style = filled]
+4979054976782906849 [label="/\\ pending = (0 :> 1 @@ 1 :> 0)\n/\\ active = (0 :> FALSE @@ 1 :> FALSE)\n/\\ terminationDetected = FALSE",style = filled]
+3576955091438317549 [label="/\\ pending = (0 :> 1 @@ 1 :> 1)\n/\\ active = (0 :> FALSE @@ 1 :> FALSE)\n/\\ terminationDetected = FALSE",style = filled]
+1593925955555126487 [label="/\\ pending = (0 :> 0 @@ 1 :> 0)\n/\\ active = (0 :> FALSE @@ 1 :> TRUE)\n/\\ terminationDetected = FALSE",style = filled]
+7107822181012141787 [label="/\\ pending = (0 :> 0 @@ 1 :> 1)\n/\\ active = (0 :> FALSE @@ 1 :> TRUE)\n/\\ terminationDetected = FALSE",style = filled]
+-3283488053587120687 [label="/\\ pending = (0 :> 1 @@ 1 :> 0)\n/\\ active = (0 :> FALSE @@ 1 :> TRUE)\n/\\ terminationDetected = FALSE",style = filled]
+-6425378104204658723 [label="/\\ pending = (0 :> 1 @@ 1 :> 1)\n/\\ active = (0 :> FALSE @@ 1 :> TRUE)\n/\\ terminationDetected = FALSE",style = filled]
+-4017861487339364056 [label="/\\ pending = (0 :> 0 @@ 1 :> 0)\n/\\ active = (0 :> TRUE @@ 1 :> FALSE)\n/\\ terminationDetected = FALSE",style = filled]
+-4861778835179848924 [label="/\\ pending = (0 :> 0 @@ 1 :> 1)\n/\\ active = (0 :> TRUE @@ 1 :> FALSE)\n/\\ terminationDetected = FALSE",style = filled]
+886582915746111534 [label="/\\ pending = (0 :> 1 @@ 1 :> 0)\n/\\ active = (0 :> TRUE @@ 1 :> FALSE)\n/\\ terminationDetected = FALSE",style = filled]
+8716448650400086562 [label="/\\ pending = (0 :> 1 @@ 1 :> 1)\n/\\ active = (0 :> TRUE @@ 1 :> FALSE)\n/\\ terminationDetected = FALSE",style = filled]
+6866350471407237400 [label="/\\ pending = (0 :> 0 @@ 1 :> 0)\n/\\ active = (0 :> TRUE @@ 1 :> TRUE)\n/\\ terminationDetected = FALSE",style = filled]
+3166277878856672020 [label="/\\ pending = (0 :> 0 @@ 1 :> 1)\n/\\ active = (0 :> TRUE @@ 1 :> TRUE)\n/\\ terminationDetected = FALSE",style = filled]
+-7261390934447720418 [label="/\\ pending = (0 :> 1 @@ 1 :> 0)\n/\\ active = (0 :> TRUE @@ 1 :> TRUE)\n/\\ terminationDetected = FALSE",style = filled]
+-1188784543201631726 [label="/\\ pending = (0 :> 1 @@ 1 :> 1)\n/\\ active = (0 :> TRUE @@ 1 :> TRUE)\n/\\ terminationDetected = FALSE",style = filled]
+-9121656034994604825 -> -9121656034994604825 [label="",color="black",fontcolor="black"];
+4199090350807004203 -> 4199090350807004203 [label="",color="black",fontcolor="black"];
+-733080130391068949 -> -733080130391068949 [label="",color="black",fontcolor="black"];
+4979054976782906849 -> 4979054976782906849 [label="",color="black",fontcolor="black"];
+3576955091438317549 -> 3576955091438317549 [label="",color="black",fontcolor="black"];
+1593925955555126487 -> 1593925955555126487 [label="",color="black",fontcolor="black"];
+7107822181012141787 -> 7107822181012141787 [label="",color="black",fontcolor="black"];
+-3283488053587120687 -> -3283488053587120687 [label="",color="black",fontcolor="black"];
+-6425378104204658723 -> -6425378104204658723 [label="",color="black",fontcolor="black"];
+-4017861487339364056 -> -4017861487339364056 [label="",color="black",fontcolor="black"];
+-4861778835179848924 -> -4861778835179848924 [label="",color="black",fontcolor="black"];
+886582915746111534 -> 886582915746111534 [label="",color="black",fontcolor="black"];
+8716448650400086562 -> 8716448650400086562 [label="",color="black",fontcolor="black"];
+6866350471407237400 -> 6866350471407237400 [label="",color="black",fontcolor="black"];
+3166277878856672020 -> 3166277878856672020 [label="",color="black",fontcolor="black"];
+-7261390934447720418 -> -7261390934447720418 [label="",color="black",fontcolor="black"];
+-1188784543201631726 -> -1188784543201631726 [label="",color="black",fontcolor="black"];
+{rank = same; 4979054976782906849;3576955091438317549;-7261390934447720418;-1188784543201631726;-3283488053587120687;-6425378104204658723;886582915746111534;8716448650400086562;1593925955555126487;7107822181012141787;-4017861487339364056;-4861778835179848924;-9121656034994604825;-733080130391068949;6866350471407237400;3166277878856672020;4199090350807004203;}
 }
 }
