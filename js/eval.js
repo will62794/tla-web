@@ -1211,7 +1211,7 @@ function evalBoundInfix(node, ctx){
                         } 
                         return val;
                     });
-                    return ctx.withValAndState(true, new TLAState(stateUpdated))
+                    return ctx.withValAndState(new BoolValue(true), new TLAState(stateUpdated))
                 })
                 // return [ctx.withValAndState(true, new TLAState(stateUpdated))];
             }
@@ -1250,7 +1250,7 @@ function evalBoundInfix(node, ctx){
         
         let resVal = symbol.type === "in" ? inSetVal : !inSetVal; 
         evalLog("setin lhs in rhs:", resVal);
-        return [ctx.withVal(resVal)];
+        return [ctx.withVal(new BoolValue(resVal))];
     } 
     
     // Set intersection.
@@ -1431,7 +1431,7 @@ function evalIdentifierRef(node, ctx){
     assert(ctx instanceof Context);
 
     let ident_name = node.text;
-    evalLog(`evalIdentifierRef, '${node.text}' context:`, ctx);
+    evalLog(`evalIdentifierRef, '${node.text}' context:`, ctx, "ident_name:", ident_name);
 
     // If this identifier refers to a variable, return the value bound
     // to that variable in the current context.
@@ -1556,6 +1556,17 @@ function evalBoundedQuantification(node, ctx){
             });
             evalLog("assigned in sub: ", assignedInSub);
 
+            // If new variables were assigned in the sub-evaluation contexts, then we return all of the
+            // generated contexts. If no new variables were assigned, then we return the disjunction of
+            // the results.
+            if(assignedInSub[0].length > currAssignedVars.length){
+                evalLog("Newly assigned vars.");
+                return retCtxs;
+            } else{
+                evalLog("No newly assigned vars.");
+                let exists = _.some(retCtxs, (c) => c["val"].getVal());
+                return [ctx.withVal(new BoolValue(exists))]
+            }
         }
 
         return retCtxs;
@@ -2028,9 +2039,9 @@ function evalExpr(node, ctx){
                 boundContext["quant_bound"] = {};
             }
             boundContext["quant_bound"][ident] = exprVal;
-            evalLog("rhsFilterVal:", evalExpr(rhsFilter, boundContext));
             let rhsFilterVal = evalExpr(rhsFilter, boundContext)[0]["val"];
-            return rhsFilterVal;
+            evalLog("rhsFilterVal:", rhsFilterVal);
+            return rhsFilterVal.getVal();
         });
         evalLog("domainExprVal filtered:", filteredVals);
         return [ctx.withVal(new SetValue(filteredVals))];
@@ -2255,7 +2266,7 @@ class TlaInterpreter{
     
         let initStates = getInitStates(initDef["node"], vars, defns, constvals);
         // Keep only the valid states.
-        initStates = initStates.filter(actx => actx["val"]).map(actx => actx["state"]);
+        initStates = initStates.filter(actx => actx["val"].getVal()).map(actx => actx["state"]);
         return initStates;
     }
 

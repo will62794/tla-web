@@ -32,20 +32,20 @@
     },
     {
       "_gvid": 2,
-      "name": "369975730616133148",
-      "label": "\/\\\\ state = [n0 |-> \"Secondary\", n1 |-> \"Secondary\"]\\n\/\\\\ currentTerm = [n0 |-> 0, n1 |-> 0]\\n\/\\\\ config = [n0 |-> {\"n0\"}, n1 |-> {\"n0\"}]\\n\/\\\\ configTerm = [n0 |-> 0, n1 |-> 0]\\n\/\\\\ configVersion = [n0 |-> 1, n1 |-> 1]",
+      "name": "3172278529501366122",
+      "label": "x = [a |-> {0}]",
       "style": "filled"
     },
     {
       "_gvid": 3,
-      "name": "-7983494498796557894",
-      "label": "\/\\\\ state = [n0 |-> \"Secondary\", n1 |-> \"Secondary\"]\\n\/\\\\ currentTerm = [n0 |-> 0, n1 |-> 0]\\n\/\\\\ config = [n0 |-> {\"n1\"}, n1 |-> {\"n1\"}]\\n\/\\\\ configTerm = [n0 |-> 0, n1 |-> 0]\\n\/\\\\ configVersion = [n0 |-> 1, n1 |-> 1]",
+      "name": "-769808414902635312",
+      "label": "x = [a |-> {1}]",
       "style": "filled"
     },
     {
       "_gvid": 4,
-      "name": "2317674253685784641",
-      "label": "\/\\\\ state = [n0 |-> \"Secondary\", n1 |-> \"Secondary\"]\\n\/\\\\ currentTerm = [n0 |-> 0, n1 |-> 0]\\n\/\\\\ config = [n0 |-> {\"n0\", \"n1\"}, n1 |-> {\"n0\", \"n1\"}]\\n\/\\\\ configTerm = [n0 |-> 0, n1 |-> 0]\\n\/\\\\ configVersion = [n0 |-> 1, n1 |-> 1]",
+      "name": "5765653762618025451",
+      "label": "x = [a |-> {0, 1}]",
       "style": "filled"
     }
   ],

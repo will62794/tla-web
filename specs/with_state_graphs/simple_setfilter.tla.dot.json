@@ -32,8 +32,8 @@
     },
     {
       "_gvid": 2,
-      "name": "6890218316110308743",
-      "label": "x = [exists1 |-> TRUE, exists2 |-> FALSE, forall1 |-> FALSE, forall2 |-> TRUE]",
+      "name": "7370575430079608434",
+      "label": "x = {2, 3}",
       "style": "filled"
     }
   ],

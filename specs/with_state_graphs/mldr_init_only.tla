@@ -16,7 +16,7 @@ Min(s) == CHOOSE x \in s : \A y \in s : x <= y
 Max(s) == CHOOSE x \in s : \A y \in s : x >= y
 Empty(s) == Len(s) = 0
 
-Server == {"n0","n1","n2"}
+Server == {"n0","n1"}
 
 Init == 
     /\ currentTerm = [i \in Server |-> 0]
