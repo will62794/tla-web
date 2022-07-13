@@ -185,7 +185,8 @@ class StringValue extends TLAValue{
 class SetValue extends TLAValue{
     constructor(elems){
         super(elems);
-        this.elems = elems;
+        // Remove duplicates at construction.
+        this.elems = _.uniqBy(elems, (e) => e.fingerprint());
     }
     toString(){
         return "{" + this.elems.map(x => x.toString()).join(",") + "}";
