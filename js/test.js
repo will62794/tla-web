@@ -318,6 +318,7 @@ tests = [
     {"spec": "simple_domain", "constvals": undefined},
     {"spec": "simple6", "constvals": undefined},
     {"spec": "simple7", "constvals": undefined},
+    {"spec": "simple_subset", "constvals": undefined},
     {"spec": "set_dot_notation", "constvals": undefined},
     {"spec": "record_literal_eval", "constvals": undefined},
     {"spec": "seq_append", "constvals": undefined},

@@ -1,0 +1,74 @@
+{
+  "name": "DiskGraph",
+  "directed": true,
+  "strict": true,
+  "nodesep": "0.35",
+  "_subgraph_cnt": 3,
+  "objects": [
+    {
+      "name": "cluster_graph",
+      "color": "white",
+      "nodesep": "0.35",
+      "_gvid": 0,
+      "subgraphs": [
+        1,
+2
+      ],
+      "nodes": [
+        3,4
+      ],
+      "edges": [
+        0,1
+      ]
+    },
+    {
+      "name": "%7",
+      "color": "white",
+      "nodesep": "0.35",
+      "rank": "same",
+      "_gvid": 1,
+      "nodes": [
+        3
+      ]
+    },
+    {
+      "name": "%9",
+      "color": "white",
+      "nodesep": "0.35",
+      "rank": "same",
+      "_gvid": 2,
+      "nodes": [
+        4
+      ]
+    },
+    {
+      "_gvid": 3,
+      "name": "8132692779957249086",
+      "label": "x = 0",
+      "style": "filled"
+    },
+    {
+      "_gvid": 4,
+      "name": "508347894411327184",
+      "label": "x = [ a |-> {{}, {1}, {2}, {3}, {1, 2}, {1, 3}, {2, 3}, {1, 2, 3}},\\n  b |-> {[x |-> {}], [x |-> {1}], [x |-> {2}], [x |-> {1, 2}]} ]"
+    }
+  ],
+  "edges": [
+    {
+      "_gvid": 0,
+      "tail": 3,
+      "head": 4,
+      "color": "black",
+      "fontcolor": "black",
+      "label": ""
+    },
+    {
+      "_gvid": 1,
+      "tail": 4,
+      "head": 4,
+      "color": "black",
+      "fontcolor": "black",
+      "label": ""
+    }
+  ]
+}

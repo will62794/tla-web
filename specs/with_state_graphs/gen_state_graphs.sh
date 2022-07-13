@@ -5,9 +5,18 @@
 # test oracle.
 #
 
-# tlc="java -cp ../../tla2tools-checkall.jar tlc2.TLC"
+set -e
+
+# Check for specific spec argument.
+if [ -z "$1" ] 
+then
+    specarg="*"
+else
+    specarg=$1
+fi
+
 tlc="java -cp tla2tools.jar tlc2.TLC"
-for spec in `ls *.tla`; do
+for spec in `ls $specarg.tla`; do
     # $tlc -deadlock -fp 10 -seed 10 -metadir "states/$spec" -dump jsonitf $spec.json -noGenerateSpecTE $spec
     
     # Generate DOT state graph and then convert it to JSON.
