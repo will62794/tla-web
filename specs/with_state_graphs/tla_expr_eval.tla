@@ -75,7 +75,7 @@ Init == exprs = [
     exceptnested1 |-> [[a |-> [x |-> 1], b |-> 2] EXCEPT !["a"]["x"] = 12],
     exceptnested2 |-> [[a |-> [x |-> [y |-> 3]], b |-> 2] EXCEPT !["a"]["x"]["y"] = 12],
     fcnapp1 |-> [a |-> 1, b |-> 2]["a"],
-    fcnset1 |-> [{1,2} -> {4,5}],
+    fcnset1 |-> [{0,1} -> {4,5}],
     fcnset2 |-> [{"a","b","c"} -> {4,5}],
     fcnset3 |-> [{"a","b","c"} -> {{1,2},{3,4}}],
     fcnset4 |-> [{"x"} -> SUBSET {1,2}],

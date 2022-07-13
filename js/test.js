@@ -103,6 +103,7 @@ function testStateGraphEquiv(testId, stateGraph, specText, constvals){
     // correspond to the reachable states of the TLC state graph for the spec
     // we're testing.
     console.log("### TEST: Reconstructing reachable states of TLC state graph")
+    enableEvalTracing = false; // turn off tracing here to avoid pollution of main eval logs.
     parsedTLCSpec = parseSpec(specOfTLCReachableStates);
     let reachableTLC = interp.computeReachableStates(parsedTLCSpec, constvals)["states"];
 
@@ -319,6 +320,8 @@ tests = [
     {"spec": "simple6", "constvals": undefined},
     {"spec": "simple7", "constvals": undefined},
     {"spec": "simple_subset", "constvals": undefined},
+    {"spec": "simple_quant", "constvals": undefined},
+    {"spec": "simple_set_of_fns", "constvals": undefined},
     {"spec": "set_dot_notation", "constvals": undefined},
     {"spec": "record_literal_eval", "constvals": undefined},
     {"spec": "seq_append", "constvals": undefined},
@@ -326,6 +329,7 @@ tests = [
     {"spec": "mldr_init_only", "constvals": undefined},
     {"spec": "tla_expr_eval", "constvals": undefined},
     {"spec": "EWD998_regression1", "constvals": undefined},
+    // {"spec": "AsyncTerminationDetection", "constvals": undefined},
     {"spec": "pre_module_comments", "constvals": undefined},
     // {"spec": "DieHard", "constvals": undefined},
     {

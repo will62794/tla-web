@@ -158,6 +158,9 @@ class BoolValue extends TLAValue{
     getVal(){
         return this.val;
     }
+    and(other){
+        return new BoolValue(this.getVal() && other.getVal());
+    }
 }
 
 class StringValue extends TLAValue{
@@ -404,12 +407,13 @@ class FcnRcdValue extends TLAValue{
     }
     fingerprint(){
         // Attempt normalization by sorting by fingerprints before hashing.
-        let domainNormalized = _.sortBy(this.domain, (v) => v.fingerprint())
-        let rangeNormalized = _.sortBy(this.range, (v) => v.fingerprint())
+        let domFps = this.domain.map(v => v.fingerprint());
+        let valsFp = this.values.map(v => v.fingerprint());
 
-        let domHash = hashSum(domainNormalized.map(e => e.fingerprint()));
-        let valsHash = hashSum(rangeNormalized.map(e => e.fingerprint()));
-        return hashSum([domHash, valsHash]);
+        let fcnPairs = _.zip(domFps, valsFp);
+        let fcnPairsHashed = fcnPairs.map(hashSum);
+        fcnPairsHashed.sort();
+        return hashSum(fcnPairsHashed);
     }
 }
 
@@ -761,7 +765,7 @@ function parseSpec(specText){
             node = cursor.currentNode()
             console.log(node.text, node)
             // console.log(cursor.currentFieldName());
-            console.assert(node.type === "identifier");
+            assert(node.type === "identifier");
             let opName = node.text;
 
             op_defs[opName] = {"name": opName, "args": [], "node": null};
@@ -928,7 +932,7 @@ function evalLand(lhs, rhs, ctx){
         evalLog("rhs:", rhs.text);
         evalLog("lctx:", lctx);
         return evalExpr(rhs, lctx).map(actx => {
-            return [actx.withValAndState((lctx["val"] && actx["val"]), actx["state"])];
+            return [actx.withValAndState((lctx["val"].and(actx["val"])), actx["state"])];
         })
     });
     return _.flattenDeep(rhsEval);
@@ -976,54 +980,57 @@ function evalEq(lhs, rhs, ctx){
         // been assigned a value, then assign it.If it has already been assigned,
         // then check for equality.
         // Variable already assigned in this context. So, check for equality.
-        if(ctx.state.hasVar(identName) && ctx.state.getVarVal(identName) !== null){
-            evalLog("Variable '" + identName + "' already assigned in ctx:",  ctx);
-            let rhsVals = evalExpr(rhs, ctx);
-            console.assert(rhsVals.length === 1);
-            let rhsVal = rhsVals[0]["val"]
-            evalLog("rhsVal:", rhsVal);
-            // TODO: Fix equality checks properly here.
-            let boolVal = (ctx.state.getVarVal(identName) === rhsVal)
-            evalLog("boolVal:", boolVal);
+        // if(ctx.state.hasVar(identName) && ctx.state.getVarVal(identName) !== null){
+        //     evalLog("Variable '" + identName + "' already assigned in ctx:",  ctx);
+        //     let rhsVals = evalExpr(rhs, ctx);
+        //     assert(rhsVals.length === 1);
+        //     let rhsVal = rhsVals[0]["val"]
+        //     evalLog("rhsVal:", rhsVal);
+        //     // TODO: Fix equality checks properly here.
+        //     let boolVal = (ctx.state.getVarVal(identName) === rhsVal)
+        //     evalLog("boolVal:", boolVal);
 
-            return [ctx.withVal(boolVal)];
-        }
+        //     return [ctx.withVal(boolVal)];
+        // }
 
         // Variable not already assigned. So, update variable assignment as necessary.
         let stateUpdated = _.mapValues(ctx.state.getStateObj(), (val,key,obj) => {
             if(key === identName){
                 evalLog("Variable (" + identName + ") not already assigned in ctx:",  ctx);
                 let rhsVals = evalExpr(rhs, ctx.clone());
-                console.assert(rhsVals.length === 1);
+                assert(rhsVals.length === 1);
                 let rhsVal = rhsVals[0]["val"];
                 evalLog("Variable (" + identName + ") getting value:",  rhsVal);
-                return (val === null) ? rhsVal : val;
+                let vret = (val === null) ? rhsVal : val;
+                evalLog(vret);
+                return vret;
             } 
             return val;
         });
         evalLog("state updated:", stateUpdated);
-        return [ctx.withValAndState(true, new TLAState(stateUpdated))];
-
+        evalLog("state updated current ctx:", ctx);
+        return [ctx.withValAndState(new BoolValue(true), new TLAState(stateUpdated))];
     } else{
         evalLog(`Checking for equality of ident '${identName}' with '${rhs.text}'.`, ctx);
         
         // Evaluate left and right hand side.
         let lhsVals = evalExpr(lhs, ctx.clone());
-        console.assert(lhsVals.length === 1);
+        assert(lhsVals.length === 1);
         let lhsVal = lhsVals[0]["val"];
         // console.log("Checking for, lhsVal", lhsVal);
 
         let rhsVals = evalExpr(rhs, ctx.clone());
-        console.assert(rhsVals.length === 1);
+        assert(rhsVals.length === 1);
         let rhsVal = rhsVals[0]["val"];
         // console.log("Checking for, rhsVal", rhsVal);
 
         // Check equality.
-        const boolVal = _.isEqual(lhsVal, rhsVal);
-        // console.log("Checking for, boolVal:", boolVal);
+        // TODO: Update this equality check.
+        const boolVal = lhsVal.fingerprint() === rhsVal.fingerprint();
+        evalLog("Checking for, boolVal:", boolVal);
 
         // Return context with updated value.
-        return [ctx.withVal(boolVal)];
+        return [ctx.withVal(new BoolValue(boolVal))];
     }
 }
 
@@ -1152,14 +1159,14 @@ function evalBoundInfix(node, ctx){
         let lhsVal = evalExpr(lhs, ctx)[0]["val"];
         // console.log("Checking for inequality with var:", varName);
         let rhsVals = evalExpr(rhs, ctx);
-        console.assert(rhsVals.length === 1);
+        assert(rhsVals.length === 1);
         let rhsVal = rhsVals[0]["val"];
-        let boolVal = !_.isEqual(lhsVal, rhsVal);
+        let areUnequal = lhsVal.fingerprint() !== rhsVal.fingerprint();
         // console.log("inequality lhsVal:", lhsVal);
         // console.log("inequality rhsVal:", rhsVal);
-        evalLog("inequality boolVal:", boolVal);
+        evalLog("inequality boolVal:", areUnequal);
         // Return context with updated value.
-        return [ctx.withVal(boolVal)];
+        return [ctx.withVal(new BoolValue(areUnequal))];
     } 
 
     // Set membership.
@@ -1189,13 +1196,14 @@ function evalBoundInfix(node, ctx){
         if(isUnprimedVar){
             if(ctx.state.getVarVal(identName) == null){
                 let rhsVal = evalExpr(rhs, ctx)[0]["val"];
-                evalLog("setin rhsval assignment:", rhsVal, rhs.text, ctx);
+                evalLog("setin rhsval assignment:", rhsVal, rhs.text);
+                evalLog("setin rhsval ctx:", ctx);
                 return rhsVal.getElems().map(el =>{
                     let stateUpdated = _.mapValues(ctx.state.getStateObj(), (val,key,obj) => {
                         if(key === identName){
                             evalLog("Variable (" + identName + ") not already assigned in ctx:",  ctx);
                             // let rhsVals = evalExpr(rhsVal, ctx.clone());
-                            // console.assert(rhsVals.length === 1);
+                            // assert(rhsVals.length === 1);
                             // let rhsVal = rhsVals[0]["val"];
                             let rhsVal = el;
                             evalLog("Variable (" + identName + ") getting value:",  rhsVal);
@@ -1224,7 +1232,7 @@ function evalBoundInfix(node, ctx){
                         } 
                         return val;
                     });
-                    return ctx.withValAndState(true, new TLAState(stateUpdated))
+                    return ctx.withValAndState(new BoolValue(true), new TLAState(stateUpdated))
                 })
             }
         }
@@ -1396,8 +1404,8 @@ function evalConjList(parent, conjs, ctx){
     evalLog("evalConjList -> ctx:", ctx, conjs);
 
     // Initialize boolean value if needed.
-    if(ctx["val"]===null){
-        ctx["val"]=true;
+    if (ctx["val"] === null) {
+        ctx["val"] = new BoolValue(true);
     }
     // Filter out any comments contained in this conjunction.
     return conjs.filter(c => !["comment","block_comment"].includes(c.type)).reduce((prev,conj) => {
@@ -1405,11 +1413,14 @@ function evalConjList(parent, conjs, ctx){
             // If this context has already evaluated to false, then the overall
             // conjunction list will evaluate to false, so we can short-circuit
             // the expression evaluation and terminate early.
-            if(ctxPrev["val"]===false){
+            if(ctxPrev["val"].getVal()===false){
                 return [ctxPrev];
             }
 
-            return evalExpr(conj, ctxPrev).map(ctxCurr => ctxCurr.withVal(ctxCurr["val"] && ctxPrev["val"]));
+            return evalExpr(conj, ctxPrev).map(ctxCurr => {
+                let conjVal = ctxCurr["val"].and(ctxPrev["val"]);
+                return ctxCurr.withVal(conjVal);
+            });
         });
         evalLog("evalConjList mapped: ", res);
         return _.flattenDeep(res);
@@ -1460,7 +1471,7 @@ function evalIdentifierRef(node, ctx){
 // \E x,...,xn \in <D1>, y1,...,yn \in <D2> : <expr>
 // \A x,...,xn \in <D1>, y1,...,yn \in <D2> : <expr>
 function evalBoundedQuantification(node, ctx){
-    evalLog("bounded_quantification");
+    evalLog("bounded_quantification", node);
     let quantifier = node.namedChildren[0];
 
     // Extract all quantifier bounds/domains.
@@ -1493,7 +1504,7 @@ function evalBoundedQuantification(node, ctx){
         return [ctx.withVal(new BoolValue(false))];
     }
 
-    return _.flattenDeep(quantDomainTuples.map(qtup => {
+    retCtxs = _.flattenDeep(quantDomainTuples.map(qtup => {
         let boundContext = ctx.clone();
         // Bound values to quantified variables.
         if(!boundContext.hasOwnProperty("quant_bound")){
@@ -1506,7 +1517,22 @@ function evalBoundedQuantification(node, ctx){
         evalLog("boundContext:", boundContext);
         let ret = evalExpr(quant_expr, boundContext.clone());
         return ret;
-    }));    
+    })); 
+    
+    evalLog("quant returned contexts:", retCtxs);
+
+    if(quantifier.type === "forall"){
+        let allVals = retCtxs.map(c => c["val"].getVal());
+        evalLog("allVals:", allVals);
+        let res = _.every(retCtxs.map(c => c["val"].getVal()));
+        return [ctx.withVal(new BoolValue(res))];
+    }
+
+    // Fork evaluation context for existential quantifier.
+    // TODO: Confirm this is correct behavior here.
+    if(quantifier.type == "exists"){
+        return retCtxs;
+    }
 }
 
 // <op>(<arg1>,...,<argn>)
@@ -1622,7 +1648,7 @@ function evalFiniteSetLiteral(node, ctx){
     ret = ret.map(child => {
         // TODO: For now assume set elements don't fork evaluation context.
         let r = evalExpr(child, ctx);
-        console.assert(r.length === 1);
+        assert(r.length === 1, "Expected set elements not to fork evaluation");
         return r[0]["val"];
     });
     return [ctx.withVal(new SetValue(ret))];
@@ -1670,7 +1696,7 @@ function evalSetOfFunctions(node, ctx){
     //
 
     let combVals = combs(Delems, Relems);
-    // console.log("COMBS: ", combVals);
+    console.log("COMBS: ", combVals);
 
     let fcnVals = [];
     for(var comb of combVals){
@@ -1782,7 +1808,7 @@ function evalExpr(node, ctx){
         evalLog("lExpr:",lExpr); 
         let lExprVal = evalExpr(lExpr, ctx);
         evalLog("lexprval:", lExprVal);
-        // console.assert(lExprVal.type === "function");
+        // assert(lExprVal.type === "function");
         let fnVal = lExprVal[0]["val"];
         evalLog("fnVal:",fnVal);
         assert(fnVal instanceof FcnRcdValue);
@@ -1927,7 +1953,6 @@ function evalExpr(node, ctx){
         return evalSetOfFunctions(node, ctx);
     }
 
-
     // {<bound_expr> : <setin_expr>}
     // e.g. { x+2 : x \in {1,2,3}}
     if(node.type === "set_map"){
@@ -1959,7 +1984,7 @@ function evalExpr(node, ctx){
         let rhsFilter = node.namedChildren[1];
 
         // Evaluate the quantified domain.
-        console.assert(singleQuantBound.type === "single_quantifier_bound");
+        assert(singleQuantBound.type === "single_quantifier_bound");
         evalLog("singleQuantBound:", singleQuantBound, singleQuantBound.text);
         let ident = singleQuantBound.namedChildren[0].text;
         let domainExpr = singleQuantBound.namedChildren[2];
@@ -2080,7 +2105,7 @@ function evalExpr(node, ctx){
         let all_map_to = node.children[2];
         let fexpr = node.children[3];
 
-        console.assert(all_map_to.type === "all_map_to");
+        assert(all_map_to.type === "all_map_to");
 
         // Handle the quantifier bound:
         // <identifier> \in <expr>
@@ -2109,7 +2134,7 @@ function evalExpr(node, ctx){
             // TODO: Handle bound quantifier values during evaluation.
             let vals = evalExpr(fexpr, boundContext);
             evalLog("fexpr vals:", vals);
-            console.assert(vals.length === 1);
+            assert(vals.length === 1);
             fnVal[v] = vals[0]["val"];
             fnValRange.push(vals[0]["val"]);
         }
@@ -2171,7 +2196,7 @@ function getNextStates(nextDef, currStateVars, defns, constvals){
     // console.log("getNextStates ret:", ret);
 
     // Filter out disabled transitions.
-    ret = ret.filter(c => c["val"] === true);
+    ret = ret.filter(c => c["val"].getVal() === true);
 
     // Filter out transitions that do not modify the state.
     let all_next_states = ret.filter(c => {

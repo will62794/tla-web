@@ -1,0 +1,9 @@
+strict digraph DiskGraph {
+nodesep=0.35;
+subgraph cluster_graph {
+color="white";
+-7209772969763754353 [label="/\\ pending = (0 :> TRUE)\n/\\ active = (0 :> TRUE)\n/\\ terminationDetected = FALSE",style = filled]
+-7209772969763754353 -> -7209772969763754353 [label="",color="black",fontcolor="black"];
+{rank = same; -7209772969763754353;}
+}
+}
