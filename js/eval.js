@@ -1531,6 +1531,33 @@ function evalBoundedQuantification(node, ctx){
     // Fork evaluation context for existential quantifier.
     // TODO: Confirm this is correct behavior here.
     if(quantifier.type == "exists"){
+
+        // TODO: How should we correctly handle the splitting of existential quantifier evaluation 
+        // into multiple sub-branches and compiling the returned values?
+
+        // Evaluation has been split into case for each disjunction.
+        // We now see if any states have generated in any of these evaluation
+        // branches.
+        if(!ASSIGN_PRIMED){
+            evalLog("Checking if non-null variable assignments");
+            
+            // Did any of the sub-evaluation contexts 
+            // assign a new value to a state variable?
+
+            let currAssignedVars = _.keys(ctx["state"].vars).filter(k => ctx["state"].vars[k] !== null)
+            evalLog("curr assigned vars:", currAssignedVars);
+
+            let assignedInSub = retCtxs.map(c => {
+                let varKeys = c["state"].vars;
+                evalLog(varKeys);
+                let assignedVars = _.keys(c["state"].vars).filter(k => c["state"].vars[k] !== null)
+                evalLog("assigned vars:",assignedVars);
+                return assignedVars;
+            });
+            evalLog("assigned in sub: ", assignedInSub);
+
+        }
+
         return retCtxs;
     }
 }
