@@ -47,7 +47,8 @@ function traceStepBack(){
     // Back to initial states.
     if(currTrace.length === 0){
         console.log("Back to initial states.")
-        currNextStates = _.cloneDeep(allInitStates);
+        reloadSpec();
+        return;
     } else{
         let lastState = currTrace[currTrace.length-1];
         let interp = new TlaInterpreter();
@@ -55,8 +56,6 @@ function traceStepBack(){
                             .map(c => c["state"].deprimeVars());
         currNextStates = _.cloneDeep(nextStates);
     }
-    renderCurrentTrace();
-    renderNextStateChoices(currNextStates);
 }
 
 function updateTraceLink(){
@@ -252,7 +251,8 @@ function reloadSpec(){
     let initStates;
     try{
       initStates = interp.computeInitStates(specTreeObjs, specConstVals);
-      allInitStates = initStates;
+      allInitStates = _.cloneDeep(initStates);
+      console.log("Set initial states: ", allInitStates);
     } catch(e){
       console.error("Error computing initial states.");
       if(currEvalNode !== null){
