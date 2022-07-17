@@ -806,8 +806,8 @@ function parseSpec(specText){
 
     // Apply AST rewrite batches until a fixpoint is reached.
     while(rewriteBatch.length > 0){
-        console.log("New syntax rewrite iteration");
-        console.log("rewrite batch: ", rewriteBatch, "length: ", rewriteBatch.length);
+        // console.log("New syntax rewrite iteration");
+        // console.log("rewrite batch: ", rewriteBatch, "length: ", rewriteBatch.length);
         specTextRewritten = applySyntaxRewrites(specTextRewritten, rewriteBatch);
         // console.log("REWRITTEN:", specTextRewritten);
         tree = parser.parse(specTextRewritten + "\n", null);
