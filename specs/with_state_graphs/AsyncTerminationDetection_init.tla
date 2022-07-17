@@ -1,4 +1,4 @@
----------------------- MODULE AsyncTerminationDetection ---------------------
+---------------------- MODULE AsyncTerminationDetection_init ---------------------
 EXTENDS Naturals
 
 N == 2
