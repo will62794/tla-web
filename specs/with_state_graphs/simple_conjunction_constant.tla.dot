@@ -1,0 +1,9 @@
+strict digraph DiskGraph {
+nodesep=0.35;
+subgraph cluster_graph {
+color="white";
+408527282345490135 [label="x = [ forall1 |-> FALSE,\n  forall2 |-> FALSE,\n  and1 |-> FALSE,\n  conjlist1 |-> FALSE,\n  bottom |-> FALSE ]",style = filled]
+408527282345490135 -> 408527282345490135 [label="",color="black",fontcolor="black"];
+{rank = same; 408527282345490135;}
+}
+}
