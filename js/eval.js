@@ -1477,7 +1477,7 @@ function evalIdentifierRef(node, ctx){
     }
 
     // See if this identifier is a definition in the spec.
-    if(ctx["defns"].hasOwnProperty(ident_name)){
+    if(ctx.hasOwnProperty("defns") && ctx["defns"].hasOwnProperty(ident_name)){
         // Evaluate the definition in the current context.
         // TODO: Consider defs that are n-ary operators.
         let defNode = ctx["defns"][ident_name]["node"];
@@ -1485,7 +1485,7 @@ function evalIdentifierRef(node, ctx){
     }
 
     // See if this identifier is an instantiated CONSTANT symbol.
-    if(ctx["constants"].hasOwnProperty(ident_name)){
+    if(ctx["constants"]!==undefined && ctx["constants"].hasOwnProperty(ident_name)){
         // Return the instantiated constant value.
         let constantVal = ctx["constants"][ident_name];
         return [ctx.withVal(constantVal)];
