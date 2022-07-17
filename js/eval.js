@@ -522,7 +522,6 @@ function applySyntaxRewrites(text, rewrites){
             let head = line.substring(0, rewrite["startPosition"]["column"])
             let tail = line.substring(rewrite["endPosition"]["column"]);
             lineNew = head + rewrite["newStr"] + tail;
-            console.log("lineNew:", lineNew);
             lines[lineInd] = lineNew;
         }
 
@@ -641,6 +640,7 @@ function genSyntaxRewrites(treeArg) {
             }
           } 
           
+          // Comments.
           if(node.type === "comment"){
             rewrite = {
                 startPosition: node.startPosition,
@@ -650,12 +650,16 @@ function genSyntaxRewrites(treeArg) {
             sourceRewrites.push(rewrite);
             return sourceRewrites;
           }
-          else if(node.type === "bound_prefix_op"){
-            console.log("bound_prefix_op", node);
+          
+          // Prefix ops.
+          if(node.type === "bound_prefix_op"){
+            // console.log("bound_prefix_op", node);
             let symbol = node.childForFieldName("symbol");
             let rhs = node.childForFieldName("rhs");
-            console.log("syntax rewriting:", symbol);
-            console.log("syntax rewriting, type:", symbol.type);
+            // console.log("syntax rewriting:", symbol);
+            // console.log("syntax rewriting, type:", symbol.type);
+
+            // UNCHANGED.
             if(symbol.type === "unchanged"){
                 // Desugar UNCHANGED statements to their equivalent form e.g.
                 //  UNCHANGED <expr>  ==>  <expr>' = <expr>. 
@@ -680,7 +684,46 @@ function genSyntaxRewrites(treeArg) {
                 sourceRewrites.push(rewrite);
                 return sourceRewrites;
             }
-        } else if (node.type == "bounded_quantification"){
+
+        }
+
+        // Bound infix ops.
+        if(node.type === "bound_infix_op"){
+            let symbol = node.childForFieldName("symbol");
+            let rhs = node.childForFieldName("rhs");
+            // console.log("syntax rewriting:", symbol);
+            // console.log("syntax rewriting, type:", symbol.type);
+
+            // x \in S, x \notin S
+            if(symbol.type === "in" || symbol.type === "notin"){
+                // Rewrite '<expr> \in S' as '\E h \in S : <expr> = h'
+                // console.log("REWRITE SETIN", node);
+    
+                let expr = node.namedChildren[0];
+                let domain = node.namedChildren[2];
+    
+                // console.log("REWRITE SETIN expr", expr.text);
+                // console.log("REWRITE SETIN domain", domain.text);
+    
+                // Generate a unique identifier for this new quantified variable.
+                // The hope is that it is relatively unlikely to collide with any variables in the spec.
+                // TODO: Consider how to ensure no collision here in a more principled manner.
+                let newUniqueVarId = "SETINREWRITE" + setInUniqueVarId;
+                setInUniqueVarId += 1;
+                let neg = symbol.type === "notin" ? "~" : "";
+                outStr = `(${neg}(\\E ${newUniqueVarId} \\in ${domain.text} : ${expr.text} = ${newUniqueVarId}))`
+                rewrite = {
+                    startPosition: node.startPosition,
+                    endPosition: node.endPosition,
+                    newStr: outStr
+                } 
+                sourceRewrites.push(rewrite);
+                return sourceRewrites;
+            }
+
+        }
+        
+        if (node.type == "bounded_quantification"){
             //
             // In general, bounded quantifiers can look like:
             // \E i,j \in {1,2,3}, x,y,z \in {4,5,6}, u,v \in {4,5} : <expr>
@@ -695,11 +738,11 @@ function genSyntaxRewrites(treeArg) {
 
             // Don't re-write if already in normalized form.
             let isNormalized = boundNodes.length === 1 && (boundNodes[0].namedChildren.length === 3);
-            console.log("REWRITE quant is already normalized");
+            // console.log("REWRITE quant is already normalized");
 
             if(!isNormalized){
-                console.log("REWRITE quant:", node);
-                console.log("REWRITE quant bound nodes:", boundNodes);
+                // console.log("REWRITE quant:", node);
+                // console.log("REWRITE quant bound nodes:", boundNodes);
 
                 // Expand each quantifier bound.
                 let quantBounds = boundNodes.map(boundNode =>{
@@ -724,33 +767,9 @@ function genSyntaxRewrites(treeArg) {
                 return sourceRewrites;
             }
 
-        } else if(node.type === "bound_infix_op" && node.namedChildren[1].type === "in"){
-            // Rewrite '<expr> \in S' as '\E h \in S : <expr> = h'
-            console.log("REWRITE SETIN", node);
+        } 
 
-            let expr = node.namedChildren[0];
-            let domain = node.namedChildren[2];
-
-            // console.log("REWRITE SETIN expr", expr.text);
-            // console.log("REWRITE SETIN domain", domain.text);
-
-            // Generate a unique identifier for this new quantified variable.
-            // The hope is that it is relatively unlikely to collide with any variables in the spec.
-            // TODO: Consider how to ensure no collision here in a more principled manner.
-            let newUniqueVarId = "SETINREWRITE" + setInUniqueVarId;
-            setInUniqueVarId+=1;
-            outStr = `(\\E ${newUniqueVarId} \\in ${domain.text} : ${expr.text} = ${newUniqueVarId})`
-            rewrite = {
-                startPosition: node.startPosition,
-                endPosition: node.endPosition,
-                newStr: outStr
-            } 
-            sourceRewrites.push(rewrite);
-            return sourceRewrites;
-        }
-
-
-          finishedRow = true;
+        finishedRow = true;
         }
 
         if (cursor.gotoFirstChild()) {
@@ -786,12 +805,9 @@ function parseSpec(specText){
 
     // Apply AST rewrite batches until a fixpoint is reached.
     while(rewriteBatch.length > 0){
-        console.log("rewrite batch: ", rewriteBatch, "length: ", rewriteBatch.length);
+        // console.log("rewrite batch: ", rewriteBatch, "length: ", rewriteBatch.length);
         tree = parser.parse(specTextRewritten + "\n", null);
         rewriteBatch = genSyntaxRewrites(tree);
-        if(rewriteBatch.length === 0){
-            break;
-        }
         specTextRewritten = applySyntaxRewrites(specTextRewritten, rewriteBatch);
     }
     console.log("REWRITTEN:", specTextRewritten);
@@ -1005,8 +1021,9 @@ class Context{
 function evalLnot(v, ctx){
     evalLog("evalLnot: ", v);
     lval = evalExpr(v, ctx)[0]["val"];
-    evalLog("lnot lval: ", lval);
-    return [ctx.withVal(new BoolValue(!lval.getVal()))];
+    let retval = new BoolValue(!lval.getVal())
+    evalLog("evalLnot retval: ", retval);
+    return [ctx.withVal(retval)];
 }
 
 function evalLand(lhs, rhs, ctx){
@@ -1068,18 +1085,16 @@ function evalEq(lhs, rhs, ctx){
         // been assigned a value, then assign it.If it has already been assigned,
         // then check for equality.
         // Variable already assigned in this context. So, check for equality.
-        // if(ctx.state.hasVar(identName) && ctx.state.getVarVal(identName) !== null){
-        //     evalLog("Variable '" + identName + "' already assigned in ctx:",  ctx);
-        //     let rhsVals = evalExpr(rhs, ctx);
-        //     assert(rhsVals.length === 1);
-        //     let rhsVal = rhsVals[0]["val"]
-        //     evalLog("rhsVal:", rhsVal);
-        //     // TODO: Fix equality checks properly here.
-        //     let boolVal = (ctx.state.getVarVal(identName) === rhsVal)
-        //     evalLog("boolVal:", boolVal);
-
-        //     return [ctx.withVal(boolVal)];
-        // }
+        if(ctx.state.hasVar(identName) && ctx.state.getVarVal(identName) !== null){
+            evalLog("Variable '" + identName + "' already assigned in ctx:",  ctx);
+            let rhsVals = evalExpr(rhs, ctx);
+            assert(rhsVals.length === 1);
+            let rhsVal = rhsVals[0]["val"]
+            evalLog("rhsVal:", rhsVal);
+            let lhsVals = evalExpr(lhs, ctx)[0]["val"];
+            let boolVal = (lhsVals.fingerprint() === rhsVal.fingerprint())
+            return [ctx.withVal(new BoolValue(boolVal))];
+        }
 
         // Variable not already assigned. So, update variable assignment as necessary.
         let stateUpdated = _.mapValues(ctx.state.getStateObj(), (val,key,obj) => {
@@ -1120,90 +1135,6 @@ function evalEq(lhs, rhs, ctx){
         // Return context with updated value.
         return [ctx.withVal(new BoolValue(boolVal))];
     }
-}
-
-function evalSetMembership(node, ctx, symbol){
-
-    // console.log("bound_infix_op, symbol 'in', ctx:", ctx);
-    evalLog("bound_infix_op, symbol 'in/notin', ctx:", ctx);
-    let lhs = node.namedChildren[0];
-    let rhs = node.namedChildren[2];
-
-    // If, in the current state assignment, the variable has not already
-    // been assigned a value, then allow it to non-deterministically take on any 
-    // value in the rhs set value.
-    let identName = lhs.text;
-
-    // let isUnprimedVar = ctx["state"].hasOwnProperty(identName) && !isPrimedVar(lhs);
-    let isUnprimedVar = ctx.state.hasVar(identName) && !isPrimedVar(lhs);
-    let isAPrimedVar = ctx.state.hasVar(identName) && isPrimedVar(lhs);
-
-    // if(isPrimedVar(lhs) || (isUnprimedVar && !ASSIGN_PRIMED)){
-
-    evalLog("identName: ", identName);
-    evalLog("identName is unprimed var: ", isUnprimedVar);
-
-
-    // TODO: Clean up this logic.
-
-    if(isUnprimedVar){
-        if(ctx.state.getVarVal(identName) == null){
-            let rhsVal = evalExpr(rhs, ctx)[0]["val"];
-            evalLog("setin rhsval assignment:", rhsVal, rhs.text);
-            evalLog("setin rhsval ctx:", ctx);
-            return rhsVal.getElems().map(el =>{
-                let stateUpdated = _.mapValues(ctx.state.getStateObj(), (val,key,obj) => {
-                    if(key === identName){
-                        evalLog("Variable (" + identName + ") not already assigned in ctx:",  ctx);
-                        // let rhsVals = evalExpr(rhsVal, ctx.clone());
-                        // assert(rhsVals.length === 1);
-                        // let rhsVal = rhsVals[0]["val"];
-                        let rhsVal = el;
-                        evalLog("Variable (" + identName + ") getting value:",  rhsVal);
-                        return (val === null) ? rhsVal : val;
-                    } 
-                    return val;
-                });
-                return ctx.withValAndState(new BoolValue(true), new TLAState(stateUpdated))
-            })
-            // return [ctx.withValAndState(true, new TLAState(stateUpdated))];
-        }
-    } 
-    
-    // Handle primed variable.
-    if(isAPrimedVar){
-        if(ctx.state.getVarVal(identName) == null){
-            let rhsVal = evalExpr(rhs, ctx)[0]["val"];
-            evalLog("setin rhsval assignment:", rhsVal, rhs.text, ctx);
-            return rhsVal.getElems().map(el =>{
-                let stateUpdated = _.mapValues(ctx.state.getStateObj(), (val,key,obj) => {
-                    if(key === identName){
-                        evalLog("Variable (" + identName + ") not already assigned in ctx:",  ctx);
-                        let rhsVal = el;
-                        evalLog("Variable (" + identName + ") getting value:",  rhsVal);
-                        return (val === null) ? rhsVal : val;
-                    } 
-                    return val;
-                });
-                return ctx.withValAndState(new BoolValue(true), new TLAState(stateUpdated))
-            })
-        }
-    }
-
-    let lhsVal = evalExpr(lhs, ctx)[0]["val"];
-    evalLog("setin lhsval:", lhsVal, lhs.text, ctx);
-
-    let rhsVal = evalExpr(rhs, ctx)[0]["val"];
-    // assert(rhsVal instanceof SetValue);
-    evalLog("setin rhsval:", rhsVal, rhs.text, ctx);
-
-    // Use '_.isEqual' method for checking equality based set inclusion.
-    let sameElems = rhsVal.getElems().filter(o => _.isEqual(o, lhsVal));
-    let inSetVal = sameElems.length > 0;
-    
-    let resVal = symbol.type === "in" ? inSetVal : !inSetVal; 
-    evalLog("setin lhs in rhs:", resVal);
-    return [ctx.withVal(new BoolValue(resVal))];
 }
 
 // 'vars' is a list of possible partial state assignments known up to this point.
@@ -1342,8 +1273,10 @@ function evalBoundInfix(node, ctx){
     } 
 
     // Set membership.
-    if(symbol.type ==="in" || symbol.type ==="notin"){
-        return evalSetMembership(node, ctx, symbol);
+    if(symbol.type === "in" || symbol.type === "notin"){
+        // We should have rewritten these during AST pre-processing.
+        assert(symbol.type !== "in");
+        assert(symbol.type !== "notin");
     } 
     
     // Set intersection.
@@ -1928,7 +1861,7 @@ function evalExpr(node, ctx){
     currEvalNode = node;
     // console.log("currEvalNode:", currEvalNode);
 
-    // console.log("$$ evalExpr, node: ", node, node.text);
+    // evalLog("$$ evalExpr, node: ", node);
     evalLog("evalExpr -> ("+ node.type + ") '" + node.text + "'");
 
     if(node.type === "parentheses"){
@@ -2465,8 +2398,54 @@ class TlaInterpreter{
 let origevalExpr = evalExpr;
 evalExpr = function(...args){
     depth += 1;
+
+    let ctx = args[1];
+
+    let currAssignedVars = _.keys(ctx["state"].vars).filter(k => ctx["state"].vars[k] !== null)
+    // evalLog("curr assigned vars:", currAssignedVars);
+
+    // Run the original function to evaluate the expression.
     let ret = origevalExpr(...args);
-    evalLog("evalreturn -> ", ret, args[0].text);
+    evalLog("evalreturn -> ", ret, args[0].text, "num ctxs: " , ret.length);
+    // evalLog("evalreturn num ctxs: ", ret.length);
+
+    // If no branches have assigned new variable assignments, then we consider this as a
+    // "constant expression" evaluation, and simply evaluate as the conjunction of all boolean
+    // values.
+    
+    if(ret.length > 1) {
+        
+        // If an evaluation has returned multiple contexts, it must have been the
+        // result of a disjunctive split somewhere along the way, and in this case,
+        // each branch must return a boolean value. (IS THIS CORRECT???)
+        assert(ret.map(ctx => ctx["val"]).every(v => v instanceof TLAValue));
+        assert(ret.map(ctx => ctx["val"]).every(v => v instanceof BoolValue));
+        evalLog("evalreturn vals: " , ret.map(ctx => ctx["val"]));
+
+        // Did any of the sub-evaluation contexts assign a new value to a state variable?
+        let assignedInSub = ret.map(c => {
+            let varKeys = c["state"].vars;
+            let assignedVars = _.keys(c["state"].vars).filter(k => c["state"].vars[k] !== null)
+            // evalLog("assigned vars:",assignedVars);
+            return assignedVars;
+        });
+        evalLog("assigned in sub: ", assignedInSub);
+
+        // If new variables were assigned in the sub-evaluation contexts, then we return all of the
+        // generated contexts. If no new variables were assigned, then we return the disjunction of
+        // the results.
+        if(assignedInSub[0].length > currAssignedVars.length){
+            evalLog("evalreturn -> Newly assigned vars.");
+            return ret;
+        } else{
+            evalLog("evalreturn -> No newly assigned vars.");
+            let someTrue = ret.map((c) => c["val"].getVal()).some(_.identity);
+            evalLog("evalreturn -> ctx.", ctx);
+
+            return [ctx.withVal(new BoolValue(someTrue))]
+        }
+    }
+    // evalLog("evalreturn num ctxs: ", ret.length);
     depth -= 1;
     return ret;
 }
