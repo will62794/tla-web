@@ -602,7 +602,6 @@ function genSyntaxRewrites(treeArg) {
             fieldName = '';
           }
           let node = cursor.currentNode();
-        //   console.log("syntax rewriting:", node.type, node);
 
           // Delete everything inside comments.
           if(node.type === "block_comment"){
@@ -731,6 +730,8 @@ function genSyntaxRewrites(treeArg) {
             // Rewrite all quantifiers to a normalized form i.e.
             // \E i1 \in S1 : \E i2 \in S2 : ... : \E in \in Sn : <expr>
             //
+
+            // TODO: Make sure this works for quantifier expressions that span multiple lines.
 
             let quantifier = node.childForFieldName("quantifier");
             let boundNodes = node.namedChildren.slice(1,node.namedChildren.length-1);
@@ -2281,21 +2282,26 @@ function getNextStates(nextDef, currStateVars, defns, constvals){
     let initCtx = new Context(null, currStateVars, defns, {}, constvals);
     // console.log("currStateVars:", currStateVars);
     let ret = evalExpr(nextDef, initCtx);
-    // console.log("getNextStates ret:", ret);
+    console.log("getNextStates eval ret:", ret);
 
     // Filter out disabled transitions.
     ret = ret.filter(c => c["val"].getVal() === true);
 
+    console.log("getNextStates filtered:", ret);
+
+    // Only keep states where all primed variables were assigned.
+    ret = ret.filter(c => _.every(origVars, v => c.state.getVarVal(v+"'")!== null));
+
     // Filter out transitions that do not modify the state.
     let all_next_states = ret.filter(c => {
-        return !_.every(origVars, (v) => _.isEqual(c.state.getVarVal(v), c.state.getVarVal(v+"'")));
+        return !_.every(origVars, (v) => c.state.getVarVal(v).fingerprint() === c.state.getVarVal(v+"'").fingerprint());
     });
 
     // TODO: Check if we are correctly keeping only unique states.
     // all_next_states = _.uniqBy(all_next_states, c => c.state.fingerprint());
 
     // Keep only unique states, based on hashed fingerprint value.
-    // console.log("getNextStates all:", all_next_states);
+    console.log("getNextStates all:", all_next_states);
     return all_next_states;
 }
 
@@ -2402,11 +2408,12 @@ evalExpr = function(...args){
     let ctx = args[1];
 
     let currAssignedVars = _.keys(ctx["state"].vars).filter(k => ctx["state"].vars[k] !== null)
-    // evalLog("curr assigned vars:", currAssignedVars);
+    evalLog("curr assigned vars:", currAssignedVars);
 
     // Run the original function to evaluate the expression.
     let ret = origevalExpr(...args);
-    evalLog("evalreturn -> ", ret, args[0].text, "num ctxs: " , ret.length);
+    evalLog("evalreturn -> ", ret, args[0].text);
+    evalLog("num ret ctxs: " , ret.length);
     // evalLog("evalreturn num ctxs: ", ret.length);
 
     // If no branches have assigned new variable assignments, then we consider this as a
