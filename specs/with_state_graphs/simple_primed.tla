@@ -11,6 +11,6 @@ Init ==
     /\ y = 0
 Next == 
     /\ x' = 5
-    /\ y ' = expr'
+    /\ y' = expr'
     
 ====
