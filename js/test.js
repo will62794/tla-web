@@ -330,6 +330,7 @@ tests = [
     {"spec": "simple_unchanged", "constvals": undefined},
     {"spec": "simple_quant_multi", "constvals": undefined},
     {"spec": "simple_multiline", "constvals": undefined},
+    // {"spec": "simple_primed", "constvals": undefined},
     {"spec": "set_dot_notation", "constvals": undefined},
     {"spec": "record_literal_eval", "constvals": undefined},
     {"spec": "seq_append", "constvals": undefined},
