@@ -32,8 +32,8 @@
     },
     {
       "_gvid": 2,
-      "name": "-4017931404198093157",
-      "label": "x = [ exists1 |-> TRUE,\\n  exists2 |-> TRUE,\\n  exists3 |-> TRUE,\\n  exists4 |-> FALSE,\\n  exists5 |-> FALSE,\\n  existsmultiline |-> FALSE,\\n  notexists1 |-> TRUE,\\n  notexists2 |-> FALSE,\\n  setin1 |-> FALSE,\\n  setin2 |-> TRUE,\\n  setnotin1 |-> FALSE,\\n  setnotin2 |-> TRUE,\\n  disj1 |-> TRUE,\\n  disj2 |-> TRUE,\\n  disjlist1 |-> TRUE,\\n  disjlist2 |-> FALSE,\\n  bottom |-> FALSE ]",
+      "name": "1049257209678995793",
+      "label": "x = [existsmultiline |-> FALSE, setinmultiline |-> TRUE, bottom |-> FALSE]",
       "style": "filled"
     }
   ],

@@ -2,8 +2,8 @@ strict digraph DiskGraph {
 nodesep=0.35;
 subgraph cluster_graph {
 color="white";
--1024821027776307207 [label="x = [ exists1 |-> TRUE,\n  exists2 |-> TRUE,\n  exists3 |-> TRUE,\n  exists4 |-> FALSE,\n  exists5 |-> FALSE,\n  notexists1 |-> TRUE,\n  notexists2 |-> FALSE,\n  setin1 |-> FALSE,\n  setin2 |-> TRUE,\n  setnotin1 |-> FALSE,\n  setnotin2 |-> TRUE,\n  disj1 |-> TRUE,\n  disj2 |-> TRUE,\n  disjlist1 |-> TRUE,\n  disjlist2 |-> FALSE,\n  bottom |-> FALSE ]",style = filled]
--1024821027776307207 -> -1024821027776307207 [label="",color="black",fontcolor="black"];
-{rank = same; -1024821027776307207;}
+-4017931404198093157 [label="x = [ exists1 |-> TRUE,\n  exists2 |-> TRUE,\n  exists3 |-> TRUE,\n  exists4 |-> FALSE,\n  exists5 |-> FALSE,\n  existsmultiline |-> FALSE,\n  notexists1 |-> TRUE,\n  notexists2 |-> FALSE,\n  setin1 |-> FALSE,\n  setin2 |-> TRUE,\n  setnotin1 |-> FALSE,\n  setnotin2 |-> TRUE,\n  disj1 |-> TRUE,\n  disj2 |-> TRUE,\n  disjlist1 |-> TRUE,\n  disjlist2 |-> FALSE,\n  bottom |-> FALSE ]",style = filled]
+-4017931404198093157 -> -4017931404198093157 [label="",color="black",fontcolor="black"];
+{rank = same; -4017931404198093157;}
 }
 }

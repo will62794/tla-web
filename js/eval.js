@@ -509,20 +509,44 @@ class TLAState{
 // 'text' argument is a string given as a list of lines.
 function applySyntaxRewrites(text, rewrites){
     let lines = text.split("\n");
+
     for(const rewrite of rewrites){
+        let startRow = rewrite["startPosition"]["row"];
+        let startCol = rewrite["startPosition"]["column"];
+        let endRow = rewrite["endPosition"]["row"];
+        let endCol = rewrite["endPosition"]["column"];
+
+        // Cut out original chunk.
+        let prechunk = lines.slice(0,startRow).concat([lines[startRow].substring(0,startCol)]); 
+        let postchunk = [lines[endRow].substring(endCol)].concat(lines.slice(endRow+1));
+
+        // console.log("chunk out: ");
+        // console.log(prechunk.join("\n").concat("<CHUNK>").concat(postchunk.join("\n")));
+        // console.log("postchunk: ");
+        // console.log(postchunk.join("\n"));
 
         // Delete line entirely.
         if(rewrite["deleteRow"]!==undefined){
             lines[rewrite["deleteRow"]] = "";
         } else{
-            // TODO: For now assume that rewrites are within the scope of a single line.
-            assert(rewrite["startPosition"]["row"] === rewrite["endPosition"]["row"], "syntax rewrite cannot span multiple lines");
             let lineInd = rewrite["startPosition"]["row"]
             line = lines[lineInd];
-            let head = line.substring(0, rewrite["startPosition"]["column"])
-            let tail = line.substring(rewrite["endPosition"]["column"]);
-            lineNew = head + rewrite["newStr"] + tail;
-            lines[lineInd] = lineNew;
+            
+            // < 
+            //   PRECHUNK
+            //    >|< 
+            //  CHUNK TO REPLACE
+            //    >|<
+            //   POST CHUNK
+            // >
+
+            // Append the new string to the last line of the prechunk,
+            // followed by the first line of the post chunk.
+            prechunk[prechunk.length-1] = prechunk[prechunk.length-1].concat(rewrite["newStr"]).concat(postchunk[0]);
+            // Then append the rest of the postchunk
+            linesUpdated = prechunk.concat(postchunk.slice(1));
+
+            lines = linesUpdated;
         }
 
         // TODO: Consider removing line entirely if it is empty after rewrite.
@@ -605,38 +629,12 @@ function genSyntaxRewrites(treeArg) {
 
           // Delete everything inside comments.
           if(node.type === "block_comment"){
-            // If the comment spans multiple lines, break this down into a
-            // rewrite for each line, using a special 'deleteRow' specifier for
-            // the internal block comment rewrite.
-            if(node.startPosition.row !== node.endPosition.row){
-                let currRow = node.startPosition.row;
-                while(currRow < node.endPosition.row){
-                    rewrite = {
-                        deleteRow: currRow,
-                        startPosition: undefined,
-                        endPosition: undefined,
-                        newStr: undefined
-                    } 
-                    sourceRewrites.push(rewrite);
-                    currRow += 1;
-                }
-
-                // Add rewrite for the last row of the block comment.
-                sourceRewrites.push({
-                    startPosition: {"row": node.endPosition.row, "column": 0},
-                    endPosition: {"row": node.endPosition.row, "column": node.endPosition.column},
-                    newStr: "" 
-                });      
-                return sourceRewrites;
-            } else{
-                rewrite = {
-                    startPosition: node.startPosition,
-                    endPosition: node.endPosition,
-                    newStr: "",
-                }
-                sourceRewrites.push(rewrite);  
-                return sourceRewrites;
-            }
+            sourceRewrites.push({
+                startPosition: node.startPosition,
+                endPosition: node.endPosition,
+                newStr: "" 
+            });   
+            return sourceRewrites;
           } 
           
           // Comments.
@@ -734,19 +732,21 @@ function genSyntaxRewrites(treeArg) {
             // TODO: Make sure this works for quantifier expressions that span multiple lines.
 
             let quantifier = node.childForFieldName("quantifier");
-            let boundNodes = node.namedChildren.slice(1,node.namedChildren.length-1);
-            let exprNode = node.childForFieldName("expression");
+            let quantifierBoundNodes = node.namedChildren.filter(c => c.type === "quantifier_bound");//  slice(1,node.namedChildren.length-1);
+            // let exprNode = node.childForFieldName("expression");
 
             // Don't re-write if already in normalized form.
-            let isNormalized = boundNodes.length === 1 && (boundNodes[0].namedChildren.length === 3);
-            // console.log("REWRITE quant is already normalized");
+            let isNormalized = quantifierBoundNodes.length === 1 && (quantifierBoundNodes[0].namedChildren.length === 3);
+            console.log(node);
+            console.log("bound nodes:", quantifierBoundNodes);
+            console.log("REWRITE quant is normalized: ", isNormalized);
 
             if(!isNormalized){
                 // console.log("REWRITE quant:", node);
-                // console.log("REWRITE quant bound nodes:", boundNodes);
+                // console.log("REWRITE quant bound nodes:", quantifierBoundNodes);
 
                 // Expand each quantifier bound.
-                let quantBounds = boundNodes.map(boundNode =>{
+                let quantBounds = quantifierBoundNodes.map(boundNode =>{
                     let quantVars = boundNode.namedChildren.filter(c => c.type === "identifier");
                     let quantBound = boundNode.namedChildren[boundNode.namedChildren.length-1];
                     // For \E and \A, rewrite:
@@ -761,7 +761,7 @@ function genSyntaxRewrites(treeArg) {
                 // console.log("rewritten:", outStr);
                 rewrite = {
                     startPosition: quantifier.startPosition,
-                    endPosition: boundNodes[boundNodes.length-1].endPosition,
+                    endPosition: quantifierBoundNodes[quantifierBoundNodes.length-1].endPosition,
                     newStr: outStr
                 } 
                 sourceRewrites.push(rewrite);
@@ -800,16 +800,18 @@ function parseSpec(specText){
     let tree;
 
     // Walk the syntax tree and perform any specified syntactic rewrites (e.g. desugaring.)
-    tree = parser.parse(specText + "\n", null);
-    let rewriteBatch = genSyntaxRewrites(tree);
     let specTextRewritten = specText;
+    tree = parser.parse(specTextRewritten + "\n", null);
+    let rewriteBatch = genSyntaxRewrites(tree);
 
     // Apply AST rewrite batches until a fixpoint is reached.
     while(rewriteBatch.length > 0){
-        // console.log("rewrite batch: ", rewriteBatch, "length: ", rewriteBatch.length);
+        console.log("New syntax rewrite iteration");
+        console.log("rewrite batch: ", rewriteBatch, "length: ", rewriteBatch.length);
+        specTextRewritten = applySyntaxRewrites(specTextRewritten, rewriteBatch);
+        // console.log("REWRITTEN:", specTextRewritten);
         tree = parser.parse(specTextRewritten + "\n", null);
         rewriteBatch = genSyntaxRewrites(tree);
-        specTextRewritten = applySyntaxRewrites(specTextRewritten, rewriteBatch);
     }
     console.log("REWRITTEN:", specTextRewritten);
 
@@ -1552,7 +1554,11 @@ function evalBoundedQuantification(node, ctx){
     // \E i1 \in S1 : \E i2 \in S2 : ... : \E in \in Sn : <expr>
     //
     // <quantfier> \in <bound> : <expression>
-    assert(node.namedChildren.length === 3);
+    let quantBoundNodes = node.namedChildren.filter(c => c.type === "quantifier_bound");
+    // Only a single quantifier bound.
+    assert(quantBoundNodes.length === 1);
+    // Only single identifier within this quantifier bound.
+    assert(quantBoundNodes[0].namedChildren.filter(c => c.type === "identifier").length === 1);
 
     let quantifier = node.namedChildren[0];
     assert(quantifier.type === "exists" || quantifier.type === "forall");
