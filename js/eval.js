@@ -2231,6 +2231,7 @@ function evalExpr(node, ctx){
 function getInitStates(initDef, vars, defns, constvals){
     // TODO: Pass this variable value as an argument to the evaluation functions.
     ASSIGN_PRIMED = false;
+    depth = 0;
 
     // Values of each state variable. Initially empty.
     init_var_vals = {};
@@ -2261,6 +2262,7 @@ function getInitStates(initDef, vars, defns, constvals){
 function getNextStates(nextDef, currStateVars, defns, constvals){
     // TODO: Pass this variable value as an argument to the evaluation functions.
     ASSIGN_PRIMED = true;
+    depth = 0;
     let origVars = Object.keys(currStateVars.vars);
 
     for(var k in currStateVars.vars){
@@ -2402,8 +2404,8 @@ evalExpr = function(...args){
 
     // Run the original function to evaluate the expression.
     let ret = origevalExpr(...args);
-    evalLog("evalreturn -> ", ret, args[0].text);
-    evalLog("num ret ctxs: " , ret.length);
+    // evalLog("evalreturn -> ", ret, args[0].text);
+    // evalLog("num ret ctxs: " , ret.length);
     // evalLog("evalreturn num ctxs: ", ret.length);
 
     // If no branches have assigned new variable assignments, then we consider this as a
@@ -2417,7 +2419,7 @@ evalExpr = function(...args){
         // each branch must return a boolean value. (IS THIS CORRECT???)
         assert(ret.map(ctx => ctx["val"]).every(v => v instanceof TLAValue));
         assert(ret.map(ctx => ctx["val"]).every(v => v instanceof BoolValue));
-        evalLog("evalreturn vals: " , ret.map(ctx => ctx["val"]));
+        // evalLog("evalreturn vals: " , ret.map(ctx => ctx["val"]));
 
         // Did any of the sub-evaluation contexts assign a new value to a state variable?
         let assignedInSub = ret.map(c => {
@@ -2426,18 +2428,18 @@ evalExpr = function(...args){
             // evalLog("assigned vars:",assignedVars);
             return assignedVars;
         });
-        evalLog("assigned in sub: ", assignedInSub);
+        // evalLog("assigned in sub: ", assignedInSub);
 
         // If new variables were assigned in the sub-evaluation contexts, then we return all of the
         // generated contexts. If no new variables were assigned, then we return the disjunction of
         // the results.
         if(assignedInSub[0].length > currAssignedVars.length){
-            evalLog("evalreturn -> Newly assigned vars.");
+            // evalLog("evalreturn -> Newly assigned vars.");
             return ret;
         } else{
-            evalLog("evalreturn -> No newly assigned vars.");
+            // evalLog("evalreturn -> No newly assigned vars.");
             let someTrue = ret.map((c) => c["val"].getVal()).some(_.identity);
-            evalLog("evalreturn -> ctx.", ctx);
+            // evalLog("evalreturn -> ctx.", ctx);
 
             return [ctx.withVal(new BoolValue(someTrue))]
         }
