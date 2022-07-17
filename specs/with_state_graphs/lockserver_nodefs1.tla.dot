@@ -1,0 +1,10 @@
+strict digraph DiskGraph {
+nodesep=0.35;
+subgraph cluster_graph {
+color="white";
+1112678269938207993 [label="/\\ semaphore = [s1 |-> FALSE, s2 |-> TRUE]\n/\\ clientlocks = [c1 |-> {}, c2 |-> {\"s1\"}]",style = filled]
+1112678269938207993 -> 7965223218566750886 [label="",color="black",fontcolor="black"];
+7965223218566750886 [label="/\\ semaphore = [s1 |-> TRUE, s2 |-> TRUE]\n/\\ clientlocks = [c1 |-> {}, c2 |-> {}]"];
+{rank = same; 1112678269938207993;}
+}
+}

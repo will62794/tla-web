@@ -516,7 +516,7 @@ function applySyntaxRewrites(text, rewrites){
             lines[rewrite["deleteRow"]] = "";
         } else{
             // TODO: For now assume that rewrites are within the scope of a single line.
-            assert(rewrite["startPosition"]["row"] === rewrite["endPosition"]["row"]);
+            assert(rewrite["startPosition"]["row"] === rewrite["endPosition"]["row"], "syntax rewrite cannot span multiple lines");
             let lineInd = rewrite["startPosition"]["row"]
             line = lines[lineInd];
             let head = line.substring(0, rewrite["startPosition"]["column"])
@@ -1053,29 +1053,28 @@ function processDisjunctiveContexts(ctx, retCtxs, currAssignedVars){
         // If an evaluation has returned multiple contexts, it must have been the
         // result of a disjunctive split somewhere along the way, and in this case,
         // each branch must return a boolean value. (IS THIS CORRECT???)
-        evalLog("evalreturn vals: " , retCtxs.map(c => c["val"]));
+        evalLog("disj ret vals: " , retCtxs.map(c => c["val"]));
         assert(retCtxs.map(c => c["val"]).every(v => v instanceof TLAValue));
         assert(retCtxs.map(c => c["val"]).every(v => v instanceof BoolValue));
 
         // Did any of the sub-evaluation contexts assign a new value to a state variable?
-        let assignedInSub = retCtxs.map(c => {
-            let varKeys = c["state"].vars;
+        let assignedInSub = retCtxs.some(c => {
             let assignedVars = _.keys(c["state"].vars).filter(k => c["state"].vars[k] !== null)
+            return assignedVars.length > currAssignedVars.length;
             // evalLog("assigned vars:",assignedVars);
             return assignedVars;
         });
-        // evalLog("assigned in sub: ", assignedInSub);
 
         // If new variables were assigned in the sub-evaluation contexts, then we return all of the
         // generated contexts. If no new variables were assigned, then we return the disjunction of
         // the results.
-        if(assignedInSub[0].length > currAssignedVars.length){
-            evalLog("evalreturn -> Newly assigned vars.");
+        if(assignedInSub){
+            evalLog("Newly assigned vars, returning ", retCtxs);
             return retCtxs;
         } else{
-            evalLog("evalreturn -> No newly assigned vars.");
+            evalLog("No newly assigned vars.");
             let someTrue = retCtxs.map((c) => c["val"].getVal()).some(_.identity);
-            evalLog("evalreturn -> ctx.", ctx);
+            evalLog("ctx.", ctx);
 
             return [ctx.withVal(new BoolValue(someTrue))]
         }
@@ -2411,7 +2410,7 @@ evalExpr = function(...args){
 
     // Run the original function to evaluate the expression.
     let ret = origevalExpr(...args);
-    // evalLog("evalreturn -> ", ret, args[0].text);
+    evalLog("evalreturn -> ", ret, args[0].text);
     // evalLog("num ret ctxs: " , ret.length);
     // evalLog("evalreturn num ctxs: ", ret.length);
     
