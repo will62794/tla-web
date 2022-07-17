@@ -522,6 +522,7 @@ function applySyntaxRewrites(text, rewrites){
             let head = line.substring(0, rewrite["startPosition"]["column"])
             let tail = line.substring(rewrite["endPosition"]["column"]);
             lineNew = head + rewrite["newStr"] + tail;
+            console.log("lineNew:", lineNew);
             lines[lineInd] = lineNew;
         }
 
@@ -536,10 +537,13 @@ function applySyntaxRewrites(text, rewrites){
     return lines.join("\n");
 }
 
+let setInUniqueVarId = 0;
+
 /**
- * Walks a given TLA syntax tree and generates syntactic rewrites to be
+ * Walks a given TLA syntax tree and generates a new batch of syntactic rewrites to be
  * performed on the source module text before we do any evaluation/interpreting
- * e.g. syntactic desugaring.
+ * e.g. syntactic desugaring. Should be repeatedly applied until no more rewrites are
+ * produced.
  * 
  * @param {TLASyntaxTree} treeArg 
  */
@@ -625,13 +629,15 @@ function genSyntaxRewrites(treeArg) {
                     endPosition: {"row": node.endPosition.row, "column": node.endPosition.column},
                     newStr: "" 
                 });      
+                return sourceRewrites;
             } else{
                 rewrite = {
                     startPosition: node.startPosition,
                     endPosition: node.endPosition,
-                    newStr: ""
+                    newStr: "",
                 }
-                sourceRewrites.push(rewrite);              
+                sourceRewrites.push(rewrite);  
+                return sourceRewrites;
             }
           } 
           
@@ -642,6 +648,7 @@ function genSyntaxRewrites(treeArg) {
                 newStr: ""
             } 
             sourceRewrites.push(rewrite);
+            return sourceRewrites;
           }
           else if(node.type === "bound_prefix_op"){
             console.log("bound_prefix_op", node);
@@ -671,6 +678,7 @@ function genSyntaxRewrites(treeArg) {
                     } 
                 }
                 sourceRewrites.push(rewrite);
+                return sourceRewrites;
             }
         } else if (node.type == "bounded_quantification"){
             //
@@ -685,31 +693,63 @@ function genSyntaxRewrites(treeArg) {
             let boundNodes = node.namedChildren.slice(1,node.namedChildren.length-1);
             let exprNode = node.childForFieldName("expression");
 
-            console.log("REWRITE quant:", node);
-            console.log("REWRITE quant bound nodes:", boundNodes);
+            // Don't re-write if already in normalized form.
+            let isNormalized = boundNodes.length === 1 && (boundNodes[0].namedChildren.length === 3);
+            console.log("REWRITE quant is already normalized");
 
-            // Expand each quantifier bound.
-            let quantBounds = boundNodes.map(boundNode =>{
-                let quantVars = boundNode.namedChildren.filter(c => c.type === "identifier");
-                let quantBound = boundNode.namedChildren[boundNode.namedChildren.length-1];
-                // For \E and \A, rewrite:
-                // <Q> i,j \in S ==> <Q> i \in S : <Q> j \in S
-                console.log(quantVars.map(c => c.text));
-                console.log(quantVars);
-                console.log("quantifier:",quantifier);
-                return quantVars.map(qv => [quantifier.text, qv.text, "\\in", quantBound.text].join(" ")).join(" : ");
-            })
+            if(!isNormalized){
+                console.log("REWRITE quant:", node);
+                console.log("REWRITE quant bound nodes:", boundNodes);
 
-            outStr = quantBounds.join(" : ") + " : " + exprNode.text;
-            // console.log("rewritten:", outStr);
+                // Expand each quantifier bound.
+                let quantBounds = boundNodes.map(boundNode =>{
+                    let quantVars = boundNode.namedChildren.filter(c => c.type === "identifier");
+                    let quantBound = boundNode.namedChildren[boundNode.namedChildren.length-1];
+                    // For \E and \A, rewrite:
+                    // <Q> i,j \in S ==> <Q> i \in S : <Q> j \in S
+                    // console.log(quantVars.map(c => c.text));
+                    // console.log(quantVars);
+                    // console.log("quantifier:",quantifier);
+                    return quantVars.map(qv => [quantifier.text, qv.text, "\\in", quantBound.text].join(" ")).join(" : ");
+                })
+
+                outStr = quantBounds.join(" : ") + " : " + exprNode.text;
+                // console.log("rewritten:", outStr);
+                rewrite = {
+                    startPosition: node.startPosition,
+                    endPosition: node.endPosition,
+                    newStr: outStr
+                } 
+                sourceRewrites.push(rewrite);
+                return sourceRewrites;
+            }
+
+        } else if(node.type === "bound_infix_op" && node.namedChildren[1].type === "in"){
+            // Rewrite '<expr> \in S' as '\E h \in S : <expr> = h'
+            console.log("REWRITE SETIN", node);
+
+            let expr = node.namedChildren[0];
+            let domain = node.namedChildren[2];
+
+            // console.log("REWRITE SETIN expr", expr.text);
+            // console.log("REWRITE SETIN domain", domain.text);
+
+            // Generate a unique identifier for this new quantified variable.
+            // The hope is that it is relatively unlikely to collide with any variables in the spec.
+            // TODO: Consider how to ensure no collision here in a more principled manner.
+            let newUniqueVarId = "SETINREWRITE" + setInUniqueVarId;
+            setInUniqueVarId+=1;
+            outStr = `(\\E ${newUniqueVarId} \\in ${domain.text} : ${expr.text} = ${newUniqueVarId})`
             rewrite = {
                 startPosition: node.startPosition,
                 endPosition: node.endPosition,
                 newStr: outStr
             } 
             sourceRewrites.push(rewrite);
-
+            return sourceRewrites;
         }
+
+
           finishedRow = true;
         }
 
@@ -739,11 +779,21 @@ function genSyntaxRewrites(treeArg) {
 function parseSpec(specText){
     let tree;
 
-    // Do a first pass that walks the syntax tree and then performs any
-    // specified syntactic rewrites (e.g. desugaring.)
+    // Walk the syntax tree and perform any specified syntactic rewrites (e.g. desugaring.)
     tree = parser.parse(specText + "\n", null);
-    let rewrites = genSyntaxRewrites(tree);
-    let specTextRewritten = applySyntaxRewrites(specText, rewrites);
+    let rewriteBatch = genSyntaxRewrites(tree);
+    let specTextRewritten = specText;
+
+    // Apply AST rewrite batches until a fixpoint is reached.
+    while(rewriteBatch.length > 0){
+        console.log("rewrite batch: ", rewriteBatch, "length: ", rewriteBatch.length);
+        tree = parser.parse(specTextRewritten + "\n", null);
+        rewriteBatch = genSyntaxRewrites(tree);
+        if(rewriteBatch.length === 0){
+            break;
+        }
+        specTextRewritten = applySyntaxRewrites(specTextRewritten, rewriteBatch);
+    }
     console.log("REWRITTEN:", specTextRewritten);
 
     // Update the spec text to the rewritten version. Then continue parsing the spec
