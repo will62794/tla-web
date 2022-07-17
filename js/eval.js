@@ -1495,8 +1495,6 @@ function evalIdentifierRef(node, ctx){
     // TODO: Consider case of being undefined.
 }
 
-// \E x,...,xn \in <D1>, y1,...,yn \in <D2> : <expr>
-// \A x,...,xn \in <D1>, y1,...,yn \in <D2> : <expr>
 function evalBoundedQuantification(node, ctx){
     evalLog("bounded_quantification", node);
 
@@ -1505,7 +1503,6 @@ function evalBoundedQuantification(node, ctx){
     // syntactic pre-processing i.e.
     //
     // \E i1 \in S1 : \E i2 \in S2 : ... : \E in \in Sn : <expr>
-    //
     //
     // <quantfier> \in <bound> : <expression>
     assert(node.namedChildren.length === 3);
@@ -1523,44 +1520,37 @@ function evalBoundedQuantification(node, ctx){
         currInd += 1;
     }
 
+    let quantBound = node.namedChildren[1];
+
     // The quantified expression.
     let quant_expr = node.namedChildren[currInd];
-    evalLog("quant bounds:", quantBounds);
+    evalLog("quant bound:", quantBound);
     evalLog("quant expr:", quant_expr);
 
-    let quantDomains = quantBounds.map(qbound =>{
-        evalLog("qbound child:", qbound.namedChildren);
-        let domainVal = evalExpr(qbound.lastNamedChild, ctx)[0]["val"];
-        assert(domainVal instanceof SetValue);
-        return domainVal.getElems();
-    });
+    evalLog("qbound child:", quantBound.namedChildren);
+    let domainVal = evalExpr(quantBound.lastNamedChild, ctx)[0]["val"];
+    assert(domainVal instanceof SetValue);
+    let quantDomain = domainVal.getElems();
 
-    let quantIdents = _.flatten(quantBounds.map(qbound => {
-        qbound.children[0].text
-        let idents = qbound.namedChildren.filter(c => c.type === "identifier");
-        return idents.map(i => i.text);
-    }));
-    evalLog("quantIdents: ", quantIdents);
+    let quantIdent = quantBound.namedChildren.filter(c => c.type === "identifier")[0].text;
+    evalLog("quantIdents: ", quantIdent);
 
     // Iterate over the product of all quantified domains and evaluate
     // the quantified expression with the appropriately bound values.
-    let quantDomainTuples = cartesianProductOf(...quantDomains);
-    evalLog("quantDomain tuples:", quantDomainTuples);
-    if(quantDomainTuples.length === 0){
+    if(quantDomain.length === 0){
+        // TODO: Should this return value be different for universal vs. existential quantifiers?
         return [ctx.withVal(new BoolValue(false))];
     }
 
     // Evaluate each sub-expression with the properly bound values.
-    retCtxs = _.flattenDeep(quantDomainTuples.map(qtup => {
-        let boundContext = ctx.clone();
+    retCtxs = _.flattenDeep(quantDomain.map(domVal => {
+            let boundContext = ctx.clone();
         // Bound values to quantified variables.
         if(!boundContext.hasOwnProperty("quant_bound")){
             boundContext["quant_bound"] = {};
         }
-        for(var qk = 0;qk<quantIdents.length;qk++){
-            boundContext["quant_bound"][quantIdents[qk]] = qtup[qk];
-        }
-        evalLog("quantDomain val:", qtup);
+        boundContext["quant_bound"][quantIdent] = domVal;
+        evalLog("quantDomain val:", domVal);
         evalLog("boundContext:", boundContext);
         let ret = evalExpr(quant_expr, boundContext.clone());
         return ret;
@@ -2408,7 +2398,7 @@ evalExpr = function(...args){
     let ctx = args[1];
 
     let currAssignedVars = _.keys(ctx["state"].vars).filter(k => ctx["state"].vars[k] !== null)
-    evalLog("curr assigned vars:", currAssignedVars);
+    // evalLog("curr assigned vars:", currAssignedVars);
 
     // Run the original function to evaluate the expression.
     let ret = origevalExpr(...args);
