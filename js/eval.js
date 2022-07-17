@@ -1035,6 +1035,90 @@ function evalEq(lhs, rhs, ctx){
     }
 }
 
+function evalSetMembership(node, ctx, symbol){
+
+    // console.log("bound_infix_op, symbol 'in', ctx:", ctx);
+    evalLog("bound_infix_op, symbol 'in/notin', ctx:", ctx);
+    let lhs = node.namedChildren[0];
+    let rhs = node.namedChildren[2];
+
+    // If, in the current state assignment, the variable has not already
+    // been assigned a value, then allow it to non-deterministically take on any 
+    // value in the rhs set value.
+    let identName = lhs.text;
+
+    // let isUnprimedVar = ctx["state"].hasOwnProperty(identName) && !isPrimedVar(lhs);
+    let isUnprimedVar = ctx.state.hasVar(identName) && !isPrimedVar(lhs);
+    let isAPrimedVar = ctx.state.hasVar(identName) && isPrimedVar(lhs);
+
+    // if(isPrimedVar(lhs) || (isUnprimedVar && !ASSIGN_PRIMED)){
+
+    evalLog("identName: ", identName);
+    evalLog("identName is unprimed var: ", isUnprimedVar);
+
+
+    // TODO: Clean up this logic.
+
+    if(isUnprimedVar){
+        if(ctx.state.getVarVal(identName) == null){
+            let rhsVal = evalExpr(rhs, ctx)[0]["val"];
+            evalLog("setin rhsval assignment:", rhsVal, rhs.text);
+            evalLog("setin rhsval ctx:", ctx);
+            return rhsVal.getElems().map(el =>{
+                let stateUpdated = _.mapValues(ctx.state.getStateObj(), (val,key,obj) => {
+                    if(key === identName){
+                        evalLog("Variable (" + identName + ") not already assigned in ctx:",  ctx);
+                        // let rhsVals = evalExpr(rhsVal, ctx.clone());
+                        // assert(rhsVals.length === 1);
+                        // let rhsVal = rhsVals[0]["val"];
+                        let rhsVal = el;
+                        evalLog("Variable (" + identName + ") getting value:",  rhsVal);
+                        return (val === null) ? rhsVal : val;
+                    } 
+                    return val;
+                });
+                return ctx.withValAndState(new BoolValue(true), new TLAState(stateUpdated))
+            })
+            // return [ctx.withValAndState(true, new TLAState(stateUpdated))];
+        }
+    } 
+    
+    // Handle primed variable.
+    if(isAPrimedVar){
+        if(ctx.state.getVarVal(identName) == null){
+            let rhsVal = evalExpr(rhs, ctx)[0]["val"];
+            evalLog("setin rhsval assignment:", rhsVal, rhs.text, ctx);
+            return rhsVal.getElems().map(el =>{
+                let stateUpdated = _.mapValues(ctx.state.getStateObj(), (val,key,obj) => {
+                    if(key === identName){
+                        evalLog("Variable (" + identName + ") not already assigned in ctx:",  ctx);
+                        let rhsVal = el;
+                        evalLog("Variable (" + identName + ") getting value:",  rhsVal);
+                        return (val === null) ? rhsVal : val;
+                    } 
+                    return val;
+                });
+                return ctx.withValAndState(new BoolValue(true), new TLAState(stateUpdated))
+            })
+        }
+    }
+
+    let lhsVal = evalExpr(lhs, ctx)[0]["val"];
+    evalLog("setin lhsval:", lhsVal, lhs.text, ctx);
+
+    let rhsVal = evalExpr(rhs, ctx)[0]["val"];
+    // assert(rhsVal instanceof SetValue);
+    evalLog("setin rhsval:", rhsVal, rhs.text, ctx);
+
+    // Use '_.isEqual' method for checking equality based set inclusion.
+    let sameElems = rhsVal.getElems().filter(o => _.isEqual(o, lhsVal));
+    let inSetVal = sameElems.length > 0;
+    
+    let resVal = symbol.type === "in" ? inSetVal : !inSetVal; 
+    evalLog("setin lhs in rhs:", resVal);
+    return [ctx.withVal(new BoolValue(resVal))];
+}
+
 // 'vars' is a list of possible partial state assignments known up to this point.
 function evalBoundInfix(node, ctx){
     assert(ctx instanceof Context);
@@ -1172,86 +1256,7 @@ function evalBoundInfix(node, ctx){
 
     // Set membership.
     if(symbol.type ==="in" || symbol.type ==="notin"){
-        // console.log("bound_infix_op, symbol 'in', ctx:", ctx);
-        evalLog("bound_infix_op, symbol 'in/notin', ctx:", ctx);
-        let lhs = node.namedChildren[0];
-        let rhs = node.namedChildren[2];
-
-        // If, in the current state assignment, the variable has not already
-        // been assigned a value, then allow it to non-deterministically take on any 
-        // value in the rhs set value.
-        let identName = lhs.text;
-
-        // let isUnprimedVar = ctx["state"].hasOwnProperty(identName) && !isPrimedVar(lhs);
-        let isUnprimedVar = ctx.state.hasVar(identName) && !isPrimedVar(lhs);
-        let isAPrimedVar = ctx.state.hasVar(identName) && isPrimedVar(lhs);
-    
-        // if(isPrimedVar(lhs) || (isUnprimedVar && !ASSIGN_PRIMED)){
-
-        evalLog("identName: ", identName);
-        evalLog("identName is unprimed var: ", isUnprimedVar);
-
-
-        // TODO: Clean up this logic.
-
-        if(isUnprimedVar){
-            if(ctx.state.getVarVal(identName) == null){
-                let rhsVal = evalExpr(rhs, ctx)[0]["val"];
-                evalLog("setin rhsval assignment:", rhsVal, rhs.text);
-                evalLog("setin rhsval ctx:", ctx);
-                return rhsVal.getElems().map(el =>{
-                    let stateUpdated = _.mapValues(ctx.state.getStateObj(), (val,key,obj) => {
-                        if(key === identName){
-                            evalLog("Variable (" + identName + ") not already assigned in ctx:",  ctx);
-                            // let rhsVals = evalExpr(rhsVal, ctx.clone());
-                            // assert(rhsVals.length === 1);
-                            // let rhsVal = rhsVals[0]["val"];
-                            let rhsVal = el;
-                            evalLog("Variable (" + identName + ") getting value:",  rhsVal);
-                            return (val === null) ? rhsVal : val;
-                        } 
-                        return val;
-                    });
-                    return ctx.withValAndState(new BoolValue(true), new TLAState(stateUpdated))
-                })
-                // return [ctx.withValAndState(true, new TLAState(stateUpdated))];
-            }
-        } 
-        
-        // Handle primed variable.
-        if(isAPrimedVar){
-            if(ctx.state.getVarVal(identName) == null){
-                let rhsVal = evalExpr(rhs, ctx)[0]["val"];
-                evalLog("setin rhsval assignment:", rhsVal, rhs.text, ctx);
-                return rhsVal.getElems().map(el =>{
-                    let stateUpdated = _.mapValues(ctx.state.getStateObj(), (val,key,obj) => {
-                        if(key === identName){
-                            evalLog("Variable (" + identName + ") not already assigned in ctx:",  ctx);
-                            let rhsVal = el;
-                            evalLog("Variable (" + identName + ") getting value:",  rhsVal);
-                            return (val === null) ? rhsVal : val;
-                        } 
-                        return val;
-                    });
-                    return ctx.withValAndState(new BoolValue(true), new TLAState(stateUpdated))
-                })
-            }
-        }
-
-        let lhsVal = evalExpr(lhs, ctx)[0]["val"];
-        evalLog("setin lhsval:", lhsVal, lhs.text, ctx);
-
-        let rhsVal = evalExpr(rhs, ctx)[0]["val"];
-        // assert(rhsVal instanceof SetValue);
-        evalLog("setin rhsval:", rhsVal, rhs.text, ctx);
-
-        // Use '_.isEqual' method for checking equality based set inclusion.
-        let sameElems = rhsVal.getElems().filter(o => _.isEqual(o, lhsVal));
-        let inSetVal = sameElems.length > 0;
-        
-        let resVal = symbol.type === "in" ? inSetVal : !inSetVal; 
-        evalLog("setin lhs in rhs:", resVal);
-        return [ctx.withVal(new BoolValue(resVal))];
+        return evalSetMembership(node, ctx, symbol);
     } 
     
     // Set intersection.
