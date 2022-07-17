@@ -672,6 +672,43 @@ function genSyntaxRewrites(treeArg) {
                 }
                 sourceRewrites.push(rewrite);
             }
+        } else if (node.type == "bounded_quantification"){
+            //
+            // In general, bounded quantifiers can look like:
+            // \E i,j \in {1,2,3}, x,y,z \in {4,5,6}, u,v \in {4,5} : <expr>
+            //
+            // Rewrite all quantifiers to a normalized form i.e.
+            // \E i1 \in S1 : \E i2 \in S2 : ... : \E in \in Sn : <expr>
+            //
+
+            let quantifier = node.childForFieldName("quantifier");
+            let boundNodes = node.namedChildren.slice(1,node.namedChildren.length-1);
+            let exprNode = node.childForFieldName("expression");
+
+            console.log("REWRITE quant:", node);
+            console.log("REWRITE quant bound nodes:", boundNodes);
+
+            // Expand each quantifier bound.
+            let quantBounds = boundNodes.map(boundNode =>{
+                let quantVars = boundNode.namedChildren.filter(c => c.type === "identifier");
+                let quantBound = boundNode.namedChildren[boundNode.namedChildren.length-1];
+                // For \E and \A, rewrite:
+                // <Q> i,j \in S ==> <Q> i \in S : <Q> j \in S
+                console.log(quantVars.map(c => c.text));
+                console.log(quantVars);
+                console.log("quantifier:",quantifier);
+                return quantVars.map(qv => [quantifier.text, qv.text, "\\in", quantBound.text].join(" ")).join(" : ");
+            })
+
+            outStr = quantBounds.join(" : ") + " : " + exprNode.text;
+            // console.log("rewritten:", outStr);
+            rewrite = {
+                startPosition: node.startPosition,
+                endPosition: node.endPosition,
+                newStr: outStr
+            } 
+            sourceRewrites.push(rewrite);
+
         }
           finishedRow = true;
         }
