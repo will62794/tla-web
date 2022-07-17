@@ -756,11 +756,11 @@ function genSyntaxRewrites(treeArg) {
                     return quantVars.map(qv => [quantifier.text, qv.text, "\\in", quantBound.text].join(" ")).join(" : ");
                 })
 
-                outStr = quantBounds.join(" : ") + " : " + exprNode.text;
+                outStr = quantBounds.join(" : ");
                 // console.log("rewritten:", outStr);
                 rewrite = {
-                    startPosition: node.startPosition,
-                    endPosition: node.endPosition,
+                    startPosition: quantifier.startPosition,
+                    endPosition: boundNodes[boundNodes.length-1].endPosition,
                     newStr: outStr
                 } 
                 sourceRewrites.push(rewrite);
