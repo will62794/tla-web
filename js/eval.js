@@ -528,6 +528,8 @@ function applySyntaxRewrites(text, rewrites){
         // Delete line entirely.
         if(rewrite["deleteRow"]!==undefined){
             lines[rewrite["deleteRow"]] = "";
+            // TODO: Make this work.
+            // lines = lines.filter((_, index) => index !== rewrite["deleteRow"]);
         } else{
             let lineInd = rewrite["startPosition"]["row"]
             line = lines[lineInd];
@@ -642,7 +644,9 @@ function genSyntaxRewrites(treeArg) {
             rewrite = {
                 startPosition: node.startPosition,
                 endPosition: node.endPosition,
-                newStr: ""
+                newStr: "",
+                // TODO: Delete line.
+                // deleteRow: node.startPosition["row"]
             } 
             sourceRewrites.push(rewrite);
             return sourceRewrites;
