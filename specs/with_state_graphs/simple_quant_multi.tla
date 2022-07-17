@@ -15,7 +15,7 @@ Next ==
     \/ \E i \in 4..5, j \in 7..8 :
     	/\ x' = i
         /\ y' = j   
-    \/ \E i,j \in 4..5, u,v \in 7..8 :
+    \/ \E i,j \in 9..10, u,v \in 11..12 :
     	/\ x' \in {i,u}
         /\ y' \in {j,v}    
 
