@@ -1044,8 +1044,49 @@ function evalLand(lhs, rhs, ctx){
     return _.flattenDeep(rhsEval);
 }
 
+// Handle a set of returned contexts from a disjunctive evaluation and determine if they should
+// be coalesced into a single value or all contexts should be maintained as separate evaluation branches.
+function processDisjunctiveContexts(ctx, retCtxs, currAssignedVars){
+    // Deal with return contexts for existential quantifiers.
+    if(retCtxs.length > 1) {
+        
+        // If an evaluation has returned multiple contexts, it must have been the
+        // result of a disjunctive split somewhere along the way, and in this case,
+        // each branch must return a boolean value. (IS THIS CORRECT???)
+        evalLog("evalreturn vals: " , retCtxs.map(c => c["val"]));
+        assert(retCtxs.map(c => c["val"]).every(v => v instanceof TLAValue));
+        assert(retCtxs.map(c => c["val"]).every(v => v instanceof BoolValue));
+
+        // Did any of the sub-evaluation contexts assign a new value to a state variable?
+        let assignedInSub = retCtxs.map(c => {
+            let varKeys = c["state"].vars;
+            let assignedVars = _.keys(c["state"].vars).filter(k => c["state"].vars[k] !== null)
+            // evalLog("assigned vars:",assignedVars);
+            return assignedVars;
+        });
+        // evalLog("assigned in sub: ", assignedInSub);
+
+        // If new variables were assigned in the sub-evaluation contexts, then we return all of the
+        // generated contexts. If no new variables were assigned, then we return the disjunction of
+        // the results.
+        if(assignedInSub[0].length > currAssignedVars.length){
+            evalLog("evalreturn -> Newly assigned vars.");
+            return retCtxs;
+        } else{
+            evalLog("evalreturn -> No newly assigned vars.");
+            let someTrue = retCtxs.map((c) => c["val"].getVal()).some(_.identity);
+            evalLog("evalreturn -> ctx.", ctx);
+
+            return [ctx.withVal(new BoolValue(someTrue))]
+        }
+    }
+    return retCtxs;
+}
+
 function evalLor(lhs, rhs, ctx){
     assert(ctx instanceof Context);
+
+    let currAssignedVars = _.keys(ctx["state"].vars).filter(k => ctx["state"].vars[k] !== null)
 
     // return {"val": false, "states": vars};
     evalLog("## LOR");
@@ -1055,7 +1096,11 @@ function evalLor(lhs, rhs, ctx){
     let ctxLhs = evalExpr(lhs, ctx);
     evalLog("lhs ctx:",ctxLhs);
     let ctxRhs = evalExpr(rhs, ctx);
-    return ctxLhs.concat(ctxRhs);
+
+    let retCtxs = ctxLhs.concat(ctxRhs);
+
+    return processDisjunctiveContexts(ctx, retCtxs, currAssignedVars);
+    // return ctxLhs.concat(ctxRhs);
 }
 
 // Checks if a syntax tree node represents a primed variable.
@@ -1419,10 +1464,13 @@ function evalDisjList(parent, disjs, ctx){
 
     evalLog("eval: disjunction list!");
 
+    let currAssignedVars = _.keys(ctx["state"].vars).filter(k => ctx["state"].vars[k] !== null)
+
     // Split into separate evaluation cases for each disjunct.
     // Also filter out any comments in this disjunction list.
-    let res = disjs.filter(c => !["comment","block_comment"].includes(c.type)).map(disj => evalExpr(disj, ctx));
-    return _.flattenDeep(res);
+    // TODO: Process disjunctive contexts properly?
+    let retCtxs = _.flattenDeep(disjs.map(disj => evalExpr(disj, ctx)));
+    return processDisjunctiveContexts(ctx, retCtxs, currAssignedVars);
 }
 
 function evalConjList(parent, conjs, ctx){
@@ -1533,7 +1581,8 @@ function evalBoundedQuantification(node, ctx){
     let quantDomain = domainVal.getElems();
 
     let quantIdent = quantBound.namedChildren.filter(c => c.type === "identifier")[0].text;
-    evalLog("quantIdents: ", quantIdent);
+    evalLog("quantDomain: ", quantDomain);
+    evalLog("quantIdent: ", quantIdent);
 
     // Iterate over the product of all quantified domains and evaluate
     // the quantified expression with the appropriately bound values.
@@ -1541,6 +1590,8 @@ function evalBoundedQuantification(node, ctx){
         // TODO: Should this return value be different for universal vs. existential quantifiers?
         return [ctx.withVal(new BoolValue(false))];
     }
+
+    let currAssignedVars = _.keys(ctx["state"].vars).filter(k => ctx["state"].vars[k] !== null)
 
     // Evaluate each sub-expression with the properly bound values.
     retCtxs = _.flattenDeep(quantDomain.map(domVal => {
@@ -1566,51 +1617,8 @@ function evalBoundedQuantification(node, ctx){
         return [ctx.withVal(new BoolValue(res))];
     }
 
-    return retCtxs;
-
-    // Fork evaluation context for existential quantifier.
-    // TODO: Confirm this is correct behavior here.
-    // if(quantifier.type == "exists"){
-
-    //     // TODO: How should we correctly handle the splitting of existential quantifier evaluation 
-    //     // into multiple sub-branches and compiling the returned values?
-
-    //     // Evaluation has been split into case for each disjunction.
-    //     // We now see if any states have generated in any of these evaluation
-    //     // branches.
-    //     if(!ASSIGN_PRIMED){
-    //         evalLog("Checking if non-null variable assignments");
-            
-    //         // Did any of the sub-evaluation contexts 
-    //         // assign a new value to a state variable?
-
-    //         // let currAssignedVars = _.keys(ctx["state"].vars).filter(k => ctx["state"].vars[k] !== null)
-    //         // evalLog("curr assigned vars:", currAssignedVars);
-
-    //         // let assignedInSub = retCtxs.map(c => {
-    //         //     let varKeys = c["state"].vars;
-    //         //     evalLog(varKeys);
-    //         //     let assignedVars = _.keys(c["state"].vars).filter(k => c["state"].vars[k] !== null)
-    //         //     evalLog("assigned vars:",assignedVars);
-    //         //     return assignedVars;
-    //         // });
-    //         // evalLog("assigned in sub: ", assignedInSub);
-
-    //         // If new variables were assigned in the sub-evaluation contexts, then we return all of the
-    //         // generated contexts. If no new variables were assigned, then we return the disjunction of
-    //         // the results.
-    //         if(assignedInSub[0].length > currAssignedVars.length){
-    //             evalLog("Newly assigned vars.");
-    //             return retCtxs;
-    //         } else{
-    //             evalLog("No newly assigned vars.");
-    //             let exists = _.some(retCtxs, (c) => c["val"].getVal());
-    //             return [ctx.withVal(new BoolValue(exists))]
-    //         }
-    //     }
-
-    //     return retCtxs;
-    // }
+    assert(quantifier.type === "exists");
+    return processDisjunctiveContexts(ctx, retCtxs, currAssignedVars);
 }
 
 // <op>(<arg1>,...,<argn>)
@@ -2397,9 +2405,8 @@ let origevalExpr = evalExpr;
 evalExpr = function(...args){
     depth += 1;
 
-    let ctx = args[1];
-
-    let currAssignedVars = _.keys(ctx["state"].vars).filter(k => ctx["state"].vars[k] !== null)
+    // let ctx = args[1];
+    // let currAssignedVars = _.keys(ctx["state"].vars).filter(k => ctx["state"].vars[k] !== null)
     // evalLog("curr assigned vars:", currAssignedVars);
 
     // Run the original function to evaluate the expression.
@@ -2407,43 +2414,7 @@ evalExpr = function(...args){
     // evalLog("evalreturn -> ", ret, args[0].text);
     // evalLog("num ret ctxs: " , ret.length);
     // evalLog("evalreturn num ctxs: ", ret.length);
-
-    // If no branches have assigned new variable assignments, then we consider this as a
-    // "constant expression" evaluation, and simply evaluate as the conjunction of all boolean
-    // values.
     
-    if(ret.length > 1) {
-        
-        // If an evaluation has returned multiple contexts, it must have been the
-        // result of a disjunctive split somewhere along the way, and in this case,
-        // each branch must return a boolean value. (IS THIS CORRECT???)
-        assert(ret.map(ctx => ctx["val"]).every(v => v instanceof TLAValue));
-        assert(ret.map(ctx => ctx["val"]).every(v => v instanceof BoolValue));
-        // evalLog("evalreturn vals: " , ret.map(ctx => ctx["val"]));
-
-        // Did any of the sub-evaluation contexts assign a new value to a state variable?
-        let assignedInSub = ret.map(c => {
-            let varKeys = c["state"].vars;
-            let assignedVars = _.keys(c["state"].vars).filter(k => c["state"].vars[k] !== null)
-            // evalLog("assigned vars:",assignedVars);
-            return assignedVars;
-        });
-        // evalLog("assigned in sub: ", assignedInSub);
-
-        // If new variables were assigned in the sub-evaluation contexts, then we return all of the
-        // generated contexts. If no new variables were assigned, then we return the disjunction of
-        // the results.
-        if(assignedInSub[0].length > currAssignedVars.length){
-            // evalLog("evalreturn -> Newly assigned vars.");
-            return ret;
-        } else{
-            // evalLog("evalreturn -> No newly assigned vars.");
-            let someTrue = ret.map((c) => c["val"].getVal()).some(_.identity);
-            // evalLog("evalreturn -> ctx.", ctx);
-
-            return [ctx.withVal(new BoolValue(someTrue))]
-        }
-    }
     // evalLog("evalreturn num ctxs: ", ret.length);
     depth -= 1;
     return ret;
