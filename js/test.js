@@ -338,6 +338,7 @@ tests = [
     {"spec": "EWD998_regression1", "constvals": undefined},
     {"spec": "AsyncTerminationDetection", "constvals": undefined},
     {"spec": "pre_module_comments", "constvals": undefined},
+    {"spec": "lockserver_nodefs", "constvals": undefined},
     // {"spec": "DieHard", "constvals": undefined},
     {
         "spec": "lockserver_constant_comment", 
