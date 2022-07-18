@@ -330,6 +330,7 @@ tests = [
     {"spec": "simple_unchanged", "constvals": undefined},
     {"spec": "simple_quant_multi", "constvals": undefined},
     {"spec": "simple_multiline", "constvals": undefined},
+    {"spec": "simple_letin", "constvals": undefined},
     // {"spec": "simple_primed", "constvals": undefined},
     {"spec": "set_dot_notation", "constvals": undefined},
     {"spec": "record_literal_eval", "constvals": undefined},
@@ -344,6 +345,7 @@ tests = [
     {"spec": "lockserver_nodefs", "constvals": undefined},
     {"spec": "lockserver_nodefs1", "constvals": undefined},
     {"spec": "Paxos_1a", "constvals": undefined},
+    {"spec": "NQueens", "constvals": {"N": new IntValue(3)}},
     // {"spec": "DieHard", "constvals": undefined},
     {
         "spec": "lockserver_constant_comment", 

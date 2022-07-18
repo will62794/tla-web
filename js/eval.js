@@ -741,9 +741,9 @@ function genSyntaxRewrites(treeArg) {
 
             // Don't re-write if already in normalized form.
             let isNormalized = quantifierBoundNodes.length === 1 && (quantifierBoundNodes[0].namedChildren.length === 3);
-            console.log(node);
-            console.log("bound nodes:", quantifierBoundNodes);
-            console.log("REWRITE quant is normalized: ", isNormalized);
+            // console.log(node);
+            // console.log("bound nodes:", quantifierBoundNodes);
+            // console.log("REWRITE quant is normalized: ", isNormalized);
 
             if(!isNormalized){
                 // console.log("REWRITE quant:", node);
@@ -1021,6 +1021,15 @@ class Context{
     withState(stateNew){
         let ctxCopy = this.clone();
         ctxCopy["state"] = stateNew;
+        return ctxCopy;
+    }
+
+    /**
+     * Returns a new copy of this context with the value 'val' bound to 'name'.
+     */
+    withBoundVar(name, val){
+        let ctxCopy = this.clone();
+        ctxCopy["quant_bound"][name] = val;
         return ctxCopy;
     }
 }
@@ -1806,6 +1815,23 @@ function evalSetOfFunctions(node, ctx){
     return [ctx.withVal(new SetValue(fcnVals))];                                                        
 }
 
+function evalLetIn(node, ctx){
+    let opDefs = node.namedChildren.filter(c => c.type === "operator_definition");
+    let letInExpr = node.childForFieldName("expression");
+
+    // Evaluate the expression with the bound definitions.
+    let newBoundCtx = ctx;
+    for(const def of opDefs){
+        let defVarName = def.childForFieldName("name").text;
+        let defVal = evalExpr(def.childForFieldName("definition"), ctx)[0]["val"];
+        // evalLog("defVarName:", defVarName);
+        // evalLog("defVal:", defVal);
+        newBoundCtx = newBoundCtx.withBoundVar(defVarName, defVal);
+    }
+    evalLog("newBoundCtx:", newBoundCtx);
+    return evalExpr(letInExpr, newBoundCtx);
+}
+
 // For debugging.
 // TODO: Eventually move this all inside a dedicated class.
 let currEvalNode = null;
@@ -1875,6 +1901,11 @@ function evalExpr(node, ctx){
     if(node.type === "parentheses"){
         // evalLog(node);
         return evalExpr(node.namedChildren[0], ctx);
+    }
+
+    if(node.type === "let_in"){
+        evalLog("LETIN node, ctx:", ctx);
+        return evalLetIn(node, ctx);
     }
 
     if(node.type === "prev_func_val"){
