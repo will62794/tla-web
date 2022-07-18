@@ -1,4 +1,4 @@
-------------------------------- MODULE NQueens -------------------------------
+------------------------------- MODULE NQueens_N3 -------------------------------
 EXTENDS Naturals, Sequences
 (***************************************************************************)
 (* Formulation of the N-queens problem and an iterative algorithm to solve *)
