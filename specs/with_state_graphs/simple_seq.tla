@@ -13,7 +13,10 @@ Init == x = [
     append4 |-> { Append(<<1>>, c) : c \in {2,3,4} },
     domain1 |-> DOMAIN [a |-> 1, b |-> 2, c |-> 3],
     domain2 |-> DOMAIN <<1,2,3>>,
-    domain3 |-> DOMAIN <<>>
+    domain3 |-> DOMAIN <<>>,
+    get1 |-> <<1,2,3>>[1],
+    get2 |-> <<1,2,3>>[2],
+    get3 |-> <<1,2,3>>[3]
 ]
 Next == x' = x
 ====

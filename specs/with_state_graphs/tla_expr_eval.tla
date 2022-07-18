@@ -51,6 +51,10 @@ Init == exprs = [
     case2 |-> CASE FALSE -> 3 [] TRUE -> 5,
     case3 |-> CASE FALSE -> 3 [] FALSE -> 5 [] TRUE -> 7,
     caseother |-> CASE FALSE -> 3 [] FALSE -> 5 [] FALSE -> 7 [] OTHER -> 9,
+
+    \* IF THEN ELSE
+    if1 |-> IF TRUE THEN 1 ELSE 2,
+    if2 |-> IF FALSE THEN 1 ELSE IF TRUE THEN 2 ELSE 3,
     
     \* Set operators.
     set1 |-> {1,2,3,3},

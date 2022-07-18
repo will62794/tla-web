@@ -1971,7 +1971,17 @@ function evalExpr(node, ctx){
         // console.log("fnArgVal:", fnArgVal);
         let fnArgVal = evalExpr(node.namedChildren[1], ctx)[0]["val"];
         evalLog("fneval (arg,val): ", fnVal, ",", fnArgVal);
-        let fnValRes = fnVal.applyArg(fnArgVal);
+        // Tuples are considered as functions with natural number domains.
+        let fnValRes;
+        if(fnVal instanceof TupleValue){
+            evalLog("applying tuple as function");
+            assert(fnArgVal instanceof IntValue);
+            let index = fnArgVal.getVal();
+            // Account for 1-indexing.
+            fnValRes = fnVal.getElems()[index - 1];
+        } else{
+            fnValRes = fnVal.applyArg(fnArgVal);
+        }
         evalLog("fnValRes:", fnValRes);
         return [ctx.withVal(fnValRes)];
     }
@@ -2030,12 +2040,12 @@ function evalExpr(node, ctx){
     }
 
     if(node.type === "if_then_else"){
-        let cond = node.namedChildren[0];
-        let thenNode = node.namedChildren[1];
-        let elseNode = node.namedChildren[2];
+        let cond = node.childForFieldName("if");
+        let thenNode = node.childForFieldName("then");
+        let elseNode = node.childForFieldName("else");
 
         let condVal = evalExpr(cond, ctx.clone())[0]["val"];
-        if(condVal){
+        if(condVal.getVal()){
             let thenVal = evalExpr(thenNode, ctx.clone());
             evalLog("thenVal", thenVal, thenNode.text);
             return thenVal;
