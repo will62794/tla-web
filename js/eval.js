@@ -1823,7 +1823,9 @@ function evalLetIn(node, ctx){
     let newBoundCtx = ctx;
     for(const def of opDefs){
         let defVarName = def.childForFieldName("name").text;
-        let defVal = evalExpr(def.childForFieldName("definition"), ctx)[0]["val"];
+        // Make sure to evaluate each new LET definition expression in the context of the 
+        // previously bound definitions.
+        let defVal = evalExpr(def.childForFieldName("definition"), newBoundCtx)[0]["val"];
         // evalLog("defVarName:", defVarName);
         // evalLog("defVal:", defVal);
         newBoundCtx = newBoundCtx.withBoundVar(defVarName, defVal);

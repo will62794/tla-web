@@ -9,7 +9,7 @@ Init ==
         b |-> LET y == 2 z == 5 IN (y + z),
         c |-> LET y == 2 
                   z == 6
-                  w == 8 IN (y + z + w)
+                  w == y + z IN (y + z + w)
     ]
 
 Next == x' = x 
