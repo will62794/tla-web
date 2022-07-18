@@ -50,11 +50,14 @@ function traceStepBack(){
         reloadSpec();
         return;
     } else{
+        console.log("stepping back");
         let lastState = currTrace[currTrace.length-1];
         let interp = new TlaInterpreter();
         let nextStates = interp.computeNextStates(specTreeObjs, specConstVals, [_.cloneDeep(lastState)])
                             .map(c => c["state"].deprimeVars());
         currNextStates = _.cloneDeep(nextStates);
+        renderNextStateChoices(currNextStates);
+        renderCurrentTrace();
     }
 }
 
