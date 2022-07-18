@@ -2286,17 +2286,17 @@ function getNextStates(nextDef, currStateVars, defns, constvals){
         let primedVar = k + "'";
         currStateVars.vars[primedVar] = null;
     }
-    console.log("currStateVars:", currStateVars);
+    evalLog("currStateVars:", currStateVars);
 
     let initCtx = new Context(null, currStateVars, defns, {}, constvals);
     // console.log("currStateVars:", currStateVars);
     let ret = evalExpr(nextDef, initCtx);
-    console.log("getNextStates eval ret:", ret);
+    evalLog("getNextStates eval ret:", ret);
 
     // Filter out disabled transitions.
     ret = ret.filter(c => c["val"].getVal() === true);
 
-    console.log("getNextStates filtered:", ret);
+    evalLog("getNextStates filtered:", ret);
 
     // Only keep states where all primed variables were assigned.
     ret = ret.filter(c => _.every(origVars, v => c.state.getVarVal(v+"'")!== null));
@@ -2310,7 +2310,7 @@ function getNextStates(nextDef, currStateVars, defns, constvals){
     // all_next_states = _.uniqBy(all_next_states, c => c.state.fingerprint());
 
     // Keep only unique states, based on hashed fingerprint value.
-    console.log("getNextStates all:", all_next_states);
+    evalLog("getNextStates all:", all_next_states);
     return all_next_states;
 }
 

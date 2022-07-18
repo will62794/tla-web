@@ -1,0 +1,91 @@
+strict digraph DiskGraph {
+nodesep=0.35;
+subgraph cluster_graph {
+color="white";
+3680312980226696833 [label="/\\ maxVBal = [a1 |-> -1, a2 |-> -1]\n/\\ msgs = {}\n/\\ maxVal = [a1 |-> \"None\", a2 |-> \"None\"]\n/\\ maxBal = [a1 |-> -1, a2 |-> -1]",style = filled]
+3680312980226696833 -> 1779932374594122947 [label="",color="black",fontcolor="black"];
+1779932374594122947 [label="/\\ maxVBal = [a1 |-> -1, a2 |-> -1]\n/\\ msgs = {[type |-> \"1a\", bal |-> 0, proposer |-> \"p1\"]}\n/\\ maxVal = [a1 |-> \"None\", a2 |-> \"None\"]\n/\\ maxBal = [a1 |-> -1, a2 |-> -1]"];
+3680312980226696833 -> 2796975288999401119 [label="",color="black",fontcolor="black"];
+2796975288999401119 [label="/\\ maxVBal = [a1 |-> -1, a2 |-> -1]\n/\\ msgs = {[type |-> \"1a\", bal |-> 0, proposer |-> \"p2\"]}\n/\\ maxVal = [a1 |-> \"None\", a2 |-> \"None\"]\n/\\ maxBal = [a1 |-> -1, a2 |-> -1]"];
+3680312980226696833 -> -1416466293964799307 [label="",color="black",fontcolor="black"];
+-1416466293964799307 [label="/\\ maxVBal = [a1 |-> -1, a2 |-> -1]\n/\\ msgs = {[type |-> \"1a\", bal |-> 1, proposer |-> \"p1\"]}\n/\\ maxVal = [a1 |-> \"None\", a2 |-> \"None\"]\n/\\ maxBal = [a1 |-> -1, a2 |-> -1]"];
+3680312980226696833 -> -3299733017297772311 [label="",color="black",fontcolor="black"];
+-3299733017297772311 [label="/\\ maxVBal = [a1 |-> -1, a2 |-> -1]\n/\\ msgs = {[type |-> \"1a\", bal |-> 1, proposer |-> \"p2\"]}\n/\\ maxVal = [a1 |-> \"None\", a2 |-> \"None\"]\n/\\ maxBal = [a1 |-> -1, a2 |-> -1]"];
+1779932374594122947 -> 1779932374594122947 [label="",color="black",fontcolor="black"];
+1779932374594122947 -> 4914393178195836732 [label="",color="black",fontcolor="black"];
+4914393178195836732 [label="/\\ maxVBal = [a1 |-> -1, a2 |-> -1]\n/\\ msgs = { [type |-> \"1a\", bal |-> 0, proposer |-> \"p1\"],\n  [type |-> \"1a\", bal |-> 0, proposer |-> \"p2\"] }\n/\\ maxVal = [a1 |-> \"None\", a2 |-> \"None\"]\n/\\ maxBal = [a1 |-> -1, a2 |-> -1]"];
+1779932374594122947 -> -8163891621607773418 [label="",color="black",fontcolor="black"];
+-8163891621607773418 [label="/\\ maxVBal = [a1 |-> -1, a2 |-> -1]\n/\\ msgs = { [type |-> \"1a\", bal |-> 0, proposer |-> \"p1\"],\n  [type |-> \"1a\", bal |-> 1, proposer |-> \"p1\"] }\n/\\ maxVal = [a1 |-> \"None\", a2 |-> \"None\"]\n/\\ maxBal = [a1 |-> -1, a2 |-> -1]"];
+1779932374594122947 -> -5704007975220590262 [label="",color="black",fontcolor="black"];
+-5704007975220590262 [label="/\\ maxVBal = [a1 |-> -1, a2 |-> -1]\n/\\ msgs = { [type |-> \"1a\", bal |-> 0, proposer |-> \"p1\"],\n  [type |-> \"1a\", bal |-> 1, proposer |-> \"p2\"] }\n/\\ maxVal = [a1 |-> \"None\", a2 |-> \"None\"]\n/\\ maxBal = [a1 |-> -1, a2 |-> -1]"];
+2796975288999401119 -> 4914393178195836732 [label="",color="black",fontcolor="black"];
+2796975288999401119 -> 2796975288999401119 [label="",color="black",fontcolor="black"];
+2796975288999401119 -> 1103303942755535350 [label="",color="black",fontcolor="black"];
+1103303942755535350 [label="/\\ maxVBal = [a1 |-> -1, a2 |-> -1]\n/\\ msgs = { [type |-> \"1a\", bal |-> 0, proposer |-> \"p2\"],\n  [type |-> \"1a\", bal |-> 1, proposer |-> \"p1\"] }\n/\\ maxVal = [a1 |-> \"None\", a2 |-> \"None\"]\n/\\ maxBal = [a1 |-> -1, a2 |-> -1]"];
+2796975288999401119 -> 3543475509373954986 [label="",color="black",fontcolor="black"];
+3543475509373954986 [label="/\\ maxVBal = [a1 |-> -1, a2 |-> -1]\n/\\ msgs = { [type |-> \"1a\", bal |-> 0, proposer |-> \"p2\"],\n  [type |-> \"1a\", bal |-> 1, proposer |-> \"p2\"] }\n/\\ maxVal = [a1 |-> \"None\", a2 |-> \"None\"]\n/\\ maxBal = [a1 |-> -1, a2 |-> -1]"];
+-1416466293964799307 -> -8163891621607773418 [label="",color="black",fontcolor="black"];
+-1416466293964799307 -> 1103303942755535350 [label="",color="black",fontcolor="black"];
+-1416466293964799307 -> -1416466293964799307 [label="",color="black",fontcolor="black"];
+-1416466293964799307 -> -7398487577380489600 [label="",color="black",fontcolor="black"];
+-7398487577380489600 [label="/\\ maxVBal = [a1 |-> -1, a2 |-> -1]\n/\\ msgs = { [type |-> \"1a\", bal |-> 1, proposer |-> \"p1\"],\n  [type |-> \"1a\", bal |-> 1, proposer |-> \"p2\"] }\n/\\ maxVal = [a1 |-> \"None\", a2 |-> \"None\"]\n/\\ maxBal = [a1 |-> -1, a2 |-> -1]"];
+-3299733017297772311 -> -5704007975220590262 [label="",color="black",fontcolor="black"];
+-3299733017297772311 -> 3543475509373954986 [label="",color="black",fontcolor="black"];
+-3299733017297772311 -> -7398487577380489600 [label="",color="black",fontcolor="black"];
+-3299733017297772311 -> -3299733017297772311 [label="",color="black",fontcolor="black"];
+4914393178195836732 -> 4914393178195836732 [label="",color="black",fontcolor="black"];
+4914393178195836732 -> 4914393178195836732 [label="",color="black",fontcolor="black"];
+4914393178195836732 -> 2674849889784470642 [label="",color="black",fontcolor="black"];
+2674849889784470642 [label="/\\ maxVBal = [a1 |-> -1, a2 |-> -1]\n/\\ msgs = { [type |-> \"1a\", bal |-> 0, proposer |-> \"p1\"],\n  [type |-> \"1a\", bal |-> 0, proposer |-> \"p2\"],\n  [type |-> \"1a\", bal |-> 1, proposer |-> \"p1\"] }\n/\\ maxVal = [a1 |-> \"None\", a2 |-> \"None\"]\n/\\ maxBal = [a1 |-> -1, a2 |-> -1]"];
+4914393178195836732 -> 1980938324900331054 [label="",color="black",fontcolor="black"];
+1980938324900331054 [label="/\\ maxVBal = [a1 |-> -1, a2 |-> -1]\n/\\ msgs = { [type |-> \"1a\", bal |-> 0, proposer |-> \"p1\"],\n  [type |-> \"1a\", bal |-> 0, proposer |-> \"p2\"],\n  [type |-> \"1a\", bal |-> 1, proposer |-> \"p2\"] }\n/\\ maxVal = [a1 |-> \"None\", a2 |-> \"None\"]\n/\\ maxBal = [a1 |-> -1, a2 |-> -1]"];
+-8163891621607773418 -> -8163891621607773418 [label="",color="black",fontcolor="black"];
+-8163891621607773418 -> 2674849889784470642 [label="",color="black",fontcolor="black"];
+-8163891621607773418 -> -8163891621607773418 [label="",color="black",fontcolor="black"];
+-8163891621607773418 -> -5547860358095723772 [label="",color="black",fontcolor="black"];
+-5547860358095723772 [label="/\\ maxVBal = [a1 |-> -1, a2 |-> -1]\n/\\ msgs = { [type |-> \"1a\", bal |-> 0, proposer |-> \"p1\"],\n  [type |-> \"1a\", bal |-> 1, proposer |-> \"p1\"],\n  [type |-> \"1a\", bal |-> 1, proposer |-> \"p2\"] }\n/\\ maxVal = [a1 |-> \"None\", a2 |-> \"None\"]\n/\\ maxBal = [a1 |-> -1, a2 |-> -1]"];
+-5704007975220590262 -> -5704007975220590262 [label="",color="black",fontcolor="black"];
+-5704007975220590262 -> 1980938324900331054 [label="",color="black",fontcolor="black"];
+-5704007975220590262 -> -5547860358095723772 [label="",color="black",fontcolor="black"];
+-5704007975220590262 -> -5704007975220590262 [label="",color="black",fontcolor="black"];
+1103303942755535350 -> 2674849889784470642 [label="",color="black",fontcolor="black"];
+1103303942755535350 -> 1103303942755535350 [label="",color="black",fontcolor="black"];
+1103303942755535350 -> 1103303942755535350 [label="",color="black",fontcolor="black"];
+1103303942755535350 -> -1728158886163484073 [label="",color="black",fontcolor="black"];
+-1728158886163484073 [label="/\\ maxVBal = [a1 |-> -1, a2 |-> -1]\n/\\ msgs = { [type |-> \"1a\", bal |-> 0, proposer |-> \"p2\"],\n  [type |-> \"1a\", bal |-> 1, proposer |-> \"p1\"],\n  [type |-> \"1a\", bal |-> 1, proposer |-> \"p2\"] }\n/\\ maxVal = [a1 |-> \"None\", a2 |-> \"None\"]\n/\\ maxBal = [a1 |-> -1, a2 |-> -1]"];
+3543475509373954986 -> 1980938324900331054 [label="",color="black",fontcolor="black"];
+3543475509373954986 -> 3543475509373954986 [label="",color="black",fontcolor="black"];
+3543475509373954986 -> -1728158886163484073 [label="",color="black",fontcolor="black"];
+3543475509373954986 -> 3543475509373954986 [label="",color="black",fontcolor="black"];
+-7398487577380489600 -> -5547860358095723772 [label="",color="black",fontcolor="black"];
+-7398487577380489600 -> -1728158886163484073 [label="",color="black",fontcolor="black"];
+-7398487577380489600 -> -7398487577380489600 [label="",color="black",fontcolor="black"];
+-7398487577380489600 -> -7398487577380489600 [label="",color="black",fontcolor="black"];
+2674849889784470642 -> 2674849889784470642 [label="",color="black",fontcolor="black"];
+2674849889784470642 -> 2674849889784470642 [label="",color="black",fontcolor="black"];
+2674849889784470642 -> 2674849889784470642 [label="",color="black",fontcolor="black"];
+2674849889784470642 -> 6943845037918692393 [label="",color="black",fontcolor="black"];
+6943845037918692393 [label="/\\ maxVBal = [a1 |-> -1, a2 |-> -1]\n/\\ msgs = { [type |-> \"1a\", bal |-> 0, proposer |-> \"p1\"],\n  [type |-> \"1a\", bal |-> 0, proposer |-> \"p2\"],\n  [type |-> \"1a\", bal |-> 1, proposer |-> \"p1\"],\n  [type |-> \"1a\", bal |-> 1, proposer |-> \"p2\"] }\n/\\ maxVal = [a1 |-> \"None\", a2 |-> \"None\"]\n/\\ maxBal = [a1 |-> -1, a2 |-> -1]"];
+1980938324900331054 -> 1980938324900331054 [label="",color="black",fontcolor="black"];
+1980938324900331054 -> 1980938324900331054 [label="",color="black",fontcolor="black"];
+1980938324900331054 -> 6943845037918692393 [label="",color="black",fontcolor="black"];
+1980938324900331054 -> 1980938324900331054 [label="",color="black",fontcolor="black"];
+-5547860358095723772 -> -5547860358095723772 [label="",color="black",fontcolor="black"];
+-5547860358095723772 -> 6943845037918692393 [label="",color="black",fontcolor="black"];
+-5547860358095723772 -> -5547860358095723772 [label="",color="black",fontcolor="black"];
+-5547860358095723772 -> -5547860358095723772 [label="",color="black",fontcolor="black"];
+-1728158886163484073 -> 6943845037918692393 [label="",color="black",fontcolor="black"];
+-1728158886163484073 -> -1728158886163484073 [label="",color="black",fontcolor="black"];
+-1728158886163484073 -> -1728158886163484073 [label="",color="black",fontcolor="black"];
+-1728158886163484073 -> -1728158886163484073 [label="",color="black",fontcolor="black"];
+6943845037918692393 -> 6943845037918692393 [label="",color="black",fontcolor="black"];
+6943845037918692393 -> 6943845037918692393 [label="",color="black",fontcolor="black"];
+6943845037918692393 -> 6943845037918692393 [label="",color="black",fontcolor="black"];
+6943845037918692393 -> 6943845037918692393 [label="",color="black",fontcolor="black"];
+{rank = same; 3680312980226696833;}
+{rank = same; 2796975288999401119;-1416466293964799307;1779932374594122947;-3299733017297772311;}
+{rank = same; -5704007975220590262;3543475509373954986;-7398487577380489600;1103303942755535350;4914393178195836732;-8163891621607773418;}
+{rank = same; -5547860358095723772;2674849889784470642;1980938324900331054;-1728158886163484073;}
+{rank = same; 6943845037918692393;}
+}
+}

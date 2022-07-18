@@ -343,6 +343,7 @@ tests = [
     {"spec": "pre_module_comments", "constvals": undefined},
     {"spec": "lockserver_nodefs", "constvals": undefined},
     {"spec": "lockserver_nodefs1", "constvals": undefined},
+    {"spec": "Paxos_1a", "constvals": undefined},
     // {"spec": "DieHard", "constvals": undefined},
     {
         "spec": "lockserver_constant_comment", 
