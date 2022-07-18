@@ -1,0 +1,9 @@
+strict digraph DiskGraph {
+nodesep=0.35;
+subgraph cluster_graph {
+color="white";
+-763524058986375738 [label="x = [ seqlen |-> 3,\n  head1 |-> 1,\n  head2 |-> 3,\n  tail1 |-> <<2, 3>>,\n  tail2 |-> <<>>,\n  append1 |-> <<1, 2>>,\n  append2 |-> <<1, 2, 3, 4>>,\n  append3 |-> <<2>>,\n  append4 |-> {<<1, 2>>, <<1, 3>>, <<1, 4>>},\n  domain1 |-> {\"c\", \"a\", \"b\"},\n  domain2 |-> 1..3,\n  domain3 |-> {} ]",style = filled]
+-763524058986375738 -> -763524058986375738 [label="",color="black",fontcolor="black"];
+{rank = same; -763524058986375738;}
+}
+}
