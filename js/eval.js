@@ -662,27 +662,31 @@ function genSyntaxRewrites(treeArg) {
 
             // UNCHANGED.
             if(symbol.type === "unchanged"){
-                // Desugar UNCHANGED statements to their equivalent form e.g.
-                //  UNCHANGED <expr>  ==>  <expr>' = <expr>. 
-                // If <expr> is a tuple literal i.e. <<x,y>>, then we de-sugar as
-                //  UNCHANGED <<x,y>> ==> x' = x /\ y' = y
-                let rewrite;
-                if(rhs.type === "tuple_literal"){
-                    let tup_elems = rhs.namedChildren.slice(1,rhs.namedChildren.length-1);
-                    let newText = tup_elems.map(el => el.text + "' = " + el.text ).join(" /\\ ");
-                    rewrite = {
-                        startPosition: node.startPosition,
-                        endPosition: node.endPosition,
-                        newStr: newText
-                    } 
-                } else{
-                    rewrite = {
-                        startPosition: symbol.startPosition,
-                        endPosition: symbol.endPosition,
-                        newStr: "" + rhs.text + "' ="
-                    } 
-                }
-                sourceRewrites.push(rewrite);
+                // // Desugar UNCHANGED statements to their equivalent form e.g.
+                // //  UNCHANGED <expr>  ==>  <expr>' = <expr>. 
+                // // If <expr> is a tuple literal i.e. <<x,y>>, then we de-sugar as
+                // //  UNCHANGED <<x,y>> ==> x' = x /\ y' = y
+
+                //
+                // (Disable UNCHANGED de-sugaring for now.)
+                //
+                // let rewrite;
+                // if(rhs.type === "tuple_literal"){
+                //     let tup_elems = rhs.namedChildren.slice(1,rhs.namedChildren.length-1);
+                //     let newText = tup_elems.map(el => el.text + "' = " + el.text ).join(" /\\ ");
+                //     rewrite = {
+                //         startPosition: node.startPosition,
+                //         endPosition: node.endPosition,
+                //         newStr: newText
+                //     } 
+                // } else{
+                //     rewrite = {
+                //         startPosition: symbol.startPosition,
+                //         endPosition: symbol.endPosition,
+                //         newStr: "" + rhs.text + "' ="
+                //     } 
+                // }
+                // sourceRewrites.push(rewrite);
                 return sourceRewrites;
             }
 
@@ -806,6 +810,8 @@ function parseSpec(specText){
     // Walk the syntax tree and perform any specified syntactic rewrites (e.g. desugaring.)
     let specTextRewritten = specText;
     tree = parser.parse(specTextRewritten + "\n", null);
+
+    // TODO: Consider also adding a pass that expands all definitions, constants, etc.
     let rewriteBatch = genSyntaxRewrites(tree);
 
     // Apply AST rewrite batches until a fixpoint is reached.
@@ -1496,6 +1502,36 @@ function evalBoundPrefix(node, ctx){
     if(symbol.type === "lnot"){
         return evalLnot(rhs, ctx);
     } 
+
+
+    if(symbol.type === "unchanged"){
+        evalLog("eval prefix op: UNCHANGED", node);
+        assert(false, "UNCHANGED under construction!");
+        return;
+
+        // TODO: Handle this case properly.
+        let unchangedVal = node.namedChildren[1];
+        // Perform any substitutions first.
+        if(unchangedVal.type === "identifier_ref" &&
+           ctx.defns.hasOwnProperty(unchangedVal.text)){
+            let defnVal = ctx.defns[unchangedVal.text];
+            evalLog("defn: ", defnVal);
+            unchangedVal = defnVal.node;
+        }
+        evalLog("eval prefix op: UNCHANGED val", unchangedVal);
+
+        // TupleVal case.
+        let tempCtx = ctx.clone();
+        let ret = evalExpr(unchangedVal, tempCtx);
+        evalLog("UNCHANGED ret val:", ret);
+        // Evaluate UNCHANGED <<e1,e2,...,en>> as
+        // UNCHANGED e1 /\ UNCHANGED e2 /\ ... /\ UNCHANGED en
+        if(ret instanceof TupleValue){
+
+        }
+        return ret;
+
+    }
 }
 
 function evalBoundPostfix(node, ctx){

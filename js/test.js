@@ -327,7 +327,7 @@ tests = [
     {"spec": "simple_disjunction_constant", "constvals": undefined},
     {"spec": "simple_conjunction_constant", "constvals": undefined},
     {"spec": "simple_disjunction_init", "constvals": undefined},
-    // {"spec": "simple_unchanged", "constvals": undefined},
+    {"spec": "simple_unchanged", "constvals": undefined},
     {"spec": "simple_quant_multi", "constvals": undefined},
     {"spec": "simple_multiline", "constvals": undefined},
     {"spec": "simple_letin", "constvals": undefined},
