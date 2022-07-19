@@ -1,0 +1,21 @@
+strict digraph DiskGraph {
+nodesep=0.35;
+subgraph cluster_graph {
+color="white";
+-1416466293964799307 [label="/\\ maxVBal = [a1 |-> -1, a2 |-> -1]\n/\\ msgs = {[type |-> \"1a\", bal |-> 1, proposer |-> \"p1\"]}\n/\\ maxVal = [a1 |-> \"None\", a2 |-> \"None\"]\n/\\ maxBal = [a1 |-> -1, a2 |-> -1]",style = filled]
+-1416466293964799307 -> 5628181632492425619 [label="",color="black",fontcolor="black"];
+5628181632492425619 [label="/\\ maxVBal = [a1 |-> -1, a2 |-> -1]\n/\\ msgs = { [type |-> \"1a\", bal |-> 1, proposer |-> \"p1\"],\n  [ type |-> \"1b\",\n    bal |-> 1,\n    proposer |-> \"p1\",\n    acc |-> \"a1\",\n    mbal |-> -1,\n    mval |-> \"None\" ] }\n/\\ maxVal = [a1 |-> \"None\", a2 |-> \"None\"]\n/\\ maxBal = [a1 |-> 1, a2 |-> -1]"];
+-1416466293964799307 -> 7891123378727893063 [label="",color="black",fontcolor="black"];
+7891123378727893063 [label="/\\ maxVBal = [a1 |-> -1, a2 |-> -1]\n/\\ msgs = { [type |-> \"1a\", bal |-> 1, proposer |-> \"p1\"],\n  [ type |-> \"1b\",\n    bal |-> 1,\n    proposer |-> \"p1\",\n    acc |-> \"a2\",\n    mbal |-> -1,\n    mval |-> \"None\" ] }\n/\\ maxVal = [a1 |-> \"None\", a2 |-> \"None\"]\n/\\ maxBal = [a1 |-> -1, a2 |-> 1]"];
+5628181632492425619 -> 5628181632492425619 [label="",color="black",fontcolor="black"];
+5628181632492425619 -> 5875126918969552521 [label="",color="black",fontcolor="black"];
+5875126918969552521 [label="/\\ maxVBal = [a1 |-> -1, a2 |-> -1]\n/\\ msgs = { [type |-> \"1a\", bal |-> 1, proposer |-> \"p1\"],\n  [ type |-> \"1b\",\n    bal |-> 1,\n    proposer |-> \"p1\",\n    acc |-> \"a1\",\n    mbal |-> -1,\n    mval |-> \"None\" ],\n  [ type |-> \"1b\",\n    bal |-> 1,\n    proposer |-> \"p1\",\n    acc |-> \"a2\",\n    mbal |-> -1,\n    mval |-> \"None\" ] }\n/\\ maxVal = [a1 |-> \"None\", a2 |-> \"None\"]\n/\\ maxBal = [a1 |-> 1, a2 |-> 1]"];
+7891123378727893063 -> 5875126918969552521 [label="",color="black",fontcolor="black"];
+7891123378727893063 -> 7891123378727893063 [label="",color="black",fontcolor="black"];
+5875126918969552521 -> 5875126918969552521 [label="",color="black",fontcolor="black"];
+5875126918969552521 -> 5875126918969552521 [label="",color="black",fontcolor="black"];
+{rank = same; -1416466293964799307;}
+{rank = same; 7891123378727893063;5628181632492425619;}
+{rank = same; 5875126918969552521;}
+}
+}
