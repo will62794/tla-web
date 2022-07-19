@@ -668,25 +668,25 @@ function genSyntaxRewrites(treeArg) {
                 // //  UNCHANGED <<x,y>> ==> x' = x /\ y' = y
 
                 //
-                // (Disable UNCHANGED de-sugaring for now.)
+                // (Eventually disable UNCHANGED de-sugaring.)
                 //
-                // let rewrite;
-                // if(rhs.type === "tuple_literal"){
-                //     let tup_elems = rhs.namedChildren.slice(1,rhs.namedChildren.length-1);
-                //     let newText = tup_elems.map(el => el.text + "' = " + el.text ).join(" /\\ ");
-                //     rewrite = {
-                //         startPosition: node.startPosition,
-                //         endPosition: node.endPosition,
-                //         newStr: newText
-                //     } 
-                // } else{
-                //     rewrite = {
-                //         startPosition: symbol.startPosition,
-                //         endPosition: symbol.endPosition,
-                //         newStr: "" + rhs.text + "' ="
-                //     } 
-                // }
-                // sourceRewrites.push(rewrite);
+                let rewrite;
+                if(rhs.type === "tuple_literal"){
+                    let tup_elems = rhs.namedChildren.slice(1,rhs.namedChildren.length-1);
+                    let newText = tup_elems.map(el => el.text + "' = " + el.text ).join(" /\\ ");
+                    rewrite = {
+                        startPosition: node.startPosition,
+                        endPosition: node.endPosition,
+                        newStr: newText
+                    } 
+                } else{
+                    rewrite = {
+                        startPosition: symbol.startPosition,
+                        endPosition: symbol.endPosition,
+                        newStr: "" + rhs.text + "' ="
+                    } 
+                }
+                sourceRewrites.push(rewrite);
                 return sourceRewrites;
             }
 
