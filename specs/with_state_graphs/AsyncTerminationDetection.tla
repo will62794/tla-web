@@ -54,6 +54,7 @@ Next ==
     \/ \E i \in Node, j \in Node:   
         \* \/ Terminate(i)
         \* \/ Wakeup(i)
+        \* \/ \A n \in Node : pending[n] < NMax /\ SendMsg(i, j) \* problematic case?
         \* Bound state space for testing.
-        \/ \A n \in Node : pending[n] < NMax /\ SendMsg(i, j)
+        \/ (\A n \in Node : pending[n] < NMax) /\ SendMsg(i, j)
 =============================================================================
