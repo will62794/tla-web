@@ -1177,16 +1177,16 @@ function evalEq(lhs, rhs, ctx){
         evalLog(`Checking for equality of ident '${identName}' with '${rhs.text}'.`, ctx);
         
         // Evaluate left and right hand side.
-        evalLog("eq lhs:", lhs);
+        // evalLog("eq lhs:", lhs);
         let lhsVals = evalExpr(lhs, ctx.clone());
         assert(lhsVals.length === 1);
         let lhsVal = lhsVals[0]["val"];
-        console.log("Checking for eq, lhsVal", lhsVal);
+        // console.log("Checking for eq, lhsVal", lhsVal);
 
         let rhsVals = evalExpr(rhs, ctx.clone());
         assert(rhsVals.length === 1);
         let rhsVal = rhsVals[0]["val"];
-        console.log("Checking for eq, rhsVal", rhsVal);
+        // console.log("Checking for eq, rhsVal", rhsVal);
 
         // Check equality.
         // TODO: Update this equality check.
