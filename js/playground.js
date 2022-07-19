@@ -157,6 +157,7 @@ function handleChooseState(statehash_short){
         console.error("Error computing next states.");
         if (currEvalNode !== null) {
             // Display line where evaluation error occurred.
+            // TODO: Need to update this to map back to original line before we desugared.
             const $codeEditor = document.querySelector('.CodeMirror');
             let errorLine = currEvalNode["startPosition"]["row"];
             $codeEditor.CodeMirror.addLineClass(errorLine, 'background', 'line-error');
