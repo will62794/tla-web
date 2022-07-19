@@ -970,6 +970,11 @@ class Context{
         // Stores a binding of a previous function value (e.g. the @ symbol) for 
         // EXCEPT based record updates.
         this.prev_func_val = null;
+
+        // Are we evaluating this expression inside a "primed" context i.e.
+        // should we treat all non-constant expressions (e.g. state variables) 
+        // as being primed.
+        this.primed = false;
     }
 
     /**
@@ -1031,6 +1036,22 @@ class Context{
         let ctxCopy = this.clone();
         ctxCopy["quant_bound"][name] = val;
         return ctxCopy;
+    }
+
+    /**
+     * Returns a new copy of this context that has been set to "primed".
+     */
+    withPrimed(){
+        let ctxCopy = this.clone();
+        ctxCopy.primed = true;
+        return ctxCopy;
+    }
+
+    /**
+     * Is this a "primed" evaluation context.
+     */
+    isPrimed(){
+        return this.primed;
     }
 }
 
@@ -1128,9 +1149,8 @@ function isPrimedVar(treeNode, ctx){
     evalLog("lhs text:", ctx.state);
     return (treeNode.type === "bound_postfix_op" && 
             lhs.type === "identifier_ref" &&
-            symbol.type === "prime");
-            //  &&
-            // ctx.state.hasVar(lhs.text) && ctx.state.getVarVal(lhs.text) !== null);
+            symbol.type === "prime" &&
+            ctx.state.hasVar(lhs.text) && ctx.state.getVarVal(lhs.text) !== null);
 }
 
 function evalEq(lhs, rhs, ctx){
@@ -1479,10 +1499,14 @@ function evalBoundPrefix(node, ctx){
 }
 
 function evalBoundPostfix(node, ctx){
-    let symbol = node.children[0];
-    let rhs = node.children[1];
+    let lhs = node.namedChildren[0];
+    let symbol = node.namedChildren[1];
 
-    evalLog("POSTFIX:", symbol, rhs);
+    evalLog("POSTFIX:", node);
+    if(symbol.type === "prime"){
+        return evalExpr(lhs, ctx.withPrimed());
+    }
+
     return;
 
 }
@@ -1536,11 +1560,22 @@ function evalIdentifierRef(node, ctx){
     let ident_name = node.text;
     evalLog(`evalIdentifierRef, '${node.text}' context:`, ctx, "ident_name:", ident_name);
 
+    // Are we in a "primed" evaluation context.
+    let isPrimed = ctx.isPrimed();
+
     // If this identifier refers to a variable, return the value bound
     // to that variable in the current context.
-    if(ctx.state.hasVar(ident_name)){
+    if(ctx.state.hasVar(ident_name) && !isPrimed){
         evalLog("variable identifier: ", ident_name);
         let var_val = ctx.state.getVarVal(ident_name);
+        evalLog("var ident context:", ctx["state"], var_val);
+        return [ctx.withVal(var_val)];
+    }
+
+    // Evaluate identifier for primed context version.
+    if(ctx.state.hasVar(ident_name + "'") && isPrimed){
+        evalLog("variable identifier (primed): ", ident_name + "'");
+        let var_val = ctx.state.getVarVal(ident_name + "'");
         evalLog("var ident context:", ctx["state"], var_val);
         return [ctx.withVal(var_val)];
     }
