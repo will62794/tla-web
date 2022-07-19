@@ -351,6 +351,7 @@ tests = [
     {"spec": "Paxos_1a", "constvals": undefined},
     {"spec": "Paxos_1b_case1", "constvals": undefined},
     {"spec": "NQueens_N3", "constvals": {"N": new IntValue(3)}},
+    {"spec": "TwoPhase", "constvals": undefined},
     // {"spec": "DieHard", "constvals": undefined},
     {
         "spec": "lockserver_constant_comment", 
