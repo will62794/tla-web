@@ -333,6 +333,7 @@ tests = [
     {"spec": "simple_letin", "constvals": undefined},
     {"spec": "simple_seq", "constvals": undefined},
     {"spec": "simple_if_then", "constvals": undefined},
+    {"spec": "simple_record", "constvals": undefined},
     // {"spec": "simple_primed", "constvals": undefined},
     {"spec": "set_dot_notation", "constvals": undefined},
     {"spec": "record_literal_eval", "constvals": undefined},
