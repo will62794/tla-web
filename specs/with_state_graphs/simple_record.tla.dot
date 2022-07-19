@@ -1,0 +1,9 @@
+strict digraph DiskGraph {
+nodesep=0.35;
+subgraph cluster_graph {
+color="white";
+-933858685733805826 [label="x = [rec1 |-> [a |-> 1, b |-> 2], rec2 |-> 1, rec3 |-> 2]",style = filled]
+-933858685733805826 -> -933858685733805826 [label="",color="black",fontcolor="black"];
+{rank = same; -933858685733805826;}
+}
+}
