@@ -426,25 +426,25 @@ class TLAState{
      * Construct with a mapping from variable names to their corresponding TLAValue.
      */
     constructor(var_map){
-        this.vars = var_map;
+        this.stateVars = var_map;
     }
 
     hasVar(varname){
-        return this.vars.hasOwnProperty(varname);
+        return this.stateVars.hasOwnProperty(varname);
     }
 
     /**
      * Return the assigned value for the given variable name in this state.
      */
     getVarVal(varname){
-        return this.vars[varname];
+        return this.stateVars[varname];
     }
 
     /**
      * Return the state as an object mapping variables to values.
      */
     getStateObj(){
-        return this.vars;
+        return this.stateVars;
     }
 
     /**
@@ -452,7 +452,7 @@ class TLAState{
      * unprimed variables and rename the primed variables to unprimed versions. 
      */
     deprimeVars(){
-        let newVars = _.pickBy(this.vars, (val,k,obj) => k.endsWith("'"));
+        let newVars = _.pickBy(this.stateVars, (val,k,obj) => k.endsWith("'"));
         return new TLAState(_.mapKeys(newVars, (val,k,obj) => k.slice(0,k.length-1)));
     }
 
@@ -465,8 +465,8 @@ class TLAState{
     toJSONITF(){
         // Sort keys for now.
         let outObj = {};
-        for(var k of Object.keys(this.vars).sort()){
-            outObj[k] = this.vars[k].toJSONITF();
+        for(var k of Object.keys(this.stateVars).sort()){
+            outObj[k] = this.stateVars[k].toJSONITF();
         }
         return outObj;
         // return _.mapValues(this.vars, (v) => v.toJSONITF());
@@ -474,8 +474,8 @@ class TLAState{
 
     toString(){
         let out = "";
-        for(var k of Object.keys(this.vars).sort()){
-            out += "/\\ " + k + " = " + this.vars[k].toString() + "\n";
+        for(var k of Object.keys(this.stateVars).sort()){
+            out += "/\\ " + k + " = " + this.stateVars[k].toString() + "\n";
         }
         return out;        
     }
@@ -484,14 +484,14 @@ class TLAState{
      * Return a unique, string hash of this state.
      */
     fingerprint(){
-        let stateKeys = Object.keys(this.vars).sort();
+        let stateKeys = Object.keys(this.stateVars).sort();
         // Construct an array that is sequence of each state varialbe name and a
         // fingerprint of its TLA value. Then we hash this array to produce the
         // fingerprint for this state.
         let valsToHash = [];
         for(var k of stateKeys){
             valsToHash.push(k);
-            valsToHash.push(this.vars[k].fingerprint());
+            valsToHash.push(this.stateVars[k].fingerprint());
         }
         return hashSum(valsToHash);
     }
@@ -1074,7 +1074,7 @@ function processDisjunctiveContexts(ctx, retCtxs, currAssignedVars){
 
         // Did any of the sub-evaluation contexts assign a new value to a state variable?
         let assignedInSub = retCtxs.some(c => {
-            let assignedVars = _.keys(c["state"].vars).filter(k => c["state"].vars[k] !== null)
+            let assignedVars = _.keys(c["state"].stateVars).filter(k => c["state"].stateVars[k] !== null)
             return assignedVars.length > currAssignedVars.length;
             // evalLog("assigned vars:",assignedVars);
             return assignedVars;
@@ -1100,7 +1100,7 @@ function processDisjunctiveContexts(ctx, retCtxs, currAssignedVars){
 function evalLor(lhs, rhs, ctx){
     assert(ctx instanceof Context);
 
-    let currAssignedVars = _.keys(ctx["state"].vars).filter(k => ctx["state"].vars[k] !== null)
+    let currAssignedVars = _.keys(ctx["state"].stateVars).filter(k => ctx["state"].stateVars[k] !== null)
 
     // return {"val": false, "states": vars};
     evalLog("## LOR");
@@ -1118,15 +1118,19 @@ function evalLor(lhs, rhs, ctx){
 }
 
 // Checks if a syntax tree node represents a primed variable.
-function isPrimedVar(treeNode){
+function isPrimedVar(treeNode, ctx){
     if(treeNode.children.length < 2){
         return false;
     }
     let lhs = treeNode.children[0];
     let symbol = treeNode.children[1];
+    evalLog("lhs text:", lhs.text);
+    evalLog("lhs text:", ctx.state);
     return (treeNode.type === "bound_postfix_op" && 
             lhs.type === "identifier_ref" &&
             symbol.type === "prime");
+            //  &&
+            // ctx.state.hasVar(lhs.text) && ctx.state.getVarVal(lhs.text) !== null);
 }
 
 function evalEq(lhs, rhs, ctx){
@@ -1136,9 +1140,9 @@ function evalEq(lhs, rhs, ctx){
     let identName = lhs.text;
 
     // let isUnprimedVar = ctx["state"].hasOwnProperty(identName) && !isPrimedVar(lhs);
-    let isUnprimedVar = ctx.state.hasVar(identName) && !isPrimedVar(lhs);
+    let isUnprimedVar = ctx.state.hasVar(identName) && !isPrimedVar(lhs, ctx);
 
-    if(isPrimedVar(lhs) || (isUnprimedVar && !ASSIGN_PRIMED)){
+    if(isPrimedVar(lhs, ctx) || (isUnprimedVar && !ASSIGN_PRIMED)){
         // Update assignments for all current evaluation ctx.
 
         // If, in the current state assignment, the variable has not already
@@ -1474,12 +1478,21 @@ function evalBoundPrefix(node, ctx){
     } 
 }
 
+function evalBoundPostfix(node, ctx){
+    let symbol = node.children[0];
+    let rhs = node.children[1];
+
+    evalLog("POSTFIX:", symbol, rhs);
+    return;
+
+}
+
 function evalDisjList(parent, disjs, ctx){
     assert(ctx instanceof Context);
 
     evalLog("eval: disjunction list!");
 
-    let currAssignedVars = _.keys(ctx["state"].vars).filter(k => ctx["state"].vars[k] !== null)
+    let currAssignedVars = _.keys(ctx["state"].stateVars).filter(k => ctx["state"].stateVars[k] !== null)
 
     // Split into separate evaluation cases for each disjunct.
     // Also filter out any comments in this disjunction list.
@@ -1610,7 +1623,7 @@ function evalBoundedQuantification(node, ctx){
         return [ctx.withVal(new BoolValue(false))];
     }
 
-    let currAssignedVars = _.keys(ctx["state"].vars).filter(k => ctx["state"].vars[k] !== null)
+    let currAssignedVars = _.keys(ctx["state"].stateVars).filter(k => ctx["state"].stateVars[k] !== null)
 
     // Evaluate each sub-expression with the properly bound values.
     retCtxs = _.flattenDeep(quantDomain.map(domVal => {
@@ -1987,7 +2000,7 @@ function evalExpr(node, ctx){
         return [ctx.withVal(fnValRes)];
     }
 
-    if(isPrimedVar(node)){
+    if(isPrimedVar(node, ctx)){
         // See if this variable is already assigned a value in the current context, and if so, return it.
         if(ctx.state.getVarVal(node.text) !== null){
             return [ctx.withVal(ctx.state.getVarVal(node.text))];
@@ -2029,6 +2042,10 @@ function evalExpr(node, ctx){
 
     if(node.type === "bound_prefix_op"){
         return evalBoundPrefix(node, ctx);
+    }
+
+    if(node.type === "bound_postfix_op"){
+        return evalBoundPostfix(node, ctx);
     }
 
     // TODO: Finish this after implementing 'except' node type handling.
@@ -2323,11 +2340,11 @@ function getNextStates(nextDef, currStateVars, defns, constvals){
     // TODO: Pass this variable value as an argument to the evaluation functions.
     ASSIGN_PRIMED = true;
     depth = 0;
-    let origVars = Object.keys(currStateVars.vars);
+    let origVars = Object.keys(currStateVars.stateVars);
 
-    for(var k in currStateVars.vars){
+    for(var k in currStateVars.stateVars){
         let primedVar = k + "'";
-        currStateVars.vars[primedVar] = null;
+        currStateVars.stateVars[primedVar] = null;
     }
     evalLog("currStateVars:", currStateVars);
 
