@@ -448,6 +448,20 @@ class TLAState{
     }
 
     /**
+     * Returns a new copy of this state with the given variable updated to the
+     * specified value.
+     */
+    withVarVal(varName, newVal){
+        return new TLAState(_.mapValues(this.stateVars, (val,k,obj) => {
+            if(k === varName){
+                return newVal;
+            } else{
+                return val;
+            }
+        }));
+    }
+
+    /**
      * Given a state with primed and unprimed variables, remove the original
      * unprimed variables and rename the primed variables to unprimed versions. 
      */
@@ -668,26 +682,26 @@ function genSyntaxRewrites(treeArg) {
                 // //  UNCHANGED <<x,y>> ==> x' = x /\ y' = y
 
                 //
-                // (Eventually disable UNCHANGED de-sugaring.)
+                // Disable this in favor of semantic UNCHANGED handling.
                 //
-                let rewrite;
-                if(rhs.type === "tuple_literal"){
-                    let tup_elems = rhs.namedChildren.slice(1,rhs.namedChildren.length-1);
-                    let newText = tup_elems.map(el => el.text + "' = " + el.text ).join(" /\\ ");
-                    rewrite = {
-                        startPosition: node.startPosition,
-                        endPosition: node.endPosition,
-                        newStr: newText
-                    } 
-                } else{
-                    rewrite = {
-                        startPosition: symbol.startPosition,
-                        endPosition: symbol.endPosition,
-                        newStr: "" + rhs.text + "' ="
-                    } 
-                }
-                sourceRewrites.push(rewrite);
-                return sourceRewrites;
+                // let rewrite;
+                // if(rhs.type === "tuple_literal"){
+                //     let tup_elems = rhs.namedChildren.slice(1,rhs.namedChildren.length-1);
+                //     let newText = tup_elems.map(el => el.text + "' = " + el.text ).join(" /\\ ");
+                //     rewrite = {
+                //         startPosition: node.startPosition,
+                //         endPosition: node.endPosition,
+                //         newStr: newText
+                //     } 
+                // } else{
+                //     rewrite = {
+                //         startPosition: symbol.startPosition,
+                //         endPosition: symbol.endPosition,
+                //         newStr: "" + rhs.text + "' ="
+                //     } 
+                // }
+                // sourceRewrites.push(rewrite);
+                // return sourceRewrites;
             }
 
         }
@@ -1228,6 +1242,51 @@ function evalEq(lhs, rhs, ctx){
     }
 }
 
+function evalUnchanged(node, ctx){
+
+    let unchangedVal = node.namedChildren[1];
+
+    // Perform any substitutions first.
+    // TODO: May need to eventually recursively apply substitutions until fixpoint reached.
+    if(unchangedVal.type === "identifier_ref" &&
+        ctx.defns.hasOwnProperty(unchangedVal.text)){
+        let defnVal = ctx.defns[unchangedVal.text];
+        evalLog("defn: ", defnVal);
+        unchangedVal = defnVal.node;
+    }
+    evalLog("eval prefix op: UNCHANGED val", unchangedVal);
+
+    if(unchangedVal.type === "tuple_literal"){
+        // Handle case where tuple consists of identifier_refs.
+        let tupleElems = unchangedVal.namedChildren
+            .filter(c => c.type === "identifier_ref");
+        for(const elem of tupleElems){
+            evalLog("elem:", elem);
+
+            // Assign the primed version of this variable identifer to the same
+            // value as the unprimed version.
+            let unprimedVarVal = evalExpr(elem, ctx)[0]["val"];
+            evalLog("unprimed Val: ", unprimedVarVal);
+
+            // Update the primed variable.
+            let primedVarName = elem.text + "'";
+            ctx.state = ctx.state.withVarVal(primedVarName, unprimedVarVal);
+            // evalLog(ctx.state);
+        }
+        return [ctx.withVal(new BoolValue(true))];
+        
+    } else{
+        // Assume identifier_ref node.
+        assert(unchangedVal.type === "identifier_ref");
+        let unprimedVarVal = evalExpr(unchangedVal, ctx)[0]["val"];
+        // Update the primed variable.
+        let primedVarName = unchangedVal.text + "'";
+        ctx.state = ctx.state.withVarVal(primedVarName, unprimedVarVal);
+        // evalLog(ctx.state);
+        return [ctx.withVal(new BoolValue(true))];
+    }
+}
+
 // 'vars' is a list of possible partial state assignments known up to this point.
 function evalBoundInfix(node, ctx){
     assert(ctx instanceof Context);
@@ -1506,30 +1565,9 @@ function evalBoundPrefix(node, ctx){
 
     if(symbol.type === "unchanged"){
         evalLog("eval prefix op: UNCHANGED", node);
-        assert(false, "UNCHANGED under construction!");
-        return;
+        // assert(false, "UNCHANGED under construction!");
+        return evalUnchanged(node, ctx);
 
-        // TODO: Handle this case properly.
-        let unchangedVal = node.namedChildren[1];
-        // Perform any substitutions first.
-        if(unchangedVal.type === "identifier_ref" &&
-           ctx.defns.hasOwnProperty(unchangedVal.text)){
-            let defnVal = ctx.defns[unchangedVal.text];
-            evalLog("defn: ", defnVal);
-            unchangedVal = defnVal.node;
-        }
-        evalLog("eval prefix op: UNCHANGED val", unchangedVal);
-
-        // TupleVal case.
-        let tempCtx = ctx.clone();
-        let ret = evalExpr(unchangedVal, tempCtx);
-        evalLog("UNCHANGED ret val:", ret);
-        // Evaluate UNCHANGED <<e1,e2,...,en>> as
-        // UNCHANGED e1 /\ UNCHANGED e2 /\ ... /\ UNCHANGED en
-        if(ret instanceof TupleValue){
-
-        }
-        return ret;
 
     }
 }
