@@ -1,0 +1,211 @@
+strict digraph DiskGraph {
+nodesep=0.35;
+subgraph cluster_graph {
+color="white";
+7906452766160522007 [label="/\\ pending = (0 :> 0 @@ 1 :> 0)\n/\\ counter = (0 :> 0 @@ 1 :> 0)\n/\\ token = [color |-> \"black\", pos |-> 0, q |-> 0]\n/\\ active = (0 :> FALSE @@ 1 :> FALSE)\n/\\ color = (0 :> \"white\" @@ 1 :> \"white\")",style = filled]
+-4047292511952328669 [label="/\\ pending = (0 :> 0 @@ 1 :> 0)\n/\\ counter = (0 :> 0 @@ 1 :> 0)\n/\\ token = [color |-> \"black\", pos |-> 0, q |-> 0]\n/\\ active = (0 :> FALSE @@ 1 :> FALSE)\n/\\ color = (0 :> \"white\" @@ 1 :> \"black\")",style = filled]
+1452330913135815885 [label="/\\ pending = (0 :> 0 @@ 1 :> 0)\n/\\ counter = (0 :> 0 @@ 1 :> 0)\n/\\ token = [color |-> \"black\", pos |-> 0, q |-> 0]\n/\\ active = (0 :> FALSE @@ 1 :> FALSE)\n/\\ color = (0 :> \"black\" @@ 1 :> \"white\")",style = filled]
+-4734467087121264647 [label="/\\ pending = (0 :> 0 @@ 1 :> 0)\n/\\ counter = (0 :> 0 @@ 1 :> 0)\n/\\ token = [color |-> \"black\", pos |-> 0, q |-> 0]\n/\\ active = (0 :> FALSE @@ 1 :> FALSE)\n/\\ color = (0 :> \"black\" @@ 1 :> \"black\")",style = filled]
+8219218107305827940 [label="/\\ pending = (0 :> 0 @@ 1 :> 0)\n/\\ counter = (0 :> 0 @@ 1 :> 0)\n/\\ token = [color |-> \"black\", pos |-> 0, q |-> 0]\n/\\ active = (0 :> FALSE @@ 1 :> TRUE)\n/\\ color = (0 :> \"white\" @@ 1 :> \"white\")",style = filled]
+-2847124527485239984 [label="/\\ pending = (0 :> 0 @@ 1 :> 0)\n/\\ counter = (0 :> 0 @@ 1 :> 0)\n/\\ token = [color |-> \"black\", pos |-> 0, q |-> 0]\n/\\ active = (0 :> FALSE @@ 1 :> TRUE)\n/\\ color = (0 :> \"white\" @@ 1 :> \"black\")",style = filled]
+832722766083684798 [label="/\\ pending = (0 :> 0 @@ 1 :> 0)\n/\\ counter = (0 :> 0 @@ 1 :> 0)\n/\\ token = [color |-> \"black\", pos |-> 0, q |-> 0]\n/\\ active = (0 :> FALSE @@ 1 :> TRUE)\n/\\ color = (0 :> \"black\" @@ 1 :> \"white\")",style = filled]
+-6781839464037557622 [label="/\\ pending = (0 :> 0 @@ 1 :> 0)\n/\\ counter = (0 :> 0 @@ 1 :> 0)\n/\\ token = [color |-> \"black\", pos |-> 0, q |-> 0]\n/\\ active = (0 :> FALSE @@ 1 :> TRUE)\n/\\ color = (0 :> \"black\" @@ 1 :> \"black\")",style = filled]
+8959602218231628591 [label="/\\ pending = (0 :> 0 @@ 1 :> 0)\n/\\ counter = (0 :> 0 @@ 1 :> 0)\n/\\ token = [color |-> \"black\", pos |-> 0, q |-> 0]\n/\\ active = (0 :> TRUE @@ 1 :> FALSE)\n/\\ color = (0 :> \"white\" @@ 1 :> \"white\")",style = filled]
+-3009923257275834341 [label="/\\ pending = (0 :> 0 @@ 1 :> 0)\n/\\ counter = (0 :> 0 @@ 1 :> 0)\n/\\ token = [color |-> \"black\", pos |-> 0, q |-> 0]\n/\\ active = (0 :> TRUE @@ 1 :> FALSE)\n/\\ color = (0 :> \"white\" @@ 1 :> \"black\")",style = filled]
+416597381721613557 [label="/\\ pending = (0 :> 0 @@ 1 :> 0)\n/\\ counter = (0 :> 0 @@ 1 :> 0)\n/\\ token = [color |-> \"black\", pos |-> 0, q |-> 0]\n/\\ active = (0 :> TRUE @@ 1 :> FALSE)\n/\\ color = (0 :> \"black\" @@ 1 :> \"white\")",style = filled]
+-5790378849556281407 [label="/\\ pending = (0 :> 0 @@ 1 :> 0)\n/\\ counter = (0 :> 0 @@ 1 :> 0)\n/\\ token = [color |-> \"black\", pos |-> 0, q |-> 0]\n/\\ active = (0 :> TRUE @@ 1 :> FALSE)\n/\\ color = (0 :> \"black\" @@ 1 :> \"black\")",style = filled]
+7205545048609691228 [label="/\\ pending = (0 :> 0 @@ 1 :> 0)\n/\\ counter = (0 :> 0 @@ 1 :> 0)\n/\\ token = [color |-> \"black\", pos |-> 0, q |-> 0]\n/\\ active = (0 :> TRUE @@ 1 :> TRUE)\n/\\ color = (0 :> \"white\" @@ 1 :> \"white\")",style = filled]
+-3921719337258830488 [label="/\\ pending = (0 :> 0 @@ 1 :> 0)\n/\\ counter = (0 :> 0 @@ 1 :> 0)\n/\\ token = [color |-> \"black\", pos |-> 0, q |-> 0]\n/\\ active = (0 :> TRUE @@ 1 :> TRUE)\n/\\ color = (0 :> \"white\" @@ 1 :> \"black\")",style = filled]
+1901036536226705798 [label="/\\ pending = (0 :> 0 @@ 1 :> 0)\n/\\ counter = (0 :> 0 @@ 1 :> 0)\n/\\ token = [color |-> \"black\", pos |-> 0, q |-> 0]\n/\\ active = (0 :> TRUE @@ 1 :> TRUE)\n/\\ color = (0 :> \"black\" @@ 1 :> \"white\")",style = filled]
+-5760760702754598222 [label="/\\ pending = (0 :> 0 @@ 1 :> 0)\n/\\ counter = (0 :> 0 @@ 1 :> 0)\n/\\ token = [color |-> \"black\", pos |-> 0, q |-> 0]\n/\\ active = (0 :> TRUE @@ 1 :> TRUE)\n/\\ color = (0 :> \"black\" @@ 1 :> \"black\")",style = filled]
+7906452766160522007 -> 5433215690245473989 [label="",color="black",fontcolor="black"];
+5433215690245473989 [label="/\\ pending = (0 :> 0 @@ 1 :> 0)\n/\\ counter = (0 :> 0 @@ 1 :> 0)\n/\\ token = [color |-> \"white\", pos |-> 1, q |-> 0]\n/\\ active = (0 :> FALSE @@ 1 :> FALSE)\n/\\ color = (0 :> \"white\" @@ 1 :> \"white\")"];
+-4047292511952328669 -> -2230736590903859727 [label="",color="black",fontcolor="black"];
+-2230736590903859727 [label="/\\ pending = (0 :> 0 @@ 1 :> 0)\n/\\ counter = (0 :> 0 @@ 1 :> 0)\n/\\ token = [color |-> \"white\", pos |-> 1, q |-> 0]\n/\\ active = (0 :> FALSE @@ 1 :> FALSE)\n/\\ color = (0 :> \"white\" @@ 1 :> \"black\")"];
+1452330913135815885 -> 5433215690245473989 [label="",color="black",fontcolor="black"];
+1452330913135815885 -> 5433215690245473989 [label="",color="black",fontcolor="black"];
+-4734467087121264647 -> -2230736590903859727 [label="",color="black",fontcolor="black"];
+-4734467087121264647 -> -2230736590903859727 [label="",color="black",fontcolor="black"];
+8219218107305827940 -> 6111230035054695350 [label="",color="black",fontcolor="black"];
+6111230035054695350 [label="/\\ pending = (0 :> 0 @@ 1 :> 0)\n/\\ counter = (0 :> 0 @@ 1 :> 0)\n/\\ token = [color |-> \"white\", pos |-> 1, q |-> 0]\n/\\ active = (0 :> FALSE @@ 1 :> TRUE)\n/\\ color = (0 :> \"white\" @@ 1 :> \"white\")"];
+8219218107305827940 -> 7906452766160522007 [label="",color="black",fontcolor="black"];
+8219218107305827940 -> 5006843828458166035 [label="",color="black",fontcolor="black"];
+5006843828458166035 [label="/\\ pending = (0 :> 1 @@ 1 :> 0)\n/\\ counter = (0 :> 0 @@ 1 :> 1)\n/\\ token = [color |-> \"black\", pos |-> 0, q |-> 0]\n/\\ active = (0 :> FALSE @@ 1 :> TRUE)\n/\\ color = (0 :> \"white\" @@ 1 :> \"white\")"];
+8219218107305827940 -> 7906452766160522007 [label="",color="black",fontcolor="black"];
+-2847124527485239984 -> -98217898811674494 [label="",color="black",fontcolor="black"];
+-98217898811674494 [label="/\\ pending = (0 :> 0 @@ 1 :> 0)\n/\\ counter = (0 :> 0 @@ 1 :> 0)\n/\\ token = [color |-> \"white\", pos |-> 1, q |-> 0]\n/\\ active = (0 :> FALSE @@ 1 :> TRUE)\n/\\ color = (0 :> \"white\" @@ 1 :> \"black\")"];
+-2847124527485239984 -> -4047292511952328669 [label="",color="black",fontcolor="black"];
+-2847124527485239984 -> -1218331525640637401 [label="",color="black",fontcolor="black"];
+-1218331525640637401 [label="/\\ pending = (0 :> 1 @@ 1 :> 0)\n/\\ counter = (0 :> 0 @@ 1 :> 1)\n/\\ token = [color |-> \"black\", pos |-> 0, q |-> 0]\n/\\ active = (0 :> FALSE @@ 1 :> TRUE)\n/\\ color = (0 :> \"white\" @@ 1 :> \"black\")"];
+-2847124527485239984 -> -4047292511952328669 [label="",color="black",fontcolor="black"];
+832722766083684798 -> 6111230035054695350 [label="",color="black",fontcolor="black"];
+832722766083684798 -> 6111230035054695350 [label="",color="black",fontcolor="black"];
+832722766083684798 -> 1452330913135815885 [label="",color="black",fontcolor="black"];
+832722766083684798 -> 4387924736105738441 [label="",color="black",fontcolor="black"];
+4387924736105738441 [label="/\\ pending = (0 :> 1 @@ 1 :> 0)\n/\\ counter = (0 :> 0 @@ 1 :> 1)\n/\\ token = [color |-> \"black\", pos |-> 0, q |-> 0]\n/\\ active = (0 :> FALSE @@ 1 :> TRUE)\n/\\ color = (0 :> \"black\" @@ 1 :> \"white\")"];
+832722766083684798 -> 1452330913135815885 [label="",color="black",fontcolor="black"];
+-6781839464037557622 -> -98217898811674494 [label="",color="black",fontcolor="black"];
+-6781839464037557622 -> -98217898811674494 [label="",color="black",fontcolor="black"];
+-6781839464037557622 -> -4734467087121264647 [label="",color="black",fontcolor="black"];
+-6781839464037557622 -> -7599412821278338051 [label="",color="black",fontcolor="black"];
+-7599412821278338051 [label="/\\ pending = (0 :> 1 @@ 1 :> 0)\n/\\ counter = (0 :> 0 @@ 1 :> 1)\n/\\ token = [color |-> \"black\", pos |-> 0, q |-> 0]\n/\\ active = (0 :> FALSE @@ 1 :> TRUE)\n/\\ color = (0 :> \"black\" @@ 1 :> \"black\")"];
+-6781839464037557622 -> -4734467087121264647 [label="",color="black",fontcolor="black"];
+8959602218231628591 -> 6523766131993448189 [label="",color="black",fontcolor="black"];
+6523766131993448189 [label="/\\ pending = (0 :> 0 @@ 1 :> 0)\n/\\ counter = (0 :> 0 @@ 1 :> 0)\n/\\ token = [color |-> \"white\", pos |-> 1, q |-> 0]\n/\\ active = (0 :> TRUE @@ 1 :> FALSE)\n/\\ color = (0 :> \"white\" @@ 1 :> \"white\")"];
+8959602218231628591 -> -4679829540145924629 [label="",color="black",fontcolor="black"];
+-4679829540145924629 [label="/\\ pending = (0 :> 0 @@ 1 :> 1)\n/\\ counter = (0 :> 1 @@ 1 :> 0)\n/\\ token = [color |-> \"black\", pos |-> 0, q |-> 0]\n/\\ active = (0 :> TRUE @@ 1 :> FALSE)\n/\\ color = (0 :> \"white\" @@ 1 :> \"white\")"];
+8959602218231628591 -> 7906452766160522007 [label="",color="black",fontcolor="black"];
+8959602218231628591 -> 7906452766160522007 [label="",color="black",fontcolor="black"];
+-3009923257275834341 -> -1088341987688632887 [label="",color="black",fontcolor="black"];
+-1088341987688632887 [label="/\\ pending = (0 :> 0 @@ 1 :> 0)\n/\\ counter = (0 :> 0 @@ 1 :> 0)\n/\\ token = [color |-> \"white\", pos |-> 1, q |-> 0]\n/\\ active = (0 :> TRUE @@ 1 :> FALSE)\n/\\ color = (0 :> \"white\" @@ 1 :> \"black\")"];
+-3009923257275834341 -> 1540683873927845599 [label="",color="black",fontcolor="black"];
+1540683873927845599 [label="/\\ pending = (0 :> 0 @@ 1 :> 1)\n/\\ counter = (0 :> 1 @@ 1 :> 0)\n/\\ token = [color |-> \"black\", pos |-> 0, q |-> 0]\n/\\ active = (0 :> TRUE @@ 1 :> FALSE)\n/\\ color = (0 :> \"white\" @@ 1 :> \"black\")"];
+-3009923257275834341 -> -4047292511952328669 [label="",color="black",fontcolor="black"];
+-3009923257275834341 -> -4047292511952328669 [label="",color="black",fontcolor="black"];
+416597381721613557 -> 6523766131993448189 [label="",color="black",fontcolor="black"];
+416597381721613557 -> 6523766131993448189 [label="",color="black",fontcolor="black"];
+416597381721613557 -> -4137949956783173071 [label="",color="black",fontcolor="black"];
+-4137949956783173071 [label="/\\ pending = (0 :> 0 @@ 1 :> 1)\n/\\ counter = (0 :> 1 @@ 1 :> 0)\n/\\ token = [color |-> \"black\", pos |-> 0, q |-> 0]\n/\\ active = (0 :> TRUE @@ 1 :> FALSE)\n/\\ color = (0 :> \"black\" @@ 1 :> \"white\")"];
+416597381721613557 -> 1452330913135815885 [label="",color="black",fontcolor="black"];
+416597381721613557 -> 1452330913135815885 [label="",color="black",fontcolor="black"];
+-5790378849556281407 -> -1088341987688632887 [label="",color="black",fontcolor="black"];
+-5790378849556281407 -> -1088341987688632887 [label="",color="black",fontcolor="black"];
+-5790378849556281407 -> 7854119909364871429 [label="",color="black",fontcolor="black"];
+7854119909364871429 [label="/\\ pending = (0 :> 0 @@ 1 :> 1)\n/\\ counter = (0 :> 1 @@ 1 :> 0)\n/\\ token = [color |-> \"black\", pos |-> 0, q |-> 0]\n/\\ active = (0 :> TRUE @@ 1 :> FALSE)\n/\\ color = (0 :> \"black\" @@ 1 :> \"black\")"];
+-5790378849556281407 -> -4734467087121264647 [label="",color="black",fontcolor="black"];
+-5790378849556281407 -> -4734467087121264647 [label="",color="black",fontcolor="black"];
+7205545048609691228 -> 4981202255714360206 [label="",color="black",fontcolor="black"];
+4981202255714360206 [label="/\\ pending = (0 :> 0 @@ 1 :> 0)\n/\\ counter = (0 :> 0 @@ 1 :> 0)\n/\\ token = [color |-> \"white\", pos |-> 1, q |-> 0]\n/\\ active = (0 :> TRUE @@ 1 :> TRUE)\n/\\ color = (0 :> \"white\" @@ 1 :> \"white\")"];
+7205545048609691228 -> -6871300717656416104 [label="",color="black",fontcolor="black"];
+-6871300717656416104 [label="/\\ pending = (0 :> 0 @@ 1 :> 1)\n/\\ counter = (0 :> 1 @@ 1 :> 0)\n/\\ token = [color |-> \"black\", pos |-> 0, q |-> 0]\n/\\ active = (0 :> TRUE @@ 1 :> TRUE)\n/\\ color = (0 :> \"white\" @@ 1 :> \"white\")"];
+7205545048609691228 -> 7906452766160522007 [label="",color="black",fontcolor="black"];
+7205545048609691228 -> 8219218107305827940 [label="",color="black",fontcolor="black"];
+7205545048609691228 -> 8959602218231628591 [label="",color="black",fontcolor="black"];
+7205545048609691228 -> 6094597035313569579 [label="",color="black",fontcolor="black"];
+6094597035313569579 [label="/\\ pending = (0 :> 1 @@ 1 :> 0)\n/\\ counter = (0 :> 0 @@ 1 :> 1)\n/\\ token = [color |-> \"black\", pos |-> 0, q |-> 0]\n/\\ active = (0 :> TRUE @@ 1 :> TRUE)\n/\\ color = (0 :> \"white\" @@ 1 :> \"white\")"];
+7205545048609691228 -> 7906452766160522007 [label="",color="black",fontcolor="black"];
+7205545048609691228 -> 8219218107305827940 [label="",color="black",fontcolor="black"];
+7205545048609691228 -> 8959602218231628591 [label="",color="black",fontcolor="black"];
+-3921719337258830488 -> -1203387925784020806 [label="",color="black",fontcolor="black"];
+-1203387925784020806 [label="/\\ pending = (0 :> 0 @@ 1 :> 0)\n/\\ counter = (0 :> 0 @@ 1 :> 0)\n/\\ token = [color |-> \"white\", pos |-> 1, q |-> 0]\n/\\ active = (0 :> TRUE @@ 1 :> TRUE)\n/\\ color = (0 :> \"white\" @@ 1 :> \"black\")"];
+-3921719337258830488 -> 776941746204394412 [label="",color="black",fontcolor="black"];
+776941746204394412 [label="/\\ pending = (0 :> 0 @@ 1 :> 1)\n/\\ counter = (0 :> 1 @@ 1 :> 0)\n/\\ token = [color |-> \"black\", pos |-> 0, q |-> 0]\n/\\ active = (0 :> TRUE @@ 1 :> TRUE)\n/\\ color = (0 :> \"white\" @@ 1 :> \"black\")"];
+-3921719337258830488 -> -4047292511952328669 [label="",color="black",fontcolor="black"];
+-3921719337258830488 -> -2847124527485239984 [label="",color="black",fontcolor="black"];
+-3921719337258830488 -> -3009923257275834341 [label="",color="black",fontcolor="black"];
+-3921719337258830488 -> -74265724878636001 [label="",color="black",fontcolor="black"];
+-74265724878636001 [label="/\\ pending = (0 :> 1 @@ 1 :> 0)\n/\\ counter = (0 :> 0 @@ 1 :> 1)\n/\\ token = [color |-> \"black\", pos |-> 0, q |-> 0]\n/\\ active = (0 :> TRUE @@ 1 :> TRUE)\n/\\ color = (0 :> \"white\" @@ 1 :> \"black\")"];
+-3921719337258830488 -> -4047292511952328669 [label="",color="black",fontcolor="black"];
+-3921719337258830488 -> -2847124527485239984 [label="",color="black",fontcolor="black"];
+-3921719337258830488 -> -3009923257275834341 [label="",color="black",fontcolor="black"];
+1901036536226705798 -> 4981202255714360206 [label="",color="black",fontcolor="black"];
+1901036536226705798 -> 4981202255714360206 [label="",color="black",fontcolor="black"];
+1901036536226705798 -> -2793683377879546046 [label="",color="black",fontcolor="black"];
+-2793683377879546046 [label="/\\ pending = (0 :> 0 @@ 1 :> 1)\n/\\ counter = (0 :> 1 @@ 1 :> 0)\n/\\ token = [color |-> \"black\", pos |-> 0, q |-> 0]\n/\\ active = (0 :> TRUE @@ 1 :> TRUE)\n/\\ color = (0 :> \"black\" @@ 1 :> \"white\")"];
+1901036536226705798 -> 1452330913135815885 [label="",color="black",fontcolor="black"];
+1901036536226705798 -> 832722766083684798 [label="",color="black",fontcolor="black"];
+1901036536226705798 -> 416597381721613557 [label="",color="black",fontcolor="black"];
+1901036536226705798 -> 3245600087168252145 [label="",color="black",fontcolor="black"];
+3245600087168252145 [label="/\\ pending = (0 :> 1 @@ 1 :> 0)\n/\\ counter = (0 :> 0 @@ 1 :> 1)\n/\\ token = [color |-> \"black\", pos |-> 0, q |-> 0]\n/\\ active = (0 :> TRUE @@ 1 :> TRUE)\n/\\ color = (0 :> \"black\" @@ 1 :> \"white\")"];
+1901036536226705798 -> 1452330913135815885 [label="",color="black",fontcolor="black"];
+1901036536226705798 -> 832722766083684798 [label="",color="black",fontcolor="black"];
+1901036536226705798 -> 416597381721613557 [label="",color="black",fontcolor="black"];
+-5760760702754598222 -> -1203387925784020806 [label="",color="black",fontcolor="black"];
+-5760760702754598222 -> -1203387925784020806 [label="",color="black",fontcolor="black"];
+-5760760702754598222 -> 8311019025023837302 [label="",color="black",fontcolor="black"];
+8311019025023837302 [label="/\\ pending = (0 :> 0 @@ 1 :> 1)\n/\\ counter = (0 :> 1 @@ 1 :> 0)\n/\\ token = [color |-> \"black\", pos |-> 0, q |-> 0]\n/\\ active = (0 :> TRUE @@ 1 :> TRUE)\n/\\ color = (0 :> \"black\" @@ 1 :> \"black\")"];
+-5760760702754598222 -> -4734467087121264647 [label="",color="black",fontcolor="black"];
+-5760760702754598222 -> -6781839464037557622 [label="",color="black",fontcolor="black"];
+-5760760702754598222 -> -5790378849556281407 [label="",color="black",fontcolor="black"];
+-5760760702754598222 -> -8690034041937765435 [label="",color="black",fontcolor="black"];
+-8690034041937765435 [label="/\\ pending = (0 :> 1 @@ 1 :> 0)\n/\\ counter = (0 :> 0 @@ 1 :> 1)\n/\\ token = [color |-> \"black\", pos |-> 0, q |-> 0]\n/\\ active = (0 :> TRUE @@ 1 :> TRUE)\n/\\ color = (0 :> \"black\" @@ 1 :> \"black\")"];
+-5760760702754598222 -> -4734467087121264647 [label="",color="black",fontcolor="black"];
+-5760760702754598222 -> -6781839464037557622 [label="",color="black",fontcolor="black"];
+-5760760702754598222 -> -5790378849556281407 [label="",color="black",fontcolor="black"];
+5433215690245473989 -> 1909150891508327615 [label="",color="black",fontcolor="black"];
+1909150891508327615 [label="/\\ pending = (0 :> 0 @@ 1 :> 0)\n/\\ counter = (0 :> 0 @@ 1 :> 0)\n/\\ token = [color |-> \"white\", pos |-> 0, q |-> 0]\n/\\ active = (0 :> FALSE @@ 1 :> FALSE)\n/\\ color = (0 :> \"white\" @@ 1 :> \"white\")"];
+-2230736590903859727 -> 7906452766160522007 [label="",color="black",fontcolor="black"];
+6111230035054695350 -> 5433215690245473989 [label="",color="black",fontcolor="black"];
+6111230035054695350 -> 7179887807485516481 [label="",color="black",fontcolor="black"];
+7179887807485516481 [label="/\\ pending = (0 :> 1 @@ 1 :> 0)\n/\\ counter = (0 :> 0 @@ 1 :> 1)\n/\\ token = [color |-> \"white\", pos |-> 1, q |-> 0]\n/\\ active = (0 :> FALSE @@ 1 :> TRUE)\n/\\ color = (0 :> \"white\" @@ 1 :> \"white\")"];
+6111230035054695350 -> 5433215690245473989 [label="",color="black",fontcolor="black"];
+5006843828458166035 -> 7179887807485516481 [label="",color="black",fontcolor="black"];
+-98217898811674494 -> -2230736590903859727 [label="",color="black",fontcolor="black"];
+-98217898811674494 -> -3906756221276145163 [label="",color="black",fontcolor="black"];
+-3906756221276145163 [label="/\\ pending = (0 :> 1 @@ 1 :> 0)\n/\\ counter = (0 :> 0 @@ 1 :> 1)\n/\\ token = [color |-> \"white\", pos |-> 1, q |-> 0]\n/\\ active = (0 :> FALSE @@ 1 :> TRUE)\n/\\ color = (0 :> \"white\" @@ 1 :> \"black\")"];
+-98217898811674494 -> -2230736590903859727 [label="",color="black",fontcolor="black"];
+-1218331525640637401 -> -3906756221276145163 [label="",color="black",fontcolor="black"];
+4387924736105738441 -> 7179887807485516481 [label="",color="black",fontcolor="black"];
+4387924736105738441 -> 7179887807485516481 [label="",color="black",fontcolor="black"];
+-7599412821278338051 -> -3906756221276145163 [label="",color="black",fontcolor="black"];
+-7599412821278338051 -> -3906756221276145163 [label="",color="black",fontcolor="black"];
+6523766131993448189 -> 833465853677792391 [label="",color="black",fontcolor="black"];
+833465853677792391 [label="/\\ pending = (0 :> 0 @@ 1 :> 0)\n/\\ counter = (0 :> 0 @@ 1 :> 0)\n/\\ token = [color |-> \"white\", pos |-> 0, q |-> 0]\n/\\ active = (0 :> TRUE @@ 1 :> FALSE)\n/\\ color = (0 :> \"white\" @@ 1 :> \"white\")"];
+6523766131993448189 -> -7362800625862117319 [label="",color="black",fontcolor="black"];
+-7362800625862117319 [label="/\\ pending = (0 :> 0 @@ 1 :> 1)\n/\\ counter = (0 :> 1 @@ 1 :> 0)\n/\\ token = [color |-> \"white\", pos |-> 1, q |-> 0]\n/\\ active = (0 :> TRUE @@ 1 :> FALSE)\n/\\ color = (0 :> \"white\" @@ 1 :> \"white\")"];
+6523766131993448189 -> 5433215690245473989 [label="",color="black",fontcolor="black"];
+6523766131993448189 -> 5433215690245473989 [label="",color="black",fontcolor="black"];
+-4679829540145924629 -> -7362800625862117319 [label="",color="black",fontcolor="black"];
+-4679829540145924629 -> -7362800625862117319 [label="",color="black",fontcolor="black"];
+-1088341987688632887 -> 8959602218231628591 [label="",color="black",fontcolor="black"];
+-1088341987688632887 -> 3728540510146157325 [label="",color="black",fontcolor="black"];
+3728540510146157325 [label="/\\ pending = (0 :> 0 @@ 1 :> 1)\n/\\ counter = (0 :> 1 @@ 1 :> 0)\n/\\ token = [color |-> \"white\", pos |-> 1, q |-> 0]\n/\\ active = (0 :> TRUE @@ 1 :> FALSE)\n/\\ color = (0 :> \"white\" @@ 1 :> \"black\")"];
+-1088341987688632887 -> -2230736590903859727 [label="",color="black",fontcolor="black"];
+-1088341987688632887 -> -2230736590903859727 [label="",color="black",fontcolor="black"];
+1540683873927845599 -> 3728540510146157325 [label="",color="black",fontcolor="black"];
+1540683873927845599 -> 3728540510146157325 [label="",color="black",fontcolor="black"];
+-4137949956783173071 -> -7362800625862117319 [label="",color="black",fontcolor="black"];
+-4137949956783173071 -> -7362800625862117319 [label="",color="black",fontcolor="black"];
+-4137949956783173071 -> -7362800625862117319 [label="",color="black",fontcolor="black"];
+7854119909364871429 -> 3728540510146157325 [label="",color="black",fontcolor="black"];
+7854119909364871429 -> 3728540510146157325 [label="",color="black",fontcolor="black"];
+7854119909364871429 -> 3728540510146157325 [label="",color="black",fontcolor="black"];
+4981202255714360206 -> -8756184718694814390 [label="",color="black",fontcolor="black"];
+-8756184718694814390 [label="/\\ pending = (0 :> 0 @@ 1 :> 1)\n/\\ counter = (0 :> 1 @@ 1 :> 0)\n/\\ token = [color |-> \"white\", pos |-> 1, q |-> 0]\n/\\ active = (0 :> TRUE @@ 1 :> TRUE)\n/\\ color = (0 :> \"white\" @@ 1 :> \"white\")"];
+4981202255714360206 -> 5433215690245473989 [label="",color="black",fontcolor="black"];
+4981202255714360206 -> 6111230035054695350 [label="",color="black",fontcolor="black"];
+4981202255714360206 -> 6523766131993448189 [label="",color="black",fontcolor="black"];
+4981202255714360206 -> 8235869524198265593 [label="",color="black",fontcolor="black"];
+8235869524198265593 [label="/\\ pending = (0 :> 1 @@ 1 :> 0)\n/\\ counter = (0 :> 0 @@ 1 :> 1)\n/\\ token = [color |-> \"white\", pos |-> 1, q |-> 0]\n/\\ active = (0 :> TRUE @@ 1 :> TRUE)\n/\\ color = (0 :> \"white\" @@ 1 :> \"white\")"];
+4981202255714360206 -> 5433215690245473989 [label="",color="black",fontcolor="black"];
+4981202255714360206 -> 6111230035054695350 [label="",color="black",fontcolor="black"];
+4981202255714360206 -> 6523766131993448189 [label="",color="black",fontcolor="black"];
+-6871300717656416104 -> -8756184718694814390 [label="",color="black",fontcolor="black"];
+-6871300717656416104 -> -8756184718694814390 [label="",color="black",fontcolor="black"];
+6094597035313569579 -> 8235869524198265593 [label="",color="black",fontcolor="black"];
+-1203387925784020806 -> 3177206395349061246 [label="",color="black",fontcolor="black"];
+3177206395349061246 [label="/\\ pending = (0 :> 0 @@ 1 :> 1)\n/\\ counter = (0 :> 1 @@ 1 :> 0)\n/\\ token = [color |-> \"white\", pos |-> 1, q |-> 0]\n/\\ active = (0 :> TRUE @@ 1 :> TRUE)\n/\\ color = (0 :> \"white\" @@ 1 :> \"black\")"];
+-1203387925784020806 -> -2230736590903859727 [label="",color="black",fontcolor="black"];
+-1203387925784020806 -> -98217898811674494 [label="",color="black",fontcolor="black"];
+-1203387925784020806 -> -1088341987688632887 [label="",color="black",fontcolor="black"];
+-1203387925784020806 -> -2871093468773404211 [label="",color="black",fontcolor="black"];
+-2871093468773404211 [label="/\\ pending = (0 :> 1 @@ 1 :> 0)\n/\\ counter = (0 :> 0 @@ 1 :> 1)\n/\\ token = [color |-> \"white\", pos |-> 1, q |-> 0]\n/\\ active = (0 :> TRUE @@ 1 :> TRUE)\n/\\ color = (0 :> \"white\" @@ 1 :> \"black\")"];
+-1203387925784020806 -> -2230736590903859727 [label="",color="black",fontcolor="black"];
+-1203387925784020806 -> -98217898811674494 [label="",color="black",fontcolor="black"];
+-1203387925784020806 -> -1088341987688632887 [label="",color="black",fontcolor="black"];
+776941746204394412 -> 3177206395349061246 [label="",color="black",fontcolor="black"];
+776941746204394412 -> 3177206395349061246 [label="",color="black",fontcolor="black"];
+-74265724878636001 -> -2871093468773404211 [label="",color="black",fontcolor="black"];
+-2793683377879546046 -> -8756184718694814390 [label="",color="black",fontcolor="black"];
+-2793683377879546046 -> -8756184718694814390 [label="",color="black",fontcolor="black"];
+-2793683377879546046 -> -8756184718694814390 [label="",color="black",fontcolor="black"];
+3245600087168252145 -> 8235869524198265593 [label="",color="black",fontcolor="black"];
+3245600087168252145 -> 8235869524198265593 [label="",color="black",fontcolor="black"];
+8311019025023837302 -> 3177206395349061246 [label="",color="black",fontcolor="black"];
+8311019025023837302 -> 3177206395349061246 [label="",color="black",fontcolor="black"];
+8311019025023837302 -> 3177206395349061246 [label="",color="black",fontcolor="black"];
+-8690034041937765435 -> -2871093468773404211 [label="",color="black",fontcolor="black"];
+-8690034041937765435 -> -2871093468773404211 [label="",color="black",fontcolor="black"];
+833465853677792391 -> -3978347892331603389 [label="",color="black",fontcolor="black"];
+-3978347892331603389 [label="/\\ pending = (0 :> 0 @@ 1 :> 1)\n/\\ counter = (0 :> 1 @@ 1 :> 0)\n/\\ token = [color |-> \"white\", pos |-> 0, q |-> 0]\n/\\ active = (0 :> TRUE @@ 1 :> FALSE)\n/\\ color = (0 :> \"white\" @@ 1 :> \"white\")"];
+833465853677792391 -> 1909150891508327615 [label="",color="black",fontcolor="black"];
+833465853677792391 -> 1909150891508327615 [label="",color="black",fontcolor="black"];
+-7362800625862117319 -> -3978347892331603389 [label="",color="black",fontcolor="black"];
+3728540510146157325 -> -4679829540145924629 [label="",color="black",fontcolor="black"];
+-3978347892331603389 -> -7362800625862117319 [label="",color="black",fontcolor="black"];
+{rank = same; 1452330913135815885;-6781839464037557622;-4047292511952328669;8219218107305827940;-4734467087121264647;832722766083684798;7906452766160522007;-2847124527485239984;8959602218231628591;-3921719337258830488;-5790378849556281407;1901036536226705798;-3009923257275834341;7205545048609691228;416597381721613557;-5760760702754598222;}
+{rank = same; 5433215690245473989;-98217898811674494;1540683873927845599;-6871300717656416104;-8690034041937765435;-4137949956783173071;6094597035313569579;8311019025023837302;-2230736590903859727;6111230035054695350;-4679829540145924629;776941746204394412;3245600087168252145;7854119909364871429;-74265724878636001;-2793683377879546046;-1218331525640637401;4387924736105738441;-1088341987688632887;4981202255714360206;5006843828458166035;-7599412821278338051;6523766131993448189;-1203387925784020806;}
+{rank = same; 833465853677792391;-7362800625862117319;3728540510146157325;}
+{rank = same; -3978347892331603389;}
+}
+}
