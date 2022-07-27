@@ -323,6 +323,24 @@ class FcnRcdValue extends TLAValue{
         return this.values[idx];
     }
 
+    /**
+     * Apply the function to the path argument 'arg', given as array of args e.g. ["x", "y"].
+     */
+    applyPathArg(pathArg) {
+        if (pathArg.length === 1) {
+            return this.applyArg(pathArg[0]);
+        }
+        // Apply head of the path arg.
+        let fApplied = this.applyArg(pathArg[0])
+        // Apply rest of the path arg.
+        return fApplied.applyPathArg(pathArg.slice(1));
+
+        // let idx = this.argIndex(pathArg[0]);
+        // assert(idx >= 0, "argument " + arg + " doesn't exist in function domain.");
+        // return this.values[idx].applyPathArg(pathArg.slice(1));
+    }
+    
+
     updateWith(arg, newVal){
         let idx = this.argIndex(arg);
         let newFn = _.cloneDeep(this);
