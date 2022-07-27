@@ -2052,6 +2052,7 @@ function evalExpr(node, ctx){
         let updateExprs = node.namedChildren.slice(1,node.namedChildren.length-1);
 
         let rExpr = node.namedChildren[node.namedChildren.length-1];
+        evalLog("EXCEPT node:", node);
         evalLog("EXCEPT NAMED CHILDREN:", node.namedChildren);
         evalLog("EXCEPT numUpdateExprs:", numUpdateExprs);
 
@@ -2244,13 +2245,13 @@ function evalExpr(node, ctx){
     // {<single_quantifier_bound> : <expr>}
     // {i \in A : <expr>}
     if(node.type === "set_filter"){
-        evalLog("SET_FILTER");
+        evalLog("SET_FILTER", node);
         // Extract the left and right side of the ":" of the set filter.
         let singleQuantBound = node.namedChildren[0];
         let rhsFilter = node.namedChildren[1];
 
         // Evaluate the quantified domain.
-        assert(singleQuantBound.type === "single_quantifier_bound");
+        assert(singleQuantBound.type === "quantifier_bound");
         evalLog("singleQuantBound:", singleQuantBound, singleQuantBound.text);
         let ident = singleQuantBound.namedChildren[0].text;
         let domainExpr = singleQuantBound.namedChildren[2];
