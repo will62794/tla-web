@@ -977,7 +977,7 @@ function parseSpec(specText){
  * initial/next state generation.
  */
 class Context{
-    constructor(val, state, defns, quant_bound, constants) {
+    constructor(val, state, defns, quant_bound, constants, prev_func_val) {
 
         // @type: TLAValue
         // The result value of a TLA expression, or 'null' if no result has been
@@ -1007,7 +1007,7 @@ class Context{
         // @type: TLAValue
         // Stores a binding of a previous function value (e.g. the @ symbol) for 
         // EXCEPT based record updates.
-        this.prev_func_val = null;
+        this.prev_func_val = prev_func_val;
 
         // Are we evaluating this expression inside a "primed" context i.e.
         // should we treat all non-constant expressions (e.g. state variables) 
@@ -1027,7 +1027,8 @@ class Context{
         let defnsNew = this.defns // don't copy this field.
         let quant_boundNew = _.cloneDeep(this.quant_bound);
         let constants = _.cloneDeep(this.constants);
-        return new Context(valNew,stateNew,defnsNew,quant_boundNew, constants);
+        let prev_func_val = _.cloneDeep(this.prev_func_val);
+        return new Context(valNew, stateNew, defnsNew, quant_boundNew, constants, prev_func_val);
     }
 
     /**
@@ -2060,16 +2061,11 @@ function evalExpr(node, ctx){
 
     // [<lExpr> EXCEPT ![<updateExpr>] = <rExpr>]
     if(node.type === "except"){
-        evalLog("EXCEPT node, ctx:", ctx);
+        evalLog("EXCEPT node, ctx:", node, ctx);
         let lExpr = node.namedChildren[0];
-        let updateExpr = node.namedChildren[1];
+        let updateExprs = node.namedChildren.filter(c => c.type === "except_update");
+        let numUpdateExprs = updateExprs.length;
 
-        // EXCEPT syntax allows for nested updates e.g.
-        // [[a |-> [x |-> 1]] EXCEPT !["a"]["x"] = 12]
-        let numUpdateExprs = node.namedChildren.length - 2;
-        let updateExprs = node.namedChildren.slice(1,node.namedChildren.length-1);
-
-        let rExpr = node.namedChildren[node.namedChildren.length-1];
         evalLog("EXCEPT node:", node);
         evalLog("EXCEPT NAMED CHILDREN:", node.namedChildren);
         evalLog("EXCEPT numUpdateExprs:", numUpdateExprs);
@@ -2079,27 +2075,47 @@ function evalExpr(node, ctx){
         let lExprVal = evalExpr(lExpr, ctx);
         evalLog("lexprval:", lExprVal);
         // assert(lExprVal.type === "function");
-        let fnVal = lExprVal[0]["val"];
-        evalLog("fnVal:",fnVal);
-        assert(fnVal instanceof FcnRcdValue);
 
-        // TODO: Properly handle case of multi-update i.e.
-        // [[a |-> 1, b |-> 2] EXCEPT !["a"] = 10, !["b"] = 11]
+        let origFnVal = lExprVal[0]["val"];
+        evalLog("fnVal:",origFnVal);
+        assert(origFnVal instanceof FcnRcdValue);
+
         evalLog(updateExprs);
-        let updateExprVals = updateExprs.map(e => evalExpr(e, ctx)[0]["val"]);
-        evalLog("updateExprVals:", updateExprVals);
 
-        // Account for occurrence of "@" in the EXCEPT expression, which
-        // represents the previous (i.e pre-update) val of the function value.
-        let rExprVal;
-        let newCtx = ctx.clone();
-        newCtx.prev_func_val = fnVal.applyArg(updateExprVals[0]);
-        rExprVal = evalExpr(rExpr, newCtx)[0]["val"];
+        // General form of EXCEPT update expression:
+        // [a EXCEPT !.a.b["c"] = "b", ![2].x = 5]
+        let updatedFnVal = origFnVal;
+        for(const updateExpr of updateExprs){
+            evalLog("UPDATE EXPR:", updateExpr);
+            let updateSpec = updateExpr.namedChildren[0];
+            let newVal = updateExpr.childForFieldName("new_val");
 
-        evalLog("rExprVal:", rExprVal);
-        // fnVal[updateExprVal] = rExprVal;
+            // Handle each update specifier appropriately e.g.
+            // !.a.b["c"]
+            evalLog("UPDATE SPEC", updateSpec);
+            let updateSpecVals = updateSpec.namedChildren.map(c => {
+                if(c.type === "except_update_record_field"){
+                    // Retrieve field from original function/record value.
+                    evalLog(c);
+                    evalLog(origFnVal);
+                    evalLog(c.namedChildren[0].text);
+                    return new StringValue(c.namedChildren[0].text);
+                } else if(c.type === "except_update_fn_appl"){
+                    evalLog("except_update_fn_appl", c);
+                    return evalExpr(c.namedChildren[0], ctx)[0]["val"];
+                }
+            });
 
-        let updatedFnVal = fnVal.updateWithPath(updateExprVals, rExprVal);
+            evalLog("updateSpecVals:", updateSpecVals);
+
+            let newCtx = ctx.clone();
+            pathArg = updateSpecVals;
+            newCtx.prev_func_val = origFnVal.applyPathArg(pathArg);
+            evalLog("new ctx:", newCtx);
+            let newRhsVal = evalExpr(newVal, newCtx)[0]["val"];
+            updatedFnVal = updatedFnVal.updateWithPath(pathArg, newRhsVal);
+        }
+
         return [ctx.withVal(updatedFnVal)];
     }
 

@@ -2,8 +2,8 @@ strict digraph DiskGraph {
 nodesep=0.35;
 subgraph cluster_graph {
 color="white";
--933858685733805826 [label="x = [rec1 |-> [a |-> 1, b |-> 2], rec2 |-> 1, rec3 |-> 2]",style = filled]
--933858685733805826 -> -933858685733805826 [label="",color="black",fontcolor="black"];
-{rank = same; -933858685733805826;}
+8197327334915441840 [label="x = [ rec1 |-> [a |-> 1, b |-> 2],\n  rec2 |-> 1,\n  rec3 |-> 2,\n  rec4 |-> [pos |-> -4, q |-> 4],\n  rec5 |-> [pos |-> [a |-> 18], q |-> -3],\n  rec6 |-> [pos |-> [a |-> 18], q |-> [h |-> -3]],\n  rec7 |-> [pos |-> -1, q |-> 11, color |-> \"orange\"] ]",style = filled]
+8197327334915441840 -> 8197327334915441840 [label="",color="black",fontcolor="black"];
+{rank = same; 8197327334915441840;}
 }
 }
