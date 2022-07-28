@@ -338,6 +338,7 @@ tests = [
     {"spec": "simple_record", "constvals": undefined},
     {"spec": "simple_primed", "constvals": undefined},
     {"spec": "simple_var_tuple", "constvals": undefined},
+    {"spec": "simple_choose", "constvals": undefined},
     {"spec": "set_dot_notation", "constvals": undefined},
     {"spec": "record_literal_eval", "constvals": undefined},
     {"spec": "seq_append", "constvals": undefined},

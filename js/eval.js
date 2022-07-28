@@ -1976,6 +1976,32 @@ function evalLetIn(node, ctx){
     return evalExpr(letInExpr, newBoundCtx);
 }
 
+// CHOOSE x \in {1,2} : P(x)
+function evalChoose(node, ctx){
+    evalLog("CHOOSE", node);
+    let boundVar = node.namedChildren[0];
+    let domain = node.namedChildren[2];
+    let condition = node.namedChildren[3];
+
+    let domainVal = evalExpr(domain, ctx)[0]["val"];
+    evalLog("CHOOSE domain:", domainVal);
+
+    // Pick the first value in domain satisfying the condition.
+    // TODO: Should ensure consistent iteration order i.e. by 
+    // traversing in order sorted by element hashes.
+    for(const val of domainVal.getElems()){
+        evalLog("CHOOSE domain val:", val);
+        let boundCtx = ctx.withBoundVar(boundVar.text, val);
+        let condVal = evalExpr(condition, boundCtx)[0]["val"];
+        if(condVal.getVal()){
+            return [ctx.withVal(val)];
+        }
+    }
+
+    // No value satisfying the CHOOSE.
+    throw "No value satisfying CHOOSE predicate";
+}
+
 // For debugging.
 // TODO: Eventually move this all inside a dedicated class.
 let currEvalNode = null;
@@ -2057,6 +2083,11 @@ function evalExpr(node, ctx){
         assert(ctx.prev_func_val !== null);
         evalLog("eval prev func");
         return [ctx.withVal(ctx.prev_func_val)];
+    }
+
+
+    if(node.type === "choose"){
+        return evalChoose(node, ctx);
     }
 
     // [<lExpr> EXCEPT ![<updateExpr>] = <rExpr>]
