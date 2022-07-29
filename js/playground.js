@@ -4,6 +4,7 @@ let nextStatePred = null;
 let currState = null;
 let currNextStates = [];
 let currTrace = []
+let currTraceAliasVals = []
 let specTreeObjs = null;
 let specDefs = null;
 let specConsts = null;
@@ -44,6 +45,10 @@ function renderNextStateChoices(nextStates){
 // Step back one state in the current trace.
 function traceStepBack(){
     currTrace = currTrace.slice(0, currTrace.length - 1);
+    // Step back in alias trace as well.
+    if(currTraceAliasVals.length > 0){
+        currTraceAliasVals = currTraceAliasVals.slice(0, currTraceAliasVals.length - 1);
+    }
     // Back to initial states.
     if(currTrace.length === 0){
         console.log("Back to initial states.")
@@ -108,8 +113,13 @@ function renderCurrentTrace(){
     traceDiv.innerHTML = "";
     console.log(trace);
     let stateInd = 0;
+    let hasAliasVals = (currTraceAliasVals.length > 0);
     for(var ind=0;ind < currTrace.length;ind++){
         let state = currTrace[ind];
+        let stateAliasVal = null;
+        if(hasAliasVals){
+            stateAliasVal = currTraceAliasVals[ind];
+        }
         let isLastState = ind === currTrace.length - 1;
         let traceStateDiv = document.createElement("div");
         // traceStateDiv.innerHTML += "<b>State " + stateInd + "</b><br>"
@@ -117,6 +127,12 @@ function renderCurrentTrace(){
         // console.log("trace state:", state);
         for(const varname in state.getStateObj()){
             traceStateDiv.innerHTML += "<span><span class='state-varname'>" + varname +"</span> = "+ state.getVarVal(varname) + "</span>";
+            traceStateDiv.innerHTML += "<br>"
+        }
+        // Append Alias if needed.
+        if(hasAliasVals){
+            let aliasVarName = "Alias"
+            traceStateDiv.innerHTML += "<span class='alias-var'><span class='state-varname'>" + aliasVarName +"</span> = "+ stateAliasVal + "</span>";
             traceStateDiv.innerHTML += "<br>"
         }
 
@@ -139,6 +155,17 @@ function handleChooseState(statehash_short){
         throw Error("Given state hash does not exist among possible next states.")
     }
     let nextState = nextStateChoices[0];
+
+    // Compute ALIAS value if one exists.
+    let aliasVal = null;
+    if(specAlias !== undefined){
+        let initCtx = new Context(null, nextState, specDefs, {}, specConsts);
+        let aliasNode = specAlias.node
+        aliasVal = evalExpr(aliasNode, initCtx)[0]["val"];
+        console.log("aliasVal:", aliasVal);
+        currTraceAliasVals.push(aliasVal);
+    }
+
     // TODO: Consider detecting cycles in the trace.
     currTrace.push(nextState);
     console.log("nextState:", JSON.stringify(nextState));
@@ -562,6 +589,7 @@ function displayStateGraph(){
     specConsts = specTreeObjs["const_decls"];
     specDefs = specTreeObjs["op_defs"];
     nextStatePred = specTreeObjs["op_defs"]["Next"]["node"];
+    specAlias = specTreeObjs["op_defs"]["Alias"];
 
     // If there are CONSTANT declarations in the spec, we must
     // instantiate them with some concrete values.
