@@ -274,6 +274,7 @@ function reachableBench(){
 function reloadSpec(){
     console.log("Clearing current trace.");
     currTrace = []
+    currTraceAliasVals = []
     renderCurrentTrace();
 
     console.log("Generating initial states.");
