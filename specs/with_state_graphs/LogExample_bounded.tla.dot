@@ -1,0 +1,74 @@
+strict digraph DiskGraph {
+nodesep=0.35;
+subgraph cluster_graph {
+color="white";
+-3590905526247223953 [label="/\\ idx = 0\n/\\ log = <<>>",style = filled]
+-3590905526247223953 -> -4787471125696504522 [label="",color="black",fontcolor="black"];
+-4787471125696504522 [label="/\\ idx = 1\n/\\ log = <<>>"];
+-3590905526247223953 -> 6149175546738102567 [label="",color="black",fontcolor="black"];
+6149175546738102567 [label="/\\ idx = 0\n/\\ log = <<0>>"];
+-4787471125696504522 -> 2981776946284932573 [label="",color="black",fontcolor="black"];
+2981776946284932573 [label="/\\ idx = 2\n/\\ log = <<>>"];
+-4787471125696504522 -> -3590905526247223953 [label="",color="black",fontcolor="black"];
+-4787471125696504522 -> -1698413161781560597 [label="",color="black",fontcolor="black"];
+-1698413161781560597 [label="/\\ idx = 1\n/\\ log = <<1>>"];
+6149175546738102567 -> 3546905672701528401 [label="",color="black",fontcolor="black"];
+3546905672701528401 [label="/\\ idx = 1\n/\\ log = <<0>>"];
+6149175546738102567 -> 5401582546395021627 [label="",color="black",fontcolor="black"];
+5401582546395021627 [label="/\\ idx = 0\n/\\ log = <<0, 0>>"];
+2981776946284932573 -> 6540511193208241540 [label="",color="black",fontcolor="black"];
+6540511193208241540 [label="/\\ idx = 3\n/\\ log = <<>>"];
+2981776946284932573 -> -3590905526247223953 [label="",color="black",fontcolor="black"];
+2981776946284932573 -> 6294404248301759480 [label="",color="black",fontcolor="black"];
+6294404248301759480 [label="/\\ idx = 2\n/\\ log = <<2>>"];
+-1698413161781560597 -> 4962867530990539377 [label="",color="black",fontcolor="black"];
+4962867530990539377 [label="/\\ idx = 2\n/\\ log = <<1>>"];
+-1698413161781560597 -> -8358285887778332003 [label="",color="black",fontcolor="black"];
+-8358285887778332003 [label="/\\ idx = 0\n/\\ log = <<1>>"];
+-1698413161781560597 -> -1698413161781560597 [label="",color="black",fontcolor="black"];
+-1698413161781560597 -> -5598545078633434219 [label="",color="black",fontcolor="black"];
+-5598545078633434219 [label="/\\ idx = 1\n/\\ log = <<1, 1>>"];
+3546905672701528401 -> -7095280024343092789 [label="",color="black",fontcolor="black"];
+-7095280024343092789 [label="/\\ idx = 2\n/\\ log = <<0>>"];
+3546905672701528401 -> 6149175546738102567 [label="",color="black",fontcolor="black"];
+3546905672701528401 -> 3546905672701528401 [label="",color="black",fontcolor="black"];
+3546905672701528401 -> 1893468709885342176 [label="",color="black",fontcolor="black"];
+1893468709885342176 [label="/\\ idx = 1\n/\\ log = <<0, 1>>"];
+6294404248301759480 -> 3689950226096518030 [label="",color="black",fontcolor="black"];
+3689950226096518030 [label="/\\ idx = 3\n/\\ log = <<2>>"];
+6294404248301759480 -> -6952161797223654636 [label="",color="black",fontcolor="black"];
+-6952161797223654636 [label="/\\ idx = 0\n/\\ log = <<2>>"];
+6294404248301759480 -> -293977715452165278 [label="",color="black",fontcolor="black"];
+-293977715452165278 [label="/\\ idx = 1\n/\\ log = <<2>>"];
+6294404248301759480 -> -4324081727896631008 [label="",color="black",fontcolor="black"];
+-4324081727896631008 [label="/\\ idx = 2\n/\\ log = <<2, 2>>"];
+4962867530990539377 -> 2355598964660914695 [label="",color="black",fontcolor="black"];
+2355598964660914695 [label="/\\ idx = 3\n/\\ log = <<1>>"];
+4962867530990539377 -> -8358285887778332003 [label="",color="black",fontcolor="black"];
+4962867530990539377 -> -1698413161781560597 [label="",color="black",fontcolor="black"];
+4962867530990539377 -> 4871812259978388216 [label="",color="black",fontcolor="black"];
+4871812259978388216 [label="/\\ idx = 2\n/\\ log = <<1, 2>>"];
+-8358285887778332003 -> -1698413161781560597 [label="",color="black",fontcolor="black"];
+-8358285887778332003 -> -2090429308314991794 [label="",color="black",fontcolor="black"];
+-2090429308314991794 [label="/\\ idx = 0\n/\\ log = <<1, 0>>"];
+-7095280024343092789 -> -439134946607728195 [label="",color="black",fontcolor="black"];
+-439134946607728195 [label="/\\ idx = 3\n/\\ log = <<0>>"];
+-7095280024343092789 -> 6149175546738102567 [label="",color="black",fontcolor="black"];
+-7095280024343092789 -> 3546905672701528401 [label="",color="black",fontcolor="black"];
+-7095280024343092789 -> -1470657980077367155 [label="",color="black",fontcolor="black"];
+-1470657980077367155 [label="/\\ idx = 2\n/\\ log = <<0, 2>>"];
+-6952161797223654636 -> -293977715452165278 [label="",color="black",fontcolor="black"];
+-6952161797223654636 -> 7105743956184443030 [label="",color="black",fontcolor="black"];
+7105743956184443030 [label="/\\ idx = 0\n/\\ log = <<2, 0>>"];
+-293977715452165278 -> 6294404248301759480 [label="",color="black",fontcolor="black"];
+-293977715452165278 -> -6952161797223654636 [label="",color="black",fontcolor="black"];
+-293977715452165278 -> -293977715452165278 [label="",color="black",fontcolor="black"];
+-293977715452165278 -> 3615292146738501709 [label="",color="black",fontcolor="black"];
+3615292146738501709 [label="/\\ idx = 1\n/\\ log = <<2, 1>>"];
+{rank = same; -3590905526247223953;}
+{rank = same; -4787471125696504522;6149175546738102567;}
+{rank = same; 3546905672701528401;-1698413161781560597;2981776946284932573;}
+{rank = same; -7095280024343092789;4962867530990539377;-8358285887778332003;6294404248301759480;}
+{rank = same; -6952161797223654636;-293977715452165278;}
+}
+}
