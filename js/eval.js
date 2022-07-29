@@ -2163,7 +2163,7 @@ function evalExpr(node, ctx){
         // Tuples are considered as functions with natural number domains.
         let fnValRes;
         if(fnVal instanceof TupleValue){
-            evalLog("applying tuple as function");
+            evalLog("applying tuple as function", fnVal);
             assert(fnArgVal instanceof IntValue);
             let index = fnArgVal.getVal();
             // Account for 1-indexing.
