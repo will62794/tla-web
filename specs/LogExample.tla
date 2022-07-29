@@ -24,7 +24,7 @@ GrowLog ==
     /\ UNCHANGED idx
 
 Read ==
-    IF   idx < Len(log)
+    IF   idx < Len(log) /\ idx > 0
     THEN {log[idx]}
     ELSE {}
 
