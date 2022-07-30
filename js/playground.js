@@ -3,6 +3,7 @@ let allInitStates = [];
 let nextStatePred = null;
 let currState = null;
 let currNextStates = [];
+let currNextStatesAlias = [];
 let currTrace = []
 let currTraceAliasVals = []
 let specTreeObjs = null;
@@ -25,8 +26,11 @@ function toggleSpec(){
 function renderNextStateChoices(nextStates){
     let initStatesDiv = document.getElementById("initial-states");
     initStatesDiv.innerHTML = "";
-    // initStatesDiv.innerHTML += "<div>"
-    for(const state of nextStates){
+    initStatesDiv.innerHTML += "<div>"
+    // for(const state of nextStates){
+    for(var i=0;i<nextStates.length;i++){
+        var state = nextStates[i];
+
         let stateDiv = document.createElement("div");
         stateDiv.classList.add("init-state");
         // console.log("render next:", state);
@@ -35,6 +39,17 @@ function renderNextStateChoices(nextStates){
             // stateDiv.innerHTML += JSON.stringify(state[varname]);
             stateDiv.innerHTML += state.getVarVal(varname);
             stateDiv.innerHTML += "<br>"
+        }
+        if(specAlias !== undefined){
+            stateAlias = currNextStatesAlias[i];
+            console.log("stateAlias:", stateAlias);
+            let aliasFieldNames = stateAlias.getDomain();
+            console.log(aliasFieldNames);
+            for(const varnameval of aliasFieldNames){
+                stateDiv.innerHTML += `<span class='state-varname alias-var'>${varnameval.getVal()}</span> = `
+                stateDiv.innerHTML += stateAlias.applyArg(varnameval).toString();
+                stateDiv.innerHTML += "<br>";
+            }
         }
         let hash = hashSum(state);
         stateDiv.setAttribute("onclick", `handleChooseState("${hash}")`);
@@ -85,6 +100,13 @@ function traceGetLink(){
     updateTraceLink();
 }
 
+function computeAliasValForState(state){
+    let initCtx = new Context(null, state, specDefs, {}, specConsts);
+    let aliasNode = specAlias.node;
+    aliasVal = evalExpr(aliasNode, initCtx)[0]["val"];
+    return aliasVal;
+}
+
 // Load a trace from URL link. Returns false if there is no link to load.
 function loadTraceFromLink(){
     var url_ob = new URL(document.URL);
@@ -132,8 +154,18 @@ function renderCurrentTrace(){
         // Append Alias if needed.
         if(hasAliasVals){
             let aliasVarName = "Alias"
-            traceStateDiv.innerHTML += "<span class='alias-var'><span class='state-varname'>" + aliasVarName +"</span> = "+ stateAliasVal + "</span>";
-            traceStateDiv.innerHTML += "<br>"
+            // traceStateDiv.innerHTML += "<span class='alias-var'><span class='state-varname'>" + aliasVarName +"</span> = "+ stateAliasVal + "</span>";
+            // traceStateDiv.innerHTML += "<br>"
+
+            // stateAliasVal = currNextStatesAlias[i];
+            console.log("stateAlias:", stateAliasVal);
+            let aliasFieldNames = stateAliasVal.getDomain();
+            console.log(aliasFieldNames);
+            for(const varnameval of aliasFieldNames){
+                traceStateDiv.innerHTML += `<span class='state-varname alias-var'>${varnameval.getVal()}</span> = `
+                traceStateDiv.innerHTML += stateAliasVal.applyArg(varnameval).toString();
+                traceStateDiv.innerHTML += "<br>";
+            }
         }
 
         traceDiv.appendChild(traceStateDiv);
@@ -159,10 +191,7 @@ function handleChooseState(statehash_short){
     // Compute ALIAS value if one exists.
     let aliasVal = null;
     if(specAlias !== undefined){
-        let initCtx = new Context(null, nextState, specDefs, {}, specConsts);
-        let aliasNode = specAlias.node
-        aliasVal = evalExpr(aliasNode, initCtx)[0]["val"];
-        console.log("aliasVal:", aliasVal);
+        let aliasVal = computeAliasValForState(nextState)
         currTraceAliasVals.push(aliasVal);
     }
 
@@ -177,6 +206,14 @@ function handleChooseState(statehash_short){
     try {
         let nextStates = interp.computeNextStates(specTreeObjs, specConstVals, [nextState])
             .map(c => c["state"].deprimeVars());
+
+        if(specAlias !== undefined){
+            currNextStatesAlias = nextStates.map(ns => {
+                return computeAliasValForState(ns);
+            });
+            console.log("currNextAlias:", currNextStatesAlias);
+        }
+
         currNextStates = _.cloneDeep(nextStates);
         const duration = (performance.now() - start).toFixed(1);
         console.log(`Generation of next states took ${duration}ms`)
@@ -285,6 +322,12 @@ function reloadSpec(){
       initStates = interp.computeInitStates(specTreeObjs, specConstVals);
       allInitStates = _.cloneDeep(initStates);
       console.log("Set initial states: ", allInitStates);
+      if(specAlias!==undefined){
+        currNextStatesAlias = allInitStates.map(is => {
+            return computeAliasValForState(is);
+        })
+      }
+
     } catch(e){
       console.error("Error computing initial states.");
       if(currEvalNode !== null){
