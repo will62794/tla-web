@@ -272,13 +272,20 @@ class TupleValue extends TLAValue{
         return {"#type": "tup", "#value": this.elems.map(el => el.toJSONITF())};
     }
     fingerprint(){
-        // Tuples are functions with contiguous natural number domains.
-        let domainVals = _.range(1, this.elems.length + 1).map(v => new IntValue(v));
-        let rcd = new FcnRcdValue(domainVals, this.elems);
-        console.log("tuprcd:", rcd);
+        let rcd = this.toFcnRcd();
         return rcd.fingerprint();
     }
-    length(){
+
+    /**
+     * Return this tuple as an equivalent function value.
+     */
+    toFcnRcd() {
+        // Tuples are functions with contiguous natural number domains.
+        let domainVals = _.range(1, this.elems.length + 1).map(v => new IntValue(v));
+        return new FcnRcdValue(domainVals, this.elems);
+    }
+
+    length() {
         return this.elems.length;
     }
 }
@@ -2019,8 +2026,16 @@ function evalExcept(node, ctx){
     // assert(lExprVal.type === "function");
 
     let origFnVal = lExprVal[0]["val"];
-    evalLog("fnVal:",origFnVal);
-    assert(origFnVal instanceof FcnRcdValue);
+    evalLog("fnVal:", origFnVal);
+    // Functions, tuples, and records are all considered as functions.
+    assert(origFnVal instanceof FcnRcdValue || origFnVal instanceof TupleValue);
+
+    var wasTuple = false;
+    // Convert tuple to function for evaluation.
+    if (origFnVal instanceof TupleValue) {
+        wasTuple = true;
+        origFnVal = origFnVal.toFcnRcd();
+    }
 
     evalLog(updateExprs);
 
@@ -2056,6 +2071,12 @@ function evalExcept(node, ctx){
         evalLog("new ctx:", newCtx);
         let newRhsVal = evalExpr(newVal, newCtx)[0]["val"];
         updatedFnVal = updatedFnVal.updateWithPath(pathArg, newRhsVal);
+    }
+
+    // If the original value was a tuple, then treat this it as a tuple upon return.
+    if (wasTuple) {
+        evalLog(updatedFnVal);
+        updatedFnVal = new TupleValue(updatedFnVal.getValues());
     }
 
     return [ctx.withVal(updatedFnVal)];
