@@ -2002,6 +2002,65 @@ function evalChoose(node, ctx){
     throw "No value satisfying CHOOSE predicate";
 }
 
+function evalExcept(node, ctx){
+    evalLog("EXCEPT node, ctx:", node, ctx);
+    let lExpr = node.namedChildren[0];
+    let updateExprs = node.namedChildren.filter(c => c.type === "except_update");
+    let numUpdateExprs = updateExprs.length;
+
+    evalLog("EXCEPT node:", node);
+    evalLog("EXCEPT NAMED CHILDREN:", node.namedChildren);
+    evalLog("EXCEPT numUpdateExprs:", numUpdateExprs);
+
+    // This value should be a function.
+    evalLog("lExpr:",lExpr); 
+    let lExprVal = evalExpr(lExpr, ctx);
+    evalLog("lexprval:", lExprVal);
+    // assert(lExprVal.type === "function");
+
+    let origFnVal = lExprVal[0]["val"];
+    evalLog("fnVal:",origFnVal);
+    assert(origFnVal instanceof FcnRcdValue);
+
+    evalLog(updateExprs);
+
+    // General form of EXCEPT update expression:
+    // [a EXCEPT !.a.b["c"] = "b", ![2].x = 5]
+    let updatedFnVal = origFnVal;
+    for(const updateExpr of updateExprs){
+        evalLog("UPDATE EXPR:", updateExpr);
+        let updateSpec = updateExpr.namedChildren[0];
+        let newVal = updateExpr.childForFieldName("new_val");
+
+        // Handle each update specifier appropriately e.g.
+        // !.a.b["c"]
+        evalLog("UPDATE SPEC", updateSpec);
+        let updateSpecVals = updateSpec.namedChildren.map(c => {
+            if(c.type === "except_update_record_field"){
+                // Retrieve field from original function/record value.
+                evalLog(c);
+                evalLog(origFnVal);
+                evalLog(c.namedChildren[0].text);
+                return new StringValue(c.namedChildren[0].text);
+            } else if(c.type === "except_update_fn_appl"){
+                evalLog("except_update_fn_appl", c);
+                return evalExpr(c.namedChildren[0], ctx)[0]["val"];
+            }
+        });
+
+        evalLog("updateSpecVals:", updateSpecVals);
+
+        let newCtx = ctx.clone();
+        pathArg = updateSpecVals;
+        newCtx.prev_func_val = origFnVal.applyPathArg(pathArg);
+        evalLog("new ctx:", newCtx);
+        let newRhsVal = evalExpr(newVal, newCtx)[0]["val"];
+        updatedFnVal = updatedFnVal.updateWithPath(pathArg, newRhsVal);
+    }
+
+    return [ctx.withVal(updatedFnVal)];
+}
+
 // For debugging.
 // TODO: Eventually move this all inside a dedicated class.
 let currEvalNode = null;
@@ -2092,62 +2151,7 @@ function evalExpr(node, ctx){
 
     // [<lExpr> EXCEPT ![<updateExpr>] = <rExpr>]
     if(node.type === "except"){
-        evalLog("EXCEPT node, ctx:", node, ctx);
-        let lExpr = node.namedChildren[0];
-        let updateExprs = node.namedChildren.filter(c => c.type === "except_update");
-        let numUpdateExprs = updateExprs.length;
-
-        evalLog("EXCEPT node:", node);
-        evalLog("EXCEPT NAMED CHILDREN:", node.namedChildren);
-        evalLog("EXCEPT numUpdateExprs:", numUpdateExprs);
-
-        // This value should be a function.
-        evalLog("lExpr:",lExpr); 
-        let lExprVal = evalExpr(lExpr, ctx);
-        evalLog("lexprval:", lExprVal);
-        // assert(lExprVal.type === "function");
-
-        let origFnVal = lExprVal[0]["val"];
-        evalLog("fnVal:",origFnVal);
-        assert(origFnVal instanceof FcnRcdValue);
-
-        evalLog(updateExprs);
-
-        // General form of EXCEPT update expression:
-        // [a EXCEPT !.a.b["c"] = "b", ![2].x = 5]
-        let updatedFnVal = origFnVal;
-        for(const updateExpr of updateExprs){
-            evalLog("UPDATE EXPR:", updateExpr);
-            let updateSpec = updateExpr.namedChildren[0];
-            let newVal = updateExpr.childForFieldName("new_val");
-
-            // Handle each update specifier appropriately e.g.
-            // !.a.b["c"]
-            evalLog("UPDATE SPEC", updateSpec);
-            let updateSpecVals = updateSpec.namedChildren.map(c => {
-                if(c.type === "except_update_record_field"){
-                    // Retrieve field from original function/record value.
-                    evalLog(c);
-                    evalLog(origFnVal);
-                    evalLog(c.namedChildren[0].text);
-                    return new StringValue(c.namedChildren[0].text);
-                } else if(c.type === "except_update_fn_appl"){
-                    evalLog("except_update_fn_appl", c);
-                    return evalExpr(c.namedChildren[0], ctx)[0]["val"];
-                }
-            });
-
-            evalLog("updateSpecVals:", updateSpecVals);
-
-            let newCtx = ctx.clone();
-            pathArg = updateSpecVals;
-            newCtx.prev_func_val = origFnVal.applyPathArg(pathArg);
-            evalLog("new ctx:", newCtx);
-            let newRhsVal = evalExpr(newVal, newCtx)[0]["val"];
-            updatedFnVal = updatedFnVal.updateWithPath(pathArg, newRhsVal);
-        }
-
-        return [ctx.withVal(updatedFnVal)];
+        return evalExcept(node, ctx);
     }
 
     // <fnVal>[<fnArgVal>] e.g. 'f[3]'
