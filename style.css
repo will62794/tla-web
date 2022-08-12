@@ -1,0 +1,301 @@
+body {
+    margin: 0;
+    padding: 0;
+    font-family: Arial, Helvetica, sans-serif;
+  }
+
+  h1,h2,h3,h4{
+      font-family: Arial, Helvetica, sans-serif;
+      /* text-decoration: underline; */
+  }
+
+  .const-input{
+      margin:3px;
+  }
+
+  #choose-constants-elems{
+      font-size: 14px;
+      font-family: monospace;
+  }
+  #choose-constants-elems input{
+    font-family: monospace;
+  }
+
+  #set-constants-button{
+    width:180px;
+    font-family:Arial;
+  }
+
+  #app-title{
+      color:gray;
+      position: absolute;
+      right:0;
+      top:0;
+      font-family: Arial, Helvetica, sans-serif;
+      padding:5px;
+      z-index:1000;
+  }
+
+  .pane-title{
+      font-size:18px;
+      font-weight: bold;
+      padding-bottom:8px;
+      padding-top:8px;
+  }
+
+  #toggle-spec-button{
+      position:absolute;
+      /* color:red; */
+      background-color: lightblue;
+      border-radius: 5px;
+      border:solid;
+      font-size:18px;
+      padding:5px;
+      z-index: 1000;
+      margin:5px;
+      right:0;
+      bottom:0;
+  }
+
+  #toggle-spec-button:hover{
+      cursor: pointer;
+      background-color: lightgray;
+  }
+
+  #playground-container {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+  }
+
+  #repl-container{
+    position:absolute;
+    right:0;
+    bottom:0;
+    background-color: gray;
+    margin-right:20px;
+  }
+
+  #repl-text-input{
+    padding:10px;
+    font-size:16px;
+    font-family: monospace;
+  }
+
+  header {
+    box-sizing: border-box;
+    display: flex;
+    padding: 20px;
+    height: 60px;
+    border-bottom: 1px solid #aaa;
+  }
+
+  main {
+    flex: 1;
+    position: relative;
+  }
+
+  #input-pane {
+    position: absolute;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    right: 50%;
+    display: flex;
+    flex-direction: column;
+    font-family: 'Source Code Pro', monospace;
+  }
+
+  #initial-states{
+      /* min-height: 250px; */
+      /* max-height:300px; */
+      height:35%;
+      width:98%;
+      /* height:100px; */
+      overflow-y:scroll;
+      border: 2px gray solid;
+      border-radius: 5px;
+  }
+
+  #initial-states,#next-states{
+      font-size:12px;
+  }
+
+  #trace{
+    padding-left:15px;
+    height:50%;
+    overflow-y: scroll;
+  }
+
+  .tlc-state{
+      font-family: monospace;
+      /* font-family: 'JetBrains Mono', monospace; */
+      /* font-family: 'Source Code Pro', monospace; */
+      font-size: 12px;
+  }
+
+  .trace-state b{
+      text-decoration: underline;
+  }
+
+  .trace-state{
+      border:solid;
+      border-color:steelblue;
+      border-width: 2px;
+      border-radius: 3px;
+      padding:6px;
+      margin-bottom:3px;
+      margin-top:5px;
+      width:90%;
+  }
+
+  .init-state{
+      background-color:#ddd;
+      padding:1%;
+      width:45%;
+      float:left;
+      margin:1%;
+      border:solid;
+      border-color:gray;
+  }
+
+  .state-varname{
+    font-weight:bold;
+  }
+
+  .alias-var{
+    color:blue;
+    /* border-top:solid; */
+    /* padding-top:100px; */
+  }
+
+  .init-state:hover{
+      cursor:pointer;
+      border:solid;
+      border-color: steelblue;
+  }
+
+  #code-container, #query-container {
+    flex: 1;
+    position: relative;
+    overflow: hidden;
+    border-right: 1px solid #aaa;
+    border-bottom: 1px solid #aaa;
+
+  }
+
+  #trace-container {
+    /* position: absolute; */
+    top: 0;
+    /* left: 35%; */
+    bottom: 0;
+    width:100%;
+    /* right: 30%; */
+    padding-left:0px;
+    overflow: auto;
+    border-right:solid 0.5px lightgray;
+    /* background-color: lightgray; */
+  }
+
+  #output-container-scroll {
+    position: absolute;
+    top: 0;
+    left: 50%;
+    bottom: 0;
+    right: 0;
+  }
+
+  .header-item {
+    margin-right: 30px;
+  }
+
+  #playground-container .CodeMirror {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 100%;
+  }
+
+  .CodeMirror{
+    font-size:13px;
+    /* font-family: 'Source Code Pro', monospace; */
+  }
+
+  #output-container-scroll {
+    flex: 1;
+    overflow: auto;
+    padding-left:15px;
+  }
+
+  #output-container {
+    padding: 0 10px;
+    margin: 0;
+  }
+
+  #trace-buttons{
+      width:80%;
+      /* border:solid; */
+      overflow: hidden;
+  }
+
+  .button-base{
+    color:black;
+    text-align: center;
+    height:18px;
+    vertical-align: middle;
+    font-size:14px;
+    border-radius: 3px;
+    background-color: steelblue;
+    color:white;
+    padding-left:6px;
+    padding-right:6px;
+    padding-top:4px;
+    padding-bottom:4px;
+  }
+  .button-base:hover{
+    cursor: pointer;
+    background-color: gray;
+  }
+
+  .trace-button{
+    height:18px;
+    float: left; 
+    margin-right:5px; 
+  }
+
+  #logging-checkbox {
+    vertical-align: middle;
+  }
+
+  .CodeMirror div.CodeMirror-cursor {
+    border-left: 3px solid red;
+  }
+
+  a {
+    text-decoration: none;
+    color: #040404;
+    padding: 2px;
+  }
+
+  a:hover {
+    text-decoration: underline;
+  }
+
+  a.highlighted {
+    background-color: #d9d9d9;
+    color: red;
+    border-radius: 3px;
+    text-decoration: underline;
+  }
+
+  .query-error {
+    text-decoration: underline red dashed;
+  }
+
+  .line-error{
+    background-color:red;
+    opacity:0.25;
+  }
