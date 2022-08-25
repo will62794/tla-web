@@ -10,7 +10,7 @@ For evaluating constant level TLA+ expressions e.g.
 {1,2,3} \cup {3,4}
 Append(<<1,2>>, 5)
 ```
-we can view evaluation as a simple bottom up procedure on the parse tree of a given expression
+we can view evaluation as a simple bottom up procedure on the parse tree of a given expression like `3 + (6 - 2)`
 <p align="center">
 <img src="diagrams/eval-tree-constant1/eval-tree-constant1.png" alt="drawing" width="100"/>
 </p>
