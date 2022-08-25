@@ -14,7 +14,7 @@ we can view evaluation as a simple bottom up procedure on the parse tree of a gi
 <p align="center">
 <img src="diagrams/eval-tree-constant1/eval-tree-constant1.png" alt="drawing" width="100"/>
 </p>
-where blue values indicate the result of expression evaluation for the subtree rooted at that node
+where blue values indicate the result of expression evaluation for the subtree rooted at that node.
 
 TLA+ expressions (formulae, more generally) are also evaluated for initial state and/or next state generation, where the aim is not to produce a single value as the result of evaluation, but rather to generate a set of states satisfying the given TLA+ state (or action) predicate. 
 
@@ -31,42 +31,43 @@ Standard algorithms for satisfiability like [DPLL](https://en.wikipedia.org/wiki
 
 ### Basic Algorithm
 
-The intuition behind the algorithm for state generation can be illustrated by focusing on a few simple examples. A key concept of the algorithm is that of an *evaluation context*, which is the term we use in our interpreter. Essentially, a context represents all of the state relevant to a single branch of a current, in-progress state generation computation. Most importantly, it stores the current assignment of values to state variables, which may be partial, or empty (no variables have values assigned yet). The evaluation function can be viewed as taking on the following signature i.e. it takes in a set of contexts and an expression, and returns a new set of contexts.
+The intuition behind the algorithm for state generation can be illustrated through a few basic examples. A key concept of the algorithm is that of an *evaluation context*, which is the term we use in our interpreter. Essentially, a context represents all of the state relevant to a single branch of a current, in-progress state generation computation. Most importantly, it stores the current assignment of values to state variables, which may be partial, or empty (e.g. no variables have values assigned yet). For simplicity of exposition, we can view a context as consisting of a pair of (1) an (partial) assignment of values to variables and (2) a TLA+ value. In practice there are a variety of other details stored in a context like what values are bound to identifiers, definitions, constants, etc. 
+
+The core evaluation function can be viewed as taking on the following signature 
 ```
-eval(set<Context>, expr) -> set<Context>
+eval : (set<Context>, expr) -> set<Context>
 ```
+
+That is, it takes in a set of contexts and an expression, and returns a new set of contexts. As an example, consider the task of generating all initial states satisfying the following TLA+ formula:
+
+```tlaplus
+TRUE /\ (x = 1 \/ x = 2)
+```
+Evaluation begins with a single, empty context, in which no state variables are assigned any values. If we encounter a disjunction, during evaluation, then this splits our current computation into two new branches. In the above case, we would split the computation, and then be left with one new formula in each branch. We can visualize this evaluation procedure again in tre-form.
 
 <p align="center">
-<img src="diagrams/eval-tree-states1/eval-tree-states1.png" alt="drawing" width="300"/>
+<img src="diagrams/eval-tree-states1/eval-tree-states1.png" alt="drawing" width="380"/>
 </p>
 
-As an example, consider the task of generating all initial states satisfying the following TLA+ formula:
+Distinct from basic constant expression evaluation, the result of each subtree evaluation produces not a single TLA+ value, but a set of evaluation contexts, representing the (potentially) disjunctive formulae that were evaluated as part of that subtree. This set of contexts, representing independent branches of evaluation, are propagated up through the evaluation of the parse tree. A set of contexts may be forked many times, depending on how many disjunctive expressions appear in the formula. Also note that, for state generation, each context produces a value along with an assignment to variables, but this value must always be a boolean, representing whether or not that branch of evaluation is a permitted state.
 
-```
-x = 1 \/ x = 2
-```
-Initially, we begin with a single, empty context, in which no state variables are assigned any values. 
+### Handling Disjunctions in General
 
-```
-eval({}, x = 1 \/ x = 2)
-```
+Note that there are various forms of disjunction that appear in TLA+ formulas. In particular, the following three are the most common:
 
-If we encounter a disjunction, during evaluation, then this splits our current computation into two new branches. In the above case, we would split the computation, and then be left with one new formula in each branch:
+* `x = 1 \/ x = 2` (propositional disjunction)
+* `\E v \in S : P(v)` (existential quantifier)
+* `x \in S` (set membership)
 
-```
-eval({}, x = 1 \/ x = 2)
-    eval({}, x = 1)
-    eval({}, x = 2)
-```
-Each of these sub-evaluations then both produce new contexts, since they both contains variable assignments
+Note that the third case can be expressed equivalently as `\E v \in S : x = v`, so we can worry only with the first two cases. In practice, we require the domain `S` of quantification to be finite, so we can assume that, after evaluating `S`, we will always be quantifying over some finite set, and so we can also reduce the existential quantifier to the propositional disjunction case. That is, if `S = {e1,...,en}` we can rewrite
 
+```tlaplus
+\E v \in S : P(v)
 ```
-eval({}, x = 1 \/ x = 2) -> { {x=1}, {x=2} }
-    eval({}, x = 1) -> {x=1}
-    eval({}, x = 2) -> {x=2}
+as
+```tlaplus
+P(e1) \/ ... \/ P(e1)
 ```
-
-TODO.
 
 
 <!-- 

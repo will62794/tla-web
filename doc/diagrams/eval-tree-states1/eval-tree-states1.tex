@@ -13,14 +13,18 @@
     for tree={rectangle,draw}
  }
 }
+\forestset{retstyle/.style={text=blue,font=\scriptsize}}
 \begin{forest}
-    [$\wedge$,label={[text=blue,font=\scriptsize]\{\{x=1\},\{x=2\}\}}
-        [\true]
-        [$\vee$,label={[text=blue,font=\scriptsize]east:\{\{x=1\},\{x=2\}\}}
-            [{=},label={[text=blue,font=\scriptsize]west:\{\{x=2\}\}} 
-                [x] [2]]
-            [{=},label={[text=blue,font=\scriptsize]east:\{(\{x=1\},\true)\}}
-                [x] [1]]
+    % for tree={
+    %     grow=0,reversed % tree direction.
+    % }
+    [$\wedge$,label={[text=blue,font=\scriptsize]\{($[x \mapsto 1]$,\true),($[x \mapsto 2]$,\true)\}}
+        [\true,label={[text=blue,font=\scriptsize]west:\{($[]$,\true)\}}]
+        [$\vee$,label={[text=blue,font=\scriptsize]east:\{($[x \mapsto 1]$,\true),($[x \mapsto 2]$,\true)\}}
+            [{=},label={[text=blue,font=\scriptsize]west:\{($[x \mapsto 2]$,\true)\}} 
+                [$x$] [2]]
+            [{=},label={[text=blue,font=\scriptsize]east:\{($[x \mapsto 1]$,\true)\}}
+                [$x$] [1]]
     ]
     ]
    \end{forest}
