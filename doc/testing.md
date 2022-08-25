@@ -1,4 +1,4 @@
-# How the Javascript TLA+ Interpreter is Tested
+# Testing the Javascript TLA+ Interpreter
 
 The main form of correctness testing for the Javascript TLA+ interpreter implementation is conformance testing against TLC. That is, roughly, for a given specification, does our intepreter generate the same set of reachable states as TLC. 
 
