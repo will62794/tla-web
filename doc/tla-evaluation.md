@@ -44,7 +44,7 @@ eval({}, x = 1 \/ x = 2)
 Each of these sub-evaluations then both produce new contexts, since they both contains variable assignments
 
 ```
-eval({}, x = 1 \/ x = 2) -> {{x=1}, {x=2}}
+eval({}, x = 1 \/ x = 2) -> { {x=1}, {x=2} }
     eval({}, x = 1) -> {x=1}
     eval({}, x = 2) -> {x=2}
 ```
