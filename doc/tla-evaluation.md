@@ -47,6 +47,8 @@ eval({}, x = 1 \/ x = 2) -> {{x=1}, {x=2}}
     eval({}, x = 2) -> {x=2}
 ```
 
+TODO.
+
 ## Implementation Details
 
 The evaluation of an initial state predicate/expression can be viewed as returning both a boolean value (`TRUE/FALSE`) as well as a set of possible states, i.e. assignments to variables that satisfy the initial state predicate. Whenever we evaluate a conjunction list 
