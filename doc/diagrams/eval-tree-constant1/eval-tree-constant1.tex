@@ -1,0 +1,24 @@
+\documentclass[convert]{standalone}
+
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{forest}
+\usepackage{xcolor}
+
+\begin{document}
+\forestset{
+ default preamble={
+    for tree={rectangle,draw}
+ }
+}
+\begin{forest}
+    [+,label={[text=blue]east:7}
+        [3]
+        [-,label={[text=blue]east:4}
+            [6]
+            [2]
+    ]
+    ]
+   \end{forest}
+
+\end{document}

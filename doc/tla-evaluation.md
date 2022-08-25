@@ -1,27 +1,44 @@
 # How the TLA+ Interpreter Evaluates Expressions
 
-The evaluation of a TLA+ expression may produce either (1) a value or (2) a set of states along with a value. The first case is the simplest to handle, and deals with basic "constant level" expressions of TLA+ e.g. evaluating expressions like
+The evaluation of a TLA+ expression may produce either (1) a value or (2) a set of states along with a value. The first case is the simplest to handle, and deals with basic "constant level" expressions of TLA+. The second case, dealing with how TLA+ formulas are evaluated during initial state or next state generation, is more involved, and is discussed below.
+
+## Constant Expression Evaluation
+
+For evaluating constant level TLA+ expressions e.g.
 ```
 2 + 3
 {1,2,3} \cup {3,4}
 Append(<<1,2>>, 5)
 ```
-TLA+ expressions can also be evaluated in the context of initial state or next state generation, where the aim is not to evaluate an expression as a single value, but rather to generate a set of states satisfying the given TLA+ state (or action) predicate. 
+we can view evaluation as a simple bottom up procedure on the parse tree of a given expression
+<p align="center">
+<img src="diagrams/eval-tree-constant1/eval-tree-constant1.png" alt="drawing" width="100"/>
+</p>
+where blue values indicate the result of expression evaluation for the subtree rooted at that node
 
-## Initial State Generation
+TLA+ expressions (formulae, more generally) are also evaluated for initial state and/or next state generation, where the aim is not to produce a single value as the result of evaluation, but rather to generate a set of states satisfying the given TLA+ state (or action) predicate. 
+
+## State Generation
 
 It is simplest to first consider initial state generation, since next state generation is not fundamentally different. Given a set of defined variables and a TLA+ formula, like
-```tla
+```tlaplus
+VARIABLE x
 x = 1 \/ x = 2
 ```
-the problem of initial state generation can be viewed as essentially a type of [satisfiability problem](https://en.wikipedia.org/wiki/Boolean_satisfiability_problem). That is, the goal is to generate the set of all possible assignments to state variables that make the given formula true. More generally, we can also view it as a variant of a [constraint satisfaction problem](https://en.wikipedia.org/wiki/Constraint_satisfaction_problem) (CSP), where the variable domains are initially unknown. In practice, only formulas that allow variables to range over finite domains can be handled, so we can assume that all variable domains are finite. 
+the problem of initial state generation can be viewed as essentially a [satisfiability problem](https://en.wikipedia.org/wiki/Boolean_satisfiability_problem). That is, the goal is to generate the set of all possible assignments to state variables that make the given formula true. More generally, we can also view it as a variant of a [constraint satisfaction problem](https://en.wikipedia.org/wiki/Constraint_satisfaction_problem) (CSP), where the variable domains are initially unknown. In practice, only formulas that allow variables to range over finite domains can be handled, so we can assume that all variable domains are finite. 
 
-Standard algorithms for satisfiability like [DPLL](https://en.wikipedia.org/wiki/DPLL_algorithm) typically assume that formulas are given in [CNF](https://en.wikipedia.org/wiki/Conjunctive_normal_form), and that the variable domains are finite and fixed upfront (e.g. boolean domains, in the case of classic SAT). In the case of state generation in TLA+, though, the setting is a bit different, since formulas may be of arbitrary form, and variables may range over finite but unknown domains. Furthermore, TLA+ permits first order logical constructs (e.g. quantifiers), which falls out of the scope of classic SAT algorithms. So, the algorithm for state generation can not be naively reduced to a classic backtracking/search-based satisfiability algorithm. One potential approach would be to simply encode a TLA+ formulas to SMT, and then generate the set of all satisfying assignments. This may eventually be a feasible approach, but requires more work on developing a clean encoding for all constructs of TLA+ ([TLAPS](https://tla.msr-inria.inria.fr/tlaps/content/Home.html) and [Apalache](https://github.com/informalsystems/apalache) have worked on this).
+Standard algorithms for satisfiability like [DPLL](https://en.wikipedia.org/wiki/DPLL_algorithm) typically assume that formulas are given in [CNF](https://en.wikipedia.org/wiki/Conjunctive_normal_form), and that the variable domains are finite and fixed upfront (e.g. boolean domains, in the case of classic SAT). In the case of state generation in TLA+, though, the setting is a bit different, since formulas may be of arbitrary form, and variables may range over finite but initially unspecified domains. Furthermore, TLA+ permits first order logical constructs (e.g. quantifiers), which fall outside the scope of classic SAT approaches. So, the algorithm for state generation can not be easily reduced to a classic backtracking/search-based satisfiability algorithm. One potential approach would be to simply encode the given TLA+ formula to SMT, and then generate the set of all satisfying assignments using a backend solver. This is presumably a feasible approach for state generation, but requires work to develop a symbolic encoding for all constructs of TLA+ ([TLAPS](https://tla.msr-inria.inria.fr/tlaps/content/Home.html) and [Apalache](https://github.com/informalsystems/apalache) have worked on this).
 
-The intuition behind the algorithm for state generation can be illustrated by focusing on a few simple examples. A key concept of the evaluation algorithm is that of an *evaluation context*, which is the term we use in our interpreter. Essentially, a context represents all of the state relevant to a current, in-progress state generation procedure, for a single branch of the evaluation computation. Most importantly, it stores the current assignment of values to state variables, which may be partial, or empty (no variables have values assigned yet). The evaluation function can be viewed as taking on the following signature i.e. it takes in a set of contexts and an expression, and returns a new set of contexts.
+### Basic Algorithm
+
+The intuition behind the algorithm for state generation can be illustrated by focusing on a few simple examples. A key concept of the algorithm is that of an *evaluation context*, which is the term we use in our interpreter. Essentially, a context represents all of the state relevant to a single branch of a current, in-progress state generation computation. Most importantly, it stores the current assignment of values to state variables, which may be partial, or empty (no variables have values assigned yet). The evaluation function can be viewed as taking on the following signature i.e. it takes in a set of contexts and an expression, and returns a new set of contexts.
 ```
 eval(set<Context>, expr) -> set<Context>
 ```
+
+<p align="center">
+<img src="diagrams/eval-tree-states1/eval-tree-states1.png" alt="drawing" width="300"/>
+</p>
 
 As an example, consider the task of generating all initial states satisfying the following TLA+ formula:
 

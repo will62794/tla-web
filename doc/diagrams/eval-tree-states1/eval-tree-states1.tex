@@ -1,0 +1,28 @@
+\documentclass[convert]{standalone}
+
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{forest}
+
+\newcommand{\true}{{\scriptsize TRUE}}
+\newcommand{\false}{{\scriptsize FALSE}}
+
+\begin{document}
+\forestset{
+ default preamble={
+    for tree={rectangle,draw}
+ }
+}
+\begin{forest}
+    [$\wedge$,label={[text=blue,font=\scriptsize]\{\{x=1\},\{x=2\}\}}
+        [\true]
+        [$\vee$,label={[text=blue,font=\scriptsize]east:\{\{x=1\},\{x=2\}\}}
+            [{=},label={[text=blue,font=\scriptsize]west:\{\{x=2\}\}} 
+                [x] [2]]
+            [{=},label={[text=blue,font=\scriptsize]east:\{(\{x=1\},\true)\}}
+                [x] [1]]
+    ]
+    ]
+   \end{forest}
+
+\end{document}
