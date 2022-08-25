@@ -30,7 +30,9 @@ Standard algorithms for satisfiability like [DPLL](https://en.wikipedia.org/wiki
 
 ### Basic Algorithm
 
-The intuition behind the algorithm for state generation can be illustrated through a few basic examples. A key concept of the algorithm is that of an *evaluation context*, which is the term we use in our interpreter. Essentially, a context represents all of the state relevant to a single branch of a current, in-progress state generation computation. Most importantly, it stores the current assignment of values to state variables, which may be partial, or empty (e.g. no variables have values assigned yet). For simplicity of exposition, we can view a context as consisting of a pair of (1) an (partial) assignment of values to variables and (2) a TLA+ value. In practice there are a variety of other details stored in a context like what values are bound to identifiers, definitions, constants, etc. 
+The intuition behind the algorithm for state generation can be illustrated through a few basic examples. Note that our implementation aims to emulate the general approach described at a high level in Specifying Systems, section 14.2.6, to the extent possible.
+
+A key concept of the algorithm is that of an *evaluation context*, which is the term we use in our interpreter implementation. Essentially, a context represents all of the state relevant to a single branch of a current, in-progress state generation computation. Most importantly, it stores the current assignment of values to state variables, which may be partial, or empty (e.g. no variables have values assigned yet). For simplicity of exposition, we can view a context as consisting of a pair of (1) an (partial) assignment of values to variables and (2) a TLA+ value. In practice there are a variety of other details stored in a context like what values are bound to identifiers, definitions, constants, etc. 
 
 The core evaluation function can be viewed as taking on the following signature 
 ```
