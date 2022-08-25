@@ -18,6 +18,7 @@ let model = {
     specTreeObjs: null,
     specDefs: null,
     specConsts: null,
+    specConstInputVals: {},
     specConstVals: {},
     parser: null
 }
@@ -106,6 +107,33 @@ function getAliasVarElems(stateAlias) {
             m("br")
         ])
     });
+}
+
+function componentChooseConstants() {
+    // If there are CONSTANT declarations in the spec, we must
+    // instantiate them with some concrete values.
+    if (_.isEmpty(model.specConsts)) {
+        return m("span", {}, "");
+    }
+    console.log("Instantiating spec constants.");
+
+    let chooseConstsElems = [];
+    for (const constDecl in model.specConsts) {
+        console.log(constDecl);
+        let newDiv = m("div", {}, [
+            m("span", {}, m.trust("CONSTANT " + constDecl + " &#8592; ")),
+            m("input", { class: "const-input", id: `const-val-input-${constDecl}`, oninput: (e) => model.specConstInputVals[constDecl] = e.target.value })
+        ])
+        chooseConstsElems.push(newDiv);
+    }
+
+    let setButtonDiv = m("div", { id: "set-constants-button", class: "button-base", onclick: setConstantValues }, "Set constant values")
+
+    return m("div", {}, [
+        m("div", { class: "pane-title" }, "Choose constants"),
+        m("div", { id: "choose-constants-elems" }, chooseConstsElems),
+        setButtonDiv,
+    ]);
 }
 
 function componentNextStateChoices(nextStates) {
@@ -312,8 +340,13 @@ function setConstantValues() {
     let constVals = {};
     let nullTree;
     for (var constDecl in model.specConsts) {
-        let inputElem = document.getElementById("const-val-input-" + constDecl);
-        let constValText = inputElem.value;
+        let constValText = model.specConstInputVals[constDecl];
+        if(constValText === undefined){
+            throw "no constant value given for " + constDecl;
+        }
+
+        // let inputElem = document.getElementById("const-val-input-" + constDecl);
+        // let constValText = inputElem.value;
         console.log(constDecl, constValText);
         constVals[constDecl] = constValText;
     }
@@ -332,7 +365,7 @@ function setConstantValues() {
         dummySpec += `/\\ var_${constDecl} = ${constDecl}\n`;
     }
     dummySpec += `Next == \n`;
-    for (var constDecl in specConsts) {
+    for (var constDecl in model.specConsts) {
         dummySpec += `/\\ var_${constDecl}' = var_${constDecl}\n`;
     }
 
@@ -356,7 +389,7 @@ function setConstantValues() {
     assert(dummyInitStates.length === 1);
     let initStateEval = dummyInitStates[0];
     let constTlaVals = {};
-    for (var constDecl in specConsts) {
+    for (var constDecl in model.specConsts) {
         constTlaVals[constDecl] = initStateEval.getVarVal(`var_${constDecl}`);
     }
 
@@ -506,38 +539,8 @@ async function handleCodeChange(editor, changes) {
     model.nextStatePred = model.specTreeObjs["op_defs"]["Next"]["node"];
     model.specAlias = model.specTreeObjs["op_defs"]["Alias"];
 
-    // If there are CONSTANT declarations in the spec, we must
-    // instantiate them with some concrete values.
+    // Don't try to reload the spec yet if we have to instantiate constants.
     if (!_.isEmpty(model.specConsts)) {
-        console.log("Instantiating spec constants.");
-
-        let chooseConstsContainer = document.getElementById("choose-constants-container");
-        chooseConstsContainer.innerHTML = "";
-        let chooseTitle = document.createElement("div");
-        chooseTitle.innerHTML = "Choose constants";
-        chooseTitle.classList.add("pane-title");
-        chooseConstsContainer.appendChild(chooseTitle);
-
-        let chooseConstsElem = document.createElement("div");
-        chooseConstsElem.id = "choose-constants-elems";
-        for (const constDecl in model.specConsts) {
-            console.log(constDecl);
-            let newDiv = document.createElement("div");
-            newDiv.innerHTML = "CONSTANT " + constDecl + " &#8592; ";
-            newDiv.innerHTML += `<input class='const-input' id='const-val-input-${constDecl}'>`;
-            chooseConstsElem.appendChild(newDiv);
-        }
-
-        let setButtonDiv = document.createElement("div");
-        setButtonDiv.innerHTML = "Set constant values"
-        setButtonDiv.id = "set-constants-button"
-        setButtonDiv.classList.add("button-base");
-        setButtonDiv.setAttribute("onclick", 'setConstantValues()');
-        chooseConstsElem.appendChild(setButtonDiv);
-
-        chooseConstsContainer.appendChild(chooseConstsElem);
-
-        // Don't try to reload the spec if we have to instantiate constants.
         return;
     }
 
@@ -588,7 +591,7 @@ async function loadApp() {
 
                 // Display pane.
                 m("div", { id: "output-container-scroll" }, [
-                    m("div", { id: "choose-constants-container" }, []),
+                    m("div", { id: "choose-constants-container" }, componentChooseConstants()),
                     m("div", { id: "poss-next-states-title", class: "pane-title" }, "Choose Initial State"),
                     m("div", { id: "initial-states", class: "tlc-state" }, componentNextStateChoices()),
                     m("div", { id: "trace-container" }, [
