@@ -43,13 +43,15 @@ That is, it takes in a set of contexts and an expression, and returns a new set 
 ```tlaplus
 TRUE /\ (x = 1 \/ x = 2)
 ```
-Evaluation begins with a single, empty context, in which no state variables are assigned any values. If we encounter a disjunction, during evaluation, then this splits our current computation into two new branches. In the above case, we would split the computation, and then be left with one new formula in each branch. We can visualize this evaluation procedure again in tre-form.
+Evaluation begins with a single, empty context, in which no state variables are assigned any values. If we encounter a disjunction, during evaluation, then this splits our current computation into two new branches. In the above case, we would split the computation, and then be left with one new formula in each branch. We can visualize this evaluation procedure again in tree form.
 
 <p align="center">
 <img src="diagrams/eval-tree-states1/eval-tree-states1.png" alt="drawing" width="420"/>
 </p>
 
-Distinct from basic constant expression evaluation, the result of each subtree evaluation produces not a single TLA+ value, but a set of evaluation contexts, representing the (potentially) disjunctive formulae that were evaluated as part of that subtree. This set of contexts, representing independent branches of evaluation, are propagated up through the evaluation of the parse tree. A set of contexts may be forked many times, depending on how many disjunctive expressions appear in the formula. Also note that, for state generation, each context produces a value along with an assignment to variables, but this value must always be a boolean, representing whether or not that branch of evaluation is a permitted state.
+Distinct from basic constant expression evaluation, the result of each subtree evaluation produces not a single TLA+ value, but a set of evaluation contexts, representing the (potentially disjunctive) formulae that were evaluated as part of that subtree. This set of contexts, representing independent branches of evaluation, are propagated up through the evaluation of the parse tree. A set of contexts may be forked many times, depending on how many disjunctive expressions appear in the formula. Also note that, for state generation, each context produces a value along with an assignment to variables, but this value must always be a boolean, representing whether or not that branch of evaluation is a permitted state.
+
+When encountering an equality expression that contains a state variable (as shown in the lower level subtrees of the example above), this is treated as a variable assignment, and it produces an expression value of `TRUE`. If we encounter such an equality expression during evaluation and a variable has already been assigned in the current context, then it is treated as a simple boolean expression i.e. we check if the expression is satisfied based on the currently assigned variable value. 
 
 ### Handling Disjunctions in General
 
@@ -59,7 +61,9 @@ Note that there are various forms of disjunction that appear in TLA+ formulas. I
 * `\E v \in S : P(v)` (existential quantifier)
 * `x \in S` (set membership)
 
-Note that the third case can be expressed equivalently as `\E v \in S : x = v`, so we can worry only with the first two cases. In practice, we require the domain `S` of quantification to be finite, so we can assume that, after evaluating `S`, we will always be quantifying over some finite set, and so we can also reduce the existential quantifier to the propositional disjunction case. That is, if `S = {e1,...,en}` we can rewrite
+Note that the third case can be expressed equivalently as `\E v \in S : x = v`, so we can consider only the first two cases. 
+
+In practice, we require the domain `S` of quantification to be finite, so we can assume that, after evaluating `S`, we will always be quantifying over some finite set, and so we can also reduce the existential quantifier to the propositional disjunction case. That is, if `S = {e1,...,en}` we can rewrite
 
 ```tlaplus
 \E v \in S : P(v)
