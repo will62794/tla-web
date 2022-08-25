@@ -54,6 +54,8 @@ Distinct from basic constant expression evaluation, the result of each subtree e
 
 When encountering an equality expression that contains a state variable (as shown in the lower level subtrees of the example above), this is treated as a variable assignment, and it produces an expression value of `TRUE`. If we encounter such an equality expression during evaluation and a variable has already been assigned in the current context, then it is treated as a simple boolean expression i.e. we check if the expression is satisfied based on the currently assigned variable value. 
 
+TODO: More examples.
+
 ### Handling Disjunctions in General
 
 Note that there are various forms of disjunction that appear in TLA+ formulas. In particular, the following three are the most common:
@@ -64,7 +66,7 @@ Note that there are various forms of disjunction that appear in TLA+ formulas. I
 
 Note that the third case can be expressed equivalently as `\E v \in S : x = v`, so we can consider only the first two cases. 
 
-In practice, we require the domain `S` of quantification to be finite, so we can assume that, after evaluating `S`, we will always be quantifying over some finite set, and so we can also reduce the existential quantifier to the propositional disjunction case. That is, if `S = {e1,...,en}` we can rewrite
+In practice, we require the domain `S` of quantification to be finite, so we can assume that, after evaluating `S`, we will always be quantifying over some finite set. Thus, we can reduce the existential quantifier to the propositional disjunction case. That is, if `S = {e1,...,en}` we can rewrite
 
 ```tlaplus
 \E v \in S : P(v)
