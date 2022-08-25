@@ -46,7 +46,7 @@ TRUE /\ (x = 1 \/ x = 2)
 Evaluation begins with a single, empty context, in which no state variables are assigned any values. If we encounter a disjunction, during evaluation, then this splits our current computation into two new branches. In the above case, we would split the computation, and then be left with one new formula in each branch. We can visualize this evaluation procedure again in tre-form.
 
 <p align="center">
-<img src="diagrams/eval-tree-states1/eval-tree-states1.png" alt="drawing" width="380"/>
+<img src="diagrams/eval-tree-states1/eval-tree-states1.png" alt="drawing" width="420"/>
 </p>
 
 Distinct from basic constant expression evaluation, the result of each subtree evaluation produces not a single TLA+ value, but a set of evaluation contexts, representing the (potentially) disjunctive formulae that were evaluated as part of that subtree. This set of contexts, representing independent branches of evaluation, are propagated up through the evaluation of the parse tree. A set of contexts may be forked many times, depending on how many disjunctive expressions appear in the formula. Also note that, for state generation, each context produces a value along with an assignment to variables, but this value must always be a boolean, representing whether or not that branch of evaluation is a permitted state.
