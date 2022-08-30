@@ -136,6 +136,29 @@ function componentChooseConstants() {
     ]);
 }
 
+function componentNextStateChoiceElement(state) {
+    let hash = hashSum(state);
+    let stateVarElems = _.keys(state.getStateObj()).map(varname => {
+        return m("span", {}, [
+            m("span", { class: "state-varname" }, varname),
+            m("span", " = "),
+            m("span", {}, state.getVarVal(varname).toString()),
+            m("br")
+        ])
+    });
+
+    // Append ALIAS vars if needed.
+    if (model.specAlias !== undefined) {
+        let stateAlias = model.currNextStatesAlias[i];
+        console.log("stateAlias:", stateAlias);
+        let aliasVarElems = getAliasVarElems(stateAlias);
+        stateVarElems = stateVarElems.concat(aliasVarElems);
+    }
+
+    let nextStateElem = m("div", { class: "init-state", onclick: () => chooseNextState(hash) }, stateVarElems);
+    return nextStateElem;    
+}
+
 function componentNextStateChoices(nextStates) {
     nextStates = model.currNextStates;
 
@@ -143,25 +166,7 @@ function componentNextStateChoices(nextStates) {
 
     for (var i = 0; i < nextStates.length; i++) {
         var state = nextStates[i];
-        let hash = hashSum(state);
-        let stateVarElems = _.keys(state.getStateObj()).map(varname => {
-            return m("span", {}, [
-                m("span", { class: "state-varname" }, varname),
-                m("span", " = "),
-                m("span", {}, state.getVarVal(varname).toString()),
-                m("br")
-            ])
-        });
-
-        // Append ALIAS vars if needed.
-        if (model.specAlias !== undefined) {
-            let stateAlias = model.currNextStatesAlias[i];
-            console.log("stateAlias:", stateAlias);
-            let aliasVarElems = getAliasVarElems(stateAlias);
-            stateVarElems = stateVarElems.concat(aliasVarElems);
-        }
-
-        let nextStateElem = m("div", { class: "init-state", onclick: () => chooseNextState(hash) }, stateVarElems);
+        let nextStateElem = componentNextStateChoiceElement(state);
         nextStateElems.push(nextStateElem);
     }
     console.log("next state elems:", nextStateElems);
