@@ -99,6 +99,14 @@ class TLAValue{
     equals(other){
         throw new Exception("equality check unimplemented!");
     }
+
+    /**
+     * Convert value to tuple, if possible.
+     */
+    toTuple() {
+        console.error("toTuple: value cannot be converted to tuple");
+        throw "value cannot be converted to tuple";
+    }
 }
 
 class IntValue extends TLAValue{
@@ -288,6 +296,10 @@ class TupleValue extends TLAValue{
     length() {
         return this.elems.length;
     }
+
+    toTuple() {
+        return this;
+    }
 }
 
 class FcnRcdValue extends TLAValue{
@@ -440,6 +452,23 @@ class FcnRcdValue extends TLAValue{
         let fcnPairsHashed = fcnPairs.map(hashSum);
         fcnPairsHashed.sort();
         return hashSum(fcnPairsHashed);
+    }
+
+    /**
+     * Convert this function/record to a tuple, if it has a valid domain (i.e. {1,2,...,n}).
+     */
+    toTuple() {
+        let dom = this.getDomain();
+        // Domain must consist of all integral (i.e. natural numbered) values.
+        if (!dom.every(v => v instanceof IntValue)) {
+            throw "cannot convert record with domain '" + dom + "' to tuple";
+        }
+        let expectedDomain = _.range(1, dom.length + 1)
+        let hasTupleDomain = _.isEqual(expectedDomain, dom.map(v => v.getVal()));
+        if (!hasTupleDomain) {
+            throw "cannot convert record with domain '" + dom + "' to tuple";
+        }
+        return new TupleValue(this.getValues());
     }
 }
 
@@ -1834,6 +1863,10 @@ function evalBoundOp(node, ctx){
         let seqArgExpr = node.namedChildren[1];
         let appendElemArgExpr = node.namedChildren[2];
         let seqArgExprVal = evalExpr(seqArgExpr, ctx)[0]["val"]
+
+        // Try to interpret value as tuple, if possible.
+        seqArgExprVal = seqArgExprVal.toTuple();
+
         let appendElemArgExprVal = evalExpr(appendElemArgExpr, ctx)[0]["val"]
 
         assert(seqArgExprVal instanceof TupleValue);
