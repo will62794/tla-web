@@ -15,7 +15,10 @@ Init == x = [
                 IF seq[1] = 5 THEN 1 ELSE seq[1] + 1
             ELSE seq[i]],
     f4 |-> [seq EXCEPT ![1] = IF @ = 5 THEN 1 ELSE @ + 1],
-    f5 |-> Append([seq EXCEPT ![1] = IF @ = 5 THEN 1 ELSE @ + 1], 7)
+    f5 |-> Append([seq EXCEPT ![1] = IF @ = 5 THEN 1 ELSE @ + 1], 7),
+    f6 |-> Tail([i \in {1, 2, 3} |-> 0]),
+    f7 |-> Head([i \in {1, 2, 3} |-> 0]),
+    f8 |-> Len([i \in {1, 2, 3, 4} |-> 0])
 ]
 Next == x' = x
 ====

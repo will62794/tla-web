@@ -1853,6 +1853,10 @@ function evalBoundOp(node, ctx){
     if(opName == "Len"){
         let seqArgExpr = node.namedChildren[1];
         let seqArgExprVal = evalExpr(seqArgExpr, ctx)[0]["val"]
+
+        // Try to interpret value as tuple, if possible.
+        seqArgExprVal = seqArgExprVal.toTuple();
+
         assert(seqArgExprVal instanceof TupleValue);
         // evalLog("Append val:", seqArgExpr.text);
         return [ctx.withVal(new IntValue(seqArgExprVal.length()))];
@@ -1878,6 +1882,10 @@ function evalBoundOp(node, ctx){
     if(opName == "Head"){
         let seqArgExpr = node.namedChildren[1];
         let seqArgExprVal = evalExpr(seqArgExpr, ctx)[0]["val"]
+
+        // Try to interpret value as tuple, if possible.
+        seqArgExprVal = seqArgExprVal.toTuple();
+
         assert(seqArgExprVal instanceof TupleValue);
         // evalLog("Append val:", seqArgExpr.text);
         return [ctx.withVal(seqArgExprVal.head())];
@@ -1886,6 +1894,10 @@ function evalBoundOp(node, ctx){
     if(opName == "Tail"){
         let seqArgExpr = node.namedChildren[1];
         let seqArgExprVal = evalExpr(seqArgExpr, ctx)[0]["val"]
+
+        // Try to interpret value as tuple, if possible.
+        seqArgExprVal = seqArgExprVal.toTuple();
+    
         assert(seqArgExprVal instanceof TupleValue);
         // evalLog("Append val:", seqArgExpr.text);
         return [ctx.withVal(seqArgExprVal.tail())];
