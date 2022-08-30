@@ -282,7 +282,7 @@ function renderCurrentTrace() {
     traceDiv.innerHTML += "<br><br>";
 
     let header = document.getElementById("poss-next-states-title");
-    header.innerHTML = (currTrace.length > 0) ? "Choose Next State" : "Choose Initial State";
+    header.innerHTML = (model.currTrace.length > 0) ? "Choose Next State" : "Choose Initial State";
 
     updateTraceLink();
 
@@ -638,10 +638,10 @@ async function loadApp() {
                 // Display pane.
                 m("div", { id: "output-container-scroll" }, [
                     m("div", { id: "choose-constants-container" }, componentChooseConstants()),
-                    m("div", { id: "poss-next-states-title", class: "pane-title" }, "Choose Initial State"),
+                    m("div", { id: "poss-next-states-title", class: "pane-title" }, (model.currTrace.length > 0) ? "Choose Next State" : "Choose Initial State"),
                     m("div", { id: "initial-states", class: "tlc-state" }, componentNextStateChoices()),
                     m("div", { id: "trace-container" }, [
-                        m("div", { class: "pane-heading" }, [
+                        m("div", { class: "pane-heading", id:"trace-state-heading"}, [
                             m("div", {class:"pane-title"}, "Current Trace"), 
                             buttonsContainer
                         ]),

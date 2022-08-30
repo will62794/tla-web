@@ -43,6 +43,12 @@ body {
       padding-top:8px;
   }
 
+  #trace-state-heading{
+    /* border-bottom: solid 2px lightgray;
+    padding-bottom:5px; */
+    width:98%;
+  }
+
   #toggle-spec-button{
       position:absolute;
       /* color:red; */
