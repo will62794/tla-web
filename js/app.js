@@ -470,42 +470,43 @@ function reloadSpec() {
     // m.redraw();
 }
 
+function componentTraceViewerState(state) {
+    // Disable state numbering for now.
+    let titleElems = [
+        // m("b", "State " + ind),
+        // m("br")
+    ];
+
+    let stateVarElems = _.keys(state.getStateObj()).map(varname => {
+        return m("span", {}, [
+            m("span", { class: "state-varname" }, varname),
+            m("span", " = "),
+            m("span", {}, state.getVarVal(varname).toString()),
+            m("br")
+        ])
+    });
+
+    // Append ALIAS vars if needed.
+    if (model.specAlias !== undefined) {
+        let stateAlias = model.currTraceAliasVals[ind];
+        let aliasVarElems = getAliasVarElems(stateAlias);
+        stateVarElems = stateVarElems.concat(aliasVarElems);
+    }
+
+    let traceStateElem = m("div", { "class": "trace-state tlc-state" },
+        titleElems.concat(stateVarElems)
+    );    
+    return traceStateElem;
+}
+
 function componentTraceViewer() {
-    // traceDiv.innerHTML = "";
-    // console.log(trace);
     // let stateInd = 0;
     let traceElems = [];
     let hasAliasVals = (model.currTraceAliasVals.length > 0);
     for (var ind = 0; ind < model.currTrace.length; ind++) {
         let state = model.currTrace[ind];
         let isLastState = ind === model.currTrace.length - 1;
-
-        // Disable state numbering for now.
-        let titleElems = [
-            // m("b", "State " + ind),
-            // m("br")
-        ];
-
-        let stateVarElems = _.keys(state.getStateObj()).map(varname => {
-            return m("span", {}, [
-                m("span", { class: "state-varname" }, varname),
-                m("span", " = "),
-                m("span", {}, state.getVarVal(varname).toString()),
-                m("br")
-            ])
-        });
-
-        // Append ALIAS vars if needed.
-        if (model.specAlias !== undefined) {
-            let stateAlias = model.currTraceAliasVals[ind];
-            let aliasVarElems = getAliasVarElems(stateAlias);
-            stateVarElems = stateVarElems.concat(aliasVarElems);
-        }
-
-        let traceStateElem = m("div", { "class": "trace-state tlc-state" },
-            titleElems.concat(stateVarElems)
-        );
-
+        let traceStateElem = componentTraceViewerState(state);
         traceElems.push(traceStateElem);
     }
 
