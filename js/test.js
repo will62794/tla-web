@@ -292,7 +292,13 @@ $.when( ...allReqs).done(function ( ) {
         specText = arguments[i][0]
         specStateGraph = arguments[i][1]
         console.log(`Running test '${test["spec"]}'`);
-        testStateGraphEquiv(test["spec"], specStateGraph, specText, test["constvals"]);
+        try{
+            testStateGraphEquiv(test["spec"], specStateGraph, specText, test["constvals"]);
+        } catch(e){
+            // TODO: Handle exceptions more appropriately inside this block.
+            console.error(e);
+            return;
+        }
     }
 
     // Measure test duration.
