@@ -158,7 +158,9 @@ body {
   
   .trace-state-table th{
     border-bottom: 1px solid gray;
-    font-size:14px;
+    font-size:12px;
+    color:steelblue;
+    text-align: left;
     font-family: Arial, Helvetica, sans-serif;
   }
 
@@ -268,22 +270,26 @@ body {
     text-align: center;
     height:18px;
     vertical-align: middle;
-    font-size:14px;
+    font-size:12px;
     border-radius: 3px;
     background-color: steelblue;
     color:white;
-    padding-left:6px;
-    padding-right:6px;
-    padding-top:4px;
-    padding-bottom:4px;
+    padding-left:8px;
+    padding-right:8px;
+    padding-top:3px;
+    padding-bottom:3px;
   }
   .button-base:hover{
     cursor: pointer;
     background-color: gray;
   }
 
+  /* #trace-buttons{
+    float:left;
+  } */
+
   .trace-button{
-    height:18px;
+    height:16px;
     float: left; 
     margin-right:5px; 
   }

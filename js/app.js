@@ -489,11 +489,18 @@ function componentTraceViewerState(state, ind) {
     //     m("li", "Other")
     // ])
 
-    let varRows = _.keys(state.getStateObj()).map(varname => {
-        return m("tr", [
+    let varRows = _.keys(state.getStateObj()).map((varname,idx) => {
+        let cols = [
             m("td", { class: "th-state-varname" }, varname),
             m("td", state.getVarVal(varname).toString()),
-        ]);
+        ]
+
+        // TODO: Experiment with more compact trace state viewer.
+        // if(idx === 0){
+        //     cols = [m("td", {class:"trace-state-num", rowspan: "3" }, "State " + (ind + 1))].concat(cols);
+        // };
+
+        return m("tr", cols);
     });
 
     // Append ALIAS vars if needed.
@@ -542,7 +549,8 @@ function componentTraceViewer() {
         m("div", { class: "button-base trace-button", id: "trace-reset-button", onclick: reloadSpec }, "Reset")
     ])];
 
-    return m("div", { id: "trace" }, buttonsContainer.concat(traceElems));
+    // return m("div", { id: "trace" }, buttonsContainer.concat(traceElems));
+    return m("div", { id: "trace" }, traceElems);
 }
 
 async function handleCodeChange(editor, changes) {
@@ -611,6 +619,11 @@ async function loadApp() {
     //
     var root = document.body
 
+    let buttonsContainer = [m("div", { id: "trace-buttons" }, [
+        m("div", { class: "button-base trace-button", id: "trace-back-button", onclick: traceStepBack }, "Back"),
+        m("div", { class: "button-base trace-button", id: "trace-reset-button", onclick: reloadSpec }, "Reset")
+    ])];
+
     App = {
         count: 1,
         view: function () {
@@ -628,7 +641,10 @@ async function loadApp() {
                     m("div", { id: "poss-next-states-title", class: "pane-title" }, "Choose Initial State"),
                     m("div", { id: "initial-states", class: "tlc-state" }, componentNextStateChoices()),
                     m("div", { id: "trace-container" }, [
-                        m("div", { class: "pane-title" }, "Current Trace"),
+                        m("div", { class: "pane-heading" }, [
+                            m("div", {class:"pane-title"}, "Current Trace"), 
+                            buttonsContainer
+                        ]),
                         // <div id="trace" class="tlc-state"></div>
                         // m("div", {id:"trace", class:"tlc-state"})
                         componentTraceViewer()
