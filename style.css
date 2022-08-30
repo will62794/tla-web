@@ -168,6 +168,8 @@ body {
 
   .trace-state-table th, td{
     padding: 3px;
+    padding-left:5px;
+    padding-right:10px;
   }
 
   .init-state{

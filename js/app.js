@@ -136,7 +136,7 @@ function componentChooseConstants() {
     ]);
 }
 
-function componentNextStateChoiceElement(state) {
+function componentNextStateChoiceElement(state, ind) {
     let hash = hashSum(state);
     let stateVarElems = _.keys(state.getStateObj()).map(varname => {
         return m("span", {}, [
@@ -149,7 +149,7 @@ function componentNextStateChoiceElement(state) {
 
     // Append ALIAS vars if needed.
     if (model.specAlias !== undefined) {
-        let stateAlias = model.currNextStatesAlias[i];
+        let stateAlias = model.currNextStatesAlias[ind];
         console.log("stateAlias:", stateAlias);
         let aliasVarElems = getAliasVarElems(stateAlias);
         stateVarElems = stateVarElems.concat(aliasVarElems);
@@ -166,7 +166,7 @@ function componentNextStateChoices(nextStates) {
 
     for (var i = 0; i < nextStates.length; i++) {
         var state = nextStates[i];
-        let nextStateElem = componentNextStateChoiceElement(state);
+        let nextStateElem = componentNextStateChoiceElement(state, i);
         nextStateElems.push(nextStateElem);
     }
     console.log("next state elems:", nextStateElems);
@@ -470,22 +470,47 @@ function reloadSpec() {
     // m.redraw();
 }
 
-function componentTraceViewerState(state, statei) {
+function componentTraceViewerState(state, ind) {
     // Disable state numbering for now.
     let titleElems = [
         // m("b", "State " + ind),
         // m("br")
     ];
 
+    // TODO: Expandable UI elements of state values for functions, records, etc.
+    // m("ul", [
+    //     m("li", "Coffee", [
+    //         m("ul", [
+    //             m("li", "iner1"),
+    //             m("li", "iner2")
+    //         ])
+    //     ]),
+    //     m("li", "Tea"),
+    //     m("li", "Other")
+    // ])
+
     let varRows = _.keys(state.getStateObj()).map(varname => {
         return m("tr", [
             m("td", { class: "th-state-varname" }, varname),
-            m("td", state.getVarVal(varname).toString())
+            m("td", state.getVarVal(varname).toString()),
         ]);
     });
 
+    // Append ALIAS vars if needed.
+    if (model.specAlias !== undefined) {
+        let stateAlias = model.currTraceAliasVals[ind];
+        aliasVarElems = stateAlias.getDomain().map(varnameval => {
+            console.log(stateAlias);
+            return m("tr", [
+                m("td", { class: "th-state-varname alias-var" }, varnameval.getVal()),
+                m("td", stateAlias.applyArg(varnameval).toString()),
+            ]);
+        });
+        varRows = varRows.concat(aliasVarElems);
+    }
+
     let headerRow = [m("tr", [
-        m("th", { colspan: "1" }, "State " + statei),
+        m("th", { colspan: "1" }, "State " + (ind + 1)),
         m("th", { colspan: "2" }, "") // filler.
     ])];
     let rows = headerRow.concat(varRows);
@@ -494,13 +519,6 @@ function componentTraceViewerState(state, statei) {
 
 
     stateVarElems = m("div", rowElems);
-
-    // Append ALIAS vars if needed.
-    if (model.specAlias !== undefined) {
-        let stateAlias = model.currTraceAliasVals[ind];
-        let aliasVarElems = getAliasVarElems(stateAlias);
-        stateVarElems = stateVarElems.concat(aliasVarElems);
-    }
 
     let traceStateElem = m("div", { "class": "trace-state tlc-state" },
         titleElems.concat(stateVarElems)
@@ -515,7 +533,7 @@ function componentTraceViewer() {
     for (var ind = 0; ind < model.currTrace.length; ind++) {
         let state = model.currTrace[ind];
         let isLastState = ind === model.currTrace.length - 1;
-        let traceStateElem = componentTraceViewerState(state, ind + 1);
+        let traceStateElem = componentTraceViewerState(state, ind);
         traceElems.push(traceStateElem);
     }
 
