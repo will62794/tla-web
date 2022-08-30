@@ -470,21 +470,30 @@ function reloadSpec() {
     // m.redraw();
 }
 
-function componentTraceViewerState(state) {
+function componentTraceViewerState(state, statei) {
     // Disable state numbering for now.
     let titleElems = [
         // m("b", "State " + ind),
         // m("br")
     ];
 
-    let stateVarElems = _.keys(state.getStateObj()).map(varname => {
-        return m("span", {}, [
-            m("span", { class: "state-varname" }, varname),
-            m("span", " = "),
-            m("span", {}, state.getVarVal(varname).toString()),
-            m("br")
-        ])
+    let varRows = _.keys(state.getStateObj()).map(varname => {
+        return m("tr", [
+            m("td", { class: "th-state-varname" }, varname),
+            m("td", state.getVarVal(varname).toString())
+        ]);
     });
+
+    let headerRow = [m("tr", [
+        m("th", { colspan: "1" }, "State " + statei),
+        m("th", { colspan: "2" }, "") // filler.
+    ])];
+    let rows = headerRow.concat(varRows);
+
+    let rowElems = m("table", { class: "trace-state-table" }, rows);
+
+
+    stateVarElems = m("div", rowElems);
 
     // Append ALIAS vars if needed.
     if (model.specAlias !== undefined) {
@@ -495,7 +504,7 @@ function componentTraceViewerState(state) {
 
     let traceStateElem = m("div", { "class": "trace-state tlc-state" },
         titleElems.concat(stateVarElems)
-    );    
+    );
     return traceStateElem;
 }
 
@@ -506,7 +515,7 @@ function componentTraceViewer() {
     for (var ind = 0; ind < model.currTrace.length; ind++) {
         let state = model.currTrace[ind];
         let isLastState = ind === model.currTrace.length - 1;
-        let traceStateElem = componentTraceViewerState(state);
+        let traceStateElem = componentTraceViewerState(state, ind + 1);
         traceElems.push(traceStateElem);
     }
 
