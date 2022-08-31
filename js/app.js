@@ -495,6 +495,16 @@ function componentTraceViewerState(state, ind) {
             m("td", state.getVarVal(varname).toString()),
         ]
 
+        // TODO: Enable trace state visualization when ready.
+        // if(idx === 0){
+        //     let attrs = {
+        //         rowspan: Object.keys(state.getStateObj()).length,
+        //         style: "padding-left:20"
+        //     };
+        //     let viz = m("td", attrs, traceStateView(state));
+        //     cols.push(viz);
+        // }
+
         // TODO: Experiment with more compact trace state viewer.
         // if(idx === 0){
         //     cols = [m("td", {class:"trace-state-num", rowspan: "3" }, "State " + (ind + 1))].concat(cols);
@@ -531,6 +541,22 @@ function componentTraceViewerState(state, ind) {
         titleElems.concat(stateVarElems)
     );
     return traceStateElem;
+}
+
+// TODO: Flesh out trace state visualization more thoroughly.
+function traceStateView(state) {
+    let sobj = state.getStateObj();
+    let serverProcs = sobj["semaphore"].getDomain();
+    let clientProcs = sobj["clientlocks"].getDomain();
+    let serverProcElems = serverProcs.map((p, i) => {
+        let col = sobj["semaphore"].applyArg(p).getVal() ? "red" : "gray";
+        return m("circle", { fill: col, cx: 10 + 20 * i, cy: 10, r: 5 });
+    })
+    let clientProcElems = clientProcs.map((p, i) => {
+        return m("circle", { fill: "gray", cx: 10 + 20 * i, cy: 25, r: 5 });
+    })
+
+    return m("svg", { width: 100, height: 50 }, serverProcElems.concat(clientProcElems));
 }
 
 function componentTraceViewer() {
