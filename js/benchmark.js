@@ -290,7 +290,7 @@ function testPaxosNext(testId, specName){
         tree = null;
         let treeObjs = parseSpec(specText);
 
-        const num_iters = 5;
+        const num_iters = 25;
         let totalInitDuration = 0;
         let totalNextDuration = 0;
         let initStates;
@@ -315,15 +315,77 @@ function testPaxosNext(testId, specName){
         }
         let meanNextDuration = (totalNextDuration/num_iters).toFixed(1);
 
-        console.log(`Paxos benchmark: computed ${initStates.length} init states in mean of ${meanInitDuration}ms`);
-        console.log(`Paxos benchmark: computed ${nextStates.length} next states in mean of ${meanNextDuration}ms.`);
+        console.log(`Paxos benchmark: computed ${initStates.length} init states in mean of ${meanInitDuration}ms over ${num_iters} runs`);
+        console.log(`Paxos benchmark: computed ${nextStates.length} next states in mean of ${meanNextDuration}ms over ${num_iters} runs.`);
+    });      
+}
+
+function randomTrace(treeObjs, maxTraceLen){
+    let interp = new TlaInterpreter();
+
+    // Choose a random initial state.
+    initStates = interp.computeInitStates(treeObjs);
+    let randomInitState = _.sample(initStates);
+    // console.log("random init state", randomInitState);
+
+    let currState = randomInitState;
+    let trace = [];
+
+    for (var l = 0; l < maxTraceLen; l++) {
+        let nextStates;
+        // console.log("Computing next states for Paxos.");
+
+        // Generate next states.
+        console.log(`current state ${l}:`, currState, currState.fingerprint());
+        nextStates = interp.computeNextStates(treeObjs, {}, [currState]).map(c => c["state"]);
+        if (nextStates.length === 0) {
+            break;
+        }
+
+        // Choose a random next state.
+        currState = _.sample(nextStates);
+        // trace.push(currState);
+    }
+    return trace;
+}
+
+function testPaxosTraceSimulation(testId, specName){
+    let specStatesPath = `./specs/Paxos.tla`;
+    console.log("Running Paxos state generation benchmark.");
+    res = $.get(specStatesPath).then(data => {
+        specText = data;
+
+        tree = null;
+        let treeObjs = parseSpec(specText);
+
+        const num_iters = 25;
+        let totalInitDuration = 0;
+        let totalNextDuration = 0;
+        let initStates;
+        let start;
+
+        let maxTraceLen = 8;
+        let numTraces = 100;
+        start = performance.now();
+
+        for (var k = 0; k < numTraces; k++) {
+            console.log(`generating trace ${k}`);
+            randomTrace(treeObjs, maxTraceLen);
+        }
+        let duration = (performance.now() - start);
+
+        console.log(`Paxos random trace gen: computed ${numTraces} of maxlen=${maxTraceLen} in ${duration}ms`);
+
+        // console.log(`Paxos benchmark: computed ${initStates.length} init states in mean of ${meanInitDuration}ms over ${num_iters} runs`);
+        // console.log(`Paxos benchmark: computed ${nextStates.length} next states in mean of ${meanNextDuration}ms over ${num_iters} runs.`);
     });      
 }
 
 
 tests = {
     // "mldr-init-only-tlc-equiv": (() => testTLCEquiv("mldr-init-only-tlc-equiv", "mldr_init_only"))
-    "paxos-next": testPaxosNext
+    // "paxos-next": testPaxosNext,
+    "paxos-sim": testPaxosTraceSimulation
 }
 
 const start = performance.now();

@@ -2646,13 +2646,13 @@ class TlaInterpreter{
         let defns = treeObjs["op_defs"];
     
         let nextDef = defns["Next"];
-        console.log(defns);
-        console.log("<<<< NEXT >>>>");
-        console.log(nextDef);
+        // console.log(defns);
+        // console.log("<<<< NEXT >>>>");
+        // console.log(nextDef);
         // console.log("nextDef.childCount: ", nextDef["node"].childCount);
         // console.log("nextDef.type: ", nextDef["node"].type);
     
-        let allNext = []
+        let allNext = [];
         for(const istate of initStates){
             let currState = _.cloneDeep(istate);
             // console.log("###### Computing next states from state: ", currState);
