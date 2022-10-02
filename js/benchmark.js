@@ -338,6 +338,8 @@ function randomTrace(treeObjs, maxTraceLen){
         // Generate next states.
         console.log(`current state ${l}:`, currState, currState.fingerprint());
         nextStates = interp.computeNextStates(treeObjs, {}, [currState]).map(c => c["state"]);
+        console.log(`next states:`, nextStates);
+
         if (nextStates.length === 0) {
             break;
         }
