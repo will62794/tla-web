@@ -337,8 +337,9 @@ function randomTrace(treeObjs, maxTraceLen){
 
         // Generate next states.
         console.log(`current state ${l}:`, currState, currState.fingerprint());
-        nextStates = interp.computeNextStates(treeObjs, {}, [currState]).map(c => c["state"]);
-        console.log(`next states:`, nextStates);
+        nextStates = interp.computeNextStates(treeObjs, {}, [currState]).map(c => c["state"].deprimeVars());
+        console.log(`num next states:`, nextStates.length);
+        // console.log(`next states:`, nextStates);
 
         if (nextStates.length === 0) {
             break;
@@ -361,13 +362,10 @@ function testPaxosTraceSimulation(testId, specName){
         let treeObjs = parseSpec(specText);
 
         const num_iters = 25;
-        let totalInitDuration = 0;
-        let totalNextDuration = 0;
-        let initStates;
         let start;
 
-        let maxTraceLen = 8;
-        let numTraces = 100;
+        let maxTraceLen = 6;
+        let numTraces = 50;
         start = performance.now();
 
         for (var k = 0; k < numTraces; k++) {
@@ -376,7 +374,7 @@ function testPaxosTraceSimulation(testId, specName){
         }
         let duration = (performance.now() - start);
 
-        console.log(`Paxos random trace gen: computed ${numTraces} of maxlen=${maxTraceLen} in ${duration}ms`);
+        console.log(`Paxos random trace gen: computed ${numTraces} traces of maxlen=${maxTraceLen} in ${duration}ms`);
 
         // console.log(`Paxos benchmark: computed ${initStates.length} init states in mean of ${meanInitDuration}ms over ${num_iters} runs`);
         // console.log(`Paxos benchmark: computed ${nextStates.length} next states in mean of ${meanNextDuration}ms over ${num_iters} runs.`);
