@@ -1434,6 +1434,18 @@ function evalBoundInfix(node, ctx){
         return [ctx.withVal(new BoolValue(outVal))];
     }
 
+    // Modulo
+    if(symbol.type === "mod"){
+        evalLog("mul lhs:", lhs, lhs.text);
+        let mulLhsVal = evalExpr(lhs, ctx);
+        evalLog("mul lhs val:", mulLhsVal);
+        let lhsVal = mulLhsVal[0]["val"];
+        let rhsVal = evalExpr(rhs, ctx)[0]["val"];
+        let outVal = lhsVal.getVal() % rhsVal.getVal();
+        // console.log("mul overall val:", outVal);
+        return [ctx.withVal(new IntValue(outVal))];
+    }
+
     // Disjunction.
     if(symbol.type === "lor"){
         return evalLor(lhs, rhs, ctx);

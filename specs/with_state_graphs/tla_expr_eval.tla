@@ -27,6 +27,7 @@ Init == exprs = [
     negative1 |-> -3 + 5,
     addparens |-> ((1+2)*4),
     addparens2 |-> (1+2*4),
+    mod1 |-> (5%3),
 
     \* Boolean ops.
     not |-> ~TRUE,
