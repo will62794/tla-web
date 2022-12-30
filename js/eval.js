@@ -1948,6 +1948,10 @@ function evalBoundOp(node, ctx){
             return evalExpr(opDefNode, opEvalContext);
         }
     }
+
+    // Unknown operator.
+    throw "Error: unknown operator '" + opName + "'.";
+
 }
 
 function evalFiniteSetLiteral(node, ctx){
