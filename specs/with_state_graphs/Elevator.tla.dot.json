@@ -1,0 +1,250 @@
+{
+  "name": "DiskGraph",
+  "directed": true,
+  "strict": true,
+  "nodesep": "0.35",
+  "_subgraph_cnt": 6,
+  "objects": [
+    {
+      "name": "cluster_graph",
+      "color": "white",
+      "nodesep": "0.35",
+      "_gvid": 0,
+      "subgraphs": [
+        1,
+2,
+3,
+4,
+5
+      ],
+      "nodes": [
+        6,7,8,9,10,11,12,13,14,15,16,17,18,19
+      ],
+      "edges": [
+        0,1,2,3,5,4,7,6,8,9,10,11
+      ]
+    },
+    {
+      "name": "%27",
+      "color": "white",
+      "nodesep": "0.35",
+      "rank": "same",
+      "_gvid": 1,
+      "nodes": [
+        6,7,8,9
+      ]
+    },
+    {
+      "name": "%29",
+      "color": "white",
+      "nodesep": "0.35",
+      "rank": "same",
+      "_gvid": 2,
+      "nodes": [
+        10,11
+      ]
+    },
+    {
+      "name": "%31",
+      "color": "white",
+      "nodesep": "0.35",
+      "rank": "same",
+      "_gvid": 3,
+      "nodes": [
+        12,13
+      ]
+    },
+    {
+      "name": "%33",
+      "color": "white",
+      "nodesep": "0.35",
+      "rank": "same",
+      "_gvid": 4,
+      "nodes": [
+        14,15
+      ]
+    },
+    {
+      "name": "%35",
+      "color": "white",
+      "nodesep": "0.35",
+      "rank": "same",
+      "_gvid": 5,
+      "nodes": [
+        16,17
+      ]
+    },
+    {
+      "_gvid": 6,
+      "name": "7118779229109064844",
+      "label": "\/\\\\ ActiveElevatorCalls = {}\\n\/\\\\ PersonState = [p1 |-> [destination |-> 1, location |-> 1, waiting |-> FALSE]]\\n\/\\\\ ElevatorState = [ e1 |->\\n      [ floor |-> 1,\\n        direction |-> \"Stationary\",\\n        doorsOpen |-> FALSE,\\n        buttonsPressed |-> {} ] ]",
+      "style": "filled"
+    },
+    {
+      "_gvid": 7,
+      "name": "-6245943677582212882",
+      "label": "\/\\\\ ActiveElevatorCalls = {}\\n\/\\\\ PersonState = [p1 |-> [destination |-> 1, location |-> 2, waiting |-> FALSE]]\\n\/\\\\ ElevatorState = [ e1 |->\\n      [ floor |-> 1,\\n        direction |-> \"Stationary\",\\n        doorsOpen |-> FALSE,\\n        buttonsPressed |-> {} ] ]",
+      "style": "filled"
+    },
+    {
+      "_gvid": 8,
+      "name": "-2017238144270453293",
+      "label": "\/\\\\ ActiveElevatorCalls = {}\\n\/\\\\ PersonState = [p1 |-> [destination |-> 2, location |-> 1, waiting |-> FALSE]]\\n\/\\\\ ElevatorState = [ e1 |->\\n      [ floor |-> 1,\\n        direction |-> \"Stationary\",\\n        doorsOpen |-> FALSE,\\n        buttonsPressed |-> {} ] ]",
+      "style": "filled"
+    },
+    {
+      "_gvid": 9,
+      "name": "3430155448169275825",
+      "label": "\/\\\\ ActiveElevatorCalls = {}\\n\/\\\\ PersonState = [p1 |-> [destination |-> 2, location |-> 2, waiting |-> FALSE]]\\n\/\\\\ ElevatorState = [ e1 |->\\n      [ floor |-> 1,\\n        direction |-> \"Stationary\",\\n        doorsOpen |-> FALSE,\\n        buttonsPressed |-> {} ] ]",
+      "style": "filled"
+    },
+    {
+      "_gvid": 10,
+      "name": "4503646414719279064",
+      "label": "\/\\\\ ActiveElevatorCalls = {[floor |-> 2, direction |-> \"Down\"]}\\n\/\\\\ PersonState = [p1 |-> [destination |-> 1, location |-> 2, waiting |-> TRUE]]\\n\/\\\\ ElevatorState = [ e1 |->\\n      [ floor |-> 1,\\n        direction |-> \"Stationary\",\\n        doorsOpen |-> FALSE,\\n        buttonsPressed |-> {} ] ]"
+    },
+    {
+      "_gvid": 11,
+      "name": "-2673438555450363648",
+      "label": "\/\\\\ ActiveElevatorCalls = {[floor |-> 1, direction |-> \"Up\"]}\\n\/\\\\ PersonState = [p1 |-> [destination |-> 2, location |-> 1, waiting |-> TRUE]]\\n\/\\\\ ElevatorState = [ e1 |->\\n      [ floor |-> 1,\\n        direction |-> \"Stationary\",\\n        doorsOpen |-> FALSE,\\n        buttonsPressed |-> {} ] ]"
+    },
+    {
+      "_gvid": 12,
+      "name": "7214796498672909857",
+      "label": "\/\\\\ ActiveElevatorCalls = {[floor |-> 2, direction |-> \"Down\"]}\\n\/\\\\ PersonState = [p1 |-> [destination |-> 1, location |-> 2, waiting |-> TRUE]]\\n\/\\\\ ElevatorState = [ e1 |->\\n      [ floor |-> 2,\\n        direction |-> \"Down\",\\n        doorsOpen |-> FALSE,\\n        buttonsPressed |-> {} ] ]"
+    },
+    {
+      "_gvid": 13,
+      "name": "4846163485562050840",
+      "label": "\/\\\\ ActiveElevatorCalls = {[floor |-> 1, direction |-> \"Up\"]}\\n\/\\\\ PersonState = [p1 |-> [destination |-> 2, location |-> 1, waiting |-> TRUE]]\\n\/\\\\ ElevatorState = [ e1 |->\\n      [ floor |-> 1,\\n        direction |-> \"Up\",\\n        doorsOpen |-> FALSE,\\n        buttonsPressed |-> {} ] ]"
+    },
+    {
+      "_gvid": 14,
+      "name": "-8563787826011954158",
+      "label": "\/\\\\ ActiveElevatorCalls = {}\\n\/\\\\ PersonState = [p1 |-> [destination |-> 1, location |-> 2, waiting |-> TRUE]]\\n\/\\\\ ElevatorState = [ e1 |->\\n      [ floor |-> 2,\\n        direction |-> \"Down\",\\n        doorsOpen |-> TRUE,\\n        buttonsPressed |-> {} ] ]"
+    },
+    {
+      "_gvid": 15,
+      "name": "-2549719217094666526",
+      "label": "\/\\\\ ActiveElevatorCalls = {}\\n\/\\\\ PersonState = [p1 |-> [destination |-> 2, location |-> 1, waiting |-> TRUE]]\\n\/\\\\ ElevatorState = [ e1 |->\\n      [ floor |-> 1,\\n        direction |-> \"Up\",\\n        doorsOpen |-> TRUE,\\n        buttonsPressed |-> {} ] ]"
+    },
+    {
+      "_gvid": 16,
+      "name": "4248049940538515288",
+      "label": "\/\\\\ ActiveElevatorCalls = {}\\n\/\\\\ PersonState = [p1 |-> [destination |-> 1, location |-> 2, waiting |-> TRUE]]\\n\/\\\\ ElevatorState = [ e1 |->\\n      [ floor |-> 2,\\n        direction |-> \"Down\",\\n        doorsOpen |-> FALSE,\\n        buttonsPressed |-> {} ] ]"
+    },
+    {
+      "_gvid": 17,
+      "name": "8020586925008170408",
+      "label": "\/\\\\ ActiveElevatorCalls = {}\\n\/\\\\ PersonState = [p1 |-> [destination |-> 2, location |-> 1, waiting |-> TRUE]]\\n\/\\\\ ElevatorState = [ e1 |->\\n      [ floor |-> 1,\\n        direction |-> \"Up\",\\n        doorsOpen |-> FALSE,\\n        buttonsPressed |-> {} ] ]"
+    },
+    {
+      "_gvid": 18,
+      "name": "330829636962778372",
+      "label": "\/\\\\ ActiveElevatorCalls = {}\\n\/\\\\ PersonState = [p1 |-> [destination |-> 1, location |-> 2, waiting |-> TRUE]]\\n\/\\\\ ElevatorState = [ e1 |->\\n      [ floor |-> 1,\\n        direction |-> \"Down\",\\n        doorsOpen |-> FALSE,\\n        buttonsPressed |-> {} ] ]"
+    },
+    {
+      "_gvid": 19,
+      "name": "-2621144743097780883",
+      "label": "\/\\\\ ActiveElevatorCalls = {}\\n\/\\\\ PersonState = [p1 |-> [destination |-> 2, location |-> 1, waiting |-> TRUE]]\\n\/\\\\ ElevatorState = [ e1 |->\\n      [ floor |-> 2,\\n        direction |-> \"Up\",\\n        doorsOpen |-> FALSE,\\n        buttonsPressed |-> {} ] ]"
+    }
+  ],
+  "edges": [
+    {
+      "_gvid": 0,
+      "tail": 7,
+      "head": 10,
+      "color": "black",
+      "fontcolor": "black",
+      "label": ""
+    },
+    {
+      "_gvid": 1,
+      "tail": 8,
+      "head": 11,
+      "color": "black",
+      "fontcolor": "black",
+      "label": ""
+    },
+    {
+      "_gvid": 2,
+      "tail": 10,
+      "head": 12,
+      "color": "black",
+      "fontcolor": "black",
+      "label": ""
+    },
+    {
+      "_gvid": 3,
+      "tail": 11,
+      "head": 13,
+      "color": "black",
+      "fontcolor": "black",
+      "label": ""
+    },
+    {
+      "_gvid": 5,
+      "tail": 12,
+      "head": 14,
+      "color": "black",
+      "fontcolor": "black",
+      "label": ""
+    },
+    {
+      "_gvid": 4,
+      "tail": 12,
+      "head": 12,
+      "color": "black",
+      "fontcolor": "black",
+      "label": ""
+    },
+    {
+      "_gvid": 7,
+      "tail": 13,
+      "head": 15,
+      "color": "black",
+      "fontcolor": "black",
+      "label": ""
+    },
+    {
+      "_gvid": 6,
+      "tail": 13,
+      "head": 13,
+      "color": "black",
+      "fontcolor": "black",
+      "label": ""
+    },
+    {
+      "_gvid": 8,
+      "tail": 14,
+      "head": 16,
+      "color": "black",
+      "fontcolor": "black",
+      "label": ""
+    },
+    {
+      "_gvid": 9,
+      "tail": 15,
+      "head": 17,
+      "color": "black",
+      "fontcolor": "black",
+      "label": ""
+    },
+    {
+      "_gvid": 10,
+      "tail": 16,
+      "head": 18,
+      "color": "black",
+      "fontcolor": "black",
+      "label": ""
+    },
+    {
+      "_gvid": 11,
+      "tail": 17,
+      "head": 19,
+      "color": "black",
+      "fontcolor": "black",
+      "label": ""
+    }
+  ]
+}
