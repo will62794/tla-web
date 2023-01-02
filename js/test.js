@@ -197,6 +197,7 @@ function testStateGraphEquiv(testId, stateGraph, specText, constvals) {
         { "spec": "simple_domain", "constvals": undefined },
         { "spec": "simple6", "constvals": undefined },
         { "spec": "simple7", "constvals": undefined },
+        { "spec": "simple_fcn", "constvals": undefined },
         { "spec": "simple_subset", "constvals": undefined },
         { "spec": "simple_quant", "constvals": undefined },
         { "spec": "simple_quant2", "constvals": undefined },

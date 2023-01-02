@@ -169,7 +169,7 @@ function componentNextStateChoices(nextStates) {
         let nextStateElem = componentNextStateChoiceElement(state, i);
         nextStateElems.push(nextStateElem);
     }
-    console.log("next state elems:", nextStateElems);
+    // console.log("next state elems:", nextStateElems);
     return nextStateElems;
 }
 
@@ -477,6 +477,52 @@ function componentTraceViewerState(state, ind) {
         // m("br")
     ];
 
+
+
+    /**
+     * 
+     *  ANIMATION
+    
+    let viewNode = model.specTreeObjs["op_defs"]["View"].node;
+    let initCtx = new Context(null, state, model.specDefs, {}, model.specConsts);
+    // let aliasNode = viewNode;
+    console.log("view node:", viewNode);
+    let ret = evalExpr(viewNode, initCtx);
+    console.log("ret", ret);
+    viewVal = ret[0]["val"];
+    console.log("view:", viewVal);
+
+    let name = viewVal.applyArg(new StringValue("name"));
+    let attrs = viewVal.applyArg(new StringValue("attrs"));
+
+    attrKeys = attrs.getDomain()
+    attrVals = attrs.getValues()
+
+    let children = viewVal.applyArg(new StringValue("children"));
+    console.log("view name:", name);
+    console.log("view attrs keys:", attrKeys);
+    console.log("view attrs vals:", attrVals);
+    let attrStr = attrKeys.map((v,ind) => v.getVal() + "=" + attrVals[ind].toString());
+    attrStr = attrStr.join(" ");
+    console.log("attr str:", attrStr);
+
+    let traceCont = document.getElementById("trace-container");
+
+    let svgElemStr = ``
+
+    // let circle = m("circle", {fill: "red", cx: 50, cy: 50, r: 20});
+    let rawKeys = attrKeys.map(v => v.getVal());
+    let rawVals = attrVals.map(v => v.getVal());
+    let attrObj = _.fromPairs(_.zip(rawKeys, rawVals));
+    console.log("raw keys: ", rawKeys);
+    console.log("raw vals: ", rawVals);
+    console.log("attr obj: ", attrObj);
+    let obj = m(name.getVal(), attrObj);
+    let vizSvg = m("svg", { width: 200, height: 200 }, [obj]);
+    **/
+    
+
+
     // TODO: Expandable UI elements of state values for functions, records, etc.
     // m("ul", [
     //     m("li", "Coffee", [
@@ -539,6 +585,7 @@ function componentTraceViewerState(state, ind) {
 
     let traceStateElem = m("div", { "class": "trace-state tlc-state" },
         titleElems.concat(stateVarElems)
+        // .concat(vizSvg)
     );
     return traceStateElem;
 }

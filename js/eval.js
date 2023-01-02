@@ -914,6 +914,7 @@ function parseSpec(specText){
     }
 
     op_defs = {};
+    fn_defs = {};
     var_decls = {};
     const_decls = {};
 
@@ -993,16 +994,42 @@ function parseSpec(specText){
             op_defs[opName]["node"] = def;
             // console.log("opDef:", op_defs[opName]);
         }
+
+        // e.g. F[x,y \in {1,2}, z \in {3,4}] == x + y + z
+        if (node.type === "function_definition") {
+            // TODO: Consider iterating through 'named' children only?
+            cursor.gotoFirstChild();
+            console.log("fn def named children:", node.namedChildren);
+
+            let fnName = node.namedChildren[0].text;
+            let quant_bounds = node.namedChildren.filter(n => n.type === "quantifier_bound");
+            let fnDefNode = node;
+
+            // The definition identifier name.
+            node = cursor.currentNode()
+            console.log(node.text, node)
+            // console.log(cursor.currentFieldName());
+            // assert(node.type === "identifier");
+            // let fnName = node.text;
+
+            fn_defs[fnName] = { "name": fnName, "quant_bounds": quant_bounds, "node": null };
+            cursor.gotoParent();
+            // Save the function definition.
+            fn_defs[fnName]["node"] = fnDefNode;
+        }
+
     }
 
     console.log("module const declarations:",const_decls);
     console.log("module var declarations:",var_decls);
     console.log("module definitions:",op_defs);
+    console.log("module fcn definitions:",fn_defs);
 
     objs = {
         "const_decls": const_decls,
         "var_decls": var_decls,
-        "op_defs": op_defs
+        "op_defs": op_defs,
+        "fn_defs": fn_defs
     }
 
     return objs;
@@ -1732,8 +1759,15 @@ function evalIdentifierRef(node, ctx){
     // See if this identifier is a definition in the spec.
     if(ctx.hasOwnProperty("defns") && ctx["defns"].hasOwnProperty(ident_name)){
         // Evaluate the definition in the current context.
-        // TODO: Consider defs that are n-ary operators.
         let defNode = ctx["defns"][ident_name]["node"];
+        
+        // Handle function definition case.
+        if(defNode.type === "function_definition"){
+            let quant_bounds = defNode.namedChildren.filter(n => n.type === "quantifier_bound");
+            let fexpr = _.last(defNode.namedChildren);
+            return evalFunctionLiteralInner(ctx, quant_bounds, fexpr);
+
+        }
         return evalExpr(defNode, ctx);
     }
 
@@ -2052,6 +2086,58 @@ function evalSetOfRecords(node, ctx) {
     return [ctx.withVal(new SetValue(outRecords))];
 }
 
+function evalFunctionLiteralInner(ctx, quant_bounds,fexpr){
+
+    let idents = quant_bounds.map(qb => {
+        let domainVal = evalExpr(_.last(qb.namedChildren), ctx)[0]["val"];
+        return qb.namedChildren
+                .filter(n => n.type === "identifier")
+                .map(x => [x, domainVal.getElems()]);
+    });
+
+
+    let domainIdents = _.flatten(idents).map(pair => pair[0]);
+    let domainVals = _.flatten(idents).map(pair => pair[1]);
+
+    evalLog("domainIdents:", domainIdents);
+    evalLog("domainVals:", domainVals);
+
+    let domainTuples = cartesianProductOf(...domainVals);
+    evalLog("domainTuples:", domainTuples);
+
+    let fcnArgs = domainTuples.map(t => (t.length === 1) ? t[0] : new TupleValue(t));
+    let fcnVals = domainTuples.map(tuple => {
+        // Evaluate function expression in appropriate context.
+        let boundContext = ctx.clone();
+        if (!boundContext.hasOwnProperty("quant_bound")) {
+            boundContext["quant_bound"] = {};
+        }
+        for (var ind = 0; ind < domainIdents.length; ind++) {
+            let identName = domainIdents[ind].text;
+            boundContext["quant_bound"][identName] = tuple[ind];
+        }
+        evalLog("function_literal boundCtx:", boundContext);
+        let vals = evalExpr(fexpr, boundContext);
+        evalLog("fexpr vals:", vals);
+        assert(vals.length === 1);
+        return vals[0]["val"];
+    });
+
+    let newFnVal = new FcnRcdValue(fcnArgs, fcnVals);
+    return [ctx.withVal(newFnVal)];
+}
+
+// "[" <quantifier_bound> "|->" <expr> "]"
+function evalFunctionLiteral(node, ctx){
+    evalLog("function_literal: '" +  node.text + "'");
+
+    let quant_bounds = node.namedChildren.filter(n => n.type === "quantifier_bound");
+    let fexpr = _.last(node.namedChildren);
+
+    return evalFunctionLiteralInner(ctx, quant_bounds, fexpr);
+
+}
+
 function evalLetIn(node, ctx){
     let opDefs = node.namedChildren.filter(c => c.type === "operator_definition");
     let letInExpr = node.childForFieldName("expression");
@@ -2268,11 +2354,18 @@ function evalExpr(node, ctx){
         evalLog("function_evaluation: ", node.text);
 
         let fnVal = evalExpr(node.namedChildren[0], ctx)[0]["val"];
-        // console.log("fnArg node: ", node.namedChildren[1]);
-        // let fnArgVal = evalExpr(node.namedChildren[1], ctx);
-        // console.log("fnArgVal:", fnArgVal);
-        let fnArgVal = evalExpr(node.namedChildren[1], ctx)[0]["val"];
-        evalLog("fneval (arg,val): ", fnVal, ",", fnArgVal);
+        let fnArgVal;
+
+        // Multi-argument function evaluation, treated as tuple argument.
+        if (node.namedChildren.length > 2) {
+            let argVals = node.namedChildren.slice(1).map(c => evalExpr(c, ctx)[0]["val"]);
+            fnArgVal = new TupleValue(argVals);
+        } else {
+            // Single argument function evaluation.
+            fnArgVal = evalExpr(node.namedChildren[1], ctx)[0]["val"];
+        }
+
+        evalLog("fneval (fnval,fnarg): ", fnVal, ",", fnArgVal);
         // Tuples are considered as functions with natural number domains.
         let fnValRes;
         if(fnVal instanceof TupleValue){
@@ -2547,50 +2640,7 @@ function evalExpr(node, ctx){
 
     // "[" <quantifier_bound> "|->" <expr> "]"
     if(node.type === "function_literal"){
-        // lbracket = node.children[0]
-        // rbracket = node.children[4];
-        evalLog("function_literal: '" +  node.text + "'");
-
-        let quant_bound = node.children[1];
-        let all_map_to = node.children[2];
-        let fexpr = node.children[3];
-
-        assert(all_map_to.type === "all_map_to");
-
-        // Handle the quantifier bound:
-        // <identifier> \in <expr>
-        quant_ident = quant_bound.children[0];
-        quant_expr = evalExpr(quant_bound.children[2], ctx);
-        evalLog("function_literal quant_expr:", quant_expr);
-
-        // Evaluate the quantified expression for each element in the 
-        // quantifier domain.
-        // TODO: For now assume that quantifier domain doesn't fork evaluation.
-        let domain = quant_expr[0]["val"];
-        assert(domain instanceof SetValue);
-        let fnVal = {}; //_.fromPairs(domain.map(x => [x,null]));
-        let fnValRange = [];
-        for(const v of domain.getElems()){
-            // Evaluate the expression in a context with the the current domain 
-            // value bound to the identifier.
-            // let boundContext = {"val": ctx["val"], "state": ctx["state"]};
-            
-            let boundContext = ctx.clone();
-            if(!boundContext.hasOwnProperty("quant_bound")){
-                boundContext["quant_bound"] = {};
-            }
-            boundContext["quant_bound"][quant_ident.text] = v;
-            evalLog("function_literal boundCtx:", boundContext);
-            // TODO: Handle bound quantifier values during evaluation.
-            let vals = evalExpr(fexpr, boundContext);
-            evalLog("fexpr vals:", vals);
-            assert(vals.length === 1);
-            fnVal[v] = vals[0]["val"];
-            fnValRange.push(vals[0]["val"]);
-        }
-        evalLog("fnVal:", fnVal);
-        let newFnVal = new FcnRcdValue(domain.getElems(), fnValRange);
-        return [ctx.withVal(newFnVal)];
+        return evalFunctionLiteral(node, ctx);
     }
 }
 
@@ -2674,6 +2724,7 @@ class TlaInterpreter{
         let consts = treeObjs["const_decls"];
         let vars = treeObjs["var_decls"];
         let defns = treeObjs["op_defs"];
+        Object.assign(defns, treeObjs["fn_defs"]); // include function definitions.
     
         console.log("consts:", consts);
     
