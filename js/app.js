@@ -699,6 +699,11 @@ async function loadApp() {
 
     App = {
         count: 1,
+        onupdate: function(){
+            // Keep trace viewer scrolled to bottom.
+            let trace = document.getElementById("trace");
+            trace.scrollTo(0, trace.scrollHeight);
+        },
         view: function () {
             return [
                 // TLA+ code pane.
