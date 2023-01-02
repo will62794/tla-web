@@ -2798,9 +2798,9 @@ class TlaInterpreter{
         let edges = [];
         while(stateQueue.length > 0){
             let currState = stateQueue.pop();
-            console.log(currState);
+            // console.log(currState);
             let currStateHash = currState.fingerprint();
-            console.log(currStateHash);
+            // console.log(currStateHash);
     
             // If we've already seen this state, we don't need to explore it.
             if(seenStatesHashSet.has(currStateHash)){
