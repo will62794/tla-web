@@ -20,7 +20,7 @@ EXTENDS     Integers,TLC
 
 Person == {"p1"}
 Elevator == {"e1"}
-FloorCount == 4
+FloorCount == 3
 
 VARIABLES   PersonState,            \* The state of each person
             ActiveElevatorCalls,    \* The set of all active elevator calls
