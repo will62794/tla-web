@@ -77,8 +77,6 @@ Phase1a(b, p) == /\ msgs' = msgs \cup {[type |-> "1a", bal |-> b, proposer |-> p
                  /\ maxVBal' = maxVBal
                  /\ maxVal' = maxVal
 
-Break == 1
-
 (***************************************************************************)
 (* Upon receipt of a ballot b phase 1a message, acceptor a can perform a   *)
 (* Phase1b(a) action only if b > maxBal[a].  The action sets maxBal[a] to  *)
@@ -94,8 +92,6 @@ Phase1b(a, p) ==
         /\ msgs' = msgs \cup {[type |-> "1b", acc |-> a, bal |-> m.bal, mbal |-> maxVBal[a], mval |-> maxVal[a], proposer |-> p]}
         /\ maxVBal' = maxVBal
         /\ maxVal'  = maxVal
-
-Breakb == 1
 
 Q1b(b,p,Q) == {m \in msgs : /\ m.type = "1b"
                             /\ m.acc \in Q
@@ -137,8 +133,6 @@ Phase2a(b, v, p) ==
   /\ maxVBal' = maxVBal
   /\ maxVal' = maxVal
 
-Break3 == 1
-  
 (***************************************************************************)
 (* The Phase2b(a) action is performed by acceptor a upon receipt of a      *)
 (* phase 2a message.  Acceptor a can perform this action only if the       *)
@@ -156,8 +150,6 @@ Phase2b(a) == \E m \in msgs : /\ m.type = "2a"
                               /\ Send([type |-> "2b", acc |-> a,
                                        bal |-> m.bal, val |-> m.val, proposer |-> None]) 
 
-
-Break4 == 1
 
 (***************************************************************************)
 (* In an implementation, there will be learner processes that learn from   *)
