@@ -1,6 +1,8 @@
 ----------------------- MODULE simple_record ------------------------
 EXTENDS Sequences, Naturals
 
+P == [p1 |-> [location |-> "1", waiting |-> FALSE]]
+
 VARIABLE x
 Init == x = [
     rec1 |-> [a |-> 1, b |-> 2],
@@ -26,7 +28,8 @@ Init == x = [
     \* Set of records.
     recset1 |-> [a: {1,2}, b: {3,4}],
     recset2 |-> [a: {}, b: {3,4}],
-    recset3 |-> [a: {1,2}, c: {3,4}, b: {"x", "y", "z"}]
+    recset3 |-> [a: {1,2}, c: {3,4}, b: {"x", "y", "z"}],
+    recupdate1 |-> LET p == "p1" IN [P EXCEPT ![p] = [@ EXCEPT !.waiting = TRUE]] \* still failing record update.
 ]
 Next == x' = x
 ====

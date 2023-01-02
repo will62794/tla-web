@@ -370,10 +370,13 @@ class FcnRcdValue extends TLAValue{
     // e.g. given ["x", "y", "z"], we make the update rcd["x"]["y"]["z"] := newVal.
     updateWithPath(args, newVal){
         evalLog("updateWithPath args:", args);
+        evalLog("updateWithPath obj:", this);
+
         // Base case, when the update is non-nested.
         if(args.length === 1){
             evalLog("Hit non-nested update", args);
             let idx = this.argIndex(args[0]);
+            assert(idx >= 0, "arg index wasn't found for argument " + args[0]);
             let newFn = _.cloneDeep(this);
             evalLog("newVal", newVal);
             newFn.values[idx] = newVal;
@@ -2229,6 +2232,7 @@ function evalExcept(node, ctx){
     // General form of EXCEPT update expression:
     // [a EXCEPT !.a.b["c"] = "b", ![2].x = 5]
     let updatedFnVal = origFnVal;
+    evalLog("origFnVal:", origFnVal);
     for(const updateExpr of updateExprs){
         evalLog("UPDATE EXPR:", updateExpr);
         let updateSpec = updateExpr.namedChildren[0];
@@ -2257,12 +2261,14 @@ function evalExcept(node, ctx){
         newCtx.prev_func_val = origFnVal.applyPathArg(pathArg);
         evalLog("new ctx:", newCtx);
         let newRhsVal = evalExpr(newVal, newCtx)[0]["val"];
-        updatedFnVal = updatedFnVal.updateWithPath(pathArg, newRhsVal);
+        // evalLog("updating with path arg:", updateSpecVals);
+        updatedFnVal = updatedFnVal.updateWithPath(updateSpecVals, newRhsVal);
     }
+
+    evalLog("updatedFnVal:", updatedFnVal);
 
     // If the original value was a tuple, then treat this it as a tuple upon return.
     if (wasTuple) {
-        evalLog(updatedFnVal);
         updatedFnVal = new TupleValue(updatedFnVal.getValues());
     }
 
