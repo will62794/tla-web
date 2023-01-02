@@ -2725,9 +2725,11 @@ function getNextStates(nextDef, currStateVars, defns, constvals){
     ret = ret.filter(c => _.every(origVars, v => c.state.getVarVal(v+"'")!== null));
 
     // Filter out transitions that do not modify the state.
-    let all_next_states = ret.filter(c => {
-        return !_.every(origVars, (v) => c.state.getVarVal(v).fingerprint() === c.state.getVarVal(v+"'").fingerprint());
-    });
+    // let all_next_states = ret.filter(c => {
+    //     return !_.every(origVars, (v) => c.state.getVarVal(v).fingerprint() === c.state.getVarVal(v+"'").fingerprint());
+    // });
+
+    let all_next_states = ret;
 
     // TODO: Check if we are correctly keeping only unique states.
     // all_next_states = _.uniqBy(all_next_states, c => c.state.fingerprint());
@@ -2792,15 +2794,17 @@ class TlaInterpreter{
         // let initStates = getInitStates(initDef["node"], vars, defns, constvals);
         let initStates = this.computeInitStates(treeObjs, constvals);
     
+        let initStatesOrig = _.cloneDeep(initStates);
         let stateQueue = initStates;
         let seenStatesHashSet = new Set(); 
         let reachableStates = [];
         let edges = [];
         while(stateQueue.length > 0){
+            console.log("initStatesOrig:", initStatesOrig);
             let currState = stateQueue.pop();
             // console.log(currState);
             let currStateHash = currState.fingerprint();
-            // console.log(currStateHash);
+            console.log("curr state hash:", currStateHash);
     
             // If we've already seen this state, we don't need to explore it.
             if(seenStatesHashSet.has(currStateHash)){
@@ -2816,7 +2820,7 @@ class TlaInterpreter{
             let currStateArg = _.cloneDeep(currState);
             let nextStates = this.computeNextStates(treeObjs, constvals, [currStateArg])
                                 .map(c => c["state"].deprimeVars());
-            // console.log("nextStates:", nextStates);
+            console.log("nextStates:", nextStates);
             // console.log("reachableStates:", reachableStates);
             stateQueue = stateQueue.concat(nextStates);
             for(const nextSt of nextStates){
@@ -2824,6 +2828,7 @@ class TlaInterpreter{
             }
         }
         return {
+            "initStates": initStatesOrig,
             "states": reachableStates,
             "edges": edges
         }

@@ -51,17 +51,25 @@ function testStateGraphEquiv(testId, stateGraph, specText, constvals) {
 
     const start = performance.now();
 
-    // Test correct states. 
-    // TODO: test correct edges as well.
+    //
+    // Test matching initial states and edges. 
+    //
+
     let interp = new TlaInterpreter();
     let parsedSpec = parseSpec(specText);
     console.log("### TEST: Computing reachable states with JS interpreter")
-    let reachable = interp.computeReachableStates(parsedSpec, constvals)["states"];
+    let reachableObj = interp.computeReachableStates(parsedSpec, constvals);
+
+    let initial = reachableObj["initStates"];
+    let reachable = reachableObj["states"];
+    let reachableEdges = reachableObj["edges"];
 
     // Construct a new spec with an initial state that is the disjunction of all
     // reachable states of the spec we're testing.
     let specVariables = parsedSpec["var_decls"];
     let objects = stateGraph["objects"];
+    let edges = stateGraph.hasOwnProperty("edges") ? stateGraph["edges"] : [];
+    console.log("edges:", edges);
 
     // Build the spec.
     let specOfTLCReachableStates = `----MODULE ${testId}_TLC_reachable----\n`;
@@ -69,46 +77,110 @@ function testStateGraphEquiv(testId, stateGraph, specText, constvals) {
         specOfTLCReachableStates += "VARIABLE " + kvar + "\n";
     }
     specOfTLCReachableStates += `Init == \n`;
-    for (const obj of objects) {
-        if (!obj.hasOwnProperty("label")) {
-            continue;
-        }
+
+    // First check matching initial states.
+    let initStatesTLC = objects.filter(obj => obj.hasOwnProperty("label") && obj["style"] === "filled");
+    let specOfInitTLCReachableStates = `----MODULE ${testId}_TLC_reachable----\n`;
+    for (var kvar in specVariables) {
+        specOfInitTLCReachableStates += "VARIABLE " + kvar + "\n";
+    }
+    specOfInitTLCReachableStates += `Init == \n`;
+    for (const obj of initStatesTLC) {
         // Retrieve the TLA state string and deal with some string escaping.
         let stateStr = obj["label"];
         stateStr = stateStr
             .replaceAll("\\n", " ")
             .replaceAll("\\\\", "\\");
         let stateDisjunct = "  \\/ (" + stateStr + ")"
-        specOfTLCReachableStates += stateDisjunct + "\n";
+        specOfInitTLCReachableStates += stateDisjunct + "\n";
     }
-    specOfTLCReachableStates += "Next == UNCHANGED <<" + Object.keys(specVariables).join(",") + ">>\n"
-    specOfTLCReachableStates += "===="
-    console.log("specOfTLCReachableStates");
-    console.log(specOfTLCReachableStates);
 
-    // Parse this generated spec and record its initial states, which should
-    // correspond to the reachable states of the TLC state graph for the spec
-    // we're testing.
-    console.log("### TEST: Reconstructing reachable states of TLC state graph")
+    specOfInitTLCReachableStates += "Next == UNCHANGED <<" + Object.keys(specVariables).join(",") + ">>\n"
+    specOfInitTLCReachableStates += "===="
+    // console.log("specOfInitTLCReachableStates");
+    // console.log(specOfInitTLCReachableStates);
+
+    // Parse this generated spec and record its initial states.
     enableEvalTracing = false; // turn off tracing here to avoid pollution of main eval logs.
-    parsedTLCSpec = parseSpec(specOfTLCReachableStates);
-    let reachableTLC = interp.computeReachableStates(parsedTLCSpec, constvals)["states"];
+    parsedTLCSpec = parseSpec(specOfInitTLCReachableStates);
+    let initialTLC = interp.computeReachableStates(parsedTLCSpec, constvals)["states"];
 
-    console.log("spec reachable JS  :", reachable);
-    console.log("spec reachable TLC :", reachableTLC);
+    console.log("spec init JS  :", initial);
+    console.log("spec init TLC :", initialTLC);
     console.log("----------------------");
-    console.log("eq:", arrEq(reachable, reachableTLC));
 
-    let jsFingerprints = reachable.map(s => s.fingerprint());
-    let tlcFingerprints = reachableTLC.map(s => s.fingerprint());
-    let areEquiv = arrEq(jsFingerprints, tlcFingerprints);
+    let jsInitFingerprints = initial.map(s => s.fingerprint());
+    let tlcInitFingerprints = initialTLC.map(s => s.fingerprint());
+    let initAreEquiv = arrEq(jsInitFingerprints, tlcInitFingerprints);
+
+    // Now check matching edges.
+    let reachableEdgesTLC = [];
+    for (const edge of edges) {
+        let to = edge["head"];
+        let from = edge["tail"];
+
+        let fromNode = objects.filter(obj => obj.hasOwnProperty("label") && obj["_gvid"] == from)[0];
+        let toNode = objects.filter(obj => obj.hasOwnProperty("label") && obj["_gvid"] == to)[0];
+
+        let edgeNodes = [fromNode, toNode];
+
+        // Compute JS version of this edge node.
+        let edgeNodeJSVals = edgeNodes.map(node => {
+
+            specOfTLCReachableStates = `----MODULE ${testId}_TLC_reachable----\n`;
+            for (var kvar in specVariables) {
+                specOfTLCReachableStates += "VARIABLE " + kvar + "\n";
+            }
+            specOfTLCReachableStates += `Init == \n`;
+
+            let stateStr = node["label"];
+            console.log("STATE STR:", stateStr);
+            stateStr = stateStr
+                .replaceAll("\\n", " ")
+                .replaceAll("\\\\", "\\");
+            let stateDisjunct = "  \\/ (" + stateStr + ")"
+            specOfTLCReachableStates += stateDisjunct + "\n";
+
+            specOfTLCReachableStates += "Next == UNCHANGED <<" + Object.keys(specVariables).join(",") + ">>\n"
+            specOfTLCReachableStates += "===="
+            console.log("specOfTLCReachableStates");
+            console.log(specOfTLCReachableStates);
+
+            // Parse this generated spec and record its initial states.
+            enableEvalTracing = false; // turn off tracing here to avoid pollution of main eval logs.
+            parsedTLCSpec = parseSpec(specOfTLCReachableStates);
+            let nodeVal = interp.computeReachableStates(parsedTLCSpec, constvals)["states"];
+            assert(nodeVal.length === 1);
+            // console.log(nodeVal);
+            return nodeVal[0];
+        });
+
+        console.log("edge node JS", edgeNodeJSVals);
+        reachableEdgesTLC.push(edgeNodeJSVals);
+    }
+
+    console.log("edges reachable JS  :", reachableEdges);
+    console.log("edges reachable TLC :", reachableEdgesTLC);
+    console.log("----------------------");
+    // console.log("eq:", arrEq(reachable, reachableTLC));
+
+    // Compute fingerprints for each edge by concatenating fingerprints of the edge nodes.
+    let jsEdgeFingerprints = reachableEdges.map(e => e[0].fingerprint() + "-" + e[1].fingerprint());
+    let tlcEdgeFingerprints = reachableEdgesTLC.map(e => e[0].fingerprint() + "-" + e[1].fingerprint());
+
+    let edgesAreEquiv = arrEq(jsEdgeFingerprints, tlcEdgeFingerprints);
 
     const duration = (performance.now() - start).toFixed(1);
 
     let statusObj = {
-        "pass": areEquiv,
-        "reachableJS": reachable,
-        "reachableTLC": reachableTLC,
+        "initial_states_equiv": initAreEquiv,
+        "pass": initAreEquiv && edgesAreEquiv,
+        "initialJS": initial,
+        "initialTLC": initialTLC,
+        "reachableJS": [], // reachable,
+        "reachableTLC": [], //reachableTLC,
+        "reachableEdgesJS": reachableEdges,
+        "reachableEdgesTLC": reachableEdgesTLC,
         "duration_ms": duration
     }
     return statusObj;
@@ -134,7 +206,6 @@ function testStateGraphEquiv(testId, stateGraph, specText, constvals) {
 
     // Set of specs whose reachable states we test for JS <-> TLC conformance.
     tests = [
-        { "spec": "simple1", "constvals": undefined },
         { "spec": "simple1_multiline_block_comment", "constvals": undefined },
         { "spec": "simple2", "constvals": undefined },
         { "spec": "simple3", "constvals": undefined },
@@ -143,6 +214,7 @@ function testStateGraphEquiv(testId, stateGraph, specText, constvals) {
         { "spec": "simple_domain", "constvals": undefined },
         { "spec": "simple6", "constvals": undefined },
         { "spec": "simple7", "constvals": undefined },
+        { "spec": "simple8", "constvals": undefined },
         { "spec": "simple_enabled", "constvals": undefined },
         { "spec": "simple_fcn", "constvals": undefined },
         { "spec": "simple_subset", "constvals": undefined },
@@ -175,6 +247,7 @@ function testStateGraphEquiv(testId, stateGraph, specText, constvals) {
         { "spec": "primed_tuple", "constvals": undefined },
         { "spec": "mldr_init_only", "constvals": undefined },
         { "spec": "tla_expr_eval", "constvals": undefined },
+        { "spec": "simple_mod3_counter", "constvals": undefined },
         { "spec": "EWD998_regression1", "constvals": undefined },
         { "spec": "EWD998_bounded1", "constvals": undefined },
         { "spec": "EWD998_depth_bounded1", "constvals": undefined },
@@ -301,41 +374,72 @@ function testStateGraphEquiv(testId, stateGraph, specText, constvals) {
 
         // Show generated spec with reachable states for debugging single tests.
         let isSingleTest = urlParams.hasOwnProperty("test");
-        if (isSingleTest) {
-            let genSpecBlock = document.createElement("div");
-            genSpecBlock.style = "margin-top:10px;";
-            // genSpecBlock.style = "margin-top:10px;border:solid;width:40%;";
-            // genSpecBlock.innerHTML = "<div> TLC reachable states: </div>";
-            // genSpecBlock.innerHTML += "<pre>" + specOfTLCReachableStates + "</pre>";
-            // testsDiv.appendChild(genSpecBlock);
-        }
+        // if (isSingleTest) {
+        // let genSpecBlock = document.createElement("div");
+        // genSpecBlock.style = "margin-top:10px;";
+        // genSpecBlock.style = "margin-top:10px;border:solid;width:40%;";
+        // genSpecBlock.innerHTML = "<div> TLC reachable states: </div>";
+        // genSpecBlock.innerHTML += "<pre>" + specOfTLCReachableStates + "</pre>";
+        // testsDiv.appendChild(genSpecBlock);
+        // }
 
         if (!statusObj["pass"] && isSingleTest) {
-            let reachable = statusObj["reachableJS"];
-            let reachableTLC = statusObj["reachableTLC"];
+            let reachableEdges = statusObj["reachableEdgesJS"];
+            let reachableEdgesTLC = statusObj["reachableEdgesTLC"];
 
             infoDiv = document.createElement("div");
             infoDiv.style = "width:100%";
-            computedDiv = document.createElement("div");
-            computedDiv.style = "float:left;border:solid;padding:4px;margin:3px; min-width:20%;";
-            computedDiv.innerHTML = "<h4>Computed by JS</h4>";
-            computedDiv.innerHTML += reachable.length + " reachable states";
-            let reachableSorted = _.sortBy(reachable, v => v.fingerprint());
-            for (const s of reachableSorted) {
-                computedDiv.innerHTML += "<pre>" + s.toString() + "</pre>";
+
+            // JS computed states.
+            jsComputedDiv = document.createElement("div");
+            jsComputedDiv.style = "float:left;border:solid;padding:4px;margin:3px; min-width:20%;";
+            jsComputedDiv.innerHTML = "<h4>Computed by JS</h4>";
+            jsComputedDiv.innerHTML += `${statusObj["initialJS"].length} initial states, ${reachableEdges.length} reachable edges`;
+
+            // Print JS initial states.
+            jsComputedDiv.innerHTML += "<br><b>Initial</b><br>";
+            let initialJSSorted = _.sortBy(statusObj["initialJS"], v => v.fingerprint());
+            for (const s of initialJSSorted) {
+                jsComputedDiv.innerHTML += `<pre>(${s.fingerprint()})</pre>`;
+                jsComputedDiv.innerHTML += `<pre>${s.toString()}</pre>`;
             }
-            // computedDiv.innerHTML += "<pre>" + JSON.stringify(reachable, null, 2) + "</pre>"
-            oracleDiv = document.createElement("div");
-            oracleDiv.style = "float:left;border:solid;padding:4px;margin:3px; min-width:20%;";
-            oracleDiv.innerHTML = "<h4>Computed by TLC</h4>";
-            oracleDiv.innerHTML += reachableTLC.length + " reachable states";
-            // oracleDiv.innerHTML += "<pre>" + JSON.stringify(reachableTLC,null, 2) + "</pre>";
-            let reachableTLCSorted = _.sortBy(reachableTLC, v => v.fingerprint());
-            for (const s of reachableTLCSorted) {
-                oracleDiv.innerHTML += "<pre>" + s.toString() + "</pre>";
+
+            // Print JS edges.
+            jsComputedDiv.innerHTML += "<br><b>Edges</b><br>";
+            let reachableEdgesSorted = _.sortBy(reachableEdges, v => v[0].fingerprint() + "-" + v[1].fingerprint());
+            for (const s of reachableEdgesSorted) {
+                jsComputedDiv.innerHTML += `<pre> FROM (${s[0].fingerprint()}):</pre>`;
+                jsComputedDiv.innerHTML += `<pre> ${s[0].toString()}</pre>`;
+                jsComputedDiv.innerHTML += `<pre> TO (${s[1].fingerprint()}): ${s[1].toString()}</pre>`;
             }
-            infoDiv.appendChild(computedDiv);
-            infoDiv.appendChild(oracleDiv);
+
+
+            // TLC computed states.
+            tlcOracleDiv = document.createElement("div");
+            tlcOracleDiv.style = "float:left;border:solid;padding:4px;margin:3px; min-width:20%;";
+            tlcOracleDiv.innerHTML = "<h4>Computed by TLC</h4>";
+            tlcOracleDiv.innerHTML += `${statusObj["initialTLC"].length} initial states, ${reachableEdgesTLC.length} reachable edges`;
+
+            // Print TLC initial states.
+            tlcOracleDiv.innerHTML += "<br><b>Initial</b><br>";
+            let initialTLCSorted = _.sortBy(statusObj["initialTLC"], v => v.fingerprint());
+            for (const s of initialTLCSorted) {
+                tlcOracleDiv.innerHTML += `<pre>(${s.fingerprint()})</pre>`;
+                tlcOracleDiv.innerHTML += `<pre>${s.toString()}</pre>`;
+            }
+
+            // Print TLC edges.
+            tlcOracleDiv.innerHTML += "<br><b>Edges</b><br>";
+            let reachableEdgesTLCSorted = _.sortBy(reachableEdgesTLC, v => v[0].fingerprint() + "-" + v[1].fingerprint());
+            for (const s of reachableEdgesTLCSorted) {
+                tlcOracleDiv.innerHTML += `<pre>FROM (${s[0].fingerprint()}):</pre>`;
+                tlcOracleDiv.innerHTML += `<pre>${s[0].toString()}</pre>`;
+                tlcOracleDiv.innerHTML += `<pre>TO (${s[1].fingerprint()}):</pre>`;
+                tlcOracleDiv.innerHTML += `<pre>${s[1].toString()}</pre>`;
+                tlcOracleDiv.innerHTML += "<pre>-----------</pre>";
+            }
+            infoDiv.appendChild(jsComputedDiv);
+            infoDiv.appendChild(tlcOracleDiv);
             testsDiv.appendChild(infoDiv);
         }
     }
@@ -352,16 +456,6 @@ function testStateGraphEquiv(testId, stateGraph, specText, constvals) {
 
                 let statusObj = testStateGraphEquiv(test["spec"], specStateGraph, specText, test["constvals"]);
                 handleTestResult(test, specStateGraph, specText, statusObj);
-
-                // let statusDiv = document.getElementById("test_status-" + test["spec"]);
-                // console.log(statusObj);
-                // if (statusObj["pass"]) {
-                //     statusDiv.style = "margin-bottom:5px; font-weight: bold; color:" + "green";
-                //     statusDiv.innerHTML = "STATUS: PASS &#10003 (" + (statusObj["duration_ms"] + "ms)");
-                // } else {
-                //     statusDiv.style = "margin-bottom:5px; font-weight: bold; color:" + "red";
-                //     statusDiv.innerHTML = "STATUS: FAIL &#10007 (" + statusObj["duration_ms"] + "ms)";
-                // }
             });
         });
     }
