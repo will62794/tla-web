@@ -991,7 +991,7 @@ function parseSpec(specText){
             // Save the variable declaration.
             // var_decls[var_ident.text] = {"id": node.id}; 
             op_defs[opName]["node"] = def;
-            console.log("opDef:", op_defs[opName]);
+            // console.log("opDef:", op_defs[opName]);
         }
     }
 
