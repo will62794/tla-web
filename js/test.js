@@ -134,43 +134,6 @@ function testStateGraphEquiv(testId, stateGraph, specText, constvals) {
     // div.style = "margin-bottom:5px; font-weight: bold; color:" + statusColor;
     // testsDiv.appendChild(div);
 
-    // TODO: Move this logic out of here for single test execution.
-    // Show generated spec with reachable states for debugging single tests.
-    if (isSingleTest) {
-        let genSpecBlock = document.createElement("div");
-        genSpecBlock.style = "margin-top:10px;";
-        // genSpecBlock.style = "margin-top:10px;border:solid;width:40%;";
-        // genSpecBlock.innerHTML = "<div> TLC reachable states: </div>";
-        genSpecBlock.innerHTML += "<pre>" + specOfTLCReachableStates + "</pre>";
-        // testsDiv.appendChild(genSpecBlock);
-    }
-
-    if (!areEquiv && urlParams.hasOwnProperty("test")) {
-        infoDiv = document.createElement("div");
-        infoDiv.style = "width:100%";
-        computedDiv = document.createElement("div");
-        computedDiv.style = "float:left;border:solid;padding:4px;margin:3px; min-width:20%;";
-        computedDiv.innerHTML = "<h4>Computed by JS</h4>";
-        computedDiv.innerHTML += reachable.length + " reachable states";
-        let reachableSorted = _.sortBy(reachable, v => v.fingerprint());
-        for (const s of reachableSorted) {
-            computedDiv.innerHTML += "<pre>" + s.toString() + "</pre>";
-        }
-        // computedDiv.innerHTML += "<pre>" + JSON.stringify(reachable, null, 2) + "</pre>"
-        oracleDiv = document.createElement("div");
-        oracleDiv.style = "float:left;border:solid;padding:4px;margin:3px; min-width:20%;";
-        oracleDiv.innerHTML = "<h4>Computed by TLC</h4>";
-        oracleDiv.innerHTML += reachableTLC.length + " reachable states";
-        // oracleDiv.innerHTML += "<pre>" + JSON.stringify(reachableTLC,null, 2) + "</pre>";
-        let reachableTLCSorted = _.sortBy(reachableTLC, v => v.fingerprint());
-        for (const s of reachableTLCSorted) {
-            oracleDiv.innerHTML += "<pre>" + s.toString() + "</pre>";
-        }
-        // infoDiv.appendChild(computedDiv);
-        // infoDiv.appendChild(oracleDiv);
-        // testsDiv.appendChild(infoDiv);
-    }
-
     const duration = (performance.now() - start).toFixed(1);
     // console.log(`All tests ran in ${duration}ms`);
 
@@ -356,6 +319,59 @@ function testStateGraphEquiv(testId, stateGraph, specText, constvals) {
 
     createTestStatusElems(testsToRun);
 
+    function handleTestResult(test, specStateGraph, specText, statusObj) {
+        let testsDiv = document.getElementById("tests");
+        let statusDiv = document.getElementById("test_status-" + test["spec"]);
+        console.log(statusObj);
+        if (statusObj["pass"]) {
+            statusDiv.style = "margin-bottom:5px; font-weight: bold; color:" + "green";
+            statusDiv.innerHTML = "STATUS: PASS &#10003 (" + (statusObj["duration_ms"] + "ms)");
+        } else {
+            statusDiv.style = "margin-bottom:5px; font-weight: bold; color:" + "red";
+            statusDiv.innerHTML = "STATUS: FAIL &#10007 (" + statusObj["duration_ms"] + "ms)";
+        }
+
+        // Show generated spec with reachable states for debugging single tests.
+        let isSingleTest = urlParams.hasOwnProperty("test");
+        if (isSingleTest) {
+            let genSpecBlock = document.createElement("div");
+            genSpecBlock.style = "margin-top:10px;";
+            // genSpecBlock.style = "margin-top:10px;border:solid;width:40%;";
+            // genSpecBlock.innerHTML = "<div> TLC reachable states: </div>";
+            // genSpecBlock.innerHTML += "<pre>" + specOfTLCReachableStates + "</pre>";
+            // testsDiv.appendChild(genSpecBlock);
+        }
+
+        if (!statusObj["pass"] && isSingleTest) {
+            let reachable = statusObj["reachableJS"];
+            let reachableTLC = statusObj["reachableTLC"];
+
+            infoDiv = document.createElement("div");
+            infoDiv.style = "width:100%";
+            computedDiv = document.createElement("div");
+            computedDiv.style = "float:left;border:solid;padding:4px;margin:3px; min-width:20%;";
+            computedDiv.innerHTML = "<h4>Computed by JS</h4>";
+            computedDiv.innerHTML += reachable.length + " reachable states";
+            let reachableSorted = _.sortBy(reachable, v => v.fingerprint());
+            for (const s of reachableSorted) {
+                computedDiv.innerHTML += "<pre>" + s.toString() + "</pre>";
+            }
+            // computedDiv.innerHTML += "<pre>" + JSON.stringify(reachable, null, 2) + "</pre>"
+            oracleDiv = document.createElement("div");
+            oracleDiv.style = "float:left;border:solid;padding:4px;margin:3px; min-width:20%;";
+            oracleDiv.innerHTML = "<h4>Computed by TLC</h4>";
+            oracleDiv.innerHTML += reachableTLC.length + " reachable states";
+            // oracleDiv.innerHTML += "<pre>" + JSON.stringify(reachableTLC,null, 2) + "</pre>";
+            let reachableTLCSorted = _.sortBy(reachableTLC, v => v.fingerprint());
+            for (const s of reachableTLCSorted) {
+                oracleDiv.innerHTML += "<pre>" + s.toString() + "</pre>";
+            }
+            infoDiv.appendChild(computedDiv);
+            infoDiv.appendChild(oracleDiv);
+            testsDiv.appendChild(infoDiv);
+        }
+    }
+
     function fetchTestSpec(test) {
         let specStatesPath = `./specs/with_state_graphs/${test["spec"]}.tla.dot.json`;
         return $.get(specStatesPath).then(data => {
@@ -363,17 +379,21 @@ function testStateGraphEquiv(testId, stateGraph, specText, constvals) {
             return $.get(specPath).then(specText => {
                 // return [specText, data];
                 // console.log(specText,data);
+
                 specStateGraph = data;
+
                 let statusObj = testStateGraphEquiv(test["spec"], specStateGraph, specText, test["constvals"]);
-                let statusDiv = document.getElementById("test_status-" + test["spec"]);
-                console.log(statusObj);
-                if (statusObj["pass"]) {
-                    statusDiv.style = "margin-bottom:5px; font-weight: bold; color:" + "green";
-                    statusDiv.innerHTML = "STATUS: PASS &#10003 (" + (statusObj["duration_ms"] + "ms)");
-                } else {
-                    statusDiv.style = "margin-bottom:5px; font-weight: bold; color:" + "red";
-                    statusDiv.innerHTML = "STATUS: FAIL &#10007 (" + statusObj["duration_ms"] + "ms)";
-                }
+                handleTestResult(test, specStateGraph, specText, statusObj);
+
+                // let statusDiv = document.getElementById("test_status-" + test["spec"]);
+                // console.log(statusObj);
+                // if (statusObj["pass"]) {
+                //     statusDiv.style = "margin-bottom:5px; font-weight: bold; color:" + "green";
+                //     statusDiv.innerHTML = "STATUS: PASS &#10003 (" + (statusObj["duration_ms"] + "ms)");
+                // } else {
+                //     statusDiv.style = "margin-bottom:5px; font-weight: bold; color:" + "red";
+                //     statusDiv.innerHTML = "STATUS: FAIL &#10007 (" + statusObj["duration_ms"] + "ms)";
+                // }
             });
         });
     }
