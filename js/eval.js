@@ -2025,6 +2025,34 @@ function evalSetOfFunctions(node, ctx){
     return [ctx.withVal(new SetValue(fcnVals))];                                                        
 }
 
+function evalSetOfRecords(node, ctx) {
+    let domainVals = [];
+    let idents = [];
+    for (var ind = 0; ind < node.namedChildren.length; ind += 2) {
+        let ident = node.namedChildren[ind];
+        idents.push(ident.text);
+        let domain = node.namedChildren[ind + 1];
+        let domainVal = evalExpr(domain, ctx)[0]["val"];
+        assert(domainVal instanceof SetValue);
+        evalLog(domainVal);
+        domainVals.push(domainVal.getElems());
+    }
+
+    let domainTuples = cartesianProductOf(...domainVals);
+
+    // Construct the set of records as the cartesian product of every field domain set.
+    let outRecords = []
+    for (var domainTuple of domainTuples) {
+        let rcdDomain = idents.map(v => new StringValue(v));
+        let rcdVals = domainTuple;
+        let isRecord = true;
+        let recordVal = new FcnRcdValue(rcdDomain, rcdVals, isRecord);
+        outRecords.push(recordVal);
+    }
+
+    return [ctx.withVal(new SetValue(outRecords))];
+}
+
 function evalLetIn(node, ctx){
     let opDefs = node.namedChildren.filter(c => c.type === "operator_definition");
     let letInExpr = node.childForFieldName("expression");
@@ -2369,6 +2397,12 @@ function evalExpr(node, ctx){
     // e.g. [{"x","y"} -> {1,2}]
     if(node.type === "set_of_functions"){
         return evalSetOfFunctions(node, ctx);
+    }
+
+    // [<fieldname> : <D_expr>, ..., <fieldnameN> : <D_exprN>]
+    // e.g. [a : {1,2}, b : {3,4}]
+    if(node.type === "set_of_records"){
+        return evalSetOfRecords(node, ctx);
     }
 
     // {<bound_expr> : <setin_expr>}

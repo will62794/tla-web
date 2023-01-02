@@ -22,7 +22,11 @@ Init == x = [
         [pos |-> 0, q |-> 6, color |-> "orange"] 
         EXCEPT !.pos = @ - 1,
                !.q   = @ + 5,
-               !.color = IF "white" = "black" THEN "black" ELSE @ ]
+               !.color = IF "white" = "black" THEN "black" ELSE @ ],
+    \* Set of records.
+    recset1 |-> [a: {1,2}, b: {3,4}],
+    recset2 |-> [a: {}, b: {3,4}],
+    recset3 |-> [a: {1,2}, c: {3,4}, b: {"x", "y", "z"}]
 ]
 Next == x' = x
 ====
