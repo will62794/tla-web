@@ -1608,10 +1608,23 @@ function evalBoundInfix(node, ctx){
 
 }
 
-function evalBoundPrefix(node, ctx){
+function evalEnabled(node, ctx) {
+    let rhs = node.childForFieldName("rhs");
+    let rhsVal = evalExpr(rhs, ctx)[0]["val"];
+    evalLog("rhs ENABLED: ", rhsVal);
+    assert(rhsVal instanceof BoolValue);
+    return [ctx.withVal(rhsVal)];
+}
+
+function evalBoundPrefix(node, ctx) {
     let symbol = node.children[0];
     let rhs = node.children[1];
     evalLog("evalBoundPrefix: ", node.type, ", ", node.text, `, prefix symbol: '${symbol.type}' `, "ctx:", ctx);
+
+    // ENABLED.
+    if (symbol.type === "enabled") {
+        return evalEnabled(node, ctx);
+    }
 
     // DOMAIN.
     if(symbol.type === "domain"){
