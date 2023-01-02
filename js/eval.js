@@ -2010,7 +2010,6 @@ function evalSetOfFunctions(node, ctx){
     //
 
     let combVals = combs(Delems, Relems);
-    console.log("COMBS: ", combVals);
 
     let fcnVals = [];
     for(var comb of combVals){
