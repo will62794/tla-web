@@ -149,7 +149,8 @@ function testStateGraphEquiv(testId, stateGraph, specText, constvals) {
         computedDiv.style = "float:left;border:solid;padding:4px;margin:3px; min-width:20%;";
         computedDiv.innerHTML = "<h4>Computed by JS</h4>";
         computedDiv.innerHTML += reachable.length + " reachable states";
-        for (const s of reachable) {
+        let reachableSorted = _.sortBy(reachable, v => v.fingerprint());
+        for (const s of reachableSorted) {
             computedDiv.innerHTML += "<pre>" + s.toString() + "</pre>";
         }
         // computedDiv.innerHTML += "<pre>" + JSON.stringify(reachable, null, 2) + "</pre>"
@@ -158,7 +159,8 @@ function testStateGraphEquiv(testId, stateGraph, specText, constvals) {
         oracleDiv.innerHTML = "<h4>Computed by TLC</h4>";
         oracleDiv.innerHTML += reachableTLC.length + " reachable states";
         // oracleDiv.innerHTML += "<pre>" + JSON.stringify(reachableTLC,null, 2) + "</pre>";
-        for (const s of reachableTLC) {
+        let reachableTLCSorted = _.sortBy(reachableTLC, v => v.fingerprint());
+        for (const s of reachableTLCSorted) {
             oracleDiv.innerHTML += "<pre>" + s.toString() + "</pre>";
         }
         infoDiv.appendChild(computedDiv);
