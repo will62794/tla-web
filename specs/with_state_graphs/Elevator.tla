@@ -14,10 +14,6 @@
 
 EXTENDS     Integers,TLC
 
-\* CONSTANTS   Person,     \* The set of all people using the elevator system
-            \* Elevator,   \* The set of all elevators
-            \* FloorCount  \* The number of floors serviced by the elevator system
-
 Person == {"p1"}
 Elevator == {"e1"}
 FloorCount == 2
