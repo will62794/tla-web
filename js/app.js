@@ -489,7 +489,7 @@ function tlaValView(tlaVal) {
     return m("div", tlaVal.toString());
 }
 
-function componentTraceViewerState(state, ind) {
+function componentTraceViewerState(state, ind, isLastState) {
     // Disable state numbering for now.
     let titleElems = [
         // m("b", "State " + ind),
@@ -593,8 +593,9 @@ function componentTraceViewerState(state, ind) {
         varRows = varRows.concat(aliasVarElems);
     }
 
+    let stateColorBg = isLastState ? "yellow" : "none"; 
     let headerRow = [m("tr", [
-        m("th", { colspan: "1" }, "State " + (ind + 1)),
+        m("th", { colspan: "2" , style: `background-color: ${stateColorBg}`}, "State " + (ind + 1)),
         m("th", { colspan: "2" }, "") // filler.
     ])];
     let rows = headerRow.concat(varRows);
@@ -633,7 +634,7 @@ function componentTraceViewer() {
     for (var ind = 0; ind < model.currTrace.length; ind++) {
         let state = model.currTrace[ind];
         let isLastState = ind === model.currTrace.length - 1;
-        let traceStateElem = componentTraceViewerState(state, ind);
+        let traceStateElem = componentTraceViewerState(state, ind, isLastState);
         traceElems.push(traceStateElem);
     }
 
