@@ -8,6 +8,8 @@ VARIABLE x
 Init == 
     x = [ exists1 |-> \E i \in {1,2,3} : i > 2,
           exists2 |-> \E i \in {1,2,3} : i = 4,
+          existsempty |-> \E i \in {} : TRUE,
+          forallempty |-> \A i \in {} : FALSE,
           forall1 |-> \A i \in {1,2,3} : i > 2,
           forall2 |-> \A i \in {1,2,3} : i < 5]
 

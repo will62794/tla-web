@@ -2,8 +2,8 @@ strict digraph DiskGraph {
 nodesep=0.35;
 subgraph cluster_graph {
 color="white";
-6890218316110308743 [label="x = [exists1 |-> TRUE, exists2 |-> FALSE, forall1 |-> FALSE, forall2 |-> TRUE]",style = filled]
-6890218316110308743 -> 6890218316110308743 [label="",color="black",fontcolor="black"];
-{rank = same; 6890218316110308743;}
+-2869143650566109499 [label="x = [ exists1 |-> TRUE,\n  exists2 |-> FALSE,\n  existsempty |-> FALSE,\n  forallempty |-> TRUE,\n  forall1 |-> FALSE,\n  forall2 |-> TRUE ]",style = filled]
+-2869143650566109499 -> -2869143650566109499 [label="",color="black",fontcolor="black"];
+{rank = same; -2869143650566109499;}
 }
 }

@@ -1848,9 +1848,13 @@ function evalBoundedQuantification(node, ctx){
 
     // Iterate over the product of all quantified domains and evaluate
     // the quantified expression with the appropriately bound values.
+
+    // Trivial case of empty domain.
     if(quantDomain.length === 0){
-        // TODO: Should this return value be different for universal vs. existential quantifiers?
-        return [ctx.withVal(new BoolValue(false))];
+        // \forall x \in {} : <expr> is always true.
+        // \exists x \in {} : <expr> is always false.
+        let retVal = (quantifier.type === "forall");
+        return [ctx.withVal(new BoolValue(retVal))];
     }
 
     let currAssignedVars = _.keys(ctx["state"].stateVars).filter(k => ctx["state"].stateVars[k] !== null)
@@ -2812,6 +2816,7 @@ class TlaInterpreter{
     
             // If we've already seen this state, we don't need to explore it.
             if(seenStatesHashSet.has(currStateHash)){
+                console.log("already seen state " + currStateHash);
                 continue;
             }
     
