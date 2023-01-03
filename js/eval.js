@@ -727,46 +727,6 @@ function genSyntaxRewrites(treeArg) {
             return sourceRewrites;
           }
           
-          // Prefix ops.
-          if(node.type === "bound_prefix_op"){
-            // console.log("bound_prefix_op", node);
-            let symbol = node.childForFieldName("symbol");
-            let rhs = node.childForFieldName("rhs");
-            // console.log("syntax rewriting:", symbol);
-            // console.log("syntax rewriting, type:", symbol.type);
-
-            // UNCHANGED.
-            if(symbol.type === "unchanged"){
-                // // Desugar UNCHANGED statements to their equivalent form e.g.
-                // //  UNCHANGED <expr>  ==>  <expr>' = <expr>. 
-                // // If <expr> is a tuple literal i.e. <<x,y>>, then we de-sugar as
-                // //  UNCHANGED <<x,y>> ==> x' = x /\ y' = y
-
-                //
-                // Disable this in favor of semantic UNCHANGED handling.
-                //
-                // let rewrite;
-                // if(rhs.type === "tuple_literal"){
-                //     let tup_elems = rhs.namedChildren.slice(1,rhs.namedChildren.length-1);
-                //     let newText = tup_elems.map(el => el.text + "' = " + el.text ).join(" /\\ ");
-                //     rewrite = {
-                //         startPosition: node.startPosition,
-                //         endPosition: node.endPosition,
-                //         newStr: newText
-                //     } 
-                // } else{
-                //     rewrite = {
-                //         startPosition: symbol.startPosition,
-                //         endPosition: symbol.endPosition,
-                //         newStr: "" + rhs.text + "' ="
-                //     } 
-                // }
-                // sourceRewrites.push(rewrite);
-                // return sourceRewrites;
-            }
-
-        }
-
         // Bound infix ops.
         if(node.type === "bound_infix_op"){
             let symbol = node.childForFieldName("symbol");
@@ -1332,24 +1292,25 @@ function evalEq(lhs, rhs, ctx){
 }
 
 function evalUnchanged(node, ctx){
+    evalLog("eval UNCHANGED:", node);
 
     let unchangedVal = node.namedChildren[1];
 
-    // Perform any substitutions first.
-    // TODO: May need to eventually recursively apply substitutions until fixpoint reached.
-    if(unchangedVal.type === "identifier_ref" &&
-        ctx.defns.hasOwnProperty(unchangedVal.text)){
+    // If we encounter an UNCHANGED expression where the right hand side is a
+    // non-variable identifier, then we try to recursively perform all possible
+    // substitutions based on definitions in current context. 
+    while (unchangedVal.type === "identifier_ref" && ctx.defns.hasOwnProperty(unchangedVal.text)) {
         let defnVal = ctx.defns[unchangedVal.text];
-        evalLog("defn: ", defnVal);
+        evalLog("unchanged defn: ", defnVal);
         unchangedVal = defnVal.node;
     }
-    evalLog("eval prefix op: UNCHANGED val", unchangedVal);
+    evalLog("eval prefix op: UNCHANGED val", unchangedVal, unchangedVal.text);
 
-    if(unchangedVal.type === "tuple_literal"){
+    if (unchangedVal.type === "tuple_literal") {
         // Handle case where tuple consists of identifier_refs.
         let tupleElems = unchangedVal.namedChildren
             .filter(c => c.type === "identifier_ref");
-        for(const elem of tupleElems){
+        for (const elem of tupleElems) {
             evalLog("elem:", elem);
 
             // Assign the primed version of this variable identifer to the same
@@ -1363,8 +1324,8 @@ function evalUnchanged(node, ctx){
             // evalLog(ctx.state);
         }
         return [ctx.withVal(new BoolValue(true))];
-        
-    } else{
+
+    } else {
         // Assume identifier_ref node.
         assert(unchangedVal.type === "identifier_ref");
         let unprimedVarVal = evalExpr(unchangedVal, ctx)[0]["val"];
@@ -2776,7 +2737,7 @@ class TlaInterpreter{
     
         let nextDef = defns["Next"];
         // console.log(defns);
-        // console.log("<<<< NEXT >>>>");
+        console.log("<<<< NEXT >>>>");
         // console.log(nextDef);
         // console.log("nextDef.childCount: ", nextDef["node"].childCount);
         // console.log("nextDef.type: ", nextDef["node"].type);
