@@ -20,7 +20,9 @@ let model = {
     specConsts: null,
     specConstInputVals: {},
     specConstVals: {},
-    parser: null
+    parser: null,
+    traceExprInputText: "",
+    traceExprs: []
 }
 
 // The main app component.
@@ -342,6 +344,30 @@ function chooseNextState(statehash_short) {
     }
 }
 
+function evalExprStrInStateContext(state, exprStr) {
+    let nullTree;
+    let start = performance.now();
+
+    // Create a dummy spec to parse/evaluate the expression.
+    let dummySpec = "---- MODULE dummy_eval_spec ----\n";
+    dummySpec += `Expr == ${exprStr}\n`;
+    dummySpec += "====";
+
+    // const dummySpecTree = parser.parse(dummySpec, nullTree);
+    let dummyTreeObjs = parseSpec(dummySpec);
+    // console.log("dummy tree objs:", dummyTreeObjs);
+
+    let evalCtx = new Context(null, state, model.specDefs, {}, model.specConsts);
+    let opDefs = dummyTreeObjs["op_defs"];
+    let exprNode = opDefs["Expr"].node;
+    let exprVal = evalExpr(exprNode, evalCtx)[0]["val"];
+
+    const duration = (performance.now() - start).toFixed(1);
+    // console.log("return val:", exprVal);
+    console.log("compute duration val ms:", duration);
+    return exprVal;
+}
+
 function setConstantValues() {
     let constVals = {};
     let nullTree;
@@ -557,41 +583,25 @@ function componentTraceViewerState(state, ind, isLastState) {
         vizSvg = m("svg", { width: 600, height: 300 }, [viewSvgObj]);
     }
 
-
-    // TODO: Expandable UI elements of state values for functions, records, etc.
-    // m("ul", [
-    //     m("li", "Coffee", [
-    //         m("ul", [
-    //             m("li", "iner1"),
-    //             m("li", "iner2")
-    //         ])
-    //     ]),
-    //     m("li", "Tea"),
-    //     m("li", "Other")
-    // ])
-
-    let varRows = _.keys(state.getStateObj()).map((varname,idx) => {
+    let varNames = _.keys(state.getStateObj());
+    let varRows = varNames.map((varname, idx) => {
         let cols = [
             m("td", { class: "th-state-varname" }, varname),
             m("td", [tlaValView(state.getVarVal(varname))]),
         ]
 
-        // TODO: Enable trace state visualization when ready.
-        // if(idx === 0){
-        //     let attrs = {
-        //         rowspan: Object.keys(state.getStateObj()).length,
-        //         style: "padding-left:20"
-        //     };
-        //     let viz = m("td", attrs, traceStateView(state));
-        //     cols.push(viz);
-        // }
+        return m("tr", { style: "border-bottom: solid" }, cols);
+    });
 
-        // TODO: Experiment with more compact trace state viewer.
-        // if(idx === 0){
-        //     cols = [m("td", {class:"trace-state-num", rowspan: "3" }, "State " + (ind + 1))].concat(cols);
-        // };
+    let traceExprRows = model.traceExprs.map((expr) => {
+        let exprVal = evalExprStrInStateContext(state, expr);
+        console.log("exprVal:", exprVal);
+        let cols = [
+            m("td", { class: "th-state-traceexpr" }, expr),
+            m("td", { class: "td-state-traceexpr" }, [tlaValView(exprVal)]),
+        ]
 
-        return m("tr", {style: "border-bottom: solid"}, cols);
+        return m("tr", { class: "tr-state-traceexpr", style: "border-bottom: solid" }, cols);
     });
 
     // Append ALIAS vars if needed.
@@ -612,14 +622,15 @@ function componentTraceViewerState(state, ind, isLastState) {
         m("th", { colspan: "2" , style: `background-color: ${stateColorBg}`}, "State " + (ind + 1)),
         m("th", { colspan: "2" }, "") // filler.
     ])];
-    let rows = headerRow.concat(varRows);
+    let rows = headerRow.concat(varRows).concat(traceExprRows);
 
     let rowElems = m("table", { class: "trace-state-table"}, rows);
 
     stateVarElems = m("div", rowElems);
 
     let traceStateElem = m("div", { "class": "trace-state tlc-state" },
-        titleElems.concat(stateVarElems)
+        titleElems
+        .concat(stateVarElems)
         .concat(vizSvg)
     );
     return traceStateElem;
@@ -733,9 +744,24 @@ async function loadApp() {
     //
     var root = document.body
 
+    function addTraceExpr(newTraceExpr) {
+        model.traceExprs.push(newTraceExpr);
+
+        // TODO: re-evaluate new trace expressions.
+        // evalExprStrInStateContext(model.currTrace[0], newTraceExpr);
+    }
+
     let buttonsContainer = [m("div", { id: "trace-buttons" }, [
         m("div", { class: "button-base trace-button", id: "trace-back-button", onclick: traceStepBack }, "Back"),
-        m("div", { class: "button-base trace-button", id: "trace-reset-button", onclick: reloadSpec }, "Reset")
+        m("div", { class: "button-base trace-button", id: "trace-reset-button", onclick: reloadSpec }, "Reset"),
+        m("div", { class: "button-base trace-button", id: "trace-reset-button", onclick: () => addTraceExpr(model.traceExprInputText) }, "Add Trace Expression"),
+        m("input", {
+            class: "",
+            style: "font-family:monospace;",
+            id: "trace-expr-input",
+            value: model.traceExprInputText,
+            oninput: e => { model.traceExprInputText = e.target.value }
+        })
     ])];
 
     App = {

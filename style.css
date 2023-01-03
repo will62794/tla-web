@@ -164,6 +164,12 @@ body {
     border-right: 1px solid gray;
     font-weight: bold;
   }
+
+  .trace-state-table .th-state-traceexpr{
+    border-right: 1px solid gray;
+    font-weight: bold;
+    background-color: lightblue;
+  }
   
   .trace-state-table th{
     border-bottom: 1px solid gray;
