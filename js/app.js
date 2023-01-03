@@ -142,7 +142,8 @@ function componentNextStateChoiceElement(state, ind) {
         return m("span", {}, [
             m("span", { class: "state-varname" }, varname),
             m("span", " = "),
-            m("span", {}, state.getVarVal(varname).toString()),
+            // m("span", {}, state.getVarVal(varname).toString()),
+            m("span", {}, [tlaValView(state.getVarVal(varname))]),
             m("br")
         ])
     });
@@ -156,7 +157,7 @@ function componentNextStateChoiceElement(state, ind) {
     }
 
     let nextStateElem = m("div", { class: "init-state", onclick: () => chooseNextState(hash) }, stateVarElems);
-    return nextStateElem;    
+    return nextStateElem;
 }
 
 function componentNextStateChoices(nextStates) {
@@ -470,6 +471,24 @@ function reloadSpec() {
     // m.redraw();
 }
 
+// Function for rendering a TLA+ value that appears in a state/trace, etc.
+function tlaValView(tlaVal) {
+    if (tlaVal instanceof FcnRcdValue) {
+        let valPairs = _.zip(tlaVal.getDomain(), tlaVal.getValues());
+        let borderStyle = { style: "border:solid 0.5px gray" };
+        return m("table", valPairs.map(p => {
+            let key = p[0];
+            let val = p[1];
+            return m("tr", [
+                m("td", key.toString()),
+                m("td", val.toString()),
+            ]);
+        }));
+    }
+
+    return m("div", tlaVal.toString());
+}
+
 function componentTraceViewerState(state, ind) {
     // Disable state numbering for now.
     let titleElems = [
@@ -540,7 +559,7 @@ function componentTraceViewerState(state, ind) {
     let varRows = _.keys(state.getStateObj()).map((varname,idx) => {
         let cols = [
             m("td", { class: "th-state-varname" }, varname),
-            m("td", state.getVarVal(varname).toString()),
+            m("td", [tlaValView(state.getVarVal(varname))]),
         ]
 
         // TODO: Enable trace state visualization when ready.
@@ -558,7 +577,7 @@ function componentTraceViewerState(state, ind) {
         //     cols = [m("td", {class:"trace-state-num", rowspan: "3" }, "State " + (ind + 1))].concat(cols);
         // };
 
-        return m("tr", cols);
+        return m("tr", {style: "border-bottom: solid"}, cols);
     });
 
     // Append ALIAS vars if needed.
@@ -580,8 +599,7 @@ function componentTraceViewerState(state, ind) {
     ])];
     let rows = headerRow.concat(varRows);
 
-    let rowElems = m("table", { class: "trace-state-table" }, rows);
-
+    let rowElems = m("table", { class: "trace-state-table"}, rows);
 
     stateVarElems = m("div", rowElems);
 

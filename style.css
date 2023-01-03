@@ -156,6 +156,9 @@ body {
       width:90%;
   }
 
+  .trace-state-table{
+    border:solid 2px black;
+  }
 
   .trace-state-table .th-state-varname{
     border-right: 1px solid gray;
@@ -172,6 +175,7 @@ body {
 
   table, th, td {
     border-collapse: collapse;
+    vertical-align: top;
   }
 
   .trace-state-table th, td{
