@@ -664,6 +664,11 @@ function componentTraceViewer() {
 async function handleCodeChange(editor, changes) {
     console.log("handle code change");
 
+    // Enable resizable panes (experimental).
+    $( "#initial-states" ).resizable({handles:"s"});
+    $( "#input-pane" ).resizable({handles:"e"});
+    $( "#output-container-scroll" ).resizable({handles:"w"});
+
     // Remove any existing line error highlights.
     var nlines = codeEditor.lineCount();
     for (var i = 0; i < nlines; i++) {

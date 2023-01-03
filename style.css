@@ -238,6 +238,7 @@ body {
     left: 50%;
     bottom: 0;
     right: 0;
+    border-left: solid 1px gray;
   }
 
   .header-item {
