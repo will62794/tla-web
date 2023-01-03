@@ -500,7 +500,7 @@ function tlaValView(tlaVal) {
         }));
     }
 
-    return m("div", tlaVal.toString());
+    return m("span", tlaVal.toString());
 }
 
 function componentTraceViewerState(state, ind, isLastState) {
