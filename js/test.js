@@ -57,7 +57,7 @@ function testStateGraphEquiv(testId, stateGraph, specText, constvals) {
 
     let interp = new TlaInterpreter();
     let parsedSpec = parseSpec(specText);
-    
+
     console.log("### TEST: Computing reachable states with JS interpreter.")
     let reachableObj = interp.computeReachableStates(parsedSpec, constvals);
 
@@ -411,54 +411,59 @@ function testStateGraphEquiv(testId, stateGraph, specText, constvals) {
 
             if(statusObj["initStatesDiffInJS"].length + statusObj["initStatesDiffInTLC"].length > 0){
                 statesDiffDiv.innerHTML = "<h4>States diff</h4>";
-                statesDiffDiv.innerHTML += `${statusObj["initStatesDiff"].length} initial states computed by JS but not TLC.`;
+                statesDiffDiv.innerHTML += `${statusObj["initStatesDiffInJS"].length} initial states computed by JS but not TLC.`;
 
                 for (const s of statusObj["initStatesDiffInJS"]) {
                     statesDiffDiv.innerHTML += `<pre>(${s.fingerprint()})</pre>`;
                     statesDiffDiv.innerHTML += `<pre>${s.toString()}</pre>`;
                 }
 
-                statesDiffDiv.innerHTML += `${statusObj["initStatesDiff"].length} initial states computed by TLC but not JS.`;
+                statesDiffDiv.innerHTML += `${statusObj["initStatesDiffInTLC"].length} initial states computed by TLC but not JS.`;
                 for (const s of statusObj["initStatesDiffInTLC"]) {
                     statesDiffDiv.innerHTML += `<pre>(${s.fingerprint()})</pre>`;
                     statesDiffDiv.innerHTML += `<pre>${s.toString()}</pre>`;
                 }
             }
+
+            edgesDiffDiv = document.createElement("div");
+            edgesDiffDiv.style = "float:left;border:solid;padding:4px;margin:3px; min-width:20%;";
+
             if(statusObj["edgesDiffInTLC"].length > 0){
-                statesDiffDiv.innerHTML += `${statusObj["edgesDiffInTLC"].length} edges computed by TLC but not JS.`;
+                edgesDiffDiv.innerHTML += `${statusObj["edgesDiffInTLC"].length} edges computed by TLC but not JS.`;
 
                 for (const e of statusObj["edgesDiffInTLC"]) {
-                    statesDiffDiv.innerHTML += `<pre>(${e[0].fingerprint()})</pre>`;
-                    statesDiffDiv.innerHTML += `<pre>${e[0].toString()}</pre>`;
+                    edgesDiffDiv.innerHTML += `<pre>(${e[0].fingerprint()})</pre>`;
+                    edgesDiffDiv.innerHTML += `<pre>${e[0].toString()}</pre>`;
                 }
             }
 
             // Edges diff.
-            statesDiffDiv.innerHTML = "<h4>Edges diff</h4>";
+            edgesDiffDiv.innerHTML = "<h4>Edges diff</h4>";
             if(statusObj["edgesDiffInJS"].length > 0){
-                statesDiffDiv.innerHTML += `${statusObj["edgesDiffInJS"].length} edges computed by JS but not TLC.`;
+                edgesDiffDiv.innerHTML += `${statusObj["edgesDiffInJS"].length} edges computed by JS but not TLC.`;
 
                 for (const e of statusObj["edgesDiffInJS"]) {
-                    statesDiffDiv.innerHTML += `<pre>FROM (${e[0].fingerprint()}):</pre>`;
-                    statesDiffDiv.innerHTML += `<pre>${e[0].toString()}</pre>`;
-                    statesDiffDiv.innerHTML += `<pre>TO (${e[1].fingerprint()}):</pre>`;
-                    statesDiffDiv.innerHTML += `<pre>${e[1].toString()}</pre>`;
-                    statesDiffDiv.innerHTML += "<pre>-----------</pre>";
+                    edgesDiffDiv.innerHTML += `<pre>FROM (${e[0].fingerprint()}):</pre>`;
+                    edgesDiffDiv.innerHTML += `<pre>${e[0].toString()}</pre>`;
+                    edgesDiffDiv.innerHTML += `<pre>TO (${e[1].fingerprint()}):</pre>`;
+                    edgesDiffDiv.innerHTML += `<pre>${e[1].toString()}</pre>`;
+                    edgesDiffDiv.innerHTML += "<pre>-----------</pre>";
                 }
             }
             if(statusObj["edgesDiffInTLC"].length > 0){
-                statesDiffDiv.innerHTML += `${statusObj["edgesDiffInTLC"].length} edges computed by TLC but not JS.`;
+                edgesDiffDiv.innerHTML += `${statusObj["edgesDiffInTLC"].length} edges computed by TLC but not JS.`;
 
                 for (const e of statusObj["edgesDiffInTLC"]) {
-                    statesDiffDiv.innerHTML += `<pre>FROM (${e[0].fingerprint()}):</pre>`;
-                    statesDiffDiv.innerHTML += `<pre>${e[0].toString()}</pre>`;
-                    statesDiffDiv.innerHTML += `<pre>TO (${e[1].fingerprint()}):</pre>`;
-                    statesDiffDiv.innerHTML += `<pre>${e[1].toString()}</pre>`;
-                    statesDiffDiv.innerHTML += "<pre>-----------</pre>";
+                    edgesDiffDiv.innerHTML += `<pre>FROM (${e[0].fingerprint()}):</pre>`;
+                    edgesDiffDiv.innerHTML += `<pre>${e[0].toString()}</pre>`;
+                    edgesDiffDiv.innerHTML += `<pre>TO (${e[1].fingerprint()}):</pre>`;
+                    edgesDiffDiv.innerHTML += `<pre>${e[1].toString()}</pre>`;
+                    edgesDiffDiv.innerHTML += "<pre>-----------</pre>";
                 }
             }
 
             infoDiv.appendChild(statesDiffDiv);
+            infoDiv.appendChild(edgesDiffDiv);
 
 
             // JS computed states.
