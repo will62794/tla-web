@@ -409,6 +409,7 @@ function testStateGraphEquiv(testId, stateGraph, specText, constvals) {
             statesDiffDiv = document.createElement("div");
             statesDiffDiv.style = "float:left;border:solid;padding:4px;margin:3px; min-width:20%;";
 
+            // Init states diff.
             if(statusObj["initStatesDiffInJS"].length + statusObj["initStatesDiffInTLC"].length > 0){
                 statesDiffDiv.innerHTML = "<h4>States diff</h4>";
                 statesDiffDiv.innerHTML += `${statusObj["initStatesDiffInJS"].length} initial states computed by JS but not TLC.`;
@@ -423,6 +424,8 @@ function testStateGraphEquiv(testId, stateGraph, specText, constvals) {
                     statesDiffDiv.innerHTML += `<pre>(${s.fingerprint()})</pre>`;
                     statesDiffDiv.innerHTML += `<pre>${s.toString()}</pre>`;
                 }
+
+                infoDiv.appendChild(statesDiffDiv);
             }
 
             edgesDiffDiv = document.createElement("div");
@@ -462,14 +465,13 @@ function testStateGraphEquiv(testId, stateGraph, specText, constvals) {
                 }
             }
 
-            infoDiv.appendChild(statesDiffDiv);
             infoDiv.appendChild(edgesDiffDiv);
 
 
             // JS computed states.
             jsComputedDiv = document.createElement("div");
             jsComputedDiv.style = "float:left;border:solid;padding:4px;margin:3px; min-width:20%;";
-            jsComputedDiv.innerHTML = "<h4>Computed by JS</h4>";
+            jsComputedDiv.innerHTML = "<h4>State graph computed by JS</h4>";
             jsComputedDiv.innerHTML += `${statusObj["initialJS"].length} initial states, ${reachableEdges.length} reachable edges`;
 
             // Print JS initial states.
@@ -494,7 +496,7 @@ function testStateGraphEquiv(testId, stateGraph, specText, constvals) {
             // TLC computed states.
             tlcOracleDiv = document.createElement("div");
             tlcOracleDiv.style = "float:left;border:solid;padding:4px;margin:3px; min-width:20%;";
-            tlcOracleDiv.innerHTML = "<h4>Computed by TLC</h4>";
+            tlcOracleDiv.innerHTML = "<h4>State graph computed by TLC</h4>";
             tlcOracleDiv.innerHTML += `${statusObj["initialTLC"].length} initial states, ${reachableEdgesTLC.length} reachable edges`;
 
             // Print TLC initial states.
