@@ -529,38 +529,33 @@ function tlaValView(tlaVal) {
     return m("span", tlaVal.toString());
 }
 
-function componentTraceViewerState(state, ind, isLastState) {
-    // Disable state numbering for now.
-    let titleElems = [
-        // m("b", "State " + ind),
-        // m("br")
-    ];
 
-    //
-    // Animation logic (experimental).
-    //
-    
-    function makeSvgObj(tlaAnimElem){
-        let name = tlaAnimElem.applyArg(new StringValue("name")).getVal();
-        let attrs = tlaAnimElem.applyArg(new StringValue("attrs"));
-        let children = tlaAnimElem.applyArg(new StringValue("children"));
-        // console.log("name:", name);
-        // console.log("attrs:", attrs);
-        // console.log("children:", children);
-        if(children instanceof FcnRcdValue){
-            children = children.toTuple();
-        }
-        let childrenElems = children.getElems();
-
-        let attrKeys = attrs.getDomain()
-        let attrVals = attrs.getValues()
-        
-        let rawKeys = attrKeys.map(v => v.getVal());
-        let rawVals = attrVals.map(v => v.getVal());
-        let attrObj = _.fromPairs(_.zip(rawKeys, rawVals));
-
-        return m(name, attrObj, childrenElems.map(c => makeSvgObj(c)));
+//
+// Animation view logic (experimental).
+//
+function makeSvgAnimObj(tlaAnimElem){
+    let name = tlaAnimElem.applyArg(new StringValue("name")).getVal();
+    let attrs = tlaAnimElem.applyArg(new StringValue("attrs"));
+    let children = tlaAnimElem.applyArg(new StringValue("children"));
+    // console.log("name:", name);
+    // console.log("attrs:", attrs);
+    // console.log("children:", children);
+    if(children instanceof FcnRcdValue){
+        children = children.toTuple();
     }
+    let childrenElems = children.getElems();
+
+    let attrKeys = attrs.getDomain()
+    let attrVals = attrs.getValues()
+    
+    let rawKeys = attrKeys.map(v => v.getVal());
+    let rawVals = attrVals.map(v => v.getVal());
+    let attrObj = _.fromPairs(_.zip(rawKeys, rawVals));
+
+    return m(name, attrObj, childrenElems.map(c => makeSvgAnimObj(c)));
+}
+
+function componentTraceViewerState(state, ind, isLastState) {
 
     //
     // Optionally enable experimental animation feature.
@@ -579,7 +574,7 @@ function componentTraceViewerState(state, ind, isLastState) {
         viewVal = ret[0]["val"];
         // console.log("view:", viewVal);
 
-        let viewSvgObj = makeSvgObj(viewVal);
+        let viewSvgObj = makeSvgAnimObj(viewVal);
         vizSvg = m("svg", { width: 600, height: 300 }, [viewSvgObj]);
     }
 
@@ -629,8 +624,7 @@ function componentTraceViewerState(state, ind, isLastState) {
     stateVarElems = m("div", rowElems);
 
     let traceStateElem = m("div", { "class": "trace-state tlc-state" },
-        titleElems
-        .concat(stateVarElems)
+        [stateVarElems]
         .concat(vizSvg)
     );
     return traceStateElem;
