@@ -479,9 +479,23 @@ function tlaValView(tlaVal) {
         return m("table", valPairs.map(p => {
             let key = p[0];
             let val = p[1];
+            return m("tr", borderStyle, [
+                m("td", borderStyle, key.toString()),
+                m("td", tlaValView(val)), // TODO: do we want to recursively apply?
+            ]);
+        }));
+    }
+
+    // Display sets as lists of their items.
+    if (tlaVal instanceof SetValue) {
+        if (tlaVal.getElems().length === 0) {
+            return m("span", "{}"); // empty set.
+        }
+        let borderStyle = { style: "border:solid 0.5px gray" };
+        return m("table", tlaVal.getElems().map(v => {
             return m("tr", [
-                m("td", key.toString()),
-                m("td", val.toString()),
+                // TODO: Recursively apply value view function?
+                m("td", v.toString()),
             ]);
         }));
     }
