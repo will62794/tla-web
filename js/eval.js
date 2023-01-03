@@ -1596,14 +1596,15 @@ function evalBoundInfix(node, ctx){
         assert((lhsVal instanceof TupleValue) || (lhsVal instanceof FcnRcdValue));
         assert((rhsVal instanceof TupleValue) || (rhsVal instanceof FcnRcdValue));
 
-        if(lhsVal instanceof FcnRcdValue){
+        if (lhsVal instanceof FcnRcdValue) {
             lhsVal = lhsVal.toTuple();
         }
-        if(rhsVal instanceof FcnRcdValue){
-            rhsVal = lhsVal.toTuple();
+        if (rhsVal instanceof FcnRcdValue) {
+            rhsVal = rhsVal.toTuple();
         }
 
-        return [ctx.withVal(lhsVal.concatTup(rhsVal))];
+        let newTupVal = lhsVal.concatTup(rhsVal);
+        return [ctx.withVal(newTupVal)];
     }
 
     throw "unsupported infix symbol: " + symbol.text;
