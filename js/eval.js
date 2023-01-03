@@ -2529,7 +2529,7 @@ function evalExpr(node, ctx){
 
         let boundVarName = rightQuantBound.namedChildren[0].text;
         let boundVarDomain = evalExpr(rightQuantBound.namedChildren[2], ctx)[0]["val"];
-        console.log(boundVarDomain);
+        // console.log(boundVarDomain);
 
         let retVal = boundVarDomain.getElems().map((val) => {
             let boundContext = ctx.clone();

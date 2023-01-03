@@ -477,50 +477,52 @@ function componentTraceViewerState(state, ind) {
         // m("br")
     ];
 
-
-
-    /**
-     * 
-     *  ANIMATION
+    //
+    // Animation logic (experimental).
+    //
     
-    let viewNode = model.specTreeObjs["op_defs"]["View"].node;
-    let initCtx = new Context(null, state, model.specDefs, {}, model.specConsts);
-    // let aliasNode = viewNode;
-    console.log("view node:", viewNode);
-    let ret = evalExpr(viewNode, initCtx);
-    console.log("ret", ret);
-    viewVal = ret[0]["val"];
-    console.log("view:", viewVal);
+    function makeSvgObj(tlaAnimElem){
+        let name = tlaAnimElem.applyArg(new StringValue("name")).getVal();
+        let attrs = tlaAnimElem.applyArg(new StringValue("attrs"));
+        let children = tlaAnimElem.applyArg(new StringValue("children"));
+        // console.log("name:", name);
+        // console.log("attrs:", attrs);
+        // console.log("children:", children);
+        if(children instanceof FcnRcdValue){
+            children = children.toTuple();
+        }
+        let childrenElems = children.getElems();
 
-    let name = viewVal.applyArg(new StringValue("name"));
-    let attrs = viewVal.applyArg(new StringValue("attrs"));
+        let attrKeys = attrs.getDomain()
+        let attrVals = attrs.getValues()
+        
+        let rawKeys = attrKeys.map(v => v.getVal());
+        let rawVals = attrVals.map(v => v.getVal());
+        let attrObj = _.fromPairs(_.zip(rawKeys, rawVals));
 
-    attrKeys = attrs.getDomain()
-    attrVals = attrs.getValues()
+        return m(name, attrObj, childrenElems.map(c => makeSvgObj(c)));
+    }
 
-    let children = viewVal.applyArg(new StringValue("children"));
-    console.log("view name:", name);
-    console.log("view attrs keys:", attrKeys);
-    console.log("view attrs vals:", attrVals);
-    let attrStr = attrKeys.map((v,ind) => v.getVal() + "=" + attrVals[ind].toString());
-    attrStr = attrStr.join(" ");
-    console.log("attr str:", attrStr);
+    //
+    // Optionally enable experimental animation feature.
+    //
 
-    let traceCont = document.getElementById("trace-container");
+    let enableAnimation = false;
+    let vizSvg = m("svg", { width: 0, height: 0 }, []);
 
-    let svgElemStr = ``
+    if (enableAnimation) {
+        let viewNode = model.specTreeObjs["op_defs"]["View"].node;
+        let initCtx = new Context(null, state, model.specDefs, {}, model.specConsts);
+        // let aliasNode = viewNode;
+        console.log("view node:", viewNode);
+        let ret = evalExpr(viewNode, initCtx);
+        // console.log("ret", ret);
+        viewVal = ret[0]["val"];
+        // console.log("view:", viewVal);
 
-    // let circle = m("circle", {fill: "red", cx: 50, cy: 50, r: 20});
-    let rawKeys = attrKeys.map(v => v.getVal());
-    let rawVals = attrVals.map(v => v.getVal());
-    let attrObj = _.fromPairs(_.zip(rawKeys, rawVals));
-    console.log("raw keys: ", rawKeys);
-    console.log("raw vals: ", rawVals);
-    console.log("attr obj: ", attrObj);
-    let obj = m(name.getVal(), attrObj);
-    let vizSvg = m("svg", { width: 200, height: 200 }, [obj]);
-    **/
-    
+        let viewSvgObj = makeSvgObj(viewVal);
+        vizSvg = m("svg", { width: 600, height: 300 }, [viewSvgObj]);
+    }
 
 
     // TODO: Expandable UI elements of state values for functions, records, etc.
@@ -585,7 +587,7 @@ function componentTraceViewerState(state, ind) {
 
     let traceStateElem = m("div", { "class": "trace-state tlc-state" },
         titleElems.concat(stateVarElems)
-        // .concat(vizSvg)
+        .concat(vizSvg)
     );
     return traceStateElem;
 }
@@ -673,9 +675,10 @@ async function loadApp() {
     // let specPath = "./specs/simple2.tla";
     // let specPath = "./specs/lockserver.tla";
     // let specPath = "./specs/LamportMutex.tla";
-    let specPath = "./specs/lockserver_nodefs.tla";
+    // let specPath = "./specs/lockserver_nodefs.tla";
+    // let specPath = "./specs/lockserver_nodefs_anim.tla";
     // let specPath = "./specs/MongoLoglessDynamicRaft.tla";
-    // let specPath = "./specs/Paxos.tla";
+    let specPath = "./specs/Paxos.tla";
     // let specPath = "./specs/simple_test.tla";
     // let specPath = "./specs/simple_lockserver.tla";
 
