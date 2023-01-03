@@ -1545,6 +1545,20 @@ function evalBoundInfix(node, ctx){
         return [ctx.withVal(lhsVal.diffWith(rhsVal))];
     } 
 
+    // Set product. ("\X" or "\times")
+    if (symbol.type === "times") {
+        evalLog("bound_infix_op, symbol 'times'");
+        evalLog(lhs);
+        let lhsVal = evalExpr(lhs, ctx)[0]["val"];
+        evalLog("times lhs:", lhsVal);
+        let rhsVal = evalExpr(rhs, ctx)[0]["val"];
+        evalLog("times rhs:", lhsVal);
+        assert(lhsVal instanceof SetValue);
+        assert(rhsVal instanceof SetValue);
+        let prodElems = cartesianProductOf(lhsVal.getElems(), rhsVal.getElems()).map(e => new TupleValue(e));
+        return [ctx.withVal(new SetValue(prodElems))];
+    } 
+
     // Enumerated set with dot notation e.g. 1..N
     if(symbol.type ==="dots_2"){
         // Assume both operands evaluate to numbers.

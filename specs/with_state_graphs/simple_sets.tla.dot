@@ -1,0 +1,12 @@
+strict digraph DiskGraph {
+nodesep=0.35;
+subgraph cluster_graph {
+color="white";
+8132692779957249086 [label="x = 0",style = filled]
+8132692779957249086 -> 7780852078374794930 [label="",color="black",fontcolor="black"];
+7780852078374794930 [label="x = [ union1 |-> {1, 2, 3, 4},\n  inter1 |-> {2},\n  cross1 |-> {<<1, 3>>, <<1, 4>>, <<2, 3>>, <<2, 4>>},\n  cross2 |-> {<<1, 3>>, <<1, 4>>, <<2, 3>>, <<2, 4>>},\n  cross3 |-> {} ]"];
+7780852078374794930 -> 7780852078374794930 [label="",color="black",fontcolor="black"];
+{rank = same; 8132692779957249086;}
+{rank = same; 7780852078374794930;}
+}
+}
