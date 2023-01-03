@@ -311,7 +311,11 @@ class FcnRcdValue extends TLAValue{
         this.isRecord = isRecord || false;
     }
     toString(){
-        return "[" + this.domain.map((dv,idx) => dv + " |-> " + this.values[idx]).join(", ") + "]";
+        if(this.isRecord){
+            return "[" + this.domain.map((dv,idx) => dv.getVal() + " |-> " + this.values[idx]).join(", ") + "]";
+        } else{
+            return "(" + this.domain.map((dv,idx) => dv.toString() + " :> " + this.values[idx]).join(" @@ ") + ")";
+        }
     }
 
     toJSON(){
