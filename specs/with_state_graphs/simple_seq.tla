@@ -1,5 +1,5 @@
 ----------------------- MODULE simple_seq ------------------------
-EXTENDS Sequences
+EXTENDS Sequences,TLC
 VARIABLE x
 Init == x = [
     seqlen |-> Len(<<1,2,3>>),
@@ -11,6 +11,9 @@ Init == x = [
     append2 |-> Append(<<1,2,3>>, 4),
     append3 |-> Append(<<>>, 2),
     append4 |-> { Append(<<1>>, c) : c \in {2,3,4} },
+    concat1 |-> <<1,2>> \o <<3,4>>,
+    concat2 |-> <<>> \o <<3,4,5,6>>,
+    concat3 |-> (1 :> 12) \o <<3,4,5,6>>,
     domain1 |-> DOMAIN [a |-> 1, b |-> 2, c |-> 3],
     domain2 |-> DOMAIN <<1,2,3>>,
     domain3 |-> DOMAIN <<>>,

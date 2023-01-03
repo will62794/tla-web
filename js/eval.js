@@ -259,6 +259,10 @@ class TupleValue extends TLAValue{
         return new TupleValue(this.elems.concat([el]));
     }
 
+    concatTup(tup){
+        return new TupleValue(this.elems.concat(tup.getElems()));
+    }
+
     head(){
         if(this.elems.length === 0){
             throw new Exception("Tried to get head of empty list");
@@ -1573,6 +1577,29 @@ function evalBoundInfix(node, ctx){
 
         return [ctx.withVal(lhsVal.compose(rhsVal))];
     }
+
+    // e.g. <<1,2>> \o <<3,4,5>>
+    if(symbol.type === "circ"){
+        evalLog("bound_infix_op, symbol 'circ', ctx:", ctx);
+        let lhs = node.namedChildren[0];
+        let rhs = node.namedChildren[2];
+
+        let lhsVal = evalExpr(lhs, ctx)[0]["val"];
+        let rhsVal = evalExpr(rhs, ctx)[0]["val"];
+        assert((lhsVal instanceof TupleValue) || (lhsVal instanceof FcnRcdValue));
+        assert((rhsVal instanceof TupleValue) || (rhsVal instanceof FcnRcdValue));
+
+        if(lhsVal instanceof FcnRcdValue){
+            lhsVal = lhsVal.toTuple();
+        }
+        if(rhsVal instanceof FcnRcdValue){
+            rhsVal = lhsVal.toTuple();
+        }
+
+        return [ctx.withVal(lhsVal.concatTup(rhsVal))];
+    }
+
+    throw "unsupported infix symbol: " + symbol.text;
 
 }
 
