@@ -590,7 +590,7 @@ function componentTraceViewerState(state, ind, isLastState) {
     });
 
     // Trace expression values, if any are present.
-    let traceExprRows = model.traceExprs.map((expr) => {
+    let traceExprRows = model.traceExprs.map((expr, ind) => {
         let exprVal = evalExprStrInStateContext(state, expr);
         console.log("exprVal:", exprVal);
         let cols = [
@@ -607,6 +607,31 @@ function componentTraceViewerState(state, ind, isLastState) {
         return m("tr", { class: "tr-state-traceexpr", style: "border-bottom: solid" }, cols);
     });
 
+    // Evaluate the current input trace expression to dynamically display its value.
+    // Use more careful error handling to ignore bogus inputs as they are input on the fly.
+    if (model.traceExprInputText.length) {
+        let exprVal;
+        try {
+            exprVal = evalExprStrInStateContext(state, model.traceExprInputText);
+            console.log("exprVal:", exprVal);
+        }
+        catch (e) {
+            // Ignore and suppress errors here since we assume bogus inputs may appear transiently.
+            exprVal = null;
+        }
+
+        let displayVal = exprVal === null ? "" : tlaValView(exprVal)
+        let addClass = exprVal === null ? " tr-state-traceexpr-currinput-error" : "";
+        let cols = [
+            m("td", { class: "th-state-traceexpr-currinput" }, m("span", model.traceExprInputText)),
+            m("td", { class: "td-state-traceexpr-currinput" }, [displayVal]),
+            m("td", ""), // placeholder row.
+        ]
+
+        let currTraceExprRow = m("tr", { class: "tr-state-traceexpr-currinput" + addClass, style: "border-bottom: solid" }, cols);
+        traceExprRows = traceExprRows.concat([currTraceExprRow]);
+    }
+
     // Append ALIAS vars if needed.
     if (model.specAlias !== undefined) {
         let stateAlias = model.currTraceAliasVals[ind];
@@ -621,8 +646,8 @@ function componentTraceViewerState(state, ind, isLastState) {
     }
 
     let stateColorBg = isLastState ? "yellow" : "none"; 
-    let headerRow = [m("tr", [
-        m("th", { colspan: "2" , style: `background-color: ${stateColorBg}`}, "State " + (ind + 1)),
+    let headerRow = [m("tr", {style: `background-color: ${stateColorBg}`}, [
+        m("th", { colspan: "2" }, "State " + (ind + 1)),
         m("th", { colspan: "2" }, "") // filler.
     ])];
     let rows = headerRow.concat(varRows).concat(traceExprRows);
@@ -747,10 +772,10 @@ async function loadApp() {
     var root = document.body
 
     function addTraceExpr(newTraceExpr) {
-        model.traceExprs.push(newTraceExpr);
-
-        // TODO: re-evaluate new trace expressions.
-        // evalExprStrInStateContext(model.currTrace[0], newTraceExpr);
+        // TODO: Also check for evaluation errors.
+        if(newTraceExpr.length){
+            model.traceExprs.push(newTraceExpr);
+        }
     }
 
     let buttonsContainer = [m("div", { id: "trace-buttons" }, [
@@ -761,6 +786,7 @@ async function loadApp() {
             class: "",
             style: "font-family:monospace;width:200px;padding-left:5px;",
             id: "trace-expr-input",
+            placeholder: "Enter TLA+ expression.",
             value: model.traceExprInputText,
             oninput: e => { model.traceExprInputText = e.target.value }
         })

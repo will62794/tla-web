@@ -170,7 +170,17 @@ body {
     font-weight: bold;
     background-color: lightblue;
   }
-  
+
+  .trace-state-table .tr-state-traceexpr-currinput{
+    border-right: 1px solid gray;
+    font-weight: bold;
+    background-color: #ddd;
+  }
+
+  .trace-state-table .tr-state-traceexpr-currinput-error{
+    background-color: #FF9494;
+  }
+
   .trace-state-table th{
     border-bottom: 1px solid gray;
     font-size:12px;
