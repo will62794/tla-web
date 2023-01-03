@@ -1,7 +1,7 @@
 ---------------------- MODULE AsyncTerminationDetection ---------------------
 EXTENDS Naturals
 
-N == 1
+N == 2
 
 ASSUME NIsPosNat == N \in Nat \ {0}
 
