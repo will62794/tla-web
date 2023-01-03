@@ -475,11 +475,18 @@ class FcnRcdValue extends TLAValue{
             throw "cannot convert record with domain '" + dom + "' to tuple";
         }
         let expectedDomain = _.range(1, dom.length + 1)
-        let hasTupleDomain = _.isEqual(expectedDomain, dom.map(v => v.getVal()));
+        let hasTupleDomain = _.isEqual(expectedDomain, _.sortBy(dom.map(v => v.getVal())));
         if (!hasTupleDomain) {
             throw "cannot convert record with domain '" + dom + "' to tuple";
         }
-        return new TupleValue(this.getValues());
+        let vals = this.getValues();
+        let valsRevIndex = {};
+        for(var ind = 0; ind < vals.length; ind++){
+            valsRevIndex[vals[ind]] = this.getDomain()[ind];
+        }
+        // Make sure the values are sorted by increasing indices.
+        let sortedVals = _.sortBy(vals, v => valsRevIndex[v])
+        return new TupleValue(sortedVals);
     }
 }
 
