@@ -273,6 +273,7 @@ function testStateGraphEquiv(testId, stateGraph, specText, constvals) {
         { "spec": "pre_module_comments", "constvals": undefined },
         { "spec": "lockserver_nodefs", "constvals": undefined },
         { "spec": "lockserver_nodefs1", "constvals": undefined },
+        { "spec": "lockserver_nodefs_unchanged", "constvals": undefined },
         { "spec": "Paxos_1a", "constvals": undefined },
         { "spec": "Paxos_1b_case1", "constvals": undefined },
         { "spec": "NQueens_N3", "constvals": { "N": new IntValue(3) } },
