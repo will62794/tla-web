@@ -179,6 +179,11 @@ body {
     font-family: Arial, Helvetica, sans-serif;
   }
 
+  .trace-expr-delete{
+    cursor: pointer;
+    font-size:6px;
+  }
+
   table, th, td {
     border-collapse: collapse;
     vertical-align: top;

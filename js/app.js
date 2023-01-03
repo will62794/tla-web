@@ -583,17 +583,25 @@ function componentTraceViewerState(state, ind, isLastState) {
         let cols = [
             m("td", { class: "th-state-varname" }, varname),
             m("td", [tlaValView(state.getVarVal(varname))]),
+            m("td", {style:"width:15px"}, ""), // placeholder row.
         ]
 
         return m("tr", { style: "border-bottom: solid" }, cols);
     });
 
+    // Trace expression values, if any are present.
     let traceExprRows = model.traceExprs.map((expr) => {
         let exprVal = evalExprStrInStateContext(state, expr);
         console.log("exprVal:", exprVal);
         let cols = [
-            m("td", { class: "th-state-traceexpr" }, expr),
+            m("td", { class: "th-state-traceexpr" },  m("span", expr)),
             m("td", { class: "td-state-traceexpr" }, [tlaValView(exprVal)]),
+            // Button to delete trace expression.
+            m("td", {   
+                class:"trace-expr-delete", 
+                style:"font-weight:bold;color:red;text-align:center;",
+                onclick: (e) => {_.remove(model.traceExprs, v => (v === expr))}
+            }, m.trust("&#10060;")), // placeholder row.
         ]
 
         return m("tr", { class: "tr-state-traceexpr", style: "border-bottom: solid" }, cols);
@@ -751,7 +759,7 @@ async function loadApp() {
         m("div", { class: "button-base trace-button", id: "trace-reset-button", onclick: () => addTraceExpr(model.traceExprInputText) }, "Add Trace Expression"),
         m("input", {
             class: "",
-            style: "font-family:monospace;",
+            style: "font-family:monospace;width:200px;padding-left:5px;",
             id: "trace-expr-input",
             value: model.traceExprInputText,
             oninput: e => { model.traceExprInputText = e.target.value }
