@@ -364,7 +364,7 @@ function evalExprStrInStateContext(state, exprStr) {
     let dummyTreeObjs = parseSpec(dummySpec);
     // console.log("dummy tree objs:", dummyTreeObjs);
 
-    let evalCtx = new Context(null, state, model.specDefs, {}, model.specConsts);
+    let evalCtx = new Context(null, state, model.specDefs, {}, model.specConstVals);
     let opDefs = dummyTreeObjs["op_defs"];
     let exprNode = opDefs["Expr"].node;
     let exprVal = evalExpr(exprNode, evalCtx)[0]["val"];
@@ -658,7 +658,7 @@ function componentTraceViewerState(state, ind, isLastState) {
         let displayVal = exprVal === null ? "" : tlaValView(exprVal)
         let addClass = exprVal === null ? " tr-state-traceexpr-currinput-error" : "";
         let cols = [
-            m("td", { class: "th-state-traceexpr-currinput" }, m("span", model.traceExprInputText)),
+            m("td", { class: "th-state-traceexpr-currinput", style: "border-right:solid 1px black;" }, m("span", model.traceExprInputText)),
             m("td", { class: "td-state-traceexpr-currinput" }, [displayVal]),
             m("td", ""), // placeholder row.
         ]
