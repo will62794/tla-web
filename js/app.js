@@ -529,12 +529,36 @@ function tlaValView(tlaVal) {
             return m("span", "{}"); // empty set.
         }
         let borderStyle = { style: "border:solid 0.5px gray" };
-        return m("table", tlaVal.getElems().map(v => {
+
+        let setElems = tlaVal.getElems().map((v, idx) => {
+            pre = idx === 0 ? "{ " : "&nbsp;&nbsp;";
+            suff = idx === (tlaVal.getElems().length - 1) ? " }" : ",";
             return m("tr", [
                 // TODO: Recursively apply value view function?
-                m("td", v.toString()),
+                m("td", m.trust(pre + v.toString() + suff)),
             ]);
-        }));
+        });
+
+        return m("table", setElems);
+    }
+
+    // Display tuples as lists of their items.
+    if (tlaVal instanceof TupleValue) {
+        if (tlaVal.getElems().length === 0) {
+            return m("span", "{}"); // empty set.
+        }
+        let borderStyle = { style: "border:solid 0.5px gray" };
+
+        let setElems = tlaVal.getElems().map((v, idx) => {
+            pre = idx === 0 ? "<< " : "&nbsp;&nbsp;&nbsp;";
+            suff = idx === (tlaVal.getElems().length - 1) ? " >>" : ",";
+            return m("tr", [
+                // TODO: Recursively apply value view function?
+                m("td", m.trust(pre + v.toString() + suff)),
+            ]);
+        });
+
+        return m("table", setElems);
     }
 
     return m("span", tlaVal.toString());
