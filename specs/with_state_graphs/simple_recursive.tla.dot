@@ -3,7 +3,9 @@ nodesep=0.35;
 subgraph cluster_graph {
 color="white";
 4293350788200532031 [label="x = 37",style = filled]
+6682211621639950074 [label="x = 19",style = filled]
 4293350788200532031 -> 4293350788200532031 [label="",color="black",fontcolor="black"];
-{rank = same; 4293350788200532031;}
+6682211621639950074 -> 6682211621639950074 [label="",color="black",fontcolor="black"];
+{rank = same; 4293350788200532031;6682211621639950074;}
 }
 }
