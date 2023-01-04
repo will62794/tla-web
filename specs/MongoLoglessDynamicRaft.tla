@@ -5,7 +5,7 @@
 \* in MongoDB replication.
 \*
 
-EXTENDS Naturals, Integers, FiniteSets, Sequences, TLC, Defs
+EXTENDS Naturals, Integers, FiniteSets, Sequences, TLC
 
 CONSTANTS Server
 CONSTANTS Secondary, Primary, Nil
@@ -21,6 +21,9 @@ vars == <<currentTerm, state, configVersion, configTerm, config>>
 \*
 \* Helper operators.
 \*
+
+Quorums(S) == {i \in SUBSET(S) : Cardinality(i) * 2 > Cardinality(S)}
+QuorumsOverlap(x, y) == \A qx \in Quorums(x), qy \in Quorums(y) : qx \cap qy # {}
 
 \* Is the config of node i considered 'newer' than the config of node j. This is the condition for
 \* node j to accept the config of node i.
