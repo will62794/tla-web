@@ -22,7 +22,9 @@ let model = {
     specConstVals: {},
     parser: null,
     traceExprInputText: "",
-    traceExprs: []
+    traceExprs: [],
+    // State hash that trace lasso goes back to.
+    lassoTo: null
 }
 
 // The main app component.
@@ -165,7 +167,12 @@ function componentNextStateChoiceElement(state, ind) {
         stateVarElems = stateVarElems.concat(aliasVarElems);
     }
 
-    let nextStateElem = m("div", { class: "init-state", onclick: () => chooseNextState(hash) }, stateVarElems);
+    let opac = model.lassoTo === null ? "100" : "50";
+    let nextStateElem = m("div", { 
+        class: "init-state", 
+        style: `opacity: ${opac}%`,
+        onclick: () => chooseNextState(hash) 
+    }, stateVarElems);
     return nextStateElem;
 }
 
@@ -173,6 +180,10 @@ function componentNextStateChoices(nextStates) {
     nextStates = model.currNextStates;
 
     let nextStateElems = [];
+    if(model.lassoTo !== null){
+        // If we're stuck in a lasso, don't permit any further next state choices.
+        return [];
+    }
 
     for (var i = 0; i < nextStates.length; i++) {
         var state = nextStates[i];
@@ -185,7 +196,13 @@ function componentNextStateChoices(nextStates) {
 
 // Step back one state in the current trace.
 function traceStepBack() {
+    // Clear out a lasso condition in this case.
+    if(model.lassoTo !== null){
+        model.lassoTo = null;
+        return;
+    }
     model.currTrace = model.currTrace.slice(0, model.currTrace.length - 1);
+
     // Step back in alias trace as well.
     if (model.currTraceAliasVals.length > 0) {
         model.currTraceAliasVals = model.currTraceAliasVals.slice(0, model.currTraceAliasVals.length - 1);
@@ -307,6 +324,14 @@ function chooseNextState(statehash_short) {
     }
     let nextState = nextStateChoices[0];
 
+    // If the next state already exists in the current trace, then treat it as a
+    // "lasso" transition, and freeze the trace from continuing.
+    if(model.currTrace.map(s => hashSum(s)).includes(statehash_short)){
+        console.log("Reached LASSO!");
+        model.lassoTo = statehash_short;
+        return;
+    }
+
     // Compute ALIAS value if one exists.
     let aliasVal = null;
     if (model.specAlias !== undefined) {
@@ -314,7 +339,6 @@ function chooseNextState(statehash_short) {
         model.currTraceAliasVals.push(aliasVal);
     }
 
-    // TODO: Consider detecting cycles in the trace.
     model.currTrace.push(nextState);
     console.log("nextState:", JSON.stringify(nextState));
     console.log("nextStatePred:", model.nextStatePred);
@@ -459,6 +483,7 @@ function reloadSpec() {
     console.log("Clearing current trace.");
     model.currTrace = []
     model.currTraceAliasVals = []
+    model.lassoTo = null;
     // renderCurrentTrace();
 
     console.log("Generating initial states.");
@@ -680,20 +705,22 @@ function componentTraceViewerState(state, ind, isLastState) {
         varRows = varRows.concat(aliasVarElems);
     }
 
-    let stateColorBg = isLastState ? "yellow" : "none"; 
-    let headerRow = [m("tr", {style: `background-color: ${stateColorBg}`}, [
-        m("th", { colspan: "2" }, "State " + (ind + 1)),
+    let stateColorBg = isLastState ? "yellow" : "none";
+    let lassoToInd = (model.lassoTo !== null) ? _.findIndex(model.currTrace, s => hashSum(s) === model.lassoTo) + 1 : ""
+    let lassoNote = ((model.lassoTo !== null) && isLastState) ? " (Back to State " + lassoToInd + ")" : "";
+    let headerRow = [m("tr", { style: `background-color: ${stateColorBg}` }, [
+        m("th", { colspan: "2" }, "State " + (ind + 1) + lassoNote),
         m("th", { colspan: "2" }, "") // filler.
     ])];
     let rows = headerRow.concat(varRows).concat(traceExprRows);
 
-    let rowElems = m("table", { class: "trace-state-table"}, rows);
+    let rowElems = m("table", { class: "trace-state-table" }, rows);
 
     stateVarElems = m("div", rowElems);
 
     let traceStateElem = m("div", { "class": "trace-state tlc-state" },
         [stateVarElems]
-        .concat(vizSvg)
+            .concat(vizSvg)
     );
     return traceStateElem;
 }
