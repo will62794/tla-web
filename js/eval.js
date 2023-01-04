@@ -2534,23 +2534,48 @@ function evalExpr(node, ctx){
         return evalSetOfRecords(node, ctx);
     }
 
+    //
     // {<bound_expr> : <setin_expr>}
-    // e.g. { x+2 : x \in {1,2,3}}
-    if(node.type === "set_map"){
+    // e.g. 
+    // { x+2 : x \in {1,2,3}}
+    // {<<a, b>> : a \in 1..3, b \in 1..3}
+    //
+    // In general, set maps can look like:
+    // {<expr> : a,b \in S1, c \in S2}
+    //
+    if (node.type === "set_map") {
         evalLog("SET_MAP");
         let lhsExpr = node.namedChildren[0];
-        let rightQuantBound = node.namedChildren[1];
+        let rightQuantBounds = node.namedChildren.filter(n => n.type === "quantifier_bound");
 
-        let boundVarName = rightQuantBound.namedChildren[0].text;
-        let boundVarDomain = evalExpr(rightQuantBound.namedChildren[2], ctx)[0]["val"];
-        // console.log(boundVarDomain);
+        // Extract set of quantified variables and their domains.
+        let identsAndDomains = rightQuantBounds.map(qb => {
+            evalLog("qb:", qb);
+            let qDomain = evalExpr(_.last(qb.namedChildren), ctx)[0]["val"];
+            return qb.namedChildren.filter(n => n.type === "identifier").map(n => [n.text, qDomain]);
+        });
 
-        let retVal = boundVarDomain.getElems().map((val) => {
+        identsAndDomains = _.flatten(identsAndDomains);
+        evalLog("identsAndDomains", identsAndDomains)
+
+        let idents = _.unzip(identsAndDomains)[0];
+        let domains = _.unzip(identsAndDomains)[1].map(v => v.getElems());
+        evalLog("domains:", domains);
+
+        let domainProd = cartesianProductOf(...domains);
+        evalLog("domainProd:", domainProd);
+
+        let retVal = domainProd.map((tup) => {
+            evalLog("tup: ", tup);
             let boundContext = ctx.clone();
-            if(!boundContext.hasOwnProperty("quant_bound")){
+            if (!boundContext.hasOwnProperty("quant_bound")) {
                 boundContext["quant_bound"] = {};
             }
-            boundContext["quant_bound"][boundVarName] = val;
+            var ind = 0;
+            for (var name of idents) {
+                boundContext["quant_bound"][name] = tup[ind];
+                ind += 1;
+            }
             return evalExpr(lhsExpr, boundContext)[0]["val"];
         })
         return [ctx.withVal(new SetValue(retVal))];

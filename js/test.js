@@ -236,7 +236,7 @@ function testStateGraphEquiv(testId, stateGraph, specText, constvals) {
         { "spec": "simple_subset", "constvals": undefined },
         { "spec": "simple_quant", "constvals": undefined },
         { "spec": "simple_quant2", "constvals": undefined },
-        { "spec": "simple_setfilter", "constvals": undefined },
+        { "spec": "simple_setfiltermap", "constvals": undefined },
         { "spec": "simple_set_of_fns", "constvals": undefined },
         { "spec": "simple_disjunction_constant", "constvals": undefined },
         { "spec": "simple_conjunction_constant", "constvals": undefined },
@@ -410,19 +410,19 @@ function testStateGraphEquiv(testId, stateGraph, specText, constvals) {
             infoDiv.style = "width:100%";
 
             statesDiffDiv = document.createElement("div");
-            statesDiffDiv.style = "float:left;border:solid;padding:4px;margin:3px; min-width:20%;";
+            statesDiffDiv.style = "float:left;border:solid;padding:4px;margin:3px; min-width:20%;width:60%;";
 
             // Init states diff.
             if(statusObj["initStatesDiffInJS"].length + statusObj["initStatesDiffInTLC"].length > 0){
                 statesDiffDiv.innerHTML = "<h4>States diff</h4>";
-                statesDiffDiv.innerHTML += `${statusObj["initStatesDiffInJS"].length} initial states computed by JS but not TLC.`;
+                statesDiffDiv.innerHTML += `${statusObj["initStatesDiffInJS"].length} initial states computed by JS but not TLC.<br>`;
 
                 for (const s of statusObj["initStatesDiffInJS"]) {
                     statesDiffDiv.innerHTML += `<pre>(${s.fingerprint()})</pre>`;
                     statesDiffDiv.innerHTML += `<pre>${s.toString()}</pre>`;
                 }
 
-                statesDiffDiv.innerHTML += `${statusObj["initStatesDiffInTLC"].length} initial states computed by TLC but not JS.`;
+                statesDiffDiv.innerHTML += `${statusObj["initStatesDiffInTLC"].length} initial states computed by TLC but not JS.<br>`;
                 for (const s of statusObj["initStatesDiffInTLC"]) {
                     statesDiffDiv.innerHTML += `<pre>(${s.fingerprint()})</pre>`;
                     statesDiffDiv.innerHTML += `<pre>${s.toString()}</pre>`;
@@ -432,7 +432,7 @@ function testStateGraphEquiv(testId, stateGraph, specText, constvals) {
             }
 
             edgesDiffDiv = document.createElement("div");
-            edgesDiffDiv.style = "float:left;border:solid;padding:4px;margin:3px; min-width:20%;";
+            edgesDiffDiv.style = "float:left;border:solid;padding:4px;margin:3px; min-width:20%;width:60%;";
 
             if(statusObj["edgesDiffInTLC"].length > 0){
                 edgesDiffDiv.innerHTML += `${statusObj["edgesDiffInTLC"].length} edges computed by TLC but not JS.`;
@@ -473,7 +473,7 @@ function testStateGraphEquiv(testId, stateGraph, specText, constvals) {
 
             // JS computed states.
             jsComputedDiv = document.createElement("div");
-            jsComputedDiv.style = "float:left;border:solid;padding:4px;margin:3px; min-width:20%;";
+            jsComputedDiv.style = "float:left;border:solid;padding:4px;margin:3px; min-width:20%;width:60%;";
             jsComputedDiv.innerHTML = "<h4>State graph computed by JS</h4>";
             jsComputedDiv.innerHTML += `${statusObj["initialJS"].length} initial states, ${reachableEdges.length} reachable edges`;
 
@@ -498,7 +498,7 @@ function testStateGraphEquiv(testId, stateGraph, specText, constvals) {
 
             // TLC computed states.
             tlcOracleDiv = document.createElement("div");
-            tlcOracleDiv.style = "float:left;border:solid;padding:4px;margin:3px; min-width:20%;";
+            tlcOracleDiv.style = "float:left;border:solid;padding:4px;margin:3px; min-width:20%;width:60%;";
             tlcOracleDiv.innerHTML = "<h4>State graph computed by TLC</h4>";
             tlcOracleDiv.innerHTML += `${statusObj["initialTLC"].length} initial states, ${reachableEdgesTLC.length} reachable edges`;
 
