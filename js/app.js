@@ -140,14 +140,16 @@ function componentChooseConstants() {
 
 function componentNextStateChoiceElement(state, ind) {
     let hash = hashSum(state);
-    let stateVarElems = _.keys(state.getStateObj()).map(varname => {
-        return m("span", {}, [
-            m("span", { class: "state-varname" }, varname),
-            m("span", " = "),
-            // m("span", {}, state.getVarVal(varname).toString()),
-            m("span", {}, [tlaValView(state.getVarVal(varname))]),
-            m("br")
-        ])
+
+    let varNames = _.keys(state.getStateObj());
+    let stateVarElems = varNames.map((varname, idx) => {
+        let cols = [
+            m("td", { class: "state-varname" }, varname),
+            m("td", [tlaValView(state.getVarVal(varname))]),
+            m("td", {style:"width:15px"}, ""), // placeholder row.
+        ]
+    
+        return m("tr", { style: "border-bottom: solid" }, cols);
     });
 
     // Append ALIAS vars if needed.
