@@ -250,6 +250,7 @@ function testStateGraphEquiv(testId, stateGraph, specText, constvals) {
         { "spec": "simple_seq", "constvals": undefined },
         { "spec": "simple_if_then", "constvals": undefined },
         { "spec": "simple_record", "constvals": undefined },
+        { "spec": "simple_recursive", "constvals": undefined },
         { "spec": "simple_seq_update", "constvals": undefined },
         { "spec": "simple_seq_update2", "constvals": undefined },
         { "spec": "simple_sets", "constvals": undefined },
