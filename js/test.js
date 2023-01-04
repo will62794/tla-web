@@ -341,7 +341,7 @@ function testStateGraphEquiv(testId, stateGraph, specText, constvals) {
             // testHeader.setAttribute("onclick", `toggleTestDetails(\"${testId}\")`);
             // testsDiv.appendChild(testHeader);
 
-            let statusText = "STATUS: _"; //(areEquiv ? "PASS &#10003" : "FAIL &#10007");
+            let statusText = "STATUS: -"; //(areEquiv ? "PASS &#10003" : "FAIL &#10007");
             let statusColor = "gray"; // areEquiv ? "green" : "red";
             div = document.createElement("div");
             div.id = "test_status-" + testId;
@@ -349,7 +349,6 @@ function testStateGraphEquiv(testId, stateGraph, specText, constvals) {
             div.style = "margin-bottom:5px; font-weight: bold; color:" + statusColor;
 
             let testRow = document.createElement("tr");
-
             let testColName = document.createElement("td");
 
 

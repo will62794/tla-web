@@ -2552,7 +2552,20 @@ function evalExpr(node, ctx){
         let identsAndDomains = rightQuantBounds.map(qb => {
             evalLog("qb:", qb);
             let qDomain = evalExpr(_.last(qb.namedChildren), ctx)[0]["val"];
-            return qb.namedChildren.filter(n => n.type === "identifier").map(n => [n.text, qDomain]);
+            return qb.namedChildren
+                .filter(n => n.type === "identifier" || n.type === "tuple_of_identifiers")
+                .map(n => {
+                    // In this case the domain should be a set of tuples, where each 
+                    // element gets bound to the associated identifier in the tuple of
+                    // identifiers e.g.
+                    // { a+b : <<a,b>> \in {<<1,2>>, <<3,4>>}}
+                    if (n.type === "tuple_of_identifiers") {
+                        let tupIdentNames = n.namedChildren.filter(c => c.type === "identifier").map(c => c.text);
+                        return [tupIdentNames, qDomain]
+                    } else {
+                        return [n.text, qDomain]
+                    }
+                });
         });
 
         identsAndDomains = _.flatten(identsAndDomains);
@@ -2573,7 +2586,15 @@ function evalExpr(node, ctx){
             }
             var ind = 0;
             for (var name of idents) {
-                boundContext["quant_bound"][name] = tup[ind];
+                if (name instanceof Array) {
+                    let names = name;
+                    console.log("array tup idents:", names);
+                    for (var subind = 0; subind < names.length; subind++) {
+                        boundContext["quant_bound"][names[subind]] = tup[ind].getElems()[subind];
+                    }
+                } else {
+                    boundContext["quant_bound"][name] = tup[ind];
+                }
                 ind += 1;
             }
             return evalExpr(lhsExpr, boundContext)[0]["val"];
