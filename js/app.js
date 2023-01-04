@@ -124,7 +124,12 @@ function componentChooseConstants() {
         console.log(constDecl);
         let newDiv = m("div", {}, [
             m("span", {}, m.trust("CONSTANT " + constDecl + " &#8592; ")),
-            m("input", { class: "const-input", id: `const-val-input-${constDecl}`, oninput: (e) => model.specConstInputVals[constDecl] = e.target.value })
+            m("input", {
+                class: "const-input",
+                id: `const-val-input-${constDecl}`,
+                oninput: (e) => model.specConstInputVals[constDecl] = e.target.value,
+                value: model.specConstInputVals[constDecl]
+            })
         ])
         chooseConstsElems.push(newDiv);
     }
@@ -371,6 +376,7 @@ function evalExprStrInStateContext(state, exprStr) {
 }
 
 function setConstantValues() {
+    console.log("#setConstantValues");
     let constVals = {};
     let nullTree;
     for (var constDecl in model.specConsts) {
@@ -381,7 +387,7 @@ function setConstantValues() {
 
         // let inputElem = document.getElementById("const-val-input-" + constDecl);
         // let constValText = inputElem.value;
-        console.log(constDecl, constValText);
+        console.log("constDecl:", constDecl, constValText);
         constVals[constDecl] = constValText;
     }
 
@@ -430,6 +436,9 @@ function setConstantValues() {
     // TODO: Thread these assigned values through standard spec evaluation.
     console.log("constTlaVals:", constTlaVals);
     model.specConstVals = constTlaVals;
+
+    let currParams = m.route.param();
+    m.route.set("/home", Object.assign(currParams, {constants: model.specConstInputVals}));
 
     reloadSpec();
 }
@@ -760,13 +769,6 @@ async function loadApp() {
     // let specPath = "./specs/simple_test.tla";
     // let specPath = "./specs/simple_lockserver.tla";
 
-    // Check for given spec in URL args.
-    specPathArg = urlParams["specpath"];
-
-    // Load given spec.
-    if (specPathArg !== undefined) {
-        specPath = specPathArg;
-    }
 
     //
     // Mithril app setup.
@@ -796,6 +798,14 @@ async function loadApp() {
 
     App = {
         count: 1,
+        oninit: function(){
+            // let constantParams = m.route.param("constants");
+            // if(constantParams){
+            //     console.log("CONSTNS:", constantParams);
+            //     model.specConstInputVals = constantParams;
+            //     setConstantValues();
+            // }
+        },
         onupdate: function(){
             // Keep trace viewer scrolled to bottom.
             let trace = document.getElementById("trace");
@@ -828,7 +838,22 @@ async function loadApp() {
             ];
         }
     }
-    m.mount(root, App)
+    // m.mount(root, App)
+    m.route(root, "/home",
+        {
+            "/home": App
+        });
+
+
+    // Check for given spec in URL args.
+    specPathArg = m.route.param("specpath");
+    console.log("specpatharg", specPathArg);
+    // specPathArg = urlParams["specpath"];
+
+    // Load given spec.
+    if (specPathArg !== undefined) {
+        specPath = specPathArg;
+    }
 
     const codeInput = document.getElementById('code-input');
     codeEditor = CodeMirror.fromTextArea(codeInput, {
@@ -852,6 +877,17 @@ async function loadApp() {
                 // processing the code change.
                 handleCodeChange();
                 m.redraw();
+
+
+                let constantParams = m.route.param("constants");
+                if(constantParams){
+                    console.log("CONSTNS:", constantParams);
+                    model.specConstInputVals = constantParams;
+                    setConstantValues();
+                }
+
+
+
             });
             $codeEditor.CodeMirror.setValue(spec);
         }
