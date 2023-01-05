@@ -95,6 +95,72 @@ function displayStateGraph() {
     layout.run();
 }
 
+
+function displayEvalGraph() {
+    console.log("#displayEvalGraph");
+    let stategraphDiv = document.getElementById('output-container-scroll');
+    stategraphDiv.hidden = false;
+
+    // cytoscape.use("dagre");
+
+    var cy = cytoscape({
+        container: document.getElementById('output-container-scroll'), // container to render in
+        style: [
+            {
+                selector: 'node',
+                // shape: "barrel",
+                style: {
+                    'label': function (el) {
+                        return el.data()["expr_text"];
+                    },
+                    // "content": "test",
+                    "width": "auto",
+                    "background-color": "lightgray",
+                    "text-valign": "center",
+                    "text-halign": "center",
+                    "border-style": "solid",
+                    "border-width": "1",
+                    "border-color": "black",
+                    "font-family": "monospace",
+                    "font-size": "10px",
+                    "shape": "rectangle"
+                }
+            },
+        ]
+    });
+
+    let nodes = _.uniq(_.flatten(evalNodeGraph))
+    for (const node of nodes) {
+        cy.add({
+            group: 'nodes',
+            data: { id: hashSum(node), expr_text: node },
+            position: { x: 200, y: 200 }
+        });
+    }
+
+    let eind = 0;
+    for (const edge of evalNodeGraph) {
+        // console.log("E:", edge);
+        cy.add({
+            group: 'edges', data: {
+                id: 'e' + eind,
+                source: hashSum(edge[0]),
+                target: hashSum(edge[1])
+            }
+        });
+        eind++;
+    }
+    cy.edges('edge').style({
+        "curve-style": "straight",
+        "target-arrow-shape": "triangle"
+    })
+    // let layout = cy.layout({name:"cose"});
+    // let layout = cy.layout({ name: "breadthfirst" });
+    let layout = cy.layout({ name: "dagre" });
+    // let layout = cy.layout({ name: "elk" });
+    layout.run();
+}
+
 // TODO: Implement this properly.
 function toggleSpec() {
     let pane = document.getElementById("input-pane");
@@ -527,6 +593,8 @@ function reloadSpec() {
 
     model.currNextStates = _.cloneDeep(initStates);
 
+    // displayEvalGraph();
+
     // Check for trace to load from given link.
     // loadTraceFromLink();
     // displayStateGraph();
@@ -889,10 +957,39 @@ async function loadApp() {
             ];
         }
     }
+
+    EvalDebugGraph = {
+        count: 1,
+        oncreate: function(){
+            // displayEvalGraph();
+        },
+        onupdate: function(){
+            // Keep trace viewer scrolled to bottom.
+            displayEvalGraph();
+        },
+        view: function () {
+            return [
+                // TLA+ code pane.
+                m("div", { id: "input-pane" }, [
+                    m("div", { id: "code-container" }, [
+                        m("textarea", { id: "code-input" })
+                    ])
+                ]),
+
+                // Eval graph pane.
+                m("div", { id: "output-container-scroll" }, [
+                    m("h1", "eval graph"),
+                    m("div", {id:"eval-graph"})
+                ])
+            ];
+        }
+    }
+
     // m.mount(root, App)
     m.route(root, "/home",
         {
-            "/home": App
+            "/home": App,
+            "/eval_debug_graph": EvalDebugGraph,
         });
 
 

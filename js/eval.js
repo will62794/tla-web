@@ -2918,7 +2918,7 @@ evalExpr = function (...args) {
     // Test out tracking of evaluation graph for debugging.
     let currNode = args[0];
     if (parent !== null) {
-        console.log("nodeedge:", "\"" + currNode.text + "\"", "->", "\"" + parent.text + "\"");
+        // console.log("nodeedge:", "\"" + currNode.text + "\"", "->", "\"" + parent.text + "\"");
         evalNodeGraph.push([currNode.text, parent.text]);
     }
 
@@ -2935,8 +2935,10 @@ evalExpr = function (...args) {
     // evalLog("evalreturn num ctxs: ", ret.length);
 
     // Evaluation DOT graph printing.
-    let Gstr = evalNodeGraph.map(e => "\"" + e[0] + "\"" + " -> " + "\"" + e[1] + "\"").join(";") + ";";
-    console.log(Gstr.replaceAll("\\", "\\\\"));
+    if(enableEvalTracing){
+        let Gstr = evalNodeGraph.map(e => "\"" + e[0] + "\"" + " -> " + "\"" + e[1] + "\"").join(";") + ";";
+        console.log(Gstr.replaceAll("\\", "\\\\"));
+    }
 
     depth -= 1;
     return ret;
