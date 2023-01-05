@@ -2904,21 +2904,40 @@ class TlaInterpreter{
 // For debugging/tracing expression evaluation.
 //
 
+let parent = null;
+let evalNodeGraph = [];
+
 let origevalExpr = evalExpr;
-evalExpr = function(...args){
+evalExpr = function (...args) {
     depth += 1;
 
     // let ctx = args[1];
     // let currAssignedVars = _.keys(ctx["state"].vars).filter(k => ctx["state"].vars[k] !== null)
     // evalLog("curr assigned vars:", currAssignedVars);
 
+    // Test out tracking of evaluation graph for debugging.
+    let currNode = args[0];
+    if (parent !== null) {
+        console.log("nodeedge:", "\"" + currNode.text + "\"", "->", "\"" + parent.text + "\"");
+        evalNodeGraph.push([currNode.text, parent.text]);
+    }
+
+    let origParent = parent;
+    parent = args[0];
+
     // Run the original function to evaluate the expression.
     let ret = origevalExpr(...args);
     evalLog("evalreturn -> ", ret, args[0].text);
+    parent = origParent;
     // evalLog("num ret ctxs: " , ret.length);
     // evalLog("evalreturn num ctxs: ", ret.length);
-    
+
     // evalLog("evalreturn num ctxs: ", ret.length);
+
+    // Evaluation DOT graph printing.
+    let Gstr = evalNodeGraph.map(e => "\"" + e[0] + "\"" + " -> " + "\"" + e[1] + "\"").join(";") + ";";
+    console.log(Gstr.replaceAll("\\", "\\\\"));
+
     depth -= 1;
     return ret;
 }
