@@ -240,12 +240,12 @@ function componentNextStateChoiceElement(state, ind) {
     });
 
     // Append ALIAS vars if needed.
-    if (model.specAlias !== undefined) {
-        let stateAlias = model.currNextStatesAlias[ind];
-        console.log("stateAlias:", stateAlias);
-        let aliasVarElems = getAliasVarElems(stateAlias);
-        stateVarElems = stateVarElems.concat(aliasVarElems);
-    }
+    // if (model.specAlias !== undefined) {
+    //     let stateAlias = model.currNextStatesAlias[ind];
+    //     console.log("stateAlias:", stateAlias);
+    //     let aliasVarElems = getAliasVarElems(stateAlias);
+    //     stateVarElems = stateVarElems.concat(aliasVarElems);
+    // }
 
     let opac = model.lassoTo === null ? "100" : "50";
     let nextStateElem = m("div", { 
@@ -371,17 +371,17 @@ function renderCurrentTrace() {
             traceStateDiv.innerHTML += "<span><span class='state-varname'>" + varname + "</span> = " + state.getVarVal(varname) + "</span>";
             traceStateDiv.innerHTML += "<br>"
         }
-        // Append Alias if needed.
-        if (hasAliasVals) {
-            console.log("stateAlias:", stateAliasVal);
-            let aliasFieldNames = stateAliasVal.getDomain();
-            console.log(aliasFieldNames);
-            for (const varnameval of aliasFieldNames) {
-                traceStateDiv.innerHTML += `<span class='state-varname alias-var'>${varnameval.getVal()}</span> = `
-                traceStateDiv.innerHTML += stateAliasVal.applyArg(varnameval).toString();
-                traceStateDiv.innerHTML += "<br>";
-            }
-        }
+        // // Append Alias if needed.
+        // if (hasAliasVals) {
+        //     console.log("stateAlias:", stateAliasVal);
+        //     let aliasFieldNames = stateAliasVal.getDomain();
+        //     console.log(aliasFieldNames);
+        //     for (const varnameval of aliasFieldNames) {
+        //         traceStateDiv.innerHTML += `<span class='state-varname alias-var'>${varnameval.getVal()}</span> = `
+        //         traceStateDiv.innerHTML += stateAliasVal.applyArg(varnameval).toString();
+        //         traceStateDiv.innerHTML += "<br>";
+        //     }
+        // }
 
         traceDiv.appendChild(traceStateDiv);
         stateInd += 1;
@@ -413,11 +413,11 @@ function chooseNextState(statehash_short) {
     }
 
     // Compute ALIAS value if one exists.
-    let aliasVal = null;
-    if (model.specAlias !== undefined) {
-        let aliasVal = computeAliasValForState(nextState)
-        model.currTraceAliasVals.push(aliasVal);
-    }
+    // let aliasVal = null;
+    // if (model.specAlias !== undefined) {
+    //     let aliasVal = computeAliasValForState(nextState)
+    //     model.currTraceAliasVals.push(aliasVal);
+    // }
 
     model.currTrace.push(nextState);
     console.log("nextState:", JSON.stringify(nextState));
@@ -430,11 +430,11 @@ function chooseNextState(statehash_short) {
         let nextStates = interp.computeNextStates(model.specTreeObjs, model.specConstVals, [nextState])
             .map(c => c["state"].deprimeVars());
 
-        if (model.specAlias !== undefined) {
-            model.currNextStatesAlias = nextStates.map(ns => {
-                return computeAliasValForState(ns);
-            });
-        }
+        // if (model.specAlias !== undefined) {
+        //     model.currNextStatesAlias = nextStates.map(ns => {
+        //         return computeAliasValForState(ns);
+        //     });
+        // }
 
         model.currNextStates = _.cloneDeep(nextStates);
         const duration = (performance.now() - start).toFixed(1);
@@ -574,11 +574,11 @@ function reloadSpec() {
         initStates = interp.computeInitStates(model.specTreeObjs, model.specConstVals);
         model.allInitStates = _.cloneDeep(initStates);
         console.log("Set initial states: ", model.allInitStates);
-        if (model.specAlias !== undefined) {
-            model.currNextStatesAlias = model.allInitStates.map(is => {
-                return computeAliasValForState(is);
-            })
-        }
+        // if (model.specAlias !== undefined) {
+        //     model.currNextStatesAlias = model.allInitStates.map(is => {
+        //         return computeAliasValForState(is);
+        //     })
+        // }
 
     } catch (e) {
         console.error(e);
@@ -774,18 +774,18 @@ function componentTraceViewerState(state, ind, isLastState) {
         traceExprRows = traceExprRows.concat([currTraceExprRow]);
     }
 
-    // Append ALIAS vars if needed.
-    if (model.specAlias !== undefined) {
-        let stateAlias = model.currTraceAliasVals[ind];
-        aliasVarElems = stateAlias.getDomain().map(varnameval => {
-            console.log(stateAlias);
-            return m("tr", [
-                m("td", { class: "th-state-varname alias-var" }, varnameval.getVal()),
-                m("td", stateAlias.applyArg(varnameval).toString()),
-            ]);
-        });
-        varRows = varRows.concat(aliasVarElems);
-    }
+    // // Append ALIAS vars if needed.
+    // if (model.specAlias !== undefined) {
+    //     let stateAlias = model.currTraceAliasVals[ind];
+    //     aliasVarElems = stateAlias.getDomain().map(varnameval => {
+    //         console.log(stateAlias);
+    //         return m("tr", [
+    //             m("td", { class: "th-state-varname alias-var" }, varnameval.getVal()),
+    //             m("td", stateAlias.applyArg(varnameval).toString()),
+    //         ]);
+    //     });
+    //     varRows = varRows.concat(aliasVarElems);
+    // }
 
     let stateColorBg = isLastState ? "yellow" : "none";
     let lassoToInd = (model.lassoTo !== null) ? _.findIndex(model.currTrace, s => hashSum(s) === model.lassoTo) + 1 : ""
