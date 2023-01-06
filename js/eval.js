@@ -1003,11 +1003,38 @@ function parseSpec(specText){
     console.log("module definitions:",op_defs);
     console.log("module fcn definitions:",fn_defs);
 
+    // Try parsing out actions if possible.
+    let actions = [];
+    if (op_defs.hasOwnProperty("Next")) {
+        let nextNode = op_defs["Next"].node;
+
+        //
+        // Syntactic Action Pattern I:
+        //
+        // \/ Action1
+        // \/ Action2
+        // \/ ...
+        // \/ ActionN
+        //
+        console.log("NEXTNODE:", nextNode);
+        console.log("NEXT_CHILDR:", nextNode.namedChildren);
+        if (nextNode.type === "disj_list") {
+            actions = nextNode.namedChildren.map(c => c.namedChildren[1]);
+        }
+        // Default: treat Next as one big action.
+        else {
+            actions = [nextNode];
+        }
+    }
+
+    console.log("ACTIONS: ", actions);
+
     objs = {
         "const_decls": const_decls,
         "var_decls": var_decls,
         "op_defs": op_defs,
-        "fn_defs": fn_defs
+        "fn_defs": fn_defs,
+        "actions": actions
     }
 
     return objs;
