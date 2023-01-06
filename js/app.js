@@ -109,27 +109,31 @@ function displayEvalGraph() {
             {
                 selector: 'node',
                 // shape: "barrel",
+                size: "auto",
                 style: {
                     'label': function (el) {
-                        return el.data()["expr_text"];
+                        return el.data()["expr_text"].replaceAll("\n", "");
                     },
-                    // "content": "test",
-                    "width": "auto",
-                    "background-color": "lightgray",
+                    // "width": function(el){
+                    //     console.log(el);
+                    //     return el.data().expr_text.length * 10 + 20;
+                    // },
+                    // "height": 15,
+                    "background-color": "white",
                     "text-valign": "center",
-                    "text-halign": "center",
+                    // "text-halign": "center",
                     "border-style": "solid",
                     "border-width": "1",
-                    "border-color": "black",
+                    "border-color": "white",
                     "font-family": "monospace",
-                    "font-size": "10px",
+                    "font-size": "12px",
                     "shape": "rectangle"
                 }
             },
         ]
     });
 
-    let nodes = _.uniq(_.flatten(evalNodeGraph))
+    let nodes = _.uniq(_.flatten(evalNodeGraph.map(d => d[0])))
     for (const node of nodes) {
         cy.add({
             group: 'nodes',
@@ -139,25 +143,35 @@ function displayEvalGraph() {
     }
 
     let eind = 0;
-    for (const edge of evalNodeGraph) {
-        // console.log("E:", edge);
+    for (const edgeData of evalNodeGraph) {
+        let edge = edgeData[0];
+        let retVal = edgeData[1];
         cy.add({
             group: 'edges', data: {
                 id: 'e' + eind,
                 source: hashSum(edge[0]),
-                target: hashSum(edge[1])
+                target: hashSum(edge[1]),
+                label: retVal[0]["val"].toString()
             }
         });
         eind++;
     }
     cy.edges('edge').style({
         "curve-style": "straight",
-        "target-arrow-shape": "triangle"
+        "target-arrow-shape": "triangle",
+        "font-family": "monospace",
+        "font-size": "10px",
+        "color": "blue",
+        "width": 2,
+        "label": function (el) {
+            return el.data().label;
+        }
     })
     // let layout = cy.layout({name:"cose"});
     // let layout = cy.layout({ name: "breadthfirst" });
-    let layout = cy.layout({ name: "dagre" });
+    let layout = cy.layout({ name: "dagre", nodeDimensionsIncludeLabels: true });
     // let layout = cy.layout({ name: "elk" });
+    cy.resize();
     layout.run();
 }
 
