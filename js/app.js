@@ -23,6 +23,7 @@ let model = {
     parser: null,
     traceExprInputText: "",
     traceExprs: [],
+    hiddenStateVars: [],
     // State hash that trace lasso goes back to.
     lassoTo: null
 }
@@ -721,9 +722,15 @@ function componentTraceViewerState(state, ind, isLastState) {
     }
 
     let varNames = _.keys(state.getStateObj());
+    varNames = _.difference(varNames, model.hiddenStateVars);
     let varRows = varNames.map((varname, idx) => {
         let cols = [
-            m("td", { class: "th-state-varname" }, varname),
+            m("td", { 
+                class: "th-state-varname",
+                onclick: (e) => {
+                    model.hiddenStateVars.push(varname);
+                }
+            }, varname),
             m("td", [tlaValView(state.getVarVal(varname))]),
             m("td", {style:"width:15px"}, ""), // placeholder row.
         ]
@@ -834,12 +841,6 @@ function componentTraceViewer() {
         traceElems.push(traceStateElem);
     }
 
-    let buttonsContainer = [m("div", { id: "trace-buttons" }, [
-        m("div", { class: "button-base trace-button", id: "trace-back-button", onclick: traceStepBack }, "Back"),
-        m("div", { class: "button-base trace-button", id: "trace-reset-button", onclick: reloadSpec }, "Reset")
-    ])];
-
-    // return m("div", { id: "trace" }, buttonsContainer.concat(traceElems));
     return m("div", { id: "trace" }, traceElems);
 }
 
@@ -898,6 +899,52 @@ async function handleCodeChange(editor, changes) {
     // loadTraceFromLink();
 }
 
+function componentButtonsContainer() {
+    return [m("div", { id: "trace-buttons" }, [
+        m("div", { class: "button-base trace-button", id: "trace-back-button", onclick: traceStepBack }, "Back"),
+        m("div", { class: "button-base trace-button", id: "trace-reset-button", onclick: reloadSpec }, "Reset"),
+        m("div", { class: "button-base trace-button", id: "trace-reset-button", onclick: () => addTraceExpr(model.traceExprInputText) }, "Add Trace Expression"),
+        m("input", {
+            class: "",
+            style: "font-family:monospace;width:200px;padding-left:5px;",
+            id: "trace-expr-input",
+            placeholder: "Enter TLA+ expression.",
+            value: model.traceExprInputText,
+            oninput: e => { model.traceExprInputText = e.target.value }
+        }),
+        // m("br"),
+        // m("div", {}, model.hiddenStateVars.map(v => m("div", v)))
+    ])];
+}
+
+function componentHiddenStateVars() {
+    let titleElem = m("span", {style:"font-weight:bold"}, model.hiddenStateVars.length === 0 ? "" : "Hidden variables:")
+    let hiddenStateVarElems = model.hiddenStateVars.map(vname => {
+        return m("span", {
+            class: "hidden-state-var",
+            style: "padding-left:3px;",
+            onclick: () => _.remove(model.hiddenStateVars, (x) => x === vname)
+        }, vname)
+    })
+    return m("div", { id: "hidden-state-vars" }, [titleElem].concat(hiddenStateVarElems))
+}
+
+function componentTracePane() {
+    return m("div", { id: "trace-pane" }, [
+        m("div", { id: "choose-constants-container" }, componentChooseConstants()),
+        m("div", { id: "poss-next-states-title", class: "pane-title" }, (model.currTrace.length > 0) ? "Choose Next State" : "Choose Initial State"),
+        m("div", { id: "initial-states", class: "tlc-state" }, componentNextStateChoices()),
+        m("div", { id: "trace-container" }, [
+            m("div", { class: "pane-heading", id: "trace-state-heading" }, [
+                m("div", { class: "pane-title" }, "Current Trace"),
+                componentButtonsContainer(),
+                componentHiddenStateVars()
+            ]),
+            componentTraceViewer()
+        ])
+    ])
+}
+
 async function loadApp() {
 
     // Download example spec.
@@ -925,23 +972,10 @@ async function loadApp() {
         }
     }
 
-    let buttonsContainer = [m("div", { id: "trace-buttons" }, [
-        m("div", { class: "button-base trace-button", id: "trace-back-button", onclick: traceStepBack }, "Back"),
-        m("div", { class: "button-base trace-button", id: "trace-reset-button", onclick: reloadSpec }, "Reset"),
-        m("div", { class: "button-base trace-button", id: "trace-reset-button", onclick: () => addTraceExpr(model.traceExprInputText) }, "Add Trace Expression"),
-        m("input", {
-            class: "",
-            style: "font-family:monospace;width:200px;padding-left:5px;",
-            id: "trace-expr-input",
-            placeholder: "Enter TLA+ expression.",
-            value: model.traceExprInputText,
-            oninput: e => { model.traceExprInputText = e.target.value }
-        })
-    ])];
 
     App = {
         count: 1,
-        oninit: function(){
+        oninit: function () {
             // let constantParams = m.route.param("constants");
             // if(constantParams){
             //     console.log("CONSTNS:", constantParams);
@@ -949,48 +983,37 @@ async function loadApp() {
             //     setConstantValues();
             // }
         },
-        onupdate: function(){
+        onupdate: function () {
             // Keep trace viewer scrolled to bottom.
             let trace = document.getElementById("trace");
             trace.scrollTo(0, trace.scrollHeight);
         },
         view: function () {
             return [
-                m("div", {class: "panel-container"}, [
-                // TLA+ code pane.
-                m("div", { id: "code-input-pane" }, [
-                    m("div", { id: "code-container" }, [
-                        m("textarea", { id: "code-input" })
-                    ])
-                ]),
+                m("div", { class: "panel-container" }, [
+                    // TLA+ code pane.
+                    m("div", { id: "code-input-pane" }, [
+                        m("div", { id: "code-container" }, [
+                            m("textarea", { id: "code-input" })
+                        ])
+                    ]),
 
-                // Splitter 
-                // TODO: Get this working.
-                // m("div", {class: "splitter"}),
+                    // Splitter 
+                    // TODO: Get this working.
+                    // m("div", {class: "splitter"}),
 
-                // Display pane.
-                m("div", { id: "trace-pane" }, [
-                    m("div", { id: "choose-constants-container" }, componentChooseConstants()),
-                    m("div", { id: "poss-next-states-title", class: "pane-title" }, (model.currTrace.length > 0) ? "Choose Next State" : "Choose Initial State"),
-                    m("div", { id: "initial-states", class: "tlc-state" }, componentNextStateChoices()),
-                    m("div", { id: "trace-container" }, [
-                        m("div", { class: "pane-heading", id:"trace-state-heading"}, [
-                            m("div", {class:"pane-title"}, "Current Trace"), 
-                            buttonsContainer
-                        ]),
-                        componentTraceViewer()
-                    ])
-                ])
-            ])];
+                    // Display pane.
+                    componentTracePane()
+                ])];
         }
     }
 
     EvalDebugGraph = {
         count: 1,
-        oncreate: function(){
+        oncreate: function () {
             // displayEvalGraph();
         },
-        onupdate: function(){
+        onupdate: function () {
             // Keep trace viewer scrolled to bottom.
             displayEvalGraph();
         },
@@ -1006,7 +1029,7 @@ async function loadApp() {
                 // Eval graph pane.
                 m("div", { id: "trace-pane" }, [
                     m("h1", "eval graph"),
-                    m("div", {id:"eval-graph"})
+                    m("div", { id: "eval-graph" })
                 ])
             ];
         }

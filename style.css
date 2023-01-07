@@ -185,6 +185,34 @@ body {
     font-weight: bold;
   }
 
+  .th-state-varname:hover{
+    cursor:pointer;
+    color:gray;
+    /* color: #FF9494; */
+  }
+
+  #hidden-state-vars{
+    /* border:solid; */
+    font-size:12px;
+    padding-top:8px;
+    padding-bottom:5px;
+    font-family: monospace;
+
+  }
+
+  .hidden-state-var{
+    padding-left: 5px;
+    padding-right:5px;
+    margin-left:3px;
+    margin-right:3px;
+    border: solid 1px gray;
+  }
+
+  .hidden-state-var:hover{
+    cursor: pointer;
+    background-color: lightgreen;
+  }
+
   .trace-state-table .th-state-traceexpr{
     border-right: 1px solid gray;
     font-weight: bold;
