@@ -98,13 +98,13 @@ function displayStateGraph() {
 
 function displayEvalGraph() {
     console.log("#displayEvalGraph");
-    let stategraphDiv = document.getElementById('output-container-scroll');
+    let stategraphDiv = document.getElementById('trace-pane');
     stategraphDiv.hidden = false;
 
     // cytoscape.use("dagre");
 
     var cy = cytoscape({
-        container: document.getElementById('output-container-scroll'), // container to render in
+        container: document.getElementById('trace-pane'), // container to render in
         style: [
             {
                 selector: 'node',
@@ -177,7 +177,7 @@ function displayEvalGraph() {
 
 // TODO: Implement this properly.
 function toggleSpec() {
-    let pane = document.getElementById("input-pane");
+    let pane = document.getElementById("code-input-pane");
     pane.style.width = "0%";
 }
 
@@ -847,9 +847,19 @@ async function handleCodeChange(editor, changes) {
     console.log("handle code change");
 
     // Enable resizable panes (experimental).
-    $( "#initial-states" ).resizable({handles:"s"});
-    $( "#input-pane" ).resizable({handles:"e"});
-    $( "#output-container-scroll" ).resizable({handles:"w"});
+    // $( "#initial-states" ).resizable({handles:"s"});
+
+    $( "#code-input-pane" ).resizable({
+        handles: "e", 
+        // alsoResize: "#trace-pane",
+        // handles: {"e": ".splitter"},
+        // handleSelector: ".splitter",
+        resizeHeight: false,
+    });
+
+    // $( "#trace-pane" ).resizable({
+        // handles:"w"
+    // });
 
     // Remove any existing line error highlights.
     var nlines = codeEditor.lineCount();
@@ -946,15 +956,20 @@ async function loadApp() {
         },
         view: function () {
             return [
+                m("div", {class: "panel-container"}, [
                 // TLA+ code pane.
-                m("div", { id: "input-pane" }, [
+                m("div", { id: "code-input-pane" }, [
                     m("div", { id: "code-container" }, [
                         m("textarea", { id: "code-input" })
                     ])
                 ]),
 
+                // Splitter 
+                // TODO: Get this working.
+                // m("div", {class: "splitter"}),
+
                 // Display pane.
-                m("div", { id: "output-container-scroll" }, [
+                m("div", { id: "trace-pane" }, [
                     m("div", { id: "choose-constants-container" }, componentChooseConstants()),
                     m("div", { id: "poss-next-states-title", class: "pane-title" }, (model.currTrace.length > 0) ? "Choose Next State" : "Choose Initial State"),
                     m("div", { id: "initial-states", class: "tlc-state" }, componentNextStateChoices()),
@@ -963,12 +978,10 @@ async function loadApp() {
                             m("div", {class:"pane-title"}, "Current Trace"), 
                             buttonsContainer
                         ]),
-                        // <div id="trace" class="tlc-state"></div>
-                        // m("div", {id:"trace", class:"tlc-state"})
                         componentTraceViewer()
                     ])
                 ])
-            ];
+            ])];
         }
     }
 
@@ -984,14 +997,14 @@ async function loadApp() {
         view: function () {
             return [
                 // TLA+ code pane.
-                m("div", { id: "input-pane" }, [
+                m("div", { id: "code-input-pane" }, [
                     m("div", { id: "code-container" }, [
                         m("textarea", { id: "code-input" })
                     ])
                 ]),
 
                 // Eval graph pane.
-                m("div", { id: "output-container-scroll" }, [
+                m("div", { id: "trace-pane" }, [
                     m("h1", "eval graph"),
                     m("div", {id:"eval-graph"})
                 ])

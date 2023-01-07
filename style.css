@@ -102,15 +102,35 @@ body {
     position: relative;
   }
 
-  #input-pane {
-    position: absolute;
-    top: 0;
-    left: 0;
-    bottom: 0;
-    right: 50%;
+  #code-input-pane {
+    flex: 0 0 auto;
+    /* only manually resize */
+    padding: 3px;
+    width: 50%;
+    min-height: 200px;
+    min-width: 150px;
+    height:100%;
+    white-space: nowrap;
+    /* background: #838383; */
+    color: white;
+  }
+
+  .panel-container {
     display: flex;
-    flex-direction: column;
-    font-family: 'Source Code Pro', monospace;
+    flex-direction: row;
+    border: 1px solid silver;
+    /* overflow: hidden; */
+    height: 100%;
+    
+  }
+
+  .splitter {
+    flex: 0 0 auto;
+    width: 18px;  
+    background: url(https://raw.githubusercontent.com/RickStrahl/jquery-resizable/master/assets/vsizegrip.png) center center no-repeat #535353;
+    min-height: 200px;
+    cursor: col-resize;  
+    margin-left: 8px;
   }
 
   #initial-states{
@@ -248,18 +268,20 @@ body {
     width:100%;
     /* right: 30%; */
     padding-left:0px;
-    overflow: auto;
+    /* overflow: auto; */
+    overflow: scroll;
     border-right:solid 0.5px lightgray;
     /* background-color: lightgray; */
   }
 
-  #output-container-scroll {
-    position: absolute;
-    top: 0;
-    left: 50%;
-    bottom: 0;
-    right: 0;
-    border-left: solid 1px gray;
+  #trace-pane {
+    flex: 1 1 auto;
+    /* resizable */
+    padding: 10px;
+    width: 100%;
+    min-height: 200px;
+    min-width: 200px;
+    overflow: scroll;
   }
 
   .header-item {
@@ -278,12 +300,6 @@ body {
   .CodeMirror{
     font-size:13px;
     /* font-family: 'Source Code Pro', monospace; */
-  }
-
-  #output-container-scroll {
-    flex: 1;
-    overflow: auto;
-    padding-left:15px;
   }
 
   #output-container {
