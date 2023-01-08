@@ -1,5 +1,5 @@
 //
-// Core logic of the TLA+ web explorer UI.
+// TLA+ web explorer UI logic.
 //
 
 let tree;
@@ -222,17 +222,17 @@ function componentNextStateChoiceElement(state, ind) {
         let cols = [
             m("td", { class: "state-varname" }, varname),
             m("td", [tlaValView(state.getVarVal(varname))]),
-            m("td", {style:"width:15px"}, ""), // placeholder row.
+            m("td", { style: "width:15px" }, ""), // placeholder row.
         ]
-    
+
         return m("tr", { style: "border-bottom: solid" }, cols);
     });
 
     let opac = model.lassoTo === null ? "100" : "50";
-    let nextStateElem = m("div", { 
-        class: "init-state", 
+    let nextStateElem = m("div", {
+        class: "init-state",
         style: `opacity: ${opac}%`,
-        onclick: () => chooseNextState(hash) 
+        onclick: () => chooseNextState(hash)
     }, stateVarElems);
     return nextStateElem;
 }
@@ -241,7 +241,7 @@ function componentNextStateChoices(nextStates) {
     nextStates = model.currNextStates;
 
     let nextStateElems = [];
-    if(model.lassoTo !== null){
+    if (model.lassoTo !== null) {
         // If we're stuck in a lasso, don't permit any further next state choices.
         return [];
     }
@@ -303,7 +303,7 @@ function chooseNextState(statehash_short) {
 
     // If the next state already exists in the current trace, then treat it as a
     // "lasso" transition, and freeze the trace from continuing.
-    if(model.currTrace.map(s => hashSum(s)).includes(statehash_short)){
+    if (model.currTrace.map(s => hashSum(s)).includes(statehash_short)) {
         console.log("Reached LASSO!");
         model.lassoTo = statehash_short;
         return;
@@ -373,7 +373,7 @@ function setConstantValues() {
     let nullTree;
     for (var constDecl in model.specConsts) {
         let constValText = model.specConstInputVals[constDecl];
-        if(constValText === undefined){
+        if (constValText === undefined) {
             throw "no constant value given for " + constDecl;
         }
 
@@ -430,7 +430,7 @@ function setConstantValues() {
     model.specConstVals = constTlaVals;
 
     let currParams = m.route.param();
-    m.route.set("/home", Object.assign(currParams, {constants: model.specConstInputVals}));
+    m.route.set("/home", Object.assign(currParams, { constants: model.specConstInputVals }));
 
     reloadSpec();
 }
@@ -555,21 +555,21 @@ function tlaValView(tlaVal) {
 //
 // Animation view logic (experimental).
 //
-function makeSvgAnimObj(tlaAnimElem){
+function makeSvgAnimObj(tlaAnimElem) {
     let name = tlaAnimElem.applyArg(new StringValue("name")).getVal();
     let attrs = tlaAnimElem.applyArg(new StringValue("attrs"));
     let children = tlaAnimElem.applyArg(new StringValue("children"));
     // console.log("name:", name);
     // console.log("attrs:", attrs);
     // console.log("children:", children);
-    if(children instanceof FcnRcdValue){
+    if (children instanceof FcnRcdValue) {
         children = children.toTuple();
     }
     let childrenElems = children.getElems();
 
     let attrKeys = attrs.getDomain()
     let attrVals = attrs.getValues()
-    
+
     let rawKeys = attrKeys.map(v => v.getVal());
     let rawVals = attrVals.map(v => v.getVal());
     let attrObj = _.fromPairs(_.zip(rawKeys, rawVals));
@@ -603,14 +603,14 @@ function componentTraceViewerState(state, ind, isLastState) {
     varNames = _.difference(varNames, model.hiddenStateVars);
     let varRows = varNames.map((varname, idx) => {
         let cols = [
-            m("td", { 
+            m("td", {
                 class: "th-state-varname",
                 onclick: (e) => {
                     model.hiddenStateVars.push(varname);
                 }
             }, varname),
             m("td", [tlaValView(state.getVarVal(varname))]),
-            m("td", {style:"width:15px"}, ""), // placeholder row.
+            m("td", { style: "width:15px" }, ""), // placeholder row.
         ]
 
         return m("tr", { style: "border-bottom: solid" }, cols);
@@ -621,13 +621,13 @@ function componentTraceViewerState(state, ind, isLastState) {
         let exprVal = evalExprStrInStateContext(state, expr);
         console.log("exprVal:", exprVal);
         let cols = [
-            m("td", { class: "th-state-traceexpr" },  m("span", expr)),
+            m("td", { class: "th-state-traceexpr" }, m("span", expr)),
             m("td", { class: "td-state-traceexpr" }, [tlaValView(exprVal)]),
             // Button to delete trace expression.
-            m("td", {   
-                class:"trace-expr-delete", 
-                style:"font-weight:bold;color:red;text-align:center;",
-                onclick: (e) => {_.remove(model.traceExprs, v => (v === expr))}
+            m("td", {
+                class: "trace-expr-delete",
+                style: "font-weight:bold;color:red;text-align:center;",
+                onclick: (e) => { _.remove(model.traceExprs, v => (v === expr)) }
             }, m.trust("&#10060;")), // placeholder row.
         ]
 
@@ -714,8 +714,8 @@ async function handleCodeChange(editor, changes) {
     // Enable resizable panes (experimental).
     // $( "#initial-states" ).resizable({handles:"s"});
 
-    $( "#code-input-pane" ).resizable({
-        handles: "e", 
+    $("#code-input-pane").resizable({
+        handles: "e",
         // alsoResize: "#trace-pane",
         // handles: {"e": ".splitter"},
         // handleSelector: ".splitter",
@@ -723,7 +723,7 @@ async function handleCodeChange(editor, changes) {
     });
 
     // $( "#trace-pane" ).resizable({
-        // handles:"w"
+    // handles:"w"
     // });
 
     // Remove any existing line error highlights.
@@ -784,7 +784,7 @@ function componentButtonsContainer() {
 }
 
 function componentHiddenStateVars() {
-    let titleElem = m("span", {style:"font-weight:bold"}, model.hiddenStateVars.length === 0 ? "" : "Hidden variables:")
+    let titleElem = m("span", { style: "font-weight:bold" }, model.hiddenStateVars.length === 0 ? "" : "Hidden variables:")
     let hiddenStateVarElems = model.hiddenStateVars.map(vname => {
         return m("span", {
             class: "hidden-state-var",
@@ -833,7 +833,7 @@ async function loadApp() {
 
     function addTraceExpr(newTraceExpr) {
         // TODO: Also check for evaluation errors.
-        if(newTraceExpr.length){
+        if (newTraceExpr.length) {
             model.traceExprs.push(newTraceExpr);
         }
     }

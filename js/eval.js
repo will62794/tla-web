@@ -13,42 +13,42 @@ let depth = 0;
 function assert(condition, message) {
     if (!condition) {
         console.error("assertion failed");
-        if(message){
+        if (message) {
             console.error(message);
         }
         throw new Error(message || 'Assertion failed');
     }
 }
-function evalLog(...msgArgs){
-    if(enableEvalTracing){
-        let indent = "(L"+depth+")" + ("|".repeat(depth * 2));
+function evalLog(...msgArgs) {
+    if (enableEvalTracing) {
+        let indent = "(L" + depth + ")" + ("|".repeat(depth * 2));
         let args = [indent].concat(msgArgs)
         console.log(...args);
     }
 }
 
 function cartesianProductOf() {
-    return _.reduce(arguments, function(a, b) {
-        return _.flatten(_.map(a, function(x) {
-            return _.map(b, function(y) {
+    return _.reduce(arguments, function (a, b) {
+        return _.flatten(_.map(a, function (x) {
+            return _.map(b, function (y) {
                 return x.concat([y]);
             });
         }), true);
-    }, [ [] ]);
+    }, [[]]);
 }
 
 function subsets(vals) {
-	const powerset = [];
-	generatePowerset([], 0);
+    const powerset = [];
+    generatePowerset([], 0);
 
-	function generatePowerset(path, index) {
-		powerset.push(path);
-		for (let i = index; i < vals.length; i++) {
-			generatePowerset([...path, vals[i]], i + 1);
-		}
-	}
+    function generatePowerset(path, index) {
+        powerset.push(path);
+        for (let i = index; i < vals.length; i++) {
+            generatePowerset([...path, vals[i]], i + 1);
+        }
+    }
 
-	return powerset;
+    return powerset;
 }
 
 // Combinations with replacement.
@@ -70,7 +70,7 @@ function combinations(arr, l) {
     return results;                  // Return results
 }
 
-function hashState(stateObj){
+function hashState(stateObj) {
     return hashSum(stateObj);
 }
 
@@ -80,15 +80,15 @@ function hashState(stateObj){
 //
 //
 
-class TLAValue{
+class TLAValue {
     constructor() {
     }
 
-    toJSONITF(){
+    toJSONITF() {
         return "'toJSONITF' unimplemented";
     }
 
-    fingerprint(){
+    fingerprint() {
         return "no_fingerprint";
     }
 
@@ -96,7 +96,7 @@ class TLAValue{
      * Check if this value is equal to the value 'other'.
      * @param {TLAValue} other 
      */
-    equals(other){
+    equals(other) {
         throw new Exception("equality check unimplemented!");
     }
 
@@ -109,181 +109,181 @@ class TLAValue{
     }
 }
 
-class IntValue extends TLAValue{
-    constructor(n){
+class IntValue extends TLAValue {
+    constructor(n) {
         super(n);
         this.val = n;
     }
-    toString(){
+    toString() {
         return this.val.toString();
     }
-    toJSON(){
+    toJSON() {
         return this.val;
     }
-    toJSONITF(){
-        return {"#type": "int", "#value": this.val};
+    toJSONITF() {
+        return { "#type": "int", "#value": this.val };
     }
-    getVal(){
+    getVal() {
         return this.val;
     }
-    plus(other){
+    plus(other) {
         assert(other instanceof IntValue);
         return new IntValue(this.val + other.getVal())
     }
-    minus(other){
+    minus(other) {
         assert(other instanceof IntValue);
         return new IntValue(this.val - other.getVal())
     }
-    fingerprint(){
+    fingerprint() {
         return hashSum(this.val);
     }
-    equals(other){
-        if(!other instanceof IntValue){
+    equals(other) {
+        if (!other instanceof IntValue) {
             return false;
-        } else{
+        } else {
             return this.val === other.getVal();
         }
     }
 }
 
-class BoolValue extends TLAValue{
-    constructor(n){
+class BoolValue extends TLAValue {
+    constructor(n) {
         super(n);
         this.val = n;
     }
-    toString(){
+    toString() {
         return this.val ? "TRUE" : "FALSE";
     }
-    toJSON(){
+    toJSON() {
         return this.val;
     }
-    toJSONITF(){
-        return {"#type": "bool", "#value": this.val};
+    toJSONITF() {
+        return { "#type": "bool", "#value": this.val };
     }
-    fingerprint(){
+    fingerprint() {
         return hashSum(this.val);
     }
-    getVal(){
+    getVal() {
         return this.val;
     }
-    and(other){
+    and(other) {
         return new BoolValue(this.getVal() && other.getVal());
     }
 }
 
-class StringValue extends TLAValue{
-    constructor(s){
+class StringValue extends TLAValue {
+    constructor(s) {
         super(s);
         this.val = s;
     }
-    getVal(){
+    getVal() {
         return this.val;
     }
-    toString(){
+    toString() {
         return "\"" + this.val + "\"";
     }
-    toJSON(){
+    toJSON() {
         return this.val;
     }
-    toJSONITF(){
-        return {"#type": "string", "#value": this.val};
+    toJSONITF() {
+        return { "#type": "string", "#value": this.val };
     }
-    fingerprint(){
+    fingerprint() {
         return this.val;
     }
 }
 
-class SetValue extends TLAValue{
-    constructor(elems){
+class SetValue extends TLAValue {
+    constructor(elems) {
         super(elems);
         // Remove duplicates at construction.
         this.elems = _.uniqBy(elems, (e) => e.fingerprint());
     }
-    toString(){
+    toString() {
         return "{" + this.elems.map(x => x.toString()).join(",") + "}";
     }
 
-    toJSON(){
+    toJSON() {
         return this.elems;
     }
 
-    toJSONITF(){
+    toJSONITF() {
         // Do a crude normalization by sorting by stringified version of each value
         // TODO: Eventually will need a more principled way to do normalization
         // and/or equality checking.
         return {
-            "#type": "set", 
+            "#type": "set",
             "#value": _.sortBy(this.elems, (e) => e.toString()).map(el => el.toJSONITF())
         };
     }
 
-    getElems(){
+    getElems() {
         return this.elems;
     }
 
-    size(){
+    size() {
         // TODO: Need to consider duplicates. Will likely require better equality handling for all types.
         return this.elems.length;
     }
 
-    unionWith(otherSet){
-       return new SetValue(_.uniqWith(this.elems.concat(otherSet.getElems()), _.isEqual));
+    unionWith(otherSet) {
+        return new SetValue(_.uniqWith(this.elems.concat(otherSet.getElems()), _.isEqual));
     }
 
-    intersectionWith(otherSet){
+    intersectionWith(otherSet) {
         return new SetValue(_.intersectionWith(this.elems, otherSet.getElems(), _.isEqual));
     }
 
-    diffWith(otherSet){
+    diffWith(otherSet) {
         return new SetValue(_.differenceWith(this.elems, otherSet.getElems(), _.isEqual));
     }
-    fingerprint(){
+    fingerprint() {
         return hashSum(this.elems.map(e => e.fingerprint()).sort());
     }
 }
 
-class TupleValue extends TLAValue{
-    constructor(elems){
+class TupleValue extends TLAValue {
+    constructor(elems) {
         super(elems);
         this.elems = elems;
     }
-    toString(){
+    toString() {
         return "<<" + this.elems.map(x => x.toString()).join(",") + ">>";
     }
 
-    toJSON(){
+    toJSON() {
         return this.elems;
     }
 
-    append(el){
+    append(el) {
         return new TupleValue(this.elems.concat([el]));
     }
 
-    concatTup(tup){
+    concatTup(tup) {
         return new TupleValue(this.elems.concat(tup.getElems()));
     }
 
-    head(){
-        if(this.elems.length === 0){
+    head() {
+        if (this.elems.length === 0) {
             throw new Exception("Tried to get head of empty list");
         }
         return this.elems[0];
     }
 
-    tail(){
-        if(this.elems.length === 0){
+    tail() {
+        if (this.elems.length === 0) {
             throw new Exception("Tried to get tail of empty list");
         }
-        return new TupleValue(this.elems.slice(1));    
+        return new TupleValue(this.elems.slice(1));
     }
 
-    getElems(){
+    getElems() {
         return this.elems;
     }
-    toJSONITF(){
-        return {"#type": "tup", "#value": this.elems.map(el => el.toJSONITF())};
+    toJSONITF() {
+        return { "#type": "tup", "#value": this.elems.map(el => el.toJSONITF()) };
     }
-    fingerprint(){
+    fingerprint() {
         let rcd = this.toFcnRcd();
         return rcd.fingerprint();
     }
@@ -306,36 +306,36 @@ class TupleValue extends TLAValue{
     }
 }
 
-class FcnRcdValue extends TLAValue{
-    constructor(domain, values, isRecord){
+class FcnRcdValue extends TLAValue {
+    constructor(domain, values, isRecord) {
         super(domain, values);
         this.domain = domain;
         this.values = values
         // Trace 'record' types explicitly.
         this.isRecord = isRecord || false;
     }
-    toString(){
-        if(this.isRecord){
-            return "[" + this.domain.map((dv,idx) => dv.getVal() + " |-> " + this.values[idx]).join(", ") + "]";
-        } else{
-            return "(" + this.domain.map((dv,idx) => dv.toString() + " :> " + this.values[idx]).join(" @@ ") + ")";
+    toString() {
+        if (this.isRecord) {
+            return "[" + this.domain.map((dv, idx) => dv.getVal() + " |-> " + this.values[idx]).join(", ") + "]";
+        } else {
+            return "(" + this.domain.map((dv, idx) => dv.toString() + " :> " + this.values[idx]).join(" @@ ") + ")";
         }
     }
 
-    toJSON(){
+    toJSON() {
         return _.fromPairs(_.zip(this.domain, this.values))
     }
 
-    getDomain(){
+    getDomain() {
         return this.domain;
     }
 
-    getValues(){
+    getValues() {
         return this.values;
     }
 
     // Get index of function argument in the function's domain.
-    argIndex(arg){
+    argIndex(arg) {
         return _.findIndex(this.domain, (v) => {
             return v.fingerprint() === arg.fingerprint();
         });
@@ -343,8 +343,8 @@ class FcnRcdValue extends TLAValue{
 
     /**
      * Apply the function to the argument 'arg'.
-     */ 
-    applyArg(arg){
+     */
+    applyArg(arg) {
         let idx = this.argIndex(arg);
         assert(idx >= 0, "argument " + arg + " doesn't exist in function domain.");
         return this.values[idx];
@@ -366,9 +366,9 @@ class FcnRcdValue extends TLAValue{
         // assert(idx >= 0, "argument " + arg + " doesn't exist in function domain.");
         // return this.values[idx].applyPathArg(pathArg.slice(1));
     }
-    
 
-    updateWith(arg, newVal){
+
+    updateWith(arg, newVal) {
         let idx = this.argIndex(arg);
         let newFn = _.cloneDeep(this);
         newFn.values[idx] = newVal;
@@ -376,12 +376,12 @@ class FcnRcdValue extends TLAValue{
     }
     // Update a record value given a key sequence, representing a nested update.
     // e.g. given ["x", "y", "z"], we make the update rcd["x"]["y"]["z"] := newVal.
-    updateWithPath(args, newVal){
+    updateWithPath(args, newVal) {
         evalLog("updateWithPath args:", args);
         evalLog("updateWithPath obj:", this);
 
         // Base case, when the update is non-nested.
-        if(args.length === 1){
+        if (args.length === 1) {
             evalLog("Hit non-nested update", args);
             let idx = this.argIndex(args[0]);
             assert(idx >= 0, "arg index wasn't found for argument " + args[0]);
@@ -403,7 +403,7 @@ class FcnRcdValue extends TLAValue{
      * Compose this function with the given function value and return the result.
      * @param {FcnRcdValue} other 
      */
-    compose(other){
+    compose(other) {
         assert(other instanceof FcnRcdValue);
 
         // [x \in (DOMAIN f) \cup (DOMAIN g) |-> IF x \in DOMAIN f THEN f[x] ELSE g[x]]
@@ -412,8 +412,8 @@ class FcnRcdValue extends TLAValue{
         // Take the union of the two domains, based on fingerprint equality.
         let thisDomainFps = this.domain.map(x => x.fingerprint());
         let newDomain = _.cloneDeep(this.domain);
-        for(const v of other.getDomain()){
-            if(!thisDomainFps.includes(v.fingerprint())){
+        for (const v of other.getDomain()) {
+            if (!thisDomainFps.includes(v.fingerprint())) {
                 newDomain.push(v);
             }
         }
@@ -423,11 +423,11 @@ class FcnRcdValue extends TLAValue{
         let newRange = [];
         // Construct the new range. If a domain value appeared in domains of both functions,
         // we prefer the range value of ourselves.
-        for(const v of newDomain){
-            if(thisDomainFps.includes(v.fingerprint())){
+        for (const v of newDomain) {
+            if (thisDomainFps.includes(v.fingerprint())) {
                 // use our value.
                 newRange.push(this.applyArg(v));
-            } else{
+            } else {
                 // use the other value.
                 newRange.push(other.applyArg(v));
             }
@@ -436,25 +436,25 @@ class FcnRcdValue extends TLAValue{
         return new FcnRcdValue(newDomain, newRange);
     }
 
-    toJSONITF(){
-        if(this.isRecord){
+    toJSONITF() {
+        if (this.isRecord) {
             console.log(this.domain);
             console.log(this.values);
             // Record domains should always be over strings.
             return {
-                "#type": "record", 
-                "#value": _.zipObject(this.domain.map(x => x.getVal()), 
-                                      this.values.map(x => x.toJSONITF()))
+                "#type": "record",
+                "#value": _.zipObject(this.domain.map(x => x.getVal()),
+                    this.values.map(x => x.toJSONITF()))
             };
-        } else{
+        } else {
             return {
-                "#type": "map", 
-                "#value": _.zip(this.domain.map(x => x.toJSONITF()), 
-                                this.values.map(x => x.toJSONITF()))
+                "#type": "map",
+                "#value": _.zip(this.domain.map(x => x.toJSONITF()),
+                    this.values.map(x => x.toJSONITF()))
             };
         }
     }
-    fingerprint(){
+    fingerprint() {
         // Attempt normalization by sorting by fingerprints before hashing.
         let domFps = this.domain.map(v => v.fingerprint());
         let valsFp = this.values.map(v => v.fingerprint());
@@ -481,7 +481,7 @@ class FcnRcdValue extends TLAValue{
         }
         let vals = this.getValues();
         let valsRevIndex = {};
-        for(var ind = 0; ind < vals.length; ind++){
+        for (var ind = 0; ind < vals.length; ind++) {
             valsRevIndex[vals[ind]] = this.getDomain()[ind];
         }
         // Make sure the values are sorted by increasing indices.
@@ -493,29 +493,29 @@ class FcnRcdValue extends TLAValue{
 /**
  * Represents a concrete TLA+ state i.e. a mapping from variable names to values.
  */
-class TLAState{
+class TLAState {
     /**
      * Construct with a mapping from variable names to their corresponding TLAValue.
      */
-    constructor(var_map){
+    constructor(var_map) {
         this.stateVars = var_map;
     }
 
-    hasVar(varname){
+    hasVar(varname) {
         return this.stateVars.hasOwnProperty(varname);
     }
 
     /**
      * Return the assigned value for the given variable name in this state.
      */
-    getVarVal(varname){
+    getVarVal(varname) {
         return this.stateVars[varname];
     }
 
     /**
      * Return the state as an object mapping variables to values.
      */
-    getStateObj(){
+    getStateObj() {
         return this.stateVars;
     }
 
@@ -523,11 +523,11 @@ class TLAState{
      * Returns a new copy of this state with the given variable updated to the
      * specified value.
      */
-    withVarVal(varName, newVal){
-        return new TLAState(_.mapValues(this.stateVars, (val,k,obj) => {
-            if(k === varName){
+    withVarVal(varName, newVal) {
+        return new TLAState(_.mapValues(this.stateVars, (val, k, obj) => {
+            if (k === varName) {
                 return newVal;
-            } else{
+            } else {
                 return val;
             }
         }));
@@ -537,9 +537,9 @@ class TLAState{
      * Given a state with primed and unprimed variables, remove the original
      * unprimed variables and rename the primed variables to unprimed versions. 
      */
-    deprimeVars(){
-        let newVars = _.pickBy(this.stateVars, (val,k,obj) => k.endsWith("'"));
-        return new TLAState(_.mapKeys(newVars, (val,k,obj) => k.slice(0,k.length-1)));
+    deprimeVars() {
+        let newVars = _.pickBy(this.stateVars, (val, k, obj) => k.endsWith("'"));
+        return new TLAState(_.mapKeys(newVars, (val, k, obj) => k.slice(0, k.length - 1)));
     }
 
     /**
@@ -548,34 +548,34 @@ class TLAState{
      * 
      * See https://apalache.informal.systems/docs/adr/015adr-trace.html.
      */
-    toJSONITF(){
+    toJSONITF() {
         // Sort keys for now.
         let outObj = {};
-        for(var k of Object.keys(this.stateVars).sort()){
+        for (var k of Object.keys(this.stateVars).sort()) {
             outObj[k] = this.stateVars[k].toJSONITF();
         }
         return outObj;
         // return _.mapValues(this.vars, (v) => v.toJSONITF());
     }
 
-    toString(){
+    toString() {
         let out = "";
-        for(var k of Object.keys(this.stateVars).sort()){
+        for (var k of Object.keys(this.stateVars).sort()) {
             out += "/\\ " + k + " = " + this.stateVars[k].toString() + "\n";
         }
-        return out;        
+        return out;
     }
 
     /**
      * Return a unique, string hash of this state.
      */
-    fingerprint(){
+    fingerprint() {
         let stateKeys = Object.keys(this.stateVars).sort();
         // Construct an array that is sequence of each state varialbe name and a
         // fingerprint of its TLA value. Then we hash this array to produce the
         // fingerprint for this state.
         let valsToHash = [];
-        for(var k of stateKeys){
+        for (var k of stateKeys) {
             valsToHash.push(k);
             valsToHash.push(this.stateVars[k].fingerprint());
         }
@@ -593,18 +593,18 @@ class TLAState{
 
 // Apply a given set of text rewrites to a given source text. Assumes the given
 // 'text' argument is a string given as a list of lines.
-function applySyntaxRewrites(text, rewrites){
+function applySyntaxRewrites(text, rewrites) {
     let lines = text.split("\n");
 
-    for(const rewrite of rewrites){
+    for (const rewrite of rewrites) {
         let startRow = rewrite["startPosition"]["row"];
         let startCol = rewrite["startPosition"]["column"];
         let endRow = rewrite["endPosition"]["row"];
         let endCol = rewrite["endPosition"]["column"];
 
         // Cut out original chunk.
-        let prechunk = lines.slice(0,startRow).concat([lines[startRow].substring(0,startCol)]); 
-        let postchunk = [lines[endRow].substring(endCol)].concat(lines.slice(endRow+1));
+        let prechunk = lines.slice(0, startRow).concat([lines[startRow].substring(0, startCol)]);
+        let postchunk = [lines[endRow].substring(endCol)].concat(lines.slice(endRow + 1));
 
         // console.log("chunk out: ");
         // console.log(prechunk.join("\n").concat("<CHUNK>").concat(postchunk.join("\n")));
@@ -612,14 +612,14 @@ function applySyntaxRewrites(text, rewrites){
         // console.log(postchunk.join("\n"));
 
         // Delete line entirely.
-        if(rewrite["deleteRow"]!==undefined){
+        if (rewrite["deleteRow"] !== undefined) {
             lines[rewrite["deleteRow"]] = "";
             // TODO: Make this work.
             // lines = lines.filter((_, index) => index !== rewrite["deleteRow"]);
-        } else{
+        } else {
             let lineInd = rewrite["startPosition"]["row"]
             line = lines[lineInd];
-            
+
             // < 
             //   PRECHUNK
             //    >|< 
@@ -630,7 +630,7 @@ function applySyntaxRewrites(text, rewrites){
 
             // Append the new string to the last line of the prechunk,
             // followed by the first line of the post chunk.
-            prechunk[prechunk.length-1] = prechunk[prechunk.length-1].concat(rewrite["newStr"]).concat(postchunk[0]);
+            prechunk[prechunk.length - 1] = prechunk[prechunk.length - 1].concat(rewrite["newStr"]).concat(postchunk[0]);
             // Then append the rest of the postchunk
             linesUpdated = prechunk.concat(postchunk.slice(1));
 
@@ -639,10 +639,10 @@ function applySyntaxRewrites(text, rewrites){
 
         // TODO: Consider removing line entirely if it is empty after rewrite.
         // if(lineNew.length > 0){
-            // lines[lineInd] = lineNew;
+        // lines[lineInd] = lineNew;
         // } else{
-            // If line is empty, remove it.
-            // lines.splice(lineInd, 1);
+        // If line is empty, remove it.
+        // lines.splice(lineInd, 1);
         // }
     }
     return lines.join("\n");
@@ -677,167 +677,167 @@ function genSyntaxRewrites(treeArg) {
     let visitedChildren = false;
     let indentLevel = 0;
 
-    for (let i = 0;; i++) {
-      let displayName;
-      if (cursor.nodeIsMissing) {
-        displayName = `MISSING ${cursor.nodeType}`
-      } else if (cursor.nodeIsNamed) {
-        displayName = cursor.nodeType;
-      }
-
-      if (visitedChildren) {
-        if (displayName) {
-          finishedRow = true;
+    for (let i = 0; ; i++) {
+        let displayName;
+        if (cursor.nodeIsMissing) {
+            displayName = `MISSING ${cursor.nodeType}`
+        } else if (cursor.nodeIsNamed) {
+            displayName = cursor.nodeType;
         }
 
-        if (cursor.gotoNextSibling()) {
-          visitedChildren = false;
-        } else if (cursor.gotoParent()) {
-          visitedChildren = true;
-          indentLevel--;
-        } else {
-          break;
-        }
-      } else {
-        if (displayName) {
-          if (finishedRow) {
-            finishedRow = false;
-          }
-          const start = cursor.startPosition;
-          const end = cursor.endPosition;
-          const id = cursor.nodeId;
-          let fieldName = cursor.currentFieldName();
-        //   console.log(fieldName);
-          if (fieldName) {
-            fieldName += ': ';
-          } else {
-            fieldName = '';
-          }
-          let node = cursor.currentNode();
-
-          // Delete everything inside comments.
-          if(node.type === "block_comment"){
-            sourceRewrites.push({
-                startPosition: node.startPosition,
-                endPosition: node.endPosition,
-                newStr: "" 
-            });   
-            return sourceRewrites;
-          } 
-          
-          // Comments.
-          if(node.type === "comment"){
-            rewrite = {
-                startPosition: node.startPosition,
-                endPosition: node.endPosition,
-                newStr: "",
-                // TODO: Delete line.
-                // deleteRow: node.startPosition["row"]
-            } 
-            sourceRewrites.push(rewrite);
-            return sourceRewrites;
-          }
-          
-        // Bound infix ops.
-        if(node.type === "bound_infix_op"){
-            let symbol = node.childForFieldName("symbol");
-            let rhs = node.childForFieldName("rhs");
-            // console.log("syntax rewriting:", symbol);
-            // console.log("syntax rewriting, type:", symbol.type);
-
-            // x \in S, x \notin S
-            if(symbol.type === "in" || symbol.type === "notin"){
-                // Rewrite '<expr> \in S' as '\E h \in S : <expr> = h'
-                // console.log("REWRITE SETIN", node);
-    
-                let expr = node.namedChildren[0];
-                let domain = node.namedChildren[2];
-    
-                // console.log("REWRITE SETIN expr", expr.text);
-                // console.log("REWRITE SETIN domain", domain.text);
-    
-                // Generate a unique identifier for this new quantified variable.
-                // The hope is that it is relatively unlikely to collide with any variables in the spec.
-                // TODO: Consider how to ensure no collision here in a more principled manner.
-                let newUniqueVarId = "SETINREWRITE" + setInUniqueVarId;
-                setInUniqueVarId += 1;
-                let neg = symbol.type === "notin" ? "~" : "";
-                outStr = `(${neg}(\\E ${newUniqueVarId} \\in ${domain.text} : ${expr.text} = ${newUniqueVarId}))`
-                rewrite = {
-                    startPosition: node.startPosition,
-                    endPosition: node.endPosition,
-                    newStr: outStr
-                } 
-                sourceRewrites.push(rewrite);
-                return sourceRewrites;
+        if (visitedChildren) {
+            if (displayName) {
+                finishedRow = true;
             }
 
-        }
-        
-        if (node.type == "bounded_quantification"){
-            //
-            // In general, bounded quantifiers can look like:
-            // \E i,j \in {1,2,3}, x,y,z \in {4,5,6}, u,v \in {4,5} : <expr>
-            //
-            // Rewrite all quantifiers to a normalized form i.e.
-            // \E i1 \in S1 : \E i2 \in S2 : ... : \E in \in Sn : <expr>
-            //
+            if (cursor.gotoNextSibling()) {
+                visitedChildren = false;
+            } else if (cursor.gotoParent()) {
+                visitedChildren = true;
+                indentLevel--;
+            } else {
+                break;
+            }
+        } else {
+            if (displayName) {
+                if (finishedRow) {
+                    finishedRow = false;
+                }
+                const start = cursor.startPosition;
+                const end = cursor.endPosition;
+                const id = cursor.nodeId;
+                let fieldName = cursor.currentFieldName();
+                //   console.log(fieldName);
+                if (fieldName) {
+                    fieldName += ': ';
+                } else {
+                    fieldName = '';
+                }
+                let node = cursor.currentNode();
 
-            // TODO: Make sure this works for quantifier expressions that span multiple lines.
+                // Delete everything inside comments.
+                if (node.type === "block_comment") {
+                    sourceRewrites.push({
+                        startPosition: node.startPosition,
+                        endPosition: node.endPosition,
+                        newStr: ""
+                    });
+                    return sourceRewrites;
+                }
 
-            let quantifier = node.childForFieldName("quantifier");
-            let quantifierBoundNodes = node.namedChildren.filter(c => c.type === "quantifier_bound");//  slice(1,node.namedChildren.length-1);
-            // let exprNode = node.childForFieldName("expression");
+                // Comments.
+                if (node.type === "comment") {
+                    rewrite = {
+                        startPosition: node.startPosition,
+                        endPosition: node.endPosition,
+                        newStr: "",
+                        // TODO: Delete line.
+                        // deleteRow: node.startPosition["row"]
+                    }
+                    sourceRewrites.push(rewrite);
+                    return sourceRewrites;
+                }
 
-            // Don't re-write if already in normalized form.
-            let isNormalized = quantifierBoundNodes.length === 1 && (quantifierBoundNodes[0].namedChildren.length === 3);
-            // console.log(node);
-            // console.log("bound nodes:", quantifierBoundNodes);
-            // console.log("REWRITE quant is normalized: ", isNormalized);
+                // Bound infix ops.
+                if (node.type === "bound_infix_op") {
+                    let symbol = node.childForFieldName("symbol");
+                    let rhs = node.childForFieldName("rhs");
+                    // console.log("syntax rewriting:", symbol);
+                    // console.log("syntax rewriting, type:", symbol.type);
 
-            if(!isNormalized){
-                // console.log("REWRITE quant:", node);
-                // console.log("REWRITE quant bound nodes:", quantifierBoundNodes);
+                    // x \in S, x \notin S
+                    if (symbol.type === "in" || symbol.type === "notin") {
+                        // Rewrite '<expr> \in S' as '\E h \in S : <expr> = h'
+                        // console.log("REWRITE SETIN", node);
 
-                // Expand each quantifier bound.
-                let quantBounds = quantifierBoundNodes.map(boundNode =>{
-                    let quantVars = boundNode.namedChildren.filter(c => c.type === "identifier");
-                    let quantBound = boundNode.namedChildren[boundNode.namedChildren.length-1];
-                    // For \E and \A, rewrite:
-                    // <Q> i,j \in S ==> <Q> i \in S : <Q> j \in S
-                    // console.log(quantVars.map(c => c.text));
-                    // console.log(quantVars);
-                    // console.log("quantifier:",quantifier);
-                    return quantVars.map(qv => [quantifier.text, qv.text, "\\in", quantBound.text].join(" ")).join(" : ");
-                })
+                        let expr = node.namedChildren[0];
+                        let domain = node.namedChildren[2];
 
-                outStr = quantBounds.join(" : ");
-                // console.log("rewritten:", outStr);
-                rewrite = {
-                    startPosition: quantifier.startPosition,
-                    endPosition: quantifierBoundNodes[quantifierBoundNodes.length-1].endPosition,
-                    newStr: outStr
-                } 
-                sourceRewrites.push(rewrite);
-                return sourceRewrites;
+                        // console.log("REWRITE SETIN expr", expr.text);
+                        // console.log("REWRITE SETIN domain", domain.text);
+
+                        // Generate a unique identifier for this new quantified variable.
+                        // The hope is that it is relatively unlikely to collide with any variables in the spec.
+                        // TODO: Consider how to ensure no collision here in a more principled manner.
+                        let newUniqueVarId = "SETINREWRITE" + setInUniqueVarId;
+                        setInUniqueVarId += 1;
+                        let neg = symbol.type === "notin" ? "~" : "";
+                        outStr = `(${neg}(\\E ${newUniqueVarId} \\in ${domain.text} : ${expr.text} = ${newUniqueVarId}))`
+                        rewrite = {
+                            startPosition: node.startPosition,
+                            endPosition: node.endPosition,
+                            newStr: outStr
+                        }
+                        sourceRewrites.push(rewrite);
+                        return sourceRewrites;
+                    }
+
+                }
+
+                if (node.type == "bounded_quantification") {
+                    //
+                    // In general, bounded quantifiers can look like:
+                    // \E i,j \in {1,2,3}, x,y,z \in {4,5,6}, u,v \in {4,5} : <expr>
+                    //
+                    // Rewrite all quantifiers to a normalized form i.e.
+                    // \E i1 \in S1 : \E i2 \in S2 : ... : \E in \in Sn : <expr>
+                    //
+
+                    // TODO: Make sure this works for quantifier expressions that span multiple lines.
+
+                    let quantifier = node.childForFieldName("quantifier");
+                    let quantifierBoundNodes = node.namedChildren.filter(c => c.type === "quantifier_bound");//  slice(1,node.namedChildren.length-1);
+                    // let exprNode = node.childForFieldName("expression");
+
+                    // Don't re-write if already in normalized form.
+                    let isNormalized = quantifierBoundNodes.length === 1 && (quantifierBoundNodes[0].namedChildren.length === 3);
+                    // console.log(node);
+                    // console.log("bound nodes:", quantifierBoundNodes);
+                    // console.log("REWRITE quant is normalized: ", isNormalized);
+
+                    if (!isNormalized) {
+                        // console.log("REWRITE quant:", node);
+                        // console.log("REWRITE quant bound nodes:", quantifierBoundNodes);
+
+                        // Expand each quantifier bound.
+                        let quantBounds = quantifierBoundNodes.map(boundNode => {
+                            let quantVars = boundNode.namedChildren.filter(c => c.type === "identifier");
+                            let quantBound = boundNode.namedChildren[boundNode.namedChildren.length - 1];
+                            // For \E and \A, rewrite:
+                            // <Q> i,j \in S ==> <Q> i \in S : <Q> j \in S
+                            // console.log(quantVars.map(c => c.text));
+                            // console.log(quantVars);
+                            // console.log("quantifier:",quantifier);
+                            return quantVars.map(qv => [quantifier.text, qv.text, "\\in", quantBound.text].join(" ")).join(" : ");
+                        })
+
+                        outStr = quantBounds.join(" : ");
+                        // console.log("rewritten:", outStr);
+                        rewrite = {
+                            startPosition: quantifier.startPosition,
+                            endPosition: quantifierBoundNodes[quantifierBoundNodes.length - 1].endPosition,
+                            newStr: outStr
+                        }
+                        sourceRewrites.push(rewrite);
+                        return sourceRewrites;
+                    }
+
+                }
+
+                finishedRow = true;
             }
 
-        } 
-
-        finishedRow = true;
+            if (cursor.gotoFirstChild()) {
+                visitedChildren = false;
+                indentLevel++;
+            } else {
+                visitedChildren = true;
+            }
         }
-
-        if (cursor.gotoFirstChild()) {
-          visitedChildren = false;
-          indentLevel++;
-        } else {
-          visitedChildren = true;
-        }
-      }
     }
     if (finishedRow) {
-      row += '</div>';
-      rows.push(row);
+        row += '</div>';
+        rows.push(row);
     }
 
     cursor.delete();
@@ -850,7 +850,7 @@ function genSyntaxRewrites(treeArg) {
  * Parse and extract definitions and declarations from the given TLA+ module
  * text.
  */
-function parseSpec(specText){
+function parseSpec(specText) {
     let tree;
 
     // Walk the syntax tree and perform any specified syntactic rewrites (e.g. desugaring.)
@@ -861,7 +861,7 @@ function parseSpec(specText){
     let rewriteBatch = genSyntaxRewrites(tree);
 
     // Apply AST rewrite batches until a fixpoint is reached.
-    while(rewriteBatch.length > 0){
+    while (rewriteBatch.length > 0) {
         // console.log("New syntax rewrite iteration");
         // console.log("rewrite batch: ", rewriteBatch, "length: ", rewriteBatch.length);
         specTextRewritten = applySyntaxRewrites(specTextRewritten, rewriteBatch);
@@ -874,17 +874,17 @@ function parseSpec(specText){
     // Update the spec text to the rewritten version. Then continue parsing the spec
     // to extract definitions, variables, etc.
     specText = specTextRewritten;
-    
+
     tree = parser.parse(specText + "\n", null);
     let cursor = tree.walk();
-    
+
     // One level down from the top level tree node should contain the overall TLA module.
     cursor.gotoFirstChild();
     let node = cursor.currentNode();
     assert(node.type === "module" || node.type === "extramodular_text");
 
     // Extramodular text is considered as comments, to be ignored.
-    if(node.type === "extramodular_text"){
+    if (node.type === "extramodular_text") {
         console.log("ignoring extramodular_text");
         cursor.gotoNextSibling();
         node = cursor.currentNode();
@@ -898,7 +898,7 @@ function parseSpec(specText){
 
     // Look for all variables and definitions defined in the module.
     let more = cursor.gotoFirstChild();
-    while(more){
+    while (more) {
         more = cursor.gotoNextSibling();
         let node = cursor.currentNode();
         // console.log(node);
@@ -907,21 +907,21 @@ function parseSpec(specText){
         // console.log("node id:", node.id);
 
 
-        if(node.type === "constant_declaration"){
+        if (node.type === "constant_declaration") {
             let constDecls = cursor.currentNode().namedChildren.filter(c => c.type !== "comment");
-            for(const declNode of constDecls){
-                const_decls[declNode.text] = {"id": declNode.id}; 
+            for (const declNode of constDecls) {
+                const_decls[declNode.text] = { "id": declNode.id };
             }
         }
 
-        if(node.type === "variable_declaration"){
+        if (node.type === "variable_declaration") {
             let varDecls = cursor.currentNode().namedChildren.filter(c => c.type !== "comment");
-            for(const declNode of varDecls){
-                var_decls[declNode.text] = {"id": declNode.id}; 
+            for (const declNode of varDecls) {
+                var_decls[declNode.text] = { "id": declNode.id };
             }
         }
 
-        if(node.type === "operator_definition"){
+        if (node.type === "operator_definition") {
             // TODO: Consider iterating through 'named' children only?
             cursor.gotoFirstChild();
 
@@ -932,26 +932,26 @@ function parseSpec(specText){
             assert(node.type === "identifier");
             let opName = node.text;
 
-            op_defs[opName] = {"name": opName, "args": [], "node": null};
-            
+            op_defs[opName] = { "name": opName, "args": [], "node": null };
+
             // Skip the 'def_eq' symbol ("==").
             cursor.gotoNextSibling();
-            if(!cursor.currentNode().isNamed()){
+            if (!cursor.currentNode().isNamed()) {
                 cursor.gotoNextSibling();
             }
 
             // n-ary operator. save all parameters.
-            while(cursor.currentFieldName() === "parameter"){
+            while (cursor.currentFieldName() === "parameter") {
                 op_defs[opName]["args"].push(cursor.currentNode().text);
                 cursor.gotoNextSibling();
-                if(!cursor.currentNode().isNamed()){
+                if (!cursor.currentNode().isNamed()) {
                     cursor.gotoNextSibling();
                 }
             }
 
             // Skip any intervening comment nodes.
             cursor.gotoNextSibling();
-            while(cursor.currentNode().type === "comment"){
+            while (cursor.currentNode().type === "comment") {
                 cursor.gotoNextSibling();
                 console.log(cursor.currentNode());
                 console.log(cursor.currentNode().type);
@@ -998,10 +998,10 @@ function parseSpec(specText){
 
     }
 
-    console.log("module const declarations:",const_decls);
-    console.log("module var declarations:",var_decls);
-    console.log("module definitions:",op_defs);
-    console.log("module fcn definitions:",fn_defs);
+    console.log("module const declarations:", const_decls);
+    console.log("module var declarations:", var_decls);
+    console.log("module definitions:", op_defs);
+    console.log("module fcn definitions:", fn_defs);
 
     // Try parsing out actions if possible.
     let actions = [];
@@ -1044,7 +1044,7 @@ function parseSpec(specText){
  * Defines an evaluation context structure for evaluating TLC expressions and
  * initial/next state generation.
  */
-class Context{
+class Context {
     constructor(val, state, defns, quant_bound, constants, prev_func_val) {
 
         // @type: TLAValue
@@ -1089,7 +1089,7 @@ class Context{
      * Avoids copying of 'defns' since we assume they should be global
      * definitions that never change.
      */
-    clone(){
+    clone() {
         let valNew = _.cloneDeep(this.val);
         let stateNew = _.cloneDeep(this.state);
         let defnsNew = this.defns // don't copy this field.
@@ -1108,7 +1108,7 @@ class Context{
      * @param {TLCValue} valNew 
      * @param {TLAState} stateNew 
      */
-    withValAndState(valNew, stateNew){
+    withValAndState(valNew, stateNew) {
         let ctxCopy = this.clone();
         ctxCopy["val"] = valNew;
         ctxCopy["state"] = stateNew;
@@ -1120,7 +1120,7 @@ class Context{
      * Returns a new copy of this context with 'val' updated to the given value.
      * @param {TLCValue} valNew 
      */
-    withVal(valNew){
+    withVal(valNew) {
         let ctxCopy = this.clone();
         ctxCopy["val"] = valNew;
         return ctxCopy;
@@ -1130,7 +1130,7 @@ class Context{
      * Returns a new copy of this context with 'state' updated to the given value.
      * @param {Object} stateNew 
      */
-    withState(stateNew){
+    withState(stateNew) {
         let ctxCopy = this.clone();
         ctxCopy["state"] = stateNew;
         return ctxCopy;
@@ -1139,7 +1139,7 @@ class Context{
     /**
      * Returns a new copy of this context with the value 'val' bound to 'name'.
      */
-    withBoundVar(name, val){
+    withBoundVar(name, val) {
         let ctxCopy = this.clone();
         ctxCopy["quant_bound"][name] = val;
         return ctxCopy;
@@ -1148,7 +1148,7 @@ class Context{
     /**
      * Returns a new copy of this context that has been set to "primed".
      */
-    withPrimed(){
+    withPrimed() {
         let ctxCopy = this.clone();
         ctxCopy.primed = true;
         return ctxCopy;
@@ -1157,12 +1157,12 @@ class Context{
     /**
      * Is this a "primed" evaluation context.
      */
-    isPrimed(){
+    isPrimed() {
         return this.primed;
     }
 }
 
-function evalLnot(v, ctx){
+function evalLnot(v, ctx) {
     evalLog("evalLnot: ", v);
     lval = evalExpr(v, ctx)[0]["val"];
     let retval = new BoolValue(!lval.getVal())
@@ -1170,7 +1170,7 @@ function evalLnot(v, ctx){
     return [ctx.withVal(retval)];
 }
 
-function evalLand(lhs, rhs, ctx){
+function evalLand(lhs, rhs, ctx) {
     assert(ctx instanceof Context);
 
     // Evaluate left to right.
@@ -1189,14 +1189,14 @@ function evalLand(lhs, rhs, ctx){
 
 // Handle a set of returned contexts from a disjunctive evaluation and determine if they should
 // be coalesced into a single value or all contexts should be maintained as separate evaluation branches.
-function processDisjunctiveContexts(ctx, retCtxs, currAssignedVars){
+function processDisjunctiveContexts(ctx, retCtxs, currAssignedVars) {
     // Deal with return contexts for existential quantifiers.
-    if(retCtxs.length > 1) {
-        
+    if (retCtxs.length > 1) {
+
         // If an evaluation has returned multiple contexts, it must have been the
         // result of a disjunctive split somewhere along the way, and in this case,
         // each branch must return a boolean value. (IS THIS CORRECT???)
-        evalLog("disj ret vals: " , retCtxs.map(c => c["val"]));
+        evalLog("disj ret vals: ", retCtxs.map(c => c["val"]));
         assert(retCtxs.map(c => c["val"]).every(v => v instanceof TLAValue));
         assert(retCtxs.map(c => c["val"]).every(v => v instanceof BoolValue));
 
@@ -1211,10 +1211,10 @@ function processDisjunctiveContexts(ctx, retCtxs, currAssignedVars){
         // If new variables were assigned in the sub-evaluation contexts, then we return all of the
         // generated contexts. If no new variables were assigned, then we return the disjunction of
         // the results.
-        if(assignedInSub){
+        if (assignedInSub) {
             evalLog("Newly assigned vars, returning ", retCtxs);
             return retCtxs;
-        } else{
+        } else {
             evalLog("No newly assigned vars.");
             let someTrue = retCtxs.map((c) => c["val"].getVal()).some(_.identity);
             evalLog("ctx.", ctx);
@@ -1225,7 +1225,7 @@ function processDisjunctiveContexts(ctx, retCtxs, currAssignedVars){
     return retCtxs;
 }
 
-function evalLor(lhs, rhs, ctx){
+function evalLor(lhs, rhs, ctx) {
     assert(ctx instanceof Context);
 
     let currAssignedVars = _.keys(ctx["state"].stateVars).filter(k => ctx["state"].stateVars[k] !== null)
@@ -1236,7 +1236,7 @@ function evalLor(lhs, rhs, ctx){
     // For all existing possible variable assignments split into
     // separate evaluation cases for left and right branch.
     let ctxLhs = evalExpr(lhs, ctx);
-    evalLog("lhs ctx:",ctxLhs);
+    evalLog("lhs ctx:", ctxLhs);
     let ctxRhs = evalExpr(rhs, ctx);
 
     let retCtxs = ctxLhs.concat(ctxRhs);
@@ -1246,21 +1246,21 @@ function evalLor(lhs, rhs, ctx){
 }
 
 // Checks if a syntax tree node represents a primed variable.
-function isPrimedVar(treeNode, ctx){
-    if(treeNode.children.length < 2){
+function isPrimedVar(treeNode, ctx) {
+    if (treeNode.children.length < 2) {
         return false;
     }
     let lhs = treeNode.children[0];
     let symbol = treeNode.children[1];
     evalLog("lhs text:", lhs.text);
     evalLog("lhs text:", ctx.state);
-    return (treeNode.type === "bound_postfix_op" && 
-            lhs.type === "identifier_ref" &&
-            symbol.type === "prime" &&
-            ctx.state.hasVar(lhs.text) && ctx.state.getVarVal(lhs.text) !== null);
+    return (treeNode.type === "bound_postfix_op" &&
+        lhs.type === "identifier_ref" &&
+        symbol.type === "prime" &&
+        ctx.state.hasVar(lhs.text) && ctx.state.getVarVal(lhs.text) !== null);
 }
 
-function evalEq(lhs, rhs, ctx){
+function evalEq(lhs, rhs, ctx) {
     assert(ctx instanceof Context);
 
     // Deal with equality of variable on left hand side.
@@ -1269,15 +1269,15 @@ function evalEq(lhs, rhs, ctx){
     // let isUnprimedVar = ctx["state"].hasOwnProperty(identName) && !isPrimedVar(lhs);
     let isUnprimedVar = ctx.state.hasVar(identName) && !isPrimedVar(lhs, ctx);
 
-    if(isPrimedVar(lhs, ctx) || (isUnprimedVar && !ASSIGN_PRIMED)){
+    if (isPrimedVar(lhs, ctx) || (isUnprimedVar && !ASSIGN_PRIMED)) {
         // Update assignments for all current evaluation ctx.
 
         // If, in the current state assignment, the variable has not already
         // been assigned a value, then assign it.If it has already been assigned,
         // then check for equality.
         // Variable already assigned in this context. So, check for equality.
-        if(ctx.state.hasVar(identName) && ctx.state.getVarVal(identName) !== null){
-            evalLog("Variable '" + identName + "' already assigned in ctx:",  ctx);
+        if (ctx.state.hasVar(identName) && ctx.state.getVarVal(identName) !== null) {
+            evalLog("Variable '" + identName + "' already assigned in ctx:", ctx);
             let rhsVals = evalExpr(rhs, ctx);
             assert(rhsVals.length === 1);
             let rhsVal = rhsVals[0]["val"]
@@ -1288,25 +1288,25 @@ function evalEq(lhs, rhs, ctx){
         }
 
         // Variable not already assigned. So, update variable assignment as necessary.
-        let stateUpdated = _.mapValues(ctx.state.getStateObj(), (val,key,obj) => {
-            if(key === identName){
-                evalLog("Variable (" + identName + ") not already assigned in ctx:",  ctx);
+        let stateUpdated = _.mapValues(ctx.state.getStateObj(), (val, key, obj) => {
+            if (key === identName) {
+                evalLog("Variable (" + identName + ") not already assigned in ctx:", ctx);
                 let rhsVals = evalExpr(rhs, ctx.clone());
                 assert(rhsVals.length === 1);
                 let rhsVal = rhsVals[0]["val"];
-                evalLog("Variable (" + identName + ") getting value:",  rhsVal);
+                evalLog("Variable (" + identName + ") getting value:", rhsVal);
                 let vret = (val === null) ? rhsVal : val;
                 evalLog(vret);
                 return vret;
-            } 
+            }
             return val;
         });
         evalLog("state updated:", stateUpdated);
         evalLog("state updated current ctx:", ctx);
         return [ctx.withValAndState(new BoolValue(true), new TLAState(stateUpdated))];
-    } else{
+    } else {
         evalLog(`Checking for equality of ident '${identName}' with '${rhs.text}'.`, ctx);
-        
+
         // Evaluate left and right hand side.
         // evalLog("eq lhs:", lhs);
         let lhsVals = evalExpr(lhs, ctx.clone());
@@ -1329,7 +1329,7 @@ function evalEq(lhs, rhs, ctx){
     }
 }
 
-function evalUnchanged(node, ctx){
+function evalUnchanged(node, ctx) {
     evalLog("eval UNCHANGED:", node);
 
     let unchangedVal = node.namedChildren[1];
@@ -1376,7 +1376,7 @@ function evalUnchanged(node, ctx){
 }
 
 // 'vars' is a list of possible partial state assignments known up to this point.
-function evalBoundInfix(node, ctx){
+function evalBoundInfix(node, ctx) {
     assert(ctx instanceof Context);
 
     evalLog("evalBoundInfix:", node);
@@ -1390,7 +1390,7 @@ function evalBoundInfix(node, ctx){
     let rhs = node.children[2];
 
     // Multiplication
-    if(symbol.type === "mul"){
+    if (symbol.type === "mul") {
         evalLog("mul lhs:", lhs, lhs.text);
         let mulLhsVal = evalExpr(lhs, ctx);
         evalLog("mul lhs val:", mulLhsVal);
@@ -1402,7 +1402,7 @@ function evalBoundInfix(node, ctx){
     }
 
     // Plus.
-    if(symbol.type === "plus"){
+    if (symbol.type === "plus") {
         evalLog("plus lhs:", lhs, lhs.text);
         let plusLhsVal = evalExpr(lhs, ctx);
         evalLog("plus lhs val:", plusLhsVal);
@@ -1415,7 +1415,7 @@ function evalBoundInfix(node, ctx){
     }
 
     // Plus.
-    if(symbol.type === "minus"){
+    if (symbol.type === "minus") {
         evalLog("minus lhs:", lhs, lhs.text);
         let minusLhsVal = evalExpr(lhs, ctx);
         evalLog("minus lhs val:", minusLhsVal);
@@ -1428,7 +1428,7 @@ function evalBoundInfix(node, ctx){
     }
 
     // Greater than.
-    if(symbol.type === "gt"){
+    if (symbol.type === "gt") {
         let lhsVal = evalExpr(lhs, ctx)[0]["val"];
         let rhsVal = evalExpr(rhs, ctx)[0]["val"];
         assert(lhsVal instanceof IntValue);
@@ -1438,7 +1438,7 @@ function evalBoundInfix(node, ctx){
     }
 
     // Less than.
-    if(symbol.type === "lt"){
+    if (symbol.type === "lt") {
         let lhsVal = evalExpr(lhs, ctx)[0]["val"];
         let rhsVal = evalExpr(rhs, ctx)[0]["val"];
         assert(lhsVal instanceof IntValue);
@@ -1448,7 +1448,7 @@ function evalBoundInfix(node, ctx){
     }
 
     // Greater than or equal.
-    if(symbol.type === "geq"){
+    if (symbol.type === "geq") {
         let lhsVal = evalExpr(lhs, ctx)[0]["val"];
         let rhsVal = evalExpr(rhs, ctx)[0]["val"];
         assert(lhsVal instanceof IntValue);
@@ -1458,7 +1458,7 @@ function evalBoundInfix(node, ctx){
     }
 
     // Less than or equal.
-    if(symbol.type === "leq"){
+    if (symbol.type === "leq") {
         let lhsVal = evalExpr(lhs, ctx)[0]["val"];
         let rhsVal = evalExpr(rhs, ctx)[0]["val"];
         assert(lhsVal instanceof IntValue);
@@ -1468,7 +1468,7 @@ function evalBoundInfix(node, ctx){
     }
 
     // Modulo
-    if(symbol.type === "mod"){
+    if (symbol.type === "mod") {
         evalLog("mul lhs:", lhs, lhs.text);
         let mulLhsVal = evalExpr(lhs, ctx);
         evalLog("mul lhs val:", mulLhsVal);
@@ -1480,34 +1480,34 @@ function evalBoundInfix(node, ctx){
     }
 
     // Disjunction.
-    if(symbol.type === "lor"){
+    if (symbol.type === "lor") {
         return evalLor(lhs, rhs, ctx);
     }
 
-    if(symbol.type === "land"){
+    if (symbol.type === "land") {
         return evalLand(lhs, rhs, ctx);
     }
 
     // Implication.
-    if(symbol.type === "implies"){
+    if (symbol.type === "implies") {
         // (a => b) <=> (~a \/ b)
         let a = evalExpr(lhs, ctx)[0]["val"];
         let b = evalExpr(rhs, ctx)[0]["val"];
-        return  [ctx.withVal(new BoolValue(!a.getVal() || b.getVal()))];
+        return [ctx.withVal(new BoolValue(!a.getVal() || b.getVal()))];
     }
 
     // Equality.
-    if(symbol.type ==="eq"){
+    if (symbol.type === "eq") {
         // console.log("bound_infix_op, symbol 'eq', ctx:", JSON.stringify(ctx));
         evalLog("bound_infix_op -> (eq), ctx:", ctx);
         return evalEq(lhs, rhs, ctx);
-    } 
+    }
 
     // Inequality.
-    if(symbol.type ==="neq"){
+    if (symbol.type === "neq") {
         // console.log("bound_infix_op, symbol 'neq', ctx:", JSON.stringify(ctx));
         evalLog("bound_infix_op -> (neq), ctx:", ctx);
-        
+
         let lident = lhs.text;
         let lhsVal = evalExpr(lhs, ctx)[0]["val"];
         // console.log("Checking for inequality with var:", varName);
@@ -1520,17 +1520,17 @@ function evalBoundInfix(node, ctx){
         evalLog("inequality boolVal:", areUnequal);
         // Return context with updated value.
         return [ctx.withVal(new BoolValue(areUnequal))];
-    } 
+    }
 
     // Set membership.
-    if(symbol.type === "in" || symbol.type === "notin"){
+    if (symbol.type === "in" || symbol.type === "notin") {
         // We should have rewritten these during AST pre-processing.
         assert(symbol.type !== "in");
         assert(symbol.type !== "notin");
-    } 
-    
+    }
+
     // Set intersection.
-    if(symbol.type ==="cap"){
+    if (symbol.type === "cap") {
         evalLog("bound_infix_op, symbol 'cap'");
         // TODO: Will eventually need to figure out a more principled approach to object equality.
         let lhsVal = evalExpr(lhs, ctx)[0]["val"];
@@ -1540,10 +1540,10 @@ function evalBoundInfix(node, ctx){
         assert(lhsVal instanceof SetValue);
         assert(rhsVal instanceof SetValue);
         return [ctx.withVal(lhsVal.intersectionWith(rhsVal))];
-    } 
+    }
 
     // Set union.
-    if(symbol.type ==="cup"){
+    if (symbol.type === "cup") {
         // console.log("bound_infix_op, symbol 'cup'");
         evalLog("bound_infix_op, symbol 'cup'");
         // TODO: Will eventually need to figure out a more principled approach to object equality.
@@ -1555,10 +1555,10 @@ function evalBoundInfix(node, ctx){
         assert(lhsVal instanceof SetValue);
         assert(rhsVal instanceof SetValue);
         return [ctx.withVal(lhsVal.unionWith(rhsVal))];
-    }   
+    }
 
     // Set minus.
-    if(symbol.type ==="setminus"){
+    if (symbol.type === "setminus") {
         // console.log("bound_infix_op, symbol 'setminus'");
         evalLog("bound_infix_op, symbol 'setminus'");
         // TODO: Will need to figure out a more principled approach to object equality.
@@ -1570,7 +1570,7 @@ function evalBoundInfix(node, ctx){
         assert(lhsVal instanceof SetValue);
         assert(rhsVal instanceof SetValue);
         return [ctx.withVal(lhsVal.diffWith(rhsVal))];
-    } 
+    }
 
     // Set product. ("\X" or "\times")
     if (symbol.type === "times") {
@@ -1584,10 +1584,10 @@ function evalBoundInfix(node, ctx){
         assert(rhsVal instanceof SetValue);
         let prodElems = cartesianProductOf(lhsVal.getElems(), rhsVal.getElems()).map(e => new TupleValue(e));
         return [ctx.withVal(new SetValue(prodElems))];
-    } 
+    }
 
     // Enumerated set with dot notation e.g. 1..N
-    if(symbol.type ==="dots_2"){
+    if (symbol.type === "dots_2") {
         // Assume both operands evaluate to numbers.
         let lhsVal = evalExpr(lhs, ctx)[0]["val"];
         let rhsVal = evalExpr(rhs, ctx)[0]["val"];
@@ -1602,7 +1602,7 @@ function evalBoundInfix(node, ctx){
     //
 
     // d :> e == [x \in {d} |-> e]
-    if(symbol.type === "map_to"){
+    if (symbol.type === "map_to") {
         evalLog("bound_infix_op, symbol 'map_to', ctx:", ctx);
         let lhs = node.namedChildren[0];
         let rhs = node.namedChildren[2];
@@ -1610,12 +1610,12 @@ function evalBoundInfix(node, ctx){
         let lhsVal = evalExpr(lhs, ctx)[0]["val"];
         let rhsVal = evalExpr(rhs, ctx)[0]["val"];
 
-        let fcnVal = new FcnRcdValue([lhsVal],[rhsVal]);
+        let fcnVal = new FcnRcdValue([lhsVal], [rhsVal]);
         return [ctx.withVal(fcnVal)];
     }
 
     // f @@ g == [x \in (DOMAIN f) \cup (DOMAIN g) |-> IF x \in DOMAIN f THEN f[x] ELSE g[x]]
-    if(symbol.type ==="compose"){
+    if (symbol.type === "compose") {
         evalLog("bound_infix_op, symbol 'compose', ctx:", ctx);
         let lhs = node.namedChildren[0];
         let rhs = node.namedChildren[2];
@@ -1627,7 +1627,7 @@ function evalBoundInfix(node, ctx){
     }
 
     // e.g. <<1,2>> \o <<3,4,5>>
-    if(symbol.type === "circ"){
+    if (symbol.type === "circ") {
         evalLog("bound_infix_op, symbol 'circ', ctx:", ctx);
         let lhs = node.namedChildren[0];
         let rhs = node.namedChildren[2];
@@ -1671,16 +1671,16 @@ function evalBoundPrefix(node, ctx) {
     }
 
     // DOMAIN.
-    if(symbol.type === "domain"){
+    if (symbol.type === "domain") {
         evalLog("DOMAIN op");
         evalLog(rhs);
         let rhsVal = evalExpr(rhs, ctx)[0]["val"];
 
         // Tuples are considered as functions with natural number domains.
-        if(rhsVal instanceof TupleValue){
+        if (rhsVal instanceof TupleValue) {
             evalLog("rhsVal is Tuple");
             // Tuples are 1-indexed in TLA+.
-            let rangeVals = _.range(1,rhsVal.length()+1).map(v => new IntValue(v));
+            let rangeVals = _.range(1, rhsVal.length() + 1).map(v => new IntValue(v));
             let domainVal = new SetValue(rangeVals);
             return [ctx.withVal(domainVal)];
         }
@@ -1691,7 +1691,7 @@ function evalBoundPrefix(node, ctx) {
         return [ctx.withVal(domainVal)];
     }
 
-    if(symbol.type === "powerset"){
+    if (symbol.type === "powerset") {
         evalLog("POWERSET op");
         evalLog(rhs);
         let rhsVal = evalExpr(rhs, ctx);
@@ -1703,18 +1703,18 @@ function evalBoundPrefix(node, ctx) {
         // evalLog("powerset:",powersetRhs);
         return [ctx.withVal(new SetValue(powersetRhs))];
     }
-    if(symbol.type === "negative"){
+    if (symbol.type === "negative") {
         let rhsVal = evalExpr(rhs, ctx);
         rhsVal = rhsVal[0]["val"];
         return [ctx.withVal(new IntValue(-rhsVal))];
-    }   
+    }
 
-    if(symbol.type === "lnot"){
+    if (symbol.type === "lnot") {
         return evalLnot(rhs, ctx);
-    } 
+    }
 
 
-    if(symbol.type === "unchanged"){
+    if (symbol.type === "unchanged") {
         evalLog("eval prefix op: UNCHANGED", node);
         // assert(false, "UNCHANGED under construction!");
         return evalUnchanged(node, ctx);
@@ -1723,12 +1723,12 @@ function evalBoundPrefix(node, ctx) {
     }
 }
 
-function evalBoundPostfix(node, ctx){
+function evalBoundPostfix(node, ctx) {
     let lhs = node.namedChildren[0];
     let symbol = node.namedChildren[1];
 
     evalLog("POSTFIX:", node);
-    if(symbol.type === "prime"){
+    if (symbol.type === "prime") {
         return evalExpr(lhs, ctx.withPrimed());
     }
 
@@ -1736,7 +1736,7 @@ function evalBoundPostfix(node, ctx){
 
 }
 
-function evalDisjList(parent, disjs, ctx){
+function evalDisjList(parent, disjs, ctx) {
     assert(ctx instanceof Context);
 
     evalLog("eval: disjunction list!");
@@ -1750,7 +1750,7 @@ function evalDisjList(parent, disjs, ctx){
     return processDisjunctiveContexts(ctx, retCtxs, currAssignedVars);
 }
 
-function evalConjList(parent, conjs, ctx){
+function evalConjList(parent, conjs, ctx) {
     assert(ctx instanceof Context);
 
     evalLog("evalConjList -> ctx:", ctx, conjs);
@@ -1760,12 +1760,12 @@ function evalConjList(parent, conjs, ctx){
         ctx["val"] = new BoolValue(true);
     }
     // Filter out any comments contained in this conjunction.
-    return conjs.filter(c => !["comment","block_comment"].includes(c.type)).reduce((prev,conj) => {
+    return conjs.filter(c => !["comment", "block_comment"].includes(c.type)).reduce((prev, conj) => {
         let res = prev.map(ctxPrev => {
             // If this context has already evaluated to false, then the overall
             // conjunction list will evaluate to false, so we can short-circuit
             // the expression evaluation and terminate early.
-            if(ctxPrev["val"].getVal()===false){
+            if (ctxPrev["val"].getVal() === false) {
                 return [ctxPrev];
             }
 
@@ -1779,7 +1779,7 @@ function evalConjList(parent, conjs, ctx){
     }, [ctx]);
 }
 
-function evalIdentifierRef(node, ctx){
+function evalIdentifierRef(node, ctx) {
     assert(ctx instanceof Context);
 
     let ident_name = node.text;
@@ -1790,7 +1790,7 @@ function evalIdentifierRef(node, ctx){
 
     // If this identifier refers to a variable, return the value bound
     // to that variable in the current context.
-    if(ctx.state.hasVar(ident_name) && !isPrimed){
+    if (ctx.state.hasVar(ident_name) && !isPrimed) {
         evalLog("variable identifier: ", ident_name);
         let var_val = ctx.state.getVarVal(ident_name);
         evalLog("var ident context:", ctx["state"], var_val);
@@ -1798,7 +1798,7 @@ function evalIdentifierRef(node, ctx){
     }
 
     // Evaluate identifier for primed context version.
-    if(ctx.state.hasVar(ident_name + "'") && isPrimed){
+    if (ctx.state.hasVar(ident_name + "'") && isPrimed) {
         evalLog("variable identifier (primed): ", ident_name + "'");
         let var_val = ctx.state.getVarVal(ident_name + "'");
         evalLog("var ident context:", ctx["state"], var_val);
@@ -1807,19 +1807,19 @@ function evalIdentifierRef(node, ctx){
 
     // See if the identifier is bound to a value in the current context.
     // If so, return the value it is bound to.
-    if(ctx.hasOwnProperty("quant_bound") && ctx["quant_bound"].hasOwnProperty(ident_name)){
+    if (ctx.hasOwnProperty("quant_bound") && ctx["quant_bound"].hasOwnProperty(ident_name)) {
         let bound_val = ctx["quant_bound"][ident_name];
         evalLog("bound_val", bound_val);
         return [ctx.withVal(bound_val)];
     }
 
     // See if this identifier is a definition in the spec.
-    if(ctx.hasOwnProperty("defns") && ctx["defns"].hasOwnProperty(ident_name)){
+    if (ctx.hasOwnProperty("defns") && ctx["defns"].hasOwnProperty(ident_name)) {
         // Evaluate the definition in the current context.
         let defNode = ctx["defns"][ident_name]["node"];
-        
+
         // Handle function definition case.
-        if(defNode.type === "function_definition"){
+        if (defNode.type === "function_definition") {
             let quant_bounds = defNode.namedChildren.filter(n => n.type === "quantifier_bound");
             let fexpr = _.last(defNode.namedChildren);
             return evalFunctionLiteralInner(ctx, quant_bounds, fexpr);
@@ -1829,7 +1829,7 @@ function evalIdentifierRef(node, ctx){
     }
 
     // See if this identifier is an instantiated CONSTANT symbol.
-    if(ctx["constants"]!==undefined && ctx["constants"].hasOwnProperty(ident_name)){
+    if (ctx["constants"] !== undefined && ctx["constants"].hasOwnProperty(ident_name)) {
         // Return the instantiated constant value.
         let constantVal = ctx["constants"][ident_name];
         return [ctx.withVal(constantVal)];
@@ -1838,7 +1838,7 @@ function evalIdentifierRef(node, ctx){
     // TODO: Consider case of being undefined.
 }
 
-function evalBoundedQuantification(node, ctx){
+function evalBoundedQuantification(node, ctx) {
     evalLog("bounded_quantification", node);
 
     //
@@ -1862,7 +1862,7 @@ function evalBoundedQuantification(node, ctx){
     // always normalized down to a single quantifier bound in all cases.
     let currInd = 1;
     quantBounds = [];
-    while(node.namedChildren[currInd].type === "quantifier_bound"){
+    while (node.namedChildren[currInd].type === "quantifier_bound") {
         quantBounds.push(node.namedChildren[currInd]);
         currInd += 1;
     }
@@ -1887,7 +1887,7 @@ function evalBoundedQuantification(node, ctx){
     // the quantified expression with the appropriately bound values.
 
     // Trivial case of empty domain.
-    if(quantDomain.length === 0){
+    if (quantDomain.length === 0) {
         // \forall x \in {} : <expr> is always true.
         // \exists x \in {} : <expr> is always false.
         let retVal = (quantifier.type === "forall");
@@ -1898,9 +1898,9 @@ function evalBoundedQuantification(node, ctx){
 
     // Evaluate each sub-expression with the properly bound values.
     retCtxs = _.flattenDeep(quantDomain.map(domVal => {
-            let boundContext = ctx.clone();
+        let boundContext = ctx.clone();
         // Bound values to quantified variables.
-        if(!boundContext.hasOwnProperty("quant_bound")){
+        if (!boundContext.hasOwnProperty("quant_bound")) {
             boundContext["quant_bound"] = {};
         }
         boundContext["quant_bound"][quantIdent] = domVal;
@@ -1908,12 +1908,12 @@ function evalBoundedQuantification(node, ctx){
         evalLog("boundContext:", boundContext);
         let ret = evalExpr(quant_expr, boundContext.clone());
         return ret;
-    })); 
-    
+    }));
+
     evalLog("quant returned contexts:", retCtxs);
 
     // If this is a universal quantifier, then we don't fork the evaluation.
-    if(quantifier.type === "forall"){
+    if (quantifier.type === "forall") {
         let allVals = retCtxs.map(c => c["val"].getVal());
         evalLog("allVals:", allVals);
         let res = _.every(retCtxs.map(c => c["val"].getVal()));
@@ -1925,12 +1925,12 @@ function evalBoundedQuantification(node, ctx){
 }
 
 // <op>(<arg1>,...,<argn>)
-function evalBoundOp(node, ctx){
+function evalBoundOp(node, ctx) {
     assert(node.type === "bound_op");
 
     let opName = node.namedChildren[0].text;
     evalLog("bound_op:", opName);
-    evalLog("bound_op context:",ctx);
+    evalLog("bound_op context:", ctx);
 
     //
     // Operators from the TLA+ Standard Modules.
@@ -1940,9 +1940,9 @@ function evalBoundOp(node, ctx){
 
     // FiniteSets 
     // https://github.com/tlaplus/tlaplus/blob/421bc3d16f869d9c9bb493e5950c445c25c916ea/tlatools/org.lamport.tlatools/src/tla2sany/StandardModules/FiniteSets.tla
-    
+
     // Built in operator.
-    if(opName == "Cardinality"){
+    if (opName == "Cardinality") {
         let argExpr = node.namedChildren[1];
         let argExprVal = evalExpr(argExpr, ctx)[0]["val"]
         evalLog("Cardinality val:", argExpr.text, argExprVal.length);
@@ -1952,12 +1952,12 @@ function evalBoundOp(node, ctx){
     // Sequences 
     // https://github.com/tlaplus/tlaplus/blob/421bc3d16f869d9c9bb493e5950c445c25c916ea/tlatools/org.lamport.tlatools/src/tla2sany/StandardModules/Sequences.tla    
 
-    if(opName == "Seq"){
+    if (opName == "Seq") {
         // TODO.
         throw new Exception("'Seq' operator unimplemented.");
     }
 
-    if(opName == "Len"){
+    if (opName == "Len") {
         let seqArgExpr = node.namedChildren[1];
         let seqArgExprVal = evalExpr(seqArgExpr, ctx)[0]["val"]
 
@@ -1970,7 +1970,7 @@ function evalBoundOp(node, ctx){
     }
 
     // Append(seq, v)
-    if(opName == "Append"){
+    if (opName == "Append") {
         let seqArgExpr = node.namedChildren[1];
         let appendElemArgExpr = node.namedChildren[2];
         let seqArgExprVal = evalExpr(seqArgExpr, ctx)[0]["val"]
@@ -1986,7 +1986,7 @@ function evalBoundOp(node, ctx){
         return [ctx.withVal(seqArgExprVal.append(appendElemArgExprVal))];
     }
 
-    if(opName == "Head"){
+    if (opName == "Head") {
         let seqArgExpr = node.namedChildren[1];
         let seqArgExprVal = evalExpr(seqArgExpr, ctx)[0]["val"]
 
@@ -1998,20 +1998,20 @@ function evalBoundOp(node, ctx){
         return [ctx.withVal(seqArgExprVal.head())];
     }
 
-    if(opName == "Tail"){
+    if (opName == "Tail") {
         let seqArgExpr = node.namedChildren[1];
         let seqArgExprVal = evalExpr(seqArgExpr, ctx)[0]["val"]
 
         // Try to interpret value as tuple, if possible.
         seqArgExprVal = seqArgExprVal.toTuple();
-    
+
         assert(seqArgExprVal instanceof TupleValue);
         // evalLog("Append val:", seqArgExpr.text);
         return [ctx.withVal(seqArgExprVal.tail())];
     }
 
     // Check for the bound op in the set of known definitions.
-    if(ctx["defns"].hasOwnProperty(opName)){
+    if (ctx["defns"].hasOwnProperty(opName)) {
         let opDefNode = ctx["defns"][opName]["node"];
         let opDefObj = ctx["defns"][opName];
         let opArgs = opDefObj["args"];
@@ -2019,7 +2019,7 @@ function evalBoundOp(node, ctx){
         evalLog("opDefObj", opDefObj);
 
         // n-ary operator.
-        if(opArgs.length >= 1){
+        if (opArgs.length >= 1) {
             // Evaluate each operator argument.
             let opArgsEvald = node.namedChildren.slice(1).map(oarg => evalExpr(oarg, ctx));
             let opArgVals = _.flatten(opArgsEvald);
@@ -2028,12 +2028,12 @@ function evalBoundOp(node, ctx){
             // Then, evaluate the operator defininition with these argument values bound
             // to the appropriate names.
             let opEvalContext = ctx.clone();
-            if(!opEvalContext.hasOwnProperty("quant_bound")){
+            if (!opEvalContext.hasOwnProperty("quant_bound")) {
                 opEvalContext["quant_bound"] = {};
             }
 
             evalLog("opDefNode", opDefNode);
-            for(var i=0;i<opArgs.length;i++){
+            for (var i = 0; i < opArgs.length; i++) {
                 // The parameter name in the operator definition.
                 let paramName = opArgs[i];
                 // console.log("paramName:", paramName);
@@ -2049,9 +2049,9 @@ function evalBoundOp(node, ctx){
 
 }
 
-function evalFiniteSetLiteral(node, ctx){
+function evalFiniteSetLiteral(node, ctx) {
     // Remove the outer braces, "{" and "}"
-    let innerChildren = node.children.slice(1,node.children.length-1);
+    let innerChildren = node.children.slice(1, node.children.length - 1);
     // Remove commas and then evaluate each set element.
     let ret = innerChildren.filter(child => child.type !== ",")
     ret = ret.map(child => {
@@ -2067,15 +2067,15 @@ function evalFiniteSetLiteral(node, ctx){
  * Compute all mappings from 'domain' to 'range'
  */
 function combs(domain, range) {
-    if(domain.length === 0){
+    if (domain.length === 0) {
         // An empty domain gives us a single "empty" mapping.
         // Use lists of key-value pairs to represent mappings.
         return [[]];
     }
     let out = [];
-    for(const v of range){
+    for (const v of range) {
         // Recursively compute combinations for the rest of the domain.
-        for(const c of combs(domain.slice(1), range)){
+        for (const c of combs(domain.slice(1), range)) {
             c.push([domain[0], v])
             out.push(c);
         }
@@ -2083,8 +2083,8 @@ function combs(domain, range) {
     return out;
 }
 
-function evalSetOfFunctions(node, ctx){
-                    
+function evalSetOfFunctions(node, ctx) {
+
     // console.log("set_of_functions", node);
 
     // Domain.
@@ -2107,7 +2107,7 @@ function evalSetOfFunctions(node, ctx){
     let combVals = combs(Delems, Relems);
 
     let fcnVals = [];
-    for(var comb of combVals){
+    for (var comb of combVals) {
         // Each combination should be a list of key-value pairs.
         let domainVals = comb.map(c => c[0]);
         let rangeVals = comb.map(c => c[1]);
@@ -2116,7 +2116,7 @@ function evalSetOfFunctions(node, ctx){
         fcnVals.push(fv);
     }
 
-    return [ctx.withVal(new SetValue(fcnVals))];                                                        
+    return [ctx.withVal(new SetValue(fcnVals))];
 }
 
 function evalSetOfRecords(node, ctx) {
@@ -2147,13 +2147,13 @@ function evalSetOfRecords(node, ctx) {
     return [ctx.withVal(new SetValue(outRecords))];
 }
 
-function evalFunctionLiteralInner(ctx, quant_bounds,fexpr){
+function evalFunctionLiteralInner(ctx, quant_bounds, fexpr) {
 
     let idents = quant_bounds.map(qb => {
         let domainVal = evalExpr(_.last(qb.namedChildren), ctx)[0]["val"];
         return qb.namedChildren
-                .filter(n => n.type === "identifier")
-                .map(x => [x, domainVal.getElems()]);
+            .filter(n => n.type === "identifier")
+            .map(x => [x, domainVal.getElems()]);
     });
 
 
@@ -2189,8 +2189,8 @@ function evalFunctionLiteralInner(ctx, quant_bounds,fexpr){
 }
 
 // "[" <quantifier_bound> "|->" <expr> "]"
-function evalFunctionLiteral(node, ctx){
-    evalLog("function_literal: '" +  node.text + "'");
+function evalFunctionLiteral(node, ctx) {
+    evalLog("function_literal: '" + node.text + "'");
 
     let quant_bounds = node.namedChildren.filter(n => n.type === "quantifier_bound");
     let fexpr = _.last(node.namedChildren);
@@ -2199,13 +2199,13 @@ function evalFunctionLiteral(node, ctx){
 
 }
 
-function evalLetIn(node, ctx){
+function evalLetIn(node, ctx) {
     let opDefs = node.namedChildren.filter(c => c.type === "operator_definition");
     let letInExpr = node.childForFieldName("expression");
 
     // Evaluate the expression with the bound definitions.
     let newBoundCtx = ctx;
-    for(const def of opDefs){
+    for (const def of opDefs) {
         let defVarName = def.childForFieldName("name").text;
         // Make sure to evaluate each new LET definition expression in the context of the 
         // previously bound definitions.
@@ -2219,7 +2219,7 @@ function evalLetIn(node, ctx){
 }
 
 // CHOOSE x \in {1,2} : P(x)
-function evalChoose(node, ctx){
+function evalChoose(node, ctx) {
     evalLog("CHOOSE", node);
     let boundVar = node.namedChildren[0];
     let domain = node.namedChildren[2];
@@ -2231,11 +2231,11 @@ function evalChoose(node, ctx){
     // Pick the first value in domain satisfying the condition.
     // TODO: Should ensure consistent iteration order i.e. by 
     // traversing in order sorted by element hashes.
-    for(const val of domainVal.getElems()){
+    for (const val of domainVal.getElems()) {
         evalLog("CHOOSE domain val:", val);
         let boundCtx = ctx.withBoundVar(boundVar.text, val);
         let condVal = evalExpr(condition, boundCtx)[0]["val"];
-        if(condVal.getVal()){
+        if (condVal.getVal()) {
             return [ctx.withVal(val)];
         }
     }
@@ -2244,7 +2244,7 @@ function evalChoose(node, ctx){
     throw "No value satisfying CHOOSE predicate";
 }
 
-function evalExcept(node, ctx){
+function evalExcept(node, ctx) {
     evalLog("EXCEPT node, ctx:", node, ctx);
     let lExpr = node.namedChildren[0];
     let updateExprs = node.namedChildren.filter(c => c.type === "except_update");
@@ -2255,7 +2255,7 @@ function evalExcept(node, ctx){
     evalLog("EXCEPT numUpdateExprs:", numUpdateExprs);
 
     // This value should be a function.
-    evalLog("lExpr:",lExpr); 
+    evalLog("lExpr:", lExpr);
     let lExprVal = evalExpr(lExpr, ctx);
     evalLog("lexprval:", lExprVal);
     // assert(lExprVal.type === "function");
@@ -2278,7 +2278,7 @@ function evalExcept(node, ctx){
     // [a EXCEPT !.a.b["c"] = "b", ![2].x = 5]
     let updatedFnVal = origFnVal;
     evalLog("origFnVal:", origFnVal);
-    for(const updateExpr of updateExprs){
+    for (const updateExpr of updateExprs) {
         evalLog("UPDATE EXPR:", updateExpr);
         let updateSpec = updateExpr.namedChildren[0];
         let newVal = updateExpr.childForFieldName("new_val");
@@ -2287,13 +2287,13 @@ function evalExcept(node, ctx){
         // !.a.b["c"]
         evalLog("UPDATE SPEC", updateSpec);
         let updateSpecVals = updateSpec.namedChildren.map(c => {
-            if(c.type === "except_update_record_field"){
+            if (c.type === "except_update_record_field") {
                 // Retrieve field from original function/record value.
                 evalLog(c);
                 evalLog(origFnVal);
                 evalLog(c.namedChildren[0].text);
                 return new StringValue(c.namedChildren[0].text);
-            } else if(c.type === "except_update_fn_appl"){
+            } else if (c.type === "except_update_fn_appl") {
                 evalLog("except_update_fn_appl", c);
                 return evalExpr(c.namedChildren[0], ctx)[0]["val"];
             }
@@ -2376,7 +2376,7 @@ let currEvalNode = null;
  * @param {Context} ctx: a 'Context' instance under which to evaluate the given expression.
  * @returns 
  */
-function evalExpr(node, ctx){
+function evalExpr(node, ctx) {
     assert(ctx instanceof Context);
 
     // Record for debugging purposes.
@@ -2384,19 +2384,19 @@ function evalExpr(node, ctx){
     // console.log("currEvalNode:", currEvalNode);
 
     // evalLog("$$ evalExpr, node: ", node);
-    evalLog("evalExpr -> ("+ node.type + ") '" + node.text + "'");
+    evalLog("evalExpr -> (" + node.type + ") '" + node.text + "'");
 
-    if(node.type === "parentheses"){
+    if (node.type === "parentheses") {
         // evalLog(node);
         return evalExpr(node.namedChildren[0], ctx);
     }
 
-    if(node.type === "let_in"){
+    if (node.type === "let_in") {
         evalLog("LETIN node, ctx:", ctx);
         return evalLetIn(node, ctx);
     }
 
-    if(node.type === "prev_func_val"){
+    if (node.type === "prev_func_val") {
         evalLog(ctx);
         assert(ctx.prev_func_val !== null);
         evalLog("eval prev func");
@@ -2404,17 +2404,17 @@ function evalExpr(node, ctx){
     }
 
 
-    if(node.type === "choose"){
+    if (node.type === "choose") {
         return evalChoose(node, ctx);
     }
 
     // [<lExpr> EXCEPT ![<updateExpr>] = <rExpr>]
-    if(node.type === "except"){
+    if (node.type === "except") {
         return evalExcept(node, ctx);
     }
 
     // <fnVal>[<fnArgVal>] e.g. 'f[3]'
-    if(node.type === "function_evaluation"){
+    if (node.type === "function_evaluation") {
         evalLog("function_evaluation: ", node.text);
 
         let fnVal = evalExpr(node.namedChildren[0], ctx)[0]["val"];
@@ -2432,87 +2432,87 @@ function evalExpr(node, ctx){
         evalLog("fneval (fnval,fnarg): ", fnVal, ",", fnArgVal);
         // Tuples are considered as functions with natural number domains.
         let fnValRes;
-        if(fnVal instanceof TupleValue){
+        if (fnVal instanceof TupleValue) {
             evalLog("applying tuple as function", fnVal);
             assert(fnArgVal instanceof IntValue);
             let index = fnArgVal.getVal();
             // Account for 1-indexing.
             fnValRes = fnVal.getElems()[index - 1];
-        } else{
+        } else {
             fnValRes = fnVal.applyArg(fnArgVal);
         }
         evalLog("fnValRes:", fnValRes);
         return [ctx.withVal(fnValRes)];
     }
 
-    if(isPrimedVar(node, ctx)){
+    if (isPrimedVar(node, ctx)) {
         // See if this variable is already assigned a value in the current context, and if so, return it.
-        if(ctx.state.getVarVal(node.text) !== null){
+        if (ctx.state.getVarVal(node.text) !== null) {
             return [ctx.withVal(ctx.state.getVarVal(node.text))];
         }
     }
 
 
-    if(node.type === "comment"){
+    if (node.type === "comment") {
         // TOOD: Handle properly.
     }
-    if(node === undefined){
+    if (node === undefined) {
         return [ctx.withVal(false)];
     }
-    if(node.type === "conj_list"){
-        let ret =  evalConjList(node, node.children, ctx);
+    if (node.type === "conj_list") {
+        let ret = evalConjList(node, node.children, ctx);
         evalLog("evalConjList ret: ", ret);
         return ret;
-    }  
-    if(node.type === "disj_list"){
+    }
+    if (node.type === "disj_list") {
         return evalDisjList(node, node.children, ctx);
-    }  
-    if(node.type === "conj_item"){
+    }
+    if (node.type === "conj_item") {
         conj_item_node = node.children[1];
         return evalExpr(conj_item_node, ctx);
     }
-    if(node.type === "disj_item"){
+    if (node.type === "disj_item") {
         disj_item_node = node.children[1];
         return evalExpr(disj_item_node, ctx);
     }
 
-    if(node.type === "bound_op"){
+    if (node.type === "bound_op") {
         return evalBoundOp(node, ctx)
     }
 
-    if(node.type === "bound_infix_op"){
+    if (node.type === "bound_infix_op") {
         // evalLog(node.type + ", ", node.text, ", ctx:", JSON.stringify(contexts));
         return evalBoundInfix(node, ctx);
     }
 
-    if(node.type === "bound_prefix_op"){
+    if (node.type === "bound_prefix_op") {
         return evalBoundPrefix(node, ctx);
     }
 
-    if(node.type === "bound_postfix_op"){
+    if (node.type === "bound_postfix_op") {
         return evalBoundPostfix(node, ctx);
     }
 
     // TODO: Finish this after implementing 'except' node type handling.
-    if(node.type === "bounded_quantification"){
+    if (node.type === "bounded_quantification") {
         return evalBoundedQuantification(node, ctx);
     }
 
-    if(node.type === "identifier_ref"){
+    if (node.type === "identifier_ref") {
         return evalIdentifierRef(node, ctx);
     }
 
-    if(node.type === "if_then_else"){
+    if (node.type === "if_then_else") {
         let cond = node.childForFieldName("if");
         let thenNode = node.childForFieldName("then");
         let elseNode = node.childForFieldName("else");
 
         let condVal = evalExpr(cond, ctx.clone())[0]["val"];
-        if(condVal.getVal()){
+        if (condVal.getVal()) {
             let thenVal = evalExpr(thenNode, ctx.clone());
             evalLog("thenVal", thenVal, thenNode.text);
             return thenVal;
-        } else{
+        } else {
             let elseVal = evalExpr(elseNode, ctx.clone());
             evalLog("elseVal", elseVal, elseNode.text, ctx);
             return elseVal;
@@ -2539,9 +2539,9 @@ function evalExpr(node, ctx){
         // If we get here, it means none of the case arm conditions evaluated to
         // true, so we now check for an OTHER arm. If none exists, throw an
         // error.
-        if(otherArms.length === 0){
+        if (otherArms.length === 0) {
             throw new Exception("No CASE condition was TRUE.")
-        } else{
+        } else {
             let out = otherArms[0].namedChildren[1];
             evalLog("Evaluating OTHER case arm.", out);
             let otherExprVal = evalExpr(out, ctx)[0]["val"];
@@ -2551,13 +2551,13 @@ function evalExpr(node, ctx){
 
     // [<D_expr> -> <R_expr>]
     // e.g. [{"x","y"} -> {1,2}]
-    if(node.type === "set_of_functions"){
+    if (node.type === "set_of_functions") {
         return evalSetOfFunctions(node, ctx);
     }
 
     // [<fieldname> : <D_expr>, ..., <fieldnameN> : <D_exprN>]
     // e.g. [a : {1,2}, b : {3,4}]
-    if(node.type === "set_of_records"){
+    if (node.type === "set_of_records") {
         return evalSetOfRecords(node, ctx);
     }
 
@@ -2631,7 +2631,7 @@ function evalExpr(node, ctx){
 
     // {<single_quantifier_bound> : <expr>}
     // {i \in A : <expr>}
-    if(node.type === "set_filter"){
+    if (node.type === "set_filter") {
         evalLog("SET_FILTER", node);
         // Extract the left and right side of the ":" of the set filter.
         let singleQuantBound = node.namedChildren[0];
@@ -2644,14 +2644,14 @@ function evalExpr(node, ctx){
         let domainExpr = singleQuantBound.namedChildren[2];
         evalLog(domainExpr);
         let domainExprVal = evalExpr(domainExpr, ctx)[0]["val"];
-        
+
         evalLog("domainExprVal:", domainExprVal);
 
         // Return all values in domain for which the set filter evaluates to true.
         let filteredVals = domainExprVal.getElems().filter(exprVal => {
             // Evaluate rhs in context of the bound value and check its truth value.
             let boundContext = ctx.clone();
-            if(!boundContext.hasOwnProperty("quant_bound")){
+            if (!boundContext.hasOwnProperty("quant_bound")) {
                 boundContext["quant_bound"] = {};
             }
             boundContext["quant_bound"][ident] = exprVal;
@@ -2664,7 +2664,7 @@ function evalExpr(node, ctx){
     }
 
     // <record>.<field>
-    if(node.type === "record_value"){
+    if (node.type === "record_value") {
         evalLog("RECVAL", node);
         let rec = node.namedChildren[0];
         let recField = node.namedChildren[1].text;
@@ -2681,7 +2681,7 @@ function evalExpr(node, ctx){
     //
 
     // The 'BOOLEAN' built-in constant representing the set of all boolean values.
-    if(node.type === "boolean_set"){
+    if (node.type === "boolean_set") {
         // console.log(node.type, node.text);
         let boolSet = [new BoolValue(true), new BoolValue(false)];
         return [ctx.withVal(new SetValue(boolSet))];
@@ -2692,31 +2692,31 @@ function evalExpr(node, ctx){
     // Evaluation of raw literal values.
     //
 
-    if(node.type === "nat_number"){
+    if (node.type === "nat_number") {
         // console.log(node.type, node.text);
         return [ctx.withVal(new IntValue(parseInt(node.text)))];
     }
 
-    if(node.type === "boolean"){
+    if (node.type === "boolean") {
         evalLog(node.type, node.text);
         let boolVal = node.text === "TRUE" ? true : false;
         return [ctx.withVal(new BoolValue(boolVal))];
     }
 
-    if(node.type === "string"){
+    if (node.type === "string") {
         evalLog("string node", node.text);
         // Remove the quotes.
-        let rawStr = node.text.substring(1,node.text.length-1);
+        let rawStr = node.text.substring(1, node.text.length - 1);
         return [ctx.withVal(new StringValue(rawStr))];
     }
 
     // TODO: Re-examine whether this implementation is correct.
-    if(node.type ==="finite_set_literal"){
+    if (node.type === "finite_set_literal") {
         return evalFiniteSetLiteral(node, ctx);
     }
 
     // <<e1,e2,...,en>>
-    if(node.type ==="tuple_literal"){
+    if (node.type === "tuple_literal") {
         evalLog("tuple_literal", node);
         let elems = node.namedChildren.slice(1, node.namedChildren.length - 1);
 
@@ -2726,14 +2726,14 @@ function evalExpr(node, ctx){
 
     // [<identifier> |-> <expr>, <identifier> |-> <expr>, ...]
     // "|->" is of type 'all_map_to'.
-    if(node.type === "record_literal"){
+    if (node.type === "record_literal") {
         evalLog("RECLIT", node);
         let record_obj = {};
         let recordDom = [];
         let recordVals = [];
-        for(var i=0;i<node.namedChildren.length;i+=3){
+        for (var i = 0; i < node.namedChildren.length; i += 3) {
             let ident = node.namedChildren[i]
-            let exprNode = node.namedChildren[i+2]
+            let exprNode = node.namedChildren[i + 2]
 
             let identName = ident.text;
             let exprVal = evalExpr(exprNode, ctx);
@@ -2749,7 +2749,7 @@ function evalExpr(node, ctx){
 
 
     // "[" <quantifier_bound> "|->" <expr> "]"
-    if(node.type === "function_literal"){
+    if (node.type === "function_literal") {
         return evalFunctionLiteral(node, ctx);
     }
 }
@@ -2759,14 +2759,14 @@ function evalExpr(node, ctx){
  * initial state predicate and an object 'vars' which contains exactly the
  * specification's state variables as keys.
  */
-function getInitStates(initDef, vars, defns, constvals){
+function getInitStates(initDef, vars, defns, constvals) {
     // TODO: Pass this variable value as an argument to the evaluation functions.
     ASSIGN_PRIMED = false;
     depth = 0;
 
     // Values of each state variable. Initially empty.
     init_var_vals = {};
-    for(v in vars){
+    for (v in vars) {
         init_var_vals[v] = null;
     }
     let emptyInitState = new TLAState(init_var_vals);
@@ -2776,11 +2776,11 @@ function getInitStates(initDef, vars, defns, constvals){
     // generated states.
     let initCtx = new Context(null, emptyInitState, defns, {}, constvals);
     let ret_ctxs = evalExpr(initDef, initCtx);
-    if(ret_ctxs === undefined){
+    if (ret_ctxs === undefined) {
         console.error("Set of generated initial states is 'undefined'.");
     }
     console.log("Possible initial state assignments:");
-    for(const ctx of ret_ctxs){
+    for (const ctx of ret_ctxs) {
         // console.log(ctx);
     }
     return ret_ctxs;
@@ -2790,13 +2790,13 @@ function getInitStates(initDef, vars, defns, constvals){
  * Generates all possible successor states from a given state and the syntax
  * tree node for the definition of the next state predicate.
  */
-function getNextStates(nextDef, currStateVars, defns, constvals){
+function getNextStates(nextDef, currStateVars, defns, constvals) {
     // TODO: Pass this variable value as an argument to the evaluation functions.
     ASSIGN_PRIMED = true;
     depth = 0;
     let origVars = Object.keys(currStateVars.stateVars);
 
-    for(var k in currStateVars.stateVars){
+    for (var k in currStateVars.stateVars) {
         let primedVar = k + "'";
         currStateVars.stateVars[primedVar] = null;
     }
@@ -2813,7 +2813,7 @@ function getNextStates(nextDef, currStateVars, defns, constvals){
     evalLog("getNextStates filtered:", ret);
 
     // Only keep states where all primed variables were assigned.
-    ret = ret.filter(c => _.every(origVars, v => c.state.getVarVal(v+"'")!== null));
+    ret = ret.filter(c => _.every(origVars, v => c.state.getVarVal(v + "'") !== null));
 
     // Filter out transitions that do not modify the state.
     // let all_next_states = ret.filter(c => {
@@ -2830,42 +2830,42 @@ function getNextStates(nextDef, currStateVars, defns, constvals){
     return all_next_states;
 }
 
-class TlaInterpreter{
+class TlaInterpreter {
 
-    computeInitStates(treeObjs, constvals){
+    computeInitStates(treeObjs, constvals) {
         let consts = treeObjs["const_decls"];
         let vars = treeObjs["var_decls"];
         let defns = treeObjs["op_defs"];
         Object.assign(defns, treeObjs["fn_defs"]); // include function definitions.
-    
+
         console.log("consts:", consts);
-    
+
         let initDef = defns["Init"];
         console.log("<<<<< INIT >>>>>");
         console.log(initDef);
         console.log("initDef.childCount: ", initDef["node"].childCount);
         console.log("initDef.type: ", initDef["node"].type);
-    
+
         let initStates = getInitStates(initDef["node"], vars, defns, constvals);
         // Keep only the valid states.
         initStates = initStates.filter(actx => actx["val"].getVal()).map(actx => actx["state"]);
         return initStates;
     }
 
-    computeNextStates(treeObjs, constvals, initStates){
+    computeNextStates(treeObjs, constvals, initStates) {
         let consts = treeObjs["const_decls"];
         let vars = treeObjs["var_decls"];
         let defns = treeObjs["op_defs"];
-    
+
         let nextDef = defns["Next"];
         // console.log(defns);
         console.log("<<<< NEXT >>>>");
         // console.log(nextDef);
         // console.log("nextDef.childCount: ", nextDef["node"].childCount);
         // console.log("nextDef.type: ", nextDef["node"].type);
-    
+
         let allNext = [];
-        for(const istate of initStates){
+        for (const istate of initStates) {
             let currState = _.cloneDeep(istate);
             // console.log("###### Computing next states from state: ", currState);
             let ret = getNextStates(nextDef["node"], currState, defns, constvals);
@@ -2874,48 +2874,48 @@ class TlaInterpreter{
         return allNext;
     }
 
-    computeReachableStates(treeObjs, constvals){
+    computeReachableStates(treeObjs, constvals) {
         let vars = treeObjs["var_decls"];
         let defns = treeObjs["op_defs"];
-    
+
         let initDef = defns["Init"];
         let nextDef = defns["Next"];
-    
+
         // Compute initial states and keep only the valid ones.
         // let initStates = getInitStates(initDef["node"], vars, defns, constvals);
         let initStates = this.computeInitStates(treeObjs, constvals);
-    
+
         let initStatesOrig = _.cloneDeep(initStates);
         let stateQueue = initStates;
-        let seenStatesHashSet = new Set(); 
+        let seenStatesHashSet = new Set();
         let reachableStates = [];
         let edges = [];
-        while(stateQueue.length > 0){
+        while (stateQueue.length > 0) {
             console.log("initStatesOrig:", initStatesOrig);
             let currState = stateQueue.pop();
             // console.log(currState);
             let currStateHash = currState.fingerprint();
             console.log("curr state hash:", currStateHash);
-    
+
             // If we've already seen this state, we don't need to explore it.
-            if(seenStatesHashSet.has(currStateHash)){
+            if (seenStatesHashSet.has(currStateHash)) {
                 console.log("already seen state " + currStateHash);
                 continue;
             }
-    
+
             // Mark the state as seen and record it as reachable.
             seenStatesHashSet.add(currStateHash);
             reachableStates.push(currState);
-    
+
             // Compute next states reachable from the current state, and add
             // them to the state queue.
             let currStateArg = _.cloneDeep(currState);
             let nextStates = this.computeNextStates(treeObjs, constvals, [currStateArg])
-                                .map(c => c["state"].deprimeVars());
+                .map(c => c["state"].deprimeVars());
             console.log("nextStates:", nextStates);
             // console.log("reachableStates:", reachableStates);
             stateQueue = stateQueue.concat(nextStates);
-            for(const nextSt of nextStates){
+            for (const nextSt of nextStates) {
                 edges.push([currStateArg, nextSt])
             }
         }
@@ -2925,7 +2925,7 @@ class TlaInterpreter{
             "edges": edges
         }
     }
-} 
+}
 
 //
 // For debugging/tracing expression evaluation.
@@ -2959,7 +2959,7 @@ evalExpr = function (...args) {
     evalLog("evalreturn -> ", ret, args[0].text);
     parent = origParent;
 
-    if(edge !== null && enableEvalTracing){
+    if (edge !== null && enableEvalTracing) {
         evalNodeGraph.push([edge, ret]);
     }
 
@@ -2969,7 +2969,7 @@ evalExpr = function (...args) {
     // evalLog("evalreturn num ctxs: ", ret.length);
 
     // Evaluation DOT graph printing.
-    if(enableEvalTracing){
+    if (enableEvalTracing) {
         // let Gstr = evalNodeGraph.map(e => "\"" + e[0] + "\"" + " -> " + "\"" + e[1] + "\"").join(";") + ";";
         // console.log(Gstr.replaceAll("\\", "\\\\"));
     }
@@ -2979,7 +2979,7 @@ evalExpr = function (...args) {
 }
 
 let origevalBoundInfix = evalBoundInfix;
-evalBoundInfix = function(...args){
+evalBoundInfix = function (...args) {
     depth += 1;
     let ret = origevalBoundInfix(...args);
     evalLog("evalreturn -> ", ret);
@@ -2988,7 +2988,7 @@ evalBoundInfix = function(...args){
 }
 
 let origevalConjList = evalConjList;
-evalConjList = function(...args){
+evalConjList = function (...args) {
     depth += 1;
     let ret = origevalConjList(...args);
     evalLog("evalreturn -> ", ret);
