@@ -278,11 +278,12 @@ function componentNextStateChoices(nextStates) {
 // Step back one state in the current trace.
 function traceStepBack() {
     // Clear out a lasso condition in this case.
-    if(model.lassoTo !== null){
+    if (model.lassoTo !== null) {
         model.lassoTo = null;
         return;
     }
     model.currTrace = model.currTrace.slice(0, model.currTrace.length - 1);
+    updateTraceRouteParams();
 
     // Step back in alias trace as well.
     if (model.currTraceAliasVals.length > 0) {
@@ -396,6 +397,18 @@ function renderCurrentTrace() {
 
 }
 
+// Updates the current URL route to store the current trace.
+function updateTraceRouteParams() {
+    let traceHashed = model.currTrace.map(s => hashSum(s));
+    let oldParams = m.route.param();
+    if (traceHashed.length === 0) {
+        delete oldParams.trace;
+    }
+    let traceParamObj = traceHashed.length > 0 ? { trace: traceHashed.join(",") } : {}
+    let newParams = Object.assign(oldParams, traceParamObj);
+    m.route.set("/home", newParams);
+}
+
 function chooseNextState(statehash_short) {
     // console.log("currNextStates:", JSON.stringify(currNextStates));
     console.log("chooseNextState: ", statehash_short);
@@ -420,9 +433,13 @@ function chooseNextState(statehash_short) {
     //     model.currTraceAliasVals.push(aliasVal);
     // }
 
-    model.currTrace.push(nextState);
     console.log("nextState:", JSON.stringify(nextState));
     console.log("nextStatePred:", model.nextStatePred);
+
+    // Append next state to the trace and update current route.
+    model.currTrace.push(nextState);
+    updateTraceRouteParams();
+
     const start = performance.now();
 
     let interp = new TlaInterpreter();
@@ -899,10 +916,15 @@ async function handleCodeChange(editor, changes) {
     // loadTraceFromLink();
 }
 
+function resetTrace() {
+    reloadSpec();
+    updateTraceRouteParams();
+}
+
 function componentButtonsContainer() {
     return [m("div", { id: "trace-buttons" }, [
         m("div", { class: "button-base trace-button", id: "trace-back-button", onclick: traceStepBack }, "Back"),
-        m("div", { class: "button-base trace-button", id: "trace-reset-button", onclick: reloadSpec }, "Reset"),
+        m("div", { class: "button-base trace-button", id: "trace-reset-button", onclick: resetTrace }, "Reset"),
         m("div", { class: "button-base trace-button", id: "trace-reset-button", onclick: () => addTraceExpr(model.traceExprInputText) }, "Add Trace Expression"),
         m("input", {
             class: "",
@@ -1076,16 +1098,24 @@ async function loadApp() {
                 handleCodeChange();
                 m.redraw();
 
-
+                // Load constants if given.
                 let constantParams = m.route.param("constants");
-                if(constantParams){
+                if (constantParams) {
                     console.log("CONSTNS:", constantParams);
                     model.specConstInputVals = constantParams;
                     setConstantValues();
                 }
 
+                // Load trace if given.
+                let traceParams = m.route.param("trace").split(",");
+                console.log(traceParams);
+                if (traceParams) {
+                    for (const stateHash of traceParams) {
+                        chooseNextState(stateHash);
+                    }
+                }
 
-
+                // updateTraceRouteParams();
             });
             $codeEditor.CodeMirror.setValue(spec);
         }
