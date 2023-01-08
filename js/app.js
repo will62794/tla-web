@@ -1107,15 +1107,13 @@ async function loadApp() {
                 }
 
                 // Load trace if given.
-                let traceParams = m.route.param("trace").split(",");
-                console.log(traceParams);
-                if (traceParams) {
+                let traceParamStr = m.route.param("trace")
+                if (traceParamStr) {
+                    traceParams = traceParamStr.split(",");
                     for (const stateHash of traceParams) {
                         chooseNextState(stateHash);
                     }
                 }
-
-                // updateTraceRouteParams();
             });
             $codeEditor.CodeMirror.setValue(spec);
         }
