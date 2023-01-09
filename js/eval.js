@@ -591,258 +591,296 @@ class TLAState {
     // }    
 }
 
-// Apply a given set of text rewrites to a given source text. Assumes the given
-// 'text' argument is a string given as a list of lines.
-function applySyntaxRewrites(text, rewrites) {
-    let lines = text.split("\n");
-
-    for (const rewrite of rewrites) {
-        let startRow = rewrite["startPosition"]["row"];
-        let startCol = rewrite["startPosition"]["column"];
-        let endRow = rewrite["endPosition"]["row"];
-        let endCol = rewrite["endPosition"]["column"];
-
-        // Cut out original chunk.
-        let prechunk = lines.slice(0, startRow).concat([lines[startRow].substring(0, startCol)]);
-        let postchunk = [lines[endRow].substring(endCol)].concat(lines.slice(endRow + 1));
-
-        // console.log("chunk out: ");
-        // console.log(prechunk.join("\n").concat("<CHUNK>").concat(postchunk.join("\n")));
-        // console.log("postchunk: ");
-        // console.log(postchunk.join("\n"));
-
-        // Delete line entirely.
-        if (rewrite["deleteRow"] !== undefined) {
-            lines[rewrite["deleteRow"]] = "";
-            // TODO: Make this work.
-            // lines = lines.filter((_, index) => index !== rewrite["deleteRow"]);
-        } else {
-            let lineInd = rewrite["startPosition"]["row"]
-            line = lines[lineInd];
-
-            // < 
-            //   PRECHUNK
-            //    >|< 
-            //  CHUNK TO REPLACE
-            //    >|<
-            //   POST CHUNK
-            // >
-
-            // Append the new string to the last line of the prechunk,
-            // followed by the first line of the post chunk.
-            prechunk[prechunk.length - 1] = prechunk[prechunk.length - 1].concat(rewrite["newStr"]).concat(postchunk[0]);
-            // Then append the rest of the postchunk
-            linesUpdated = prechunk.concat(postchunk.slice(1));
-
-            lines = linesUpdated;
-        }
-
-        // TODO: Consider removing line entirely if it is empty after rewrite.
-        // if(lineNew.length > 0){
-        // lines[lineInd] = lineNew;
-        // } else{
-        // If line is empty, remove it.
-        // lines.splice(lineInd, 1);
-        // }
-    }
-    return lines.join("\n");
-}
-
-let setInUniqueVarId = 0;
-
 /**
- * Walks a given TLA syntax tree and generates a new batch of syntactic rewrites to be
- * performed on the source module text before we do any evaluation/interpreting
- * e.g. syntactic desugaring. Should be repeatedly applied until no more rewrites are
- * produced.
- * 
- * @param {TLASyntaxTree} treeArg 
+ * Generates and performs syntactic rewrites on a TLA+ spec as part of a
+ * pre-processing step before parsing and evaluation.
  */
-function genSyntaxRewrites(treeArg) {
-    // Records a set of transformations to make to the text that produced this
-    // parsed syntax tree. Each rewrite is specified by a replacement rule,
-    // given by a structure {startPosition: Pos, endPosition: Pos, newStr: Str}
-    // where startPosition/endPosition correspond to the start and end points of
-    // the source text to replace, and 'newStr' represents the string to insert
-    // at this position.
-    let sourceRewrites = [];
+class SyntaxRewriter {
 
-    const cursor = treeArg.walk();
-    isRendering = false;
+    setInUniqueVarId = 0;
+    origSpecText;
 
-    let currentRenderCount = 0;
-    let row = '';
-    let rows = [];
-    let finishedRow = false;
-    let visitedChildren = false;
-    let indentLevel = 0;
+    constructor(origSpecText, parser) {
+        this.origSpecText = origSpecText;
+        this.parser = parser;
+    }
 
-    for (let i = 0; ; i++) {
-        let displayName;
-        if (cursor.nodeIsMissing) {
-            displayName = `MISSING ${cursor.nodeType}`
-        } else if (cursor.nodeIsNamed) {
-            displayName = cursor.nodeType;
+    /**
+     * Generate and apply syntax rewrites on the original spec text repeatedly
+     * until a fixpoint is reached i.e until no more rewrite operations can be
+     * generated. Returns the rewritten version of the spec.
+     */
+    doRewrites() {
+        // Start with the original spec text.
+        let specTextRewritten = this.origSpecText;
+        let specTree = this.parser.parse(specTextRewritten + "\n", null);
+
+        // Generate initial rewrite batch.
+        let rewriteBatch = this.genSyntaxRewrites(specTree);
+
+        // Apply AST rewrite batches until a fixpoint is reached.
+        while (rewriteBatch.length > 0) {
+            // console.log("New syntax rewrite iteration");
+            // console.log("rewrite batch: ", rewriteBatch, "length: ", rewriteBatch.length);
+            specTextRewritten = this.applySyntaxRewrites(specTextRewritten, rewriteBatch);
+            // console.log("REWRITTEN:", specTextRewritten);
+            specTree = this.parser.parse(specTextRewritten + "\n", null);
+            rewriteBatch = this.genSyntaxRewrites(specTree);
         }
+        console.log("REWRITTEN:", specTextRewritten);
+        return specTextRewritten;
+    }
 
-        if (visitedChildren) {
-            if (displayName) {
-                finishedRow = true;
-            }
+    // Apply a given set of text rewrites to a given source text. Assumes the given
+    // 'text' argument is a string given as a list of lines.
+    applySyntaxRewrites(text, rewrites) {
+        let lines = text.split("\n");
 
-            if (cursor.gotoNextSibling()) {
-                visitedChildren = false;
-            } else if (cursor.gotoParent()) {
-                visitedChildren = true;
-                indentLevel--;
+        for (const rewrite of rewrites) {
+            let startRow = rewrite["startPosition"]["row"];
+            let startCol = rewrite["startPosition"]["column"];
+            let endRow = rewrite["endPosition"]["row"];
+            let endCol = rewrite["endPosition"]["column"];
+
+            // Cut out original chunk.
+            let prechunk = lines.slice(0, startRow).concat([lines[startRow].substring(0, startCol)]);
+            let postchunk = [lines[endRow].substring(endCol)].concat(lines.slice(endRow + 1));
+
+            // console.log("chunk out: ");
+            // console.log(prechunk.join("\n").concat("<CHUNK>").concat(postchunk.join("\n")));
+            // console.log("postchunk: ");
+            // console.log(postchunk.join("\n"));
+
+            // Delete line entirely.
+            if (rewrite["deleteRow"] !== undefined) {
+                lines[rewrite["deleteRow"]] = "";
+                // TODO: Make this work.
+                // lines = lines.filter((_, index) => index !== rewrite["deleteRow"]);
             } else {
-                break;
+                let lineInd = rewrite["startPosition"]["row"]
+                let line = lines[lineInd];
+
+                // < 
+                //   PRECHUNK
+                //    >|< 
+                //  CHUNK TO REPLACE
+                //    >|<
+                //   POST CHUNK
+                // >
+
+                // Append the new string to the last line of the prechunk,
+                // followed by the first line of the post chunk.
+                prechunk[prechunk.length - 1] = prechunk[prechunk.length - 1].concat(rewrite["newStr"]).concat(postchunk[0]);
+                // Then append the rest of the postchunk
+                let linesUpdated = prechunk.concat(postchunk.slice(1));
+
+                lines = linesUpdated;
             }
-        } else {
-            if (displayName) {
-                if (finishedRow) {
-                    finishedRow = false;
+
+            // TODO: Consider removing line entirely if it is empty after rewrite.
+            // if(lineNew.length > 0){
+            // lines[lineInd] = lineNew;
+            // } else{
+            // If line is empty, remove it.
+            // lines.splice(lineInd, 1);
+            // }
+        }
+        return lines.join("\n");
+    }
+
+    /**
+     * Walks a given TLA syntax tree and generates a new batch of syntactic rewrites to be
+     * performed on the source module text before we do any evaluation/interpreting
+     * e.g. syntactic desugaring. Should be repeatedly applied until no more rewrites are
+     * produced.
+     * 
+     * @param {TLASyntaxTree} treeArg 
+     */
+    genSyntaxRewrites(treeArg) {
+        // Records a set of transformations to make to the text that produced this
+        // parsed syntax tree. Each rewrite is specified by a replacement rule,
+        // given by a structure {startPosition: Pos, endPosition: Pos, newStr: Str}
+        // where startPosition/endPosition correspond to the start and end points of
+        // the source text to replace, and 'newStr' represents the string to insert
+        // at this position.
+        let sourceRewrites = [];
+
+        const cursor = treeArg.walk();
+        // isRendering = false;
+
+        let currentRenderCount = 0;
+        let row = '';
+        let rows = [];
+        let finishedRow = false;
+        let visitedChildren = false;
+        let indentLevel = 0;
+
+        for (let i = 0; ; i++) {
+            let displayName;
+            if (cursor.nodeIsMissing) {
+                displayName = `MISSING ${cursor.nodeType}`
+            } else if (cursor.nodeIsNamed) {
+                displayName = cursor.nodeType;
+            }
+
+            if (visitedChildren) {
+                if (displayName) {
+                    finishedRow = true;
                 }
-                const start = cursor.startPosition;
-                const end = cursor.endPosition;
-                const id = cursor.nodeId;
-                let fieldName = cursor.currentFieldName();
-                //   console.log(fieldName);
-                if (fieldName) {
-                    fieldName += ': ';
+
+                if (cursor.gotoNextSibling()) {
+                    visitedChildren = false;
+                } else if (cursor.gotoParent()) {
+                    visitedChildren = true;
+                    indentLevel--;
                 } else {
-                    fieldName = '';
+                    break;
                 }
-                let node = cursor.currentNode();
-
-                // Delete everything inside comments.
-                if (node.type === "block_comment") {
-                    sourceRewrites.push({
-                        startPosition: node.startPosition,
-                        endPosition: node.endPosition,
-                        newStr: ""
-                    });
-                    return sourceRewrites;
-                }
-
-                // Comments.
-                if (node.type === "comment") {
-                    rewrite = {
-                        startPosition: node.startPosition,
-                        endPosition: node.endPosition,
-                        newStr: "",
-                        // TODO: Delete line.
-                        // deleteRow: node.startPosition["row"]
+            } else {
+                if (displayName) {
+                    if (finishedRow) {
+                        finishedRow = false;
                     }
-                    sourceRewrites.push(rewrite);
-                    return sourceRewrites;
-                }
+                    const start = cursor.startPosition;
+                    const end = cursor.endPosition;
+                    const id = cursor.nodeId;
+                    let fieldName = cursor.currentFieldName();
+                    //   console.log(fieldName);
+                    if (fieldName) {
+                        fieldName += ': ';
+                    } else {
+                        fieldName = '';
+                    }
+                    let node = cursor.currentNode();
 
-                // Bound infix ops.
-                if (node.type === "bound_infix_op") {
-                    let symbol = node.childForFieldName("symbol");
-                    let rhs = node.childForFieldName("rhs");
-                    // console.log("syntax rewriting:", symbol);
-                    // console.log("syntax rewriting, type:", symbol.type);
-
-                    // x \in S, x \notin S
-                    if (symbol.type === "in" || symbol.type === "notin") {
-                        // Rewrite '<expr> \in S' as '\E h \in S : <expr> = h'
-                        // console.log("REWRITE SETIN", node);
-
-                        let expr = node.namedChildren[0];
-                        let domain = node.namedChildren[2];
-
-                        // console.log("REWRITE SETIN expr", expr.text);
-                        // console.log("REWRITE SETIN domain", domain.text);
-
-                        // Generate a unique identifier for this new quantified variable.
-                        // The hope is that it is relatively unlikely to collide with any variables in the spec.
-                        // TODO: Consider how to ensure no collision here in a more principled manner.
-                        let newUniqueVarId = "SETINREWRITE" + setInUniqueVarId;
-                        setInUniqueVarId += 1;
-                        let neg = symbol.type === "notin" ? "~" : "";
-                        outStr = `(${neg}(\\E ${newUniqueVarId} \\in ${domain.text} : ${expr.text} = ${newUniqueVarId}))`
-                        rewrite = {
+                    // Delete everything inside comments.
+                    if (node.type === "block_comment") {
+                        sourceRewrites.push({
                             startPosition: node.startPosition,
                             endPosition: node.endPosition,
-                            newStr: outStr
+                            newStr: ""
+                        });
+                        return sourceRewrites;
+                    }
+
+                    // Comments.
+                    if (node.type === "comment") {
+                        let rewrite = {
+                            startPosition: node.startPosition,
+                            endPosition: node.endPosition,
+                            newStr: "",
+                            // TODO: Delete line.
+                            // deleteRow: node.startPosition["row"]
                         }
                         sourceRewrites.push(rewrite);
                         return sourceRewrites;
                     }
 
-                }
+                    // Bound infix ops.
+                    if (node.type === "bound_infix_op") {
+                        let symbol = node.childForFieldName("symbol");
+                        let rhs = node.childForFieldName("rhs");
+                        // console.log("syntax rewriting:", symbol);
+                        // console.log("syntax rewriting, type:", symbol.type);
 
-                if (node.type == "bounded_quantification") {
-                    //
-                    // In general, bounded quantifiers can look like:
-                    // \E i,j \in {1,2,3}, x,y,z \in {4,5,6}, u,v \in {4,5} : <expr>
-                    //
-                    // Rewrite all quantifiers to a normalized form i.e.
-                    // \E i1 \in S1 : \E i2 \in S2 : ... : \E in \in Sn : <expr>
-                    //
+                        // x \in S, x \notin S
+                        if (symbol.type === "in" || symbol.type === "notin") {
+                            // Rewrite '<expr> \in S' as '\E h \in S : <expr> = h'
+                            // console.log("REWRITE SETIN", node);
 
-                    // TODO: Make sure this works for quantifier expressions that span multiple lines.
+                            let expr = node.namedChildren[0];
+                            let domain = node.namedChildren[2];
 
-                    let quantifier = node.childForFieldName("quantifier");
-                    let quantifierBoundNodes = node.namedChildren.filter(c => c.type === "quantifier_bound");//  slice(1,node.namedChildren.length-1);
-                    // let exprNode = node.childForFieldName("expression");
+                            // console.log("REWRITE SETIN expr", expr.text);
+                            // console.log("REWRITE SETIN domain", domain.text);
 
-                    // Don't re-write if already in normalized form.
-                    let isNormalized = quantifierBoundNodes.length === 1 && (quantifierBoundNodes[0].namedChildren.length === 3);
-                    // console.log(node);
-                    // console.log("bound nodes:", quantifierBoundNodes);
-                    // console.log("REWRITE quant is normalized: ", isNormalized);
-
-                    if (!isNormalized) {
-                        // console.log("REWRITE quant:", node);
-                        // console.log("REWRITE quant bound nodes:", quantifierBoundNodes);
-
-                        // Expand each quantifier bound.
-                        let quantBounds = quantifierBoundNodes.map(boundNode => {
-                            let quantVars = boundNode.namedChildren.filter(c => c.type === "identifier");
-                            let quantBound = boundNode.namedChildren[boundNode.namedChildren.length - 1];
-                            // For \E and \A, rewrite:
-                            // <Q> i,j \in S ==> <Q> i \in S : <Q> j \in S
-                            // console.log(quantVars.map(c => c.text));
-                            // console.log(quantVars);
-                            // console.log("quantifier:",quantifier);
-                            return quantVars.map(qv => [quantifier.text, qv.text, "\\in", quantBound.text].join(" ")).join(" : ");
-                        })
-
-                        outStr = quantBounds.join(" : ");
-                        // console.log("rewritten:", outStr);
-                        rewrite = {
-                            startPosition: quantifier.startPosition,
-                            endPosition: quantifierBoundNodes[quantifierBoundNodes.length - 1].endPosition,
-                            newStr: outStr
+                            // Generate a unique identifier for this new quantified variable.
+                            // The hope is that it is relatively unlikely to collide with any variables in the spec.
+                            // TODO: Consider how to ensure no collision here in a more principled manner.
+                            let newUniqueVarId = "SETINREWRITE" + this.setInUniqueVarId;
+                            this.setInUniqueVarId += 1;
+                            let neg = symbol.type === "notin" ? "~" : "";
+                            let outStr = `(${neg}(\\E ${newUniqueVarId} \\in ${domain.text} : ${expr.text} = ${newUniqueVarId}))`
+                            let rewrite = {
+                                startPosition: node.startPosition,
+                                endPosition: node.endPosition,
+                                newStr: outStr
+                            }
+                            sourceRewrites.push(rewrite);
+                            return sourceRewrites;
                         }
-                        sourceRewrites.push(rewrite);
-                        return sourceRewrites;
+
                     }
 
+                    if (node.type == "bounded_quantification") {
+                        //
+                        // In general, bounded quantifiers can look like:
+                        // \E i,j \in {1,2,3}, x,y,z \in {4,5,6}, u,v \in {4,5} : <expr>
+                        //
+                        // Rewrite all quantifiers to a normalized form i.e.
+                        // \E i1 \in S1 : \E i2 \in S2 : ... : \E in \in Sn : <expr>
+                        //
+
+                        // TODO: Make sure this works for quantifier expressions that span multiple lines.
+
+                        let quantifier = node.childForFieldName("quantifier");
+                        let quantifierBoundNodes = node.namedChildren.filter(c => c.type === "quantifier_bound");//  slice(1,node.namedChildren.length-1);
+                        // let exprNode = node.childForFieldName("expression");
+
+                        // Don't re-write if already in normalized form.
+                        let isNormalized = quantifierBoundNodes.length === 1 && (quantifierBoundNodes[0].namedChildren.length === 3);
+                        // console.log(node);
+                        // console.log("bound nodes:", quantifierBoundNodes);
+                        // console.log("REWRITE quant is normalized: ", isNormalized);
+
+                        if (!isNormalized) {
+                            // console.log("REWRITE quant:", node);
+                            // console.log("REWRITE quant bound nodes:", quantifierBoundNodes);
+
+                            // Expand each quantifier bound.
+                            let quantBounds = quantifierBoundNodes.map(boundNode => {
+                                let quantVars = boundNode.namedChildren.filter(c => c.type === "identifier");
+                                let quantBound = boundNode.namedChildren[boundNode.namedChildren.length - 1];
+                                // For \E and \A, rewrite:
+                                // <Q> i,j \in S ==> <Q> i \in S : <Q> j \in S
+                                // console.log(quantVars.map(c => c.text));
+                                // console.log(quantVars);
+                                // console.log("quantifier:",quantifier);
+                                return quantVars.map(qv => [quantifier.text, qv.text, "\\in", quantBound.text].join(" ")).join(" : ");
+                            })
+
+                            let outStr = quantBounds.join(" : ");
+                            // console.log("rewritten:", outStr);
+                            let rewrite = {
+                                startPosition: quantifier.startPosition,
+                                endPosition: quantifierBoundNodes[quantifierBoundNodes.length - 1].endPosition,
+                                newStr: outStr
+                            }
+                            sourceRewrites.push(rewrite);
+                            return sourceRewrites;
+                        }
+
+                    }
+
+                    finishedRow = true;
                 }
 
-                finishedRow = true;
-            }
-
-            if (cursor.gotoFirstChild()) {
-                visitedChildren = false;
-                indentLevel++;
-            } else {
-                visitedChildren = true;
+                if (cursor.gotoFirstChild()) {
+                    visitedChildren = false;
+                    indentLevel++;
+                } else {
+                    visitedChildren = true;
+                }
             }
         }
-    }
-    if (finishedRow) {
-        row += '</div>';
-        rows.push(row);
-    }
+        if (finishedRow) {
+            row += '</div>';
+            rows.push(row);
+        }
 
-    cursor.delete();
-    treeRows = rows;
-    return sourceRewrites
+        cursor.delete();
+        return sourceRewrites
+    }
 }
 
 
@@ -851,31 +889,14 @@ function genSyntaxRewrites(treeArg) {
  * text.
  */
 function parseSpec(specText) {
-    let tree;
 
-    // Walk the syntax tree and perform any specified syntactic rewrites (e.g. desugaring.)
-    let specTextRewritten = specText;
-    tree = parser.parse(specTextRewritten + "\n", null);
-
-    // TODO: Consider also adding a pass that expands all definitions, constants, etc.
-    let rewriteBatch = genSyntaxRewrites(tree);
-
-    // Apply AST rewrite batches until a fixpoint is reached.
-    while (rewriteBatch.length > 0) {
-        // console.log("New syntax rewrite iteration");
-        // console.log("rewrite batch: ", rewriteBatch, "length: ", rewriteBatch.length);
-        specTextRewritten = applySyntaxRewrites(specTextRewritten, rewriteBatch);
-        // console.log("REWRITTEN:", specTextRewritten);
-        tree = parser.parse(specTextRewritten + "\n", null);
-        rewriteBatch = genSyntaxRewrites(tree);
-    }
-    console.log("REWRITTEN:", specTextRewritten);
-
-    // Update the spec text to the rewritten version. Then continue parsing the spec
-    // to extract definitions, variables, etc.
+    // Perform syntactic rewrites.
+    let rewriter = new SyntaxRewriter(specText, parser);
+    let specTextRewritten = rewriter.doRewrites();
     specText = specTextRewritten;
 
-    tree = parser.parse(specText + "\n", null);
+    // Now parse the rewritten spec to extract definitions, variables, etc.
+    let tree = parser.parse(specText + "\n", null);
     let cursor = tree.walk();
 
     // One level down from the top level tree node should contain the overall TLA module.
