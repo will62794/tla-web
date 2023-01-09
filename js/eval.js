@@ -2045,7 +2045,7 @@ function evalBoundOp(node, ctx) {
     }
 
     // Unknown operator.
-    throw "Error: unknown operator '" + opName + "'.";
+    throw new Error("Error: unknown operator '" + opName + "'.");
 
 }
 
