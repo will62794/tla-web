@@ -599,6 +599,8 @@ class SyntaxRewriter {
 
     setInUniqueVarId = 0;
     origSpecText;
+    // Map from rewritten spec back to the original.
+    // maps from (line_new, col_new) to (line_old, col_old)
 
     constructor(origSpecText, parser) {
         this.origSpecText = origSpecText;
@@ -635,6 +637,7 @@ class SyntaxRewriter {
     // 'text' argument is a string given as a list of lines.
     applySyntaxRewrites(text, rewrites) {
         let lines = text.split("\n");
+        // let sourceMapFn = (line, col) => (line, col);
 
         for (const rewrite of rewrites) {
             let startRow = rewrite["startPosition"]["row"];
@@ -673,6 +676,28 @@ class SyntaxRewriter {
                 prechunk[prechunk.length - 1] = prechunk[prechunk.length - 1].concat(rewrite["newStr"]).concat(postchunk[0]);
                 // Then append the rest of the postchunk
                 let linesUpdated = prechunk.concat(postchunk.slice(1));
+
+                //
+                // TODO: Revisit how to do source mapping here for error reporting.
+                //
+                
+                // Everything after the changed lines must be shifted but everything before 
+                // remain reamin the same.
+                // let afterLine = startRow;
+                // let lineDiff = (endRow - startRow - 1)
+                // let colDiff = (rewrite["newStr"].length - prechunk.length);
+                // let diff = [afterLine, colDiff];
+                // console.log("DIFF ADJUST", diff);
+
+                // let sourceMapFnNew = (line, col) => {
+                //     (line <= afterLine) ? 
+                //         (line, col) : 
+                //         (line + lineDiff, col + colDiff);
+                // }
+
+                // // Compose next offset function with existing one.
+                // sourceMapFn = (line, col) => sourceMapFn(sourceMapFnNew(line, col));
+                // console.log("SOURCE MAP:", sourceMapFn, sourceMapFn(10, 10));
 
                 lines = linesUpdated;
             }
