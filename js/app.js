@@ -338,6 +338,7 @@ function chooseNextState(statehash_short) {
             $codeEditor.CodeMirror.scrollIntoView(errorLine, 200);
             console.log("error evaluating node: ", currEvalNode);
             console.log(e);
+            throw new Error("Terminated due to next state computation error.");
         }
         return;
     }
