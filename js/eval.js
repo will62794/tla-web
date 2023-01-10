@@ -605,6 +605,7 @@ class SyntaxRewriter {
     constructor(origSpecText, parser) {
         this.origSpecText = origSpecText;
         this.parser = parser;
+        this.sourceMapOffsets = [];
     }
 
     /**
@@ -614,6 +615,7 @@ class SyntaxRewriter {
      */
     doRewrites() {
         // Start with the original spec text.
+        this.sourceMapOffsets = [];
         let specTextRewritten = this.origSpecText;
         let specTree = this.parser.parse(specTextRewritten + "\n", null);
 
@@ -631,6 +633,45 @@ class SyntaxRewriter {
         }
         console.log("REWRITTEN:", specTextRewritten);
         return specTextRewritten;
+    }
+
+    /**
+     * Compute original location of given position from the rewritten spec.
+     */
+    getOrigLocation(line, col) {
+        console.log("#getOrigLocation");
+        let lineArg = line;
+        let colArg = col;
+        console.log("initial curr line,col:", lineArg, colArg);
+        // for(var m of _.reverse(this.sourceMapOffsets)){
+        for (var m of this.sourceMapOffsets) {
+            console.log("smap:", m);
+            let posAfter = m[0];
+            let lineAfter = posAfter[0]
+            let colAfter = posAfter[1];
+            // Inverse the diff direction as we apply the offsets.
+            let lineDiff = -m[1];
+            let colDiff = -m[2];
+
+            // Is the given position after the start of the rewritten portion?
+            // Otherwise no offset is required.
+            if (lineArg === lineAfter && colArg >= colAfter) {
+                // lineArg unchanged.
+                colArg += colDiff
+            }
+            else if (lineArg > lineAfter) {
+
+                console.log("diff:", lineAfter, colDiff);
+                if (lineArg > lineAfter) {
+                    lineArg += lineDiff;
+                    if (lineArg == lineAfter) {
+                        colArg += colDiff;
+                    }
+                }
+            }
+            console.log("curr line,col:", lineArg, colArg);
+        }
+        return [lineArg, colArg];
     }
 
     // Apply a given set of text rewrites to a given source text. Assumes the given
@@ -683,21 +724,11 @@ class SyntaxRewriter {
                 
                 // Everything after the changed lines must be shifted but everything before 
                 // remain reamin the same.
-                // let afterLine = startRow;
-                // let lineDiff = (endRow - startRow - 1)
+                // let afterPos = [startRow, startCol];
+                // let lineDiff = -(endRow - startRow)
                 // let colDiff = (rewrite["newStr"].length - prechunk.length);
-                // let diff = [afterLine, colDiff];
-                // console.log("DIFF ADJUST", diff);
-
-                // let sourceMapFnNew = (line, col) => {
-                //     (line <= afterLine) ? 
-                //         (line, col) : 
-                //         (line + lineDiff, col + colDiff);
-                // }
-
-                // // Compose next offset function with existing one.
-                // sourceMapFn = (line, col) => sourceMapFn(sourceMapFnNew(line, col));
-                // console.log("SOURCE MAP:", sourceMapFn, sourceMapFn(10, 10));
+                // let diff = [afterPos, lineDiff, colDiff];
+                // this.sourceMapOffsets.push(diff);
 
                 lines = linesUpdated;
             }
