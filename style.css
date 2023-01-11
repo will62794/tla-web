@@ -403,3 +403,11 @@ body {
     background-color:red;
     opacity:0.25;
   }
+
+  .error-info{
+    color:red;
+    padding:10px;
+    font-size:14px;
+    border:solid 1px gray;
+    margin:5px;
+  }

@@ -25,7 +25,8 @@ let model = {
     traceExprs: [],
     hiddenStateVars: [],
     // State hash that trace lasso goes back to.
-    lassoTo: null
+    lassoTo: null,
+    errorObj: null
 }
 
 // The main app component.
@@ -237,10 +238,21 @@ function componentNextStateChoiceElement(state, ind) {
     return nextStateElem;
 }
 
+function componentErrorInfo() {
+    let errorInfo = m("div", {
+        class: "error-info",
+        hidden: model.errorObj === null
+    }, model.errorObj === null ? "" : model.errorObj.message + " (" + model.errorObj.errorPos + ")");
+    return errorInfo;
+}
+
 function componentNextStateChoices(nextStates) {
     nextStates = model.currNextStates;
 
     let nextStateElems = [];
+
+    nextStateElems.push(componentErrorInfo());
+
     if (model.lassoTo !== null) {
         // If we're stuck in a lasso, don't permit any further next state choices.
         return [];
@@ -453,6 +465,7 @@ function reloadSpec() {
     model.currTrace = []
     model.currTraceAliasVals = []
     model.lassoTo = null;
+    model.errorObj = null;
 
     console.log("Generating initial states.");
     let interp = new TlaInterpreter();
@@ -472,7 +485,16 @@ function reloadSpec() {
             // console.log(currEvalNode["endPosition"]);
 
             let errorLine = currEvalNode["startPosition"]["row"];
-            $codeEditor.CodeMirror.addLineClass(errorLine, 'background', 'line-error');
+            let errorCol = currEvalNode["startPosition"]["column"];
+
+            let ret = model.specTreeObjs["rewriter"].getOrigLocation(errorLine, errorCol);
+            console.log("ERROR pos:", ret);
+
+            model.errorObj = Object.assign(e, { errorPos: [errorLine, errorCol] });
+
+
+            // $codeEditor.CodeMirror.addLineClass(errorLine, 'background', 'line-error');
+            $codeEditor.CodeMirror.addLineClass(ret[0], 'background', 'line-error');
             console.log("error evaluating node: ", currEvalNode);
             console.log(e);
         }

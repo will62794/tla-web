@@ -643,32 +643,37 @@ class SyntaxRewriter {
         let lineArg = line;
         let colArg = col;
         console.log("initial curr line,col:", lineArg, colArg);
-        // for(var m of _.reverse(this.sourceMapOffsets)){
-        for (var m of this.sourceMapOffsets) {
-            console.log("smap:", m);
-            let posAfter = m[0];
-            let lineAfter = posAfter[0]
-            let colAfter = posAfter[1];
-            // Inverse the diff direction as we apply the offsets.
-            let lineDiff = -m[1];
-            let colDiff = -m[2];
+        for(var f of _.reverse(this.sourceMapOffsets)){
+        // for (var f of this.sourceMapOffsets) {
+            console.log("smap:", f);
 
-            // Is the given position after the start of the rewritten portion?
-            // Otherwise no offset is required.
-            if (lineArg === lineAfter && colArg >= colAfter) {
-                // lineArg unchanged.
-                colArg += colDiff
-            }
-            else if (lineArg > lineAfter) {
+            let newPos = f(lineArg, colArg);
+            lineArg = newPos[0];
+            colArg = newPos[1];
 
-                console.log("diff:", lineAfter, colDiff);
-                if (lineArg > lineAfter) {
-                    lineArg += lineDiff;
-                    if (lineArg == lineAfter) {
-                        colArg += colDiff;
-                    }
-                }
-            }
+            // let posAfter = m[0];
+            // let lineAfter = posAfter[0]
+            // let colAfter = posAfter[1];
+            // // Inverse the diff direction as we apply the offsets.
+            // let lineDiff = -m[1];
+            // let colDiff = -m[2];
+
+            // // Is the given position after the start of the rewritten portion?
+            // // Otherwise no offset is required.
+            // if (lineArg === lineAfter && colArg >= colAfter) {
+            //     // lineArg unchanged.
+            //     colArg += colDiff
+            // }
+            // else if (lineArg > lineAfter) {
+
+            //     console.log("diff:", lineAfter, colDiff);
+            //     if (lineArg > lineAfter) {
+            //         lineArg += lineDiff;
+            //         if (lineArg == lineAfter) {
+            //             colArg += colDiff;
+            //         }
+            //     }
+            // }
             console.log("curr line,col:", lineArg, colArg);
         }
         return [lineArg, colArg];
@@ -726,9 +731,57 @@ class SyntaxRewriter {
                 // remain reamin the same.
                 // let afterPos = [startRow, startCol];
                 // let lineDiff = -(endRow - startRow)
-                // let colDiff = (rewrite["newStr"].length - prechunk.length);
+                let colDiff = (rewrite["newStr"].length - prechunk.length);
                 // let diff = [afterPos, lineDiff, colDiff];
                 // this.sourceMapOffsets.push(diff);
+
+                let newStartRow = startRow;
+                let newStartCol = startCol;
+                let newEndRow = startRow;
+                let newEndCol = prechunk[prechunk.length - 1].length + rewrite["newStr"].length - 1;
+
+                let transform = (targetRow, targetCol) => {
+                    console.log("newStartRow, newEndRow", newStartRow, newEndRow);
+                    console.log("start", newEndRow);
+                    // if(targetRow < newStartRow){
+                    //     return [targetRow, targetCol];
+                    // }
+
+                    // Target position is >= the new chunk end position.
+                    if(targetRow > startRow || targetRow === newEndRow && targetCol >= newEndCol){
+                        // Shift by line diff, and by column diff (if necessary).
+                        // Diff from end of new chunk.
+                        let lineDiff = targetRow - newEndRow;
+                        let colDiff = targetRow === newEndRow ? targetCol - newEndCol : newEndCol;
+                        console.log("lineDiff:", lineDiff);
+                        console.log("colDiff:", colDiff);
+                        // console.log("startRow:", startRow);
+                        // console.log("startRow:", startRow);
+
+                        // Transformed position is equivalent to same diff from original end position.
+                        return [endRow + lineDiff, endCol + colDiff]
+                    } else{
+                        // No shift.
+                        return [targetRow, targetCol];
+                    }
+
+                    // if(targetRow === newStartRow && targetCol == newStartCol){
+                    //     return [startRow, startCol]
+                    // }
+
+                    // if(targetRow === startRow && targetCol == newEndCol){
+                    //     return [endRow, endCol]
+                    // }
+                    // if(targetRow > startRow){
+                    //     let lineDiff = endRow - startRow;
+                    //     if(targetRow === end)
+                    //     return [targetRow + lineDiff, endCol]
+                    // }
+                    // return [targetRow, targetCol];
+                }
+
+                this.sourceMapOffsets.push(transform);
+
 
                 lines = linesUpdated;
             }
@@ -951,6 +1004,9 @@ function parseSpec(specText) {
     let specTextRewritten = rewriter.doRewrites();
     specText = specTextRewritten;
 
+    // let orig = rewriter.getOrigLocation(7, 14);
+    // console.log("ORIGLOC:", orig);
+
     // Now parse the rewritten spec to extract definitions, variables, etc.
     let tree = parser.parse(specText + "\n", null);
     let cursor = tree.walk();
@@ -1111,7 +1167,8 @@ function parseSpec(specText) {
         "var_decls": var_decls,
         "op_defs": op_defs,
         "fn_defs": fn_defs,
-        "actions": actions
+        "actions": actions,
+        "rewriter": rewriter
     }
 
     return objs;
@@ -1725,7 +1782,7 @@ function evalBoundInfix(node, ctx) {
         return [ctx.withVal(newTupVal)];
     }
 
-    throw "unsupported infix symbol: " + symbol.text;
+    throw new Error("unsupported infix symbol: '" + symbol.text + "'");
 
 }
 
