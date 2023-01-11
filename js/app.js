@@ -343,14 +343,7 @@ function chooseNextState(statehash_short) {
         console.error("Error computing next states.");
         if (currEvalNode !== null) {
             // Display line where evaluation error occurred.
-            // TODO: Need to update this to map back to original line before we desugared.
-            const $codeEditor = document.querySelector('.CodeMirror');
-            let errorLine = currEvalNode["startPosition"]["row"];
-            $codeEditor.CodeMirror.addLineClass(errorLine, 'background', 'line-error');
-            $codeEditor.CodeMirror.scrollIntoView(errorLine, 200);
-            console.log("error evaluating node: ", currEvalNode);
-            console.log(e);
-            throw new Error("Terminated due to next state computation error.");
+            showEvalError(currEvalNode, e);
         }
         return;
     }
@@ -457,6 +450,25 @@ function reachableBench() {
     console.log(`Computed ${reachable.length} reachable states in ${duration}ms.`);
 }
 
+function showEvalError(currEvalNode, e) {
+    // Display line where evaluation error occurred.
+    const $codeEditor = document.querySelector('.CodeMirror');
+    // console.log(currEvalNode["startPosition"]);
+    // console.log(currEvalNode["endPosition"]);
+    let errorLine = currEvalNode["startPosition"]["row"];
+    let errorCol = currEvalNode["startPosition"]["column"];
+
+    let ret = model.specTreeObjs["rewriter"].getOrigLocation(errorLine, errorCol);
+    console.log("ERROR pos:", ret);
+
+    model.errorObj = Object.assign(e, { errorPos: [errorLine, errorCol] });
+
+    // $codeEditor.CodeMirror.addLineClass(errorLine, 'background', 'line-error');
+    $codeEditor.CodeMirror.addLineClass(ret[0], 'background', 'line-error');
+    console.log("error evaluating node: ", currEvalNode);
+    console.log(e);
+}
+
 /**
  * Clear the current trace, re-parse the spec and generate initial states.
  */
@@ -480,23 +492,7 @@ function reloadSpec() {
         console.error("Error computing initial states.");
         if (currEvalNode !== null) {
             // Display line where evaluation error occurred.
-            const $codeEditor = document.querySelector('.CodeMirror');
-            // console.log(currEvalNode["startPosition"]);
-            // console.log(currEvalNode["endPosition"]);
-
-            let errorLine = currEvalNode["startPosition"]["row"];
-            let errorCol = currEvalNode["startPosition"]["column"];
-
-            let ret = model.specTreeObjs["rewriter"].getOrigLocation(errorLine, errorCol);
-            console.log("ERROR pos:", ret);
-
-            model.errorObj = Object.assign(e, { errorPos: [errorLine, errorCol] });
-
-
-            // $codeEditor.CodeMirror.addLineClass(errorLine, 'background', 'line-error');
-            $codeEditor.CodeMirror.addLineClass(ret[0], 'background', 'line-error');
-            console.log("error evaluating node: ", currEvalNode);
-            console.log(e);
+            showEvalError(currEvalNode, e);
         }
         return;
     }
@@ -767,6 +763,7 @@ async function handleCodeChange(editor, changes) {
 
     model.specText = newText;
     model.specTreeObjs = parseSpec(newText);
+    model.errorObj = null;
 
     model.specConsts = model.specTreeObjs["const_decls"];
     model.specDefs = model.specTreeObjs["op_defs"];
