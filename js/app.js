@@ -761,8 +761,11 @@ async function handleCodeChange(editor, changes) {
         }
     }
 
+    let parsedSpecTree;
+    parsedSpecTree = parseSpec(newText);
+
     model.specText = newText;
-    model.specTreeObjs = parseSpec(newText);
+    model.specTreeObjs = parsedSpecTree;
     model.errorObj = null;
 
     model.specConsts = model.specTreeObjs["const_decls"];

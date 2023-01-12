@@ -862,6 +862,11 @@ class SyntaxRewriter {
                     }
                     let node = cursor.currentNode();
 
+                    // Detect errors.
+                    if(node.type === "ERROR"){
+                        throw new Error("Parsing error.", {cause: node});
+                    }
+
                     // Delete everything inside comments.
                     if (node.type === "block_comment") {
                         sourceRewrites.push({
