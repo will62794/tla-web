@@ -349,7 +349,7 @@ function chooseNextState(statehash_short) {
     }
 }
 
-function evalExprStrInStateContext(evalCtx, exprStr) {
+function evalExprStrInContext(evalCtx, exprStr) {
     let nullTree;
     let start = performance.now();
 
@@ -389,7 +389,7 @@ function setConstantValues() {
 
         // TODO: Evaluate these in context of the current spec.
         let ctx = new Context(null, new TLAState({}), model.specDefs, {}, model.specConstVals);
-        let cVal = evalExprStrInStateContext(ctx, constValText);
+        let cVal = evalExprStrInContext(ctx, constValText);
         console.log("cval:", cVal);
         constTlaVals[constDecl] = cVal;
     }
@@ -600,7 +600,7 @@ function componentTraceViewerState(state, ind, isLastState) {
     // Trace expression values, if any are present.
     let traceExprRows = model.traceExprs.map((expr, ind) => {
         let ctx = new Context(null, state, model.specDefs, {}, model.specConstVals);
-        let exprVal = evalExprStrInStateContext(ctx, expr);
+        let exprVal = evalExprStrInContext(ctx, expr);
         console.log("exprVal:", exprVal);
         let cols = [
             m("td", { class: "th-state-traceexpr" }, m("span", expr)),
@@ -622,7 +622,7 @@ function componentTraceViewerState(state, ind, isLastState) {
         let exprVal;
         try {
             let ctx = new Context(null, state, model.specDefs, {}, model.specConstVals);
-            exprVal = evalExprStrInStateContext(ctx, model.traceExprInputText);
+            exprVal = evalExprStrInContext(ctx, model.traceExprInputText);
             console.log("exprVal:", exprVal);
         }
         catch (e) {
