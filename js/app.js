@@ -349,7 +349,7 @@ function chooseNextState(statehash_short) {
     }
 }
 
-function evalExprStrInStateContext(state, exprStr) {
+function evalExprStrInStateContext(evalCtx, exprStr) {
     let nullTree;
     let start = performance.now();
 
@@ -362,7 +362,6 @@ function evalExprStrInStateContext(state, exprStr) {
     let dummyTreeObjs = parseSpec(dummySpec);
     // console.log("dummy tree objs:", dummyTreeObjs);
 
-    let evalCtx = new Context(null, state, model.specDefs, {}, model.specConstVals);
     let opDefs = dummyTreeObjs["op_defs"];
     let exprNode = opDefs["Expr"].node;
     let exprVal = evalExpr(exprNode, evalCtx)[0]["val"];
@@ -389,7 +388,8 @@ function setConstantValues() {
         constVals[constDecl] = constValText;
 
         // TODO: Evaluate these in context of the current spec.
-        let cVal = evalExprStrInStateContext(new TLAState({}), constValText);
+        let ctx = new Context(null, new TLAState({}), model.specDefs, {}, model.specConstVals);
+        let cVal = evalExprStrInStateContext(ctx, constValText);
         console.log("cval:", cVal);
         constTlaVals[constDecl] = cVal;
     }
@@ -599,7 +599,8 @@ function componentTraceViewerState(state, ind, isLastState) {
 
     // Trace expression values, if any are present.
     let traceExprRows = model.traceExprs.map((expr, ind) => {
-        let exprVal = evalExprStrInStateContext(state, expr);
+        let ctx = new Context(null, state, model.specDefs, {}, model.specConstVals);
+        let exprVal = evalExprStrInStateContext(ctx, expr);
         console.log("exprVal:", exprVal);
         let cols = [
             m("td", { class: "th-state-traceexpr" }, m("span", expr)),
@@ -620,7 +621,8 @@ function componentTraceViewerState(state, ind, isLastState) {
     if (model.traceExprInputText.length) {
         let exprVal;
         try {
-            exprVal = evalExprStrInStateContext(state, model.traceExprInputText);
+            let ctx = new Context(null, state, model.specDefs, {}, model.specConstVals);
+            exprVal = evalExprStrInStateContext(ctx, model.traceExprInputText);
             console.log("exprVal:", exprVal);
         }
         catch (e) {
