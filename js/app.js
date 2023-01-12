@@ -734,6 +734,7 @@ function componentButtonsContainer() {
         m("div", { class: "button-base trace-button", id: "trace-back-button", onclick: traceStepBack }, "Back"),
         m("div", { class: "button-base trace-button", id: "trace-reset-button", onclick: resetTrace }, "Reset"),
         m("div", { class: "button-base trace-button", id: "trace-reset-button", onclick: () => addTraceExpr(model.traceExprInputText) }, "Add Trace Expression"),
+        // m("div", { class: "button-base trace-button", id: "trace-reset-button", onclick: () => checkInv(model.traceExprInputText) }, "Check Invariant"),
         m("input", {
             class: "",
             style: "font-family:monospace;width:200px;padding-left:5px;",
@@ -775,6 +776,22 @@ function componentTracePane() {
     ])
 }
 
+function addTraceExpr(newTraceExpr) {
+    // TODO: Also check for evaluation errors.
+    if (newTraceExpr.length) {
+        model.traceExprs.push(newTraceExpr);
+    }
+}
+
+function checkInv(invExpr){
+    let interp = new TlaInterpreter();
+    let res = interp.computeReachableStates(model.specTreeObjs, model.specConstVals, invExpr);
+    if(!res["invHolds"]){
+        let badState = res["invFirstViolatingState"];
+        console.log("bad state:", badState);
+    }
+}
+
 async function loadApp() {
 
     // Download example spec.
@@ -794,14 +811,6 @@ async function loadApp() {
     // Mithril app setup.
     //
     var root = document.body
-
-    function addTraceExpr(newTraceExpr) {
-        // TODO: Also check for evaluation errors.
-        if (newTraceExpr.length) {
-            model.traceExprs.push(newTraceExpr);
-        }
-    }
-
 
     App = {
         count: 1,

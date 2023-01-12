@@ -2541,7 +2541,7 @@ let currEvalNode = null;
  * @returns 
  */
 function evalExpr(node, ctx) {
-    assert(ctx instanceof Context);
+    assert(ctx instanceof Context, "Second argument to 'evalExpr' must be of type 'Context'.");
 
     // Record for debugging purposes.
     currEvalNode = node;
@@ -3038,7 +3038,12 @@ class TlaInterpreter {
         return allNext;
     }
 
-    computeReachableStates(treeObjs, constvals) {
+    /**
+     * Compute all reachable states for the given spec and its instantiated
+     * constant values. If 'checkInvExpr' is given, check if this invariant
+     * holds in each state, and terminate upon encountering the first violation.
+     */
+    computeReachableStates(treeObjs, constvals, checkInvExpr) {
         let vars = treeObjs["var_decls"];
         let defns = treeObjs["op_defs"];
 
@@ -3074,19 +3079,37 @@ class TlaInterpreter {
             // Compute next states reachable from the current state, and add
             // them to the state queue.
             let currStateArg = _.cloneDeep(currState);
-            let nextStates = this.computeNextStates(treeObjs, constvals, [currStateArg])
-                .map(c => c["state"].deprimeVars());
+            let nextStateCtxs = this.computeNextStates(treeObjs, constvals, [currStateArg])
+            let nextStates =  nextStateCtxs.map(c => c["state"].deprimeVars());
             console.log("nextStates:", nextStates);
             // console.log("reachableStates:", reachableStates);
             stateQueue = stateQueue.concat(nextStates);
             for (const nextSt of nextStates) {
                 edges.push([currStateArg, nextSt])
             }
+
+            // Check invariant in next states.
+            if (checkInvExpr !== undefined) {
+                for (const nextStateCtx of nextStateCtxs) {
+                    let res = evalExprStrInContext(nextStateCtx, checkInvExpr);
+                    console.log("invariant holds: ", res);
+                    // Invariant failed to hold in this state.
+                    if (!res.getVal()) {
+                        console.log("invariant violated: ", res, nextStateCtx);
+                        return {
+                            "invHolds": false,
+                            "invFirstViolatingState": nextStateCtx["state"]
+                        }
+                    }
+                }
+            }
+
         }
         return {
             "initStates": initStatesOrig,
             "states": reachableStates,
-            "edges": edges
+            "edges": edges,
+            "invHolds": true
         }
     }
 }
