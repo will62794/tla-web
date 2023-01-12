@@ -68,7 +68,7 @@ function displayStateGraph() {
     console.log(reachable);
 
     for (const state of reachable["states"]) {
-        dataVal = { id: hashSum(state), state: state };
+        dataVal = { id: state.fingerprint(), state: state };
         console.log(dataVal);
         cy.add({
             group: 'nodes',
@@ -216,7 +216,7 @@ function componentChooseConstants() {
 }
 
 function componentNextStateChoiceElement(state, ind) {
-    let hash = hashSum(state);
+    let hash = state.fingerprint();
 
     let varNames = _.keys(state.getStateObj());
     let stateVarElems = varNames.map((varname, idx) => {
@@ -294,7 +294,7 @@ function traceStepBack() {
 
 // Updates the current URL route to store the current trace.
 function updateTraceRouteParams() {
-    let traceHashed = model.currTrace.map(s => hashSum(s));
+    let traceHashed = model.currTrace.map(s => s.fingerprint());
     let oldParams = m.route.param();
     if (traceHashed.length === 0) {
         delete oldParams.trace;
@@ -307,7 +307,7 @@ function updateTraceRouteParams() {
 function chooseNextState(statehash_short) {
     // console.log("currNextStates:", JSON.stringify(currNextStates));
     console.log("chooseNextState: ", statehash_short);
-    let nextStateChoices = model.currNextStates.filter(s => hashSum(s) === statehash_short);
+    let nextStateChoices = model.currNextStates.filter(s => s.fingerprint() === statehash_short);
     if (nextStateChoices.length === 0) {
         throw Error("Given state hash does not exist among possible next states.")
     }
@@ -315,7 +315,7 @@ function chooseNextState(statehash_short) {
 
     // If the next state already exists in the current trace, then treat it as a
     // "lasso" transition, and freeze the trace from continuing.
-    if (model.currTrace.map(s => hashSum(s)).includes(statehash_short)) {
+    if (model.currTrace.map(s => s.fingerprint()).includes(statehash_short)) {
         console.log("Reached LASSO!");
         model.lassoTo = statehash_short;
         return;
@@ -620,7 +620,7 @@ function componentTraceViewerState(state, ind, isLastState) {
     }
 
     let stateColorBg = isLastState ? "yellow" : "none";
-    let lassoToInd = (model.lassoTo !== null) ? _.findIndex(model.currTrace, s => hashSum(s) === model.lassoTo) + 1 : ""
+    let lassoToInd = (model.lassoTo !== null) ? _.findIndex(model.currTrace, s => s.fingerprint() === model.lassoTo) + 1 : ""
     let lassoNote = ((model.lassoTo !== null) && isLastState) ? " (Back to State " + lassoToInd + ")" : "";
     let headerRow = [m("tr", { style: `background-color: ${stateColorBg}` }, [
         m("th", { colspan: "2" }, "State " + (ind + 1) + lassoNote),
@@ -783,12 +783,17 @@ function addTraceExpr(newTraceExpr) {
     }
 }
 
-function checkInv(invExpr){
+function checkInv(invExpr) {
     let interp = new TlaInterpreter();
     let res = interp.computeReachableStates(model.specTreeObjs, model.specConstVals, invExpr);
-    if(!res["invHolds"]){
+    if (!res["invHolds"]) {
         let badState = res["invFirstViolatingState"];
         console.log("bad state:", badState);
+        console.log("trace hash:", res["hashTrace"]);
+        resetTrace();
+        for (const stateHash of res["hashTrace"]) {
+            chooseNextState(stateHash);
+        }
     }
 }
 

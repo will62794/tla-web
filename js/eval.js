@@ -643,8 +643,8 @@ class SyntaxRewriter {
         let lineArg = line;
         let colArg = col;
         console.log("initial curr line,col:", lineArg, colArg);
-        for(var f of _.reverse(this.sourceMapOffsets)){
-        // for (var f of this.sourceMapOffsets) {
+        for (var f of _.reverse(this.sourceMapOffsets)) {
+            // for (var f of this.sourceMapOffsets) {
             console.log("smap:", f);
 
             let newPos = f(lineArg, colArg);
@@ -726,7 +726,7 @@ class SyntaxRewriter {
                 //
                 // TODO: Revisit how to do source mapping here for error reporting.
                 //
-                
+
                 // Everything after the changed lines must be shifted but everything before 
                 // remain reamin the same.
                 // let afterPos = [startRow, startCol];
@@ -748,7 +748,7 @@ class SyntaxRewriter {
                     // }
 
                     // Target position is >= the new chunk end position.
-                    if(targetRow > startRow || targetRow === newEndRow && targetCol >= newEndCol){
+                    if (targetRow > startRow || targetRow === newEndRow && targetCol >= newEndCol) {
                         // Shift by line diff, and by column diff (if necessary).
                         // Diff from end of new chunk.
                         let lineDiff = targetRow - newEndRow;
@@ -760,7 +760,7 @@ class SyntaxRewriter {
 
                         // Transformed position is equivalent to same diff from original end position.
                         return [endRow + lineDiff, endCol + colDiff]
-                    } else{
+                    } else {
                         // No shift.
                         return [targetRow, targetCol];
                     }
@@ -863,8 +863,8 @@ class SyntaxRewriter {
                     let node = cursor.currentNode();
 
                     // Detect errors.
-                    if(node.type === "ERROR"){
-                        throw new Error("Parsing error.", {cause: node});
+                    if (node.type === "ERROR") {
+                        throw new Error("Parsing error.", { cause: node });
                     }
 
                     // Delete everything inside comments.
@@ -1161,10 +1161,10 @@ function parseSpec(specText) {
 
     }
 
-    console.log("module const declarations:", const_decls);
-    console.log("module var declarations:", var_decls);
-    console.log("module definitions:", op_defs);
-    console.log("module fcn definitions:", fn_defs);
+    evalLog("module const declarations:", const_decls);
+    evalLog("module var declarations:", var_decls);
+    evalLog("module definitions:", op_defs);
+    evalLog("module fcn definitions:", fn_defs);
 
     // Try parsing out actions if possible.
     let actions = [];
@@ -3002,13 +3002,13 @@ class TlaInterpreter {
         let defns = treeObjs["op_defs"];
         Object.assign(defns, treeObjs["fn_defs"]); // include function definitions.
 
-        console.log("consts:", consts);
+        evalLog("consts:", consts);
 
         let initDef = defns["Init"];
         console.log("<<<<< INIT >>>>>");
         console.log(initDef);
-        console.log("initDef.childCount: ", initDef["node"].childCount);
-        console.log("initDef.type: ", initDef["node"].type);
+        evalLog("initDef.childCount: ", initDef["node"].childCount);
+        evalLog("initDef.type: ", initDef["node"].type);
 
         let initStates = getInitStates(initDef["node"], vars, defns, constvals);
         // Keep only the valid states.
@@ -3059,6 +3059,7 @@ class TlaInterpreter {
         let seenStatesHashSet = new Set();
         let reachableStates = [];
         let edges = [];
+        let statePredecessorMap = {};
         while (stateQueue.length > 0) {
             console.log("initStatesOrig:", initStatesOrig);
             let currState = stateQueue.pop();
@@ -3080,25 +3081,44 @@ class TlaInterpreter {
             // them to the state queue.
             let currStateArg = _.cloneDeep(currState);
             let nextStateCtxs = this.computeNextStates(treeObjs, constvals, [currStateArg])
-            let nextStates =  nextStateCtxs.map(c => c["state"].deprimeVars());
+            let nextStates = nextStateCtxs.map(c => c["state"].deprimeVars());
             console.log("nextStates:", nextStates);
             // console.log("reachableStates:", reachableStates);
             stateQueue = stateQueue.concat(nextStates);
             for (const nextSt of nextStates) {
-                edges.push([currStateArg, nextSt])
+                edges.push([currStateArg, nextSt]);
+                statePredecessorMap[nextSt.fingerprint()] = currStateHash;
             }
 
             // Check invariant in next states.
             if (checkInvExpr !== undefined) {
-                for (const nextStateCtx of nextStateCtxs) {
-                    let res = evalExprStrInContext(nextStateCtx, checkInvExpr);
-                    console.log("invariant holds: ", res);
+                for (const nextState of nextStates) {
+                    let consts = treeObjs["const_decls"];
+                    let vars = treeObjs["var_decls"];
+                    let defns = treeObjs["op_defs"];
+                    let ctx = new Context(null, nextState, defns, {}, constvals);
+                    let res = evalExprStrInContext(ctx, checkInvExpr);
+                    console.log("invariant check: ", res);
                     // Invariant failed to hold in this state.
                     if (!res.getVal()) {
-                        console.log("invariant violated: ", res, nextStateCtx);
+                        console.log("invariant violated: ", res, nextState);
+                        console.log("PRED MAP:", statePredecessorMap);
+                        // Reconstruct trace.
+                        let currTraceState = nextState;
+                        let currTraceStateHash = currTraceState.fingerprint();
+                        let trace = [currTraceStateHash];
+                        while (statePredecessorMap.hasOwnProperty(currTraceStateHash)) {
+                            let nextTraceStateHash = statePredecessorMap[currTraceStateHash];
+                            trace.push(nextTraceStateHash);
+                            currTraceStateHash = nextTraceStateHash;
+                        }
+                        // Trace starts from an initial state.
+                        trace = _.reverse(trace);
+
                         return {
                             "invHolds": false,
-                            "invFirstViolatingState": nextStateCtx["state"]
+                            "invFirstViolatingState": nextState,
+                            "hashTrace": trace
                         }
                     }
                 }
