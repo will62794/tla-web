@@ -1,6 +1,6 @@
 # TLA+ Web Explorer Prototype
 
-This is a prototype of a web based TLA+ interface for exploring and sharing specifications and traces. The motivation is to have a better way to quickly interact with a TLA+ spec and easily share results. For example, provide a way to share error traces in a convenient, portable, and repeatable manner. A live version of the prototype is currently hosted [here](https://will62794.github.io/tla-web/). Here are some example specs to try out:
+This is a prototype of a web based TLA+ interface for exploring and sharing specifications and traces. The motivation is to have a better way to quickly interact with a TLA+ spec and easily share results. For example, provide a way to share error traces in a convenient, portable, and repeatable manner. A live version of the prototype is currently hosted [here](https://will62794.github.io/tla-web/#!/home). Here are some example specs to try out:
 
 - [Lock server](https://will62794.github.io/tla-web/#!/home?specpath=.%2Fspecs%2Flockserver.tla&constants%5BServer%5D=%7B%22s1%22%2C%20%22s2%22%7D&constants%5BClient%5D=%7B%22c1%22%2C%20%22c2%22%7D)
 - [Two phase commit](https://will62794.github.io/tla-web/#!/home?specpath=.%2Fspecs%2FTwoPhase.tla)
