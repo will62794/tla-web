@@ -377,61 +377,23 @@ function setConstantValues() {
     console.log("#setConstantValues");
     let constVals = {};
     let nullTree;
+    let constTlaVals = {};
+
+    // Evaluate each CONSTANT value expression.
     for (var constDecl in model.specConsts) {
         let constValText = model.specConstInputVals[constDecl];
         if (constValText === undefined) {
             throw "no constant value given for " + constDecl;
         }
-
-        // let inputElem = document.getElementById("const-val-input-" + constDecl);
-        // let constValText = inputElem.value;
         console.log("constDecl:", constDecl, constValText);
         constVals[constDecl] = constValText;
+
+        // TODO: Evaluate these in context of the current spec.
+        let cVal = evalExprStrInStateContext(new TLAState({}), constValText);
+        console.log("cval:", cVal);
+        constTlaVals[constDecl] = cVal;
     }
 
-    // Create a dummy spec to evaluate the expressions given for each CONSTANT.
-    // TODO: Might be a simpler way to do this TLA+ expression evaluation.
-    let dummySpec = "---- MODULE simple_lockserver_with_constants ----\n";
-    for (var constDecl in model.specConsts) {
-        dummySpec += `${constDecl} == ${constVals[constDecl]}\n`;
-    }
-    for (var constDecl in model.specConsts) {
-        dummySpec += `VARIABLE var_${constDecl}\n`;
-    }
-    dummySpec += `Init == \n`;
-    for (var constDecl in model.specConsts) {
-        dummySpec += `/\\ var_${constDecl} = ${constDecl}\n`;
-    }
-    dummySpec += `Next == \n`;
-    for (var constDecl in model.specConsts) {
-        dummySpec += `/\\ var_${constDecl}' = var_${constDecl}\n`;
-    }
-
-    console.log(dummySpec);
-
-    dummySpec += "====";
-
-    const dummySpecTree = parser.parse(dummySpec, nullTree);
-    console.log(dummySpecTree);
-
-    let dummyTreeObjs = parseSpec(dummySpec);
-    console.log(dummyTreeObjs);
-
-    // TODO: Make sure we evaluate the expression we're assigning to a constant
-    // value first.
-
-    // Compute the single initial state.
-    let interp = new TlaInterpreter();
-    let dummyInitStates = interp.computeInitStates(dummyTreeObjs);
-    console.log("dummy init states:", dummyInitStates);
-    assert(dummyInitStates.length === 1);
-    let initStateEval = dummyInitStates[0];
-    let constTlaVals = {};
-    for (var constDecl in model.specConsts) {
-        constTlaVals[constDecl] = initStateEval.getVarVal(`var_${constDecl}`);
-    }
-
-    // TODO: Thread these assigned values through standard spec evaluation.
     console.log("constTlaVals:", constTlaVals);
     model.specConstVals = constTlaVals;
 
