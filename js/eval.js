@@ -997,6 +997,31 @@ class SyntaxRewriter {
     }
 }
 
+/**
+ * Evaluate a TLA+ expression, given as a string, in the given context.
+ */
+function evalExprStrInContext(evalCtx, exprStr) {
+    let nullTree;
+    let start = performance.now();
+
+    // Create a dummy spec to parse/evaluate the expression.
+    let dummySpec = "---- MODULE dummy_eval_spec ----\n";
+    dummySpec += `Expr == ${exprStr}\n`;
+    dummySpec += "====";
+
+    // const dummySpecTree = parser.parse(dummySpec, nullTree);
+    let dummyTreeObjs = parseSpec(dummySpec);
+    // console.log("dummy tree objs:", dummyTreeObjs);
+
+    let opDefs = dummyTreeObjs["op_defs"];
+    let exprNode = opDefs["Expr"].node;
+    let exprVal = evalExpr(exprNode, evalCtx)[0]["val"];
+
+    const duration = (performance.now() - start).toFixed(1);
+    // console.log("return val:", exprVal);
+    console.log("compute duration val ms:", duration);
+    return exprVal;
+}
 
 /**
  * Parse and extract definitions and declarations from the given TLA+ module
