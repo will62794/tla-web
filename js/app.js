@@ -215,9 +215,10 @@ function componentChooseConstants() {
     ]);
 }
 
-function componentNextStateChoiceElement(state, ind) {
+function componentNextStateChoiceElement(state, ind, actionLabel) {
     let hash = state.fingerprint();
 
+    let actionLabelText = actionLabel ? actionLabel : "";
     let varNames = _.keys(state.getStateObj());
     let stateVarElems = varNames.map((varname, idx) => {
         let cols = [
@@ -226,15 +227,25 @@ function componentNextStateChoiceElement(state, ind) {
             m("td", { style: "width:15px" }, ""), // placeholder row.
         ]
 
-        return m("tr", { style: "border-bottom: solid" }, cols);
+        return [
+            m("tr", { style: "border-bottom: solid" }, cols)
+        ];
     });
+
+    let actionNameElem = [m("tr", { style: "border-bottom: solid 1px black;color:blue;font-size;16px;background-color:white;padding:3px;" }, actionLabelText)];
+    let allElems = [];
+
+    // TODO: Re-enable action choice display text when ready.
+    // allElems = allElems.concat(actionNameElem)
+
+    allElems = allElems.concat(stateVarElems);
 
     let opac = model.lassoTo === null ? "100" : "50";
     let nextStateElem = m("div", {
         class: "init-state",
         style: `opacity: ${opac}%`,
         onclick: () => chooseNextState(hash)
-    }, stateVarElems);
+    }, allElems);
     return nextStateElem;
 }
 
@@ -258,10 +269,25 @@ function componentNextStateChoices(nextStates) {
         return [];
     }
 
-    for (var i = 0; i < nextStates.length; i++) {
-        var state = nextStates[i];
-        let nextStateElem = componentNextStateChoiceElement(state, i);
-        nextStateElems.push(nextStateElem);
+    // Handle case where next states are not broken down per action.
+    if (nextStates instanceof Array) {
+        for (var i = 0; i < nextStates.length; i++) {
+            var state = nextStates[i];
+            let nextStateElem = componentNextStateChoiceElement(state, i);
+            nextStateElems.push(nextStateElem);
+        }
+        return nextStateElems
+    }
+
+    // Action specific case.
+    for (const [actionId, nextStatesForAction] of Object.entries(nextStates)) {
+        let i = 0;
+        let action = model.actions[actionId];
+        for (const state of nextStatesForAction) {
+            let nextStateElem = componentNextStateChoiceElement(state, i, action.name);
+            nextStateElems.push(nextStateElem);
+            i += 1;
+        }
     }
     // console.log("next state elems:", nextStateElems);
     return nextStateElems;
@@ -307,7 +333,8 @@ function updateTraceRouteParams() {
 function chooseNextState(statehash_short) {
     // console.log("currNextStates:", JSON.stringify(currNextStates));
     console.log("chooseNextState: ", statehash_short);
-    let nextStateChoices = model.currNextStates.filter(s => s.fingerprint() === statehash_short);
+    let currNextStatesSet = _.flatten(_.values(model.currNextStates))
+    let nextStateChoices = currNextStatesSet.filter(s => s.fingerprint() === statehash_short);
     if (nextStateChoices.length === 0) {
         throw Error("Given state hash does not exist among possible next states.")
     }
@@ -334,14 +361,29 @@ function chooseNextState(statehash_short) {
     let interp = new TlaInterpreter();
 
     try {
-        let nextStates = interp.computeNextStates(model.specTreeObjs, model.specConstVals, [nextState])
-            .map(c => c["state"].deprimeVars());
+        let nextStates;
+
+        // Compute next states broken down by action.
+        // TODO: Consider if this functionality more appropriately lives inside the interpreter logic.
+        if (model.actions.length > 1) {
+            let nextStatesByAction = {}
+            for (const action of model.actions) {
+                assert(action instanceof TLAAction);
+                nextStatesForAction = interp.computeNextStates(model.specTreeObjs, model.specConstVals, [nextState], action.node)
+                    .map(c => c["state"].deprimeVars());
+                nextStatesByAction[action.id] = nextStatesForAction;
+            }
+            nextStates = nextStatesByAction;
+        } else {
+            nextStates = interp.computeNextStates(model.specTreeObjs, model.specConstVals, [nextState])
+                .map(c => c["state"].deprimeVars());
+        }
 
         model.currNextStates = _.cloneDeep(nextStates);
         const duration = (performance.now() - start).toFixed(1);
         console.log(`Generation of next states took ${duration}ms`)
     } catch (e) {
-        console.error("Error computing next states.");
+        console.error("Error computing next states.", e);
         if (currEvalNode !== null) {
             // Display line where evaluation error occurred.
             showEvalError(currEvalNode, e);
@@ -709,6 +751,7 @@ async function handleCodeChange(editor, changes) {
     model.specText = newText;
     model.specTreeObjs = parsedSpecTree;
     model.errorObj = null;
+    model.actions = parsedSpecTree.actions;
 
     model.specConsts = model.specTreeObjs["const_decls"];
     model.specDefs = model.specTreeObjs["op_defs"];
