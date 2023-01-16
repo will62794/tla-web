@@ -325,6 +325,11 @@ body {
     height: 100%;
   }
 
+  @font-face {
+    font-family: "Cascadia";
+    src: url("assets/cascadia/woff2/CascadiaMono.woff2") format('woff2');
+  }
+
   .CodeMirror{
     font-size:13px;
     /* font-family: 'Source Code Pro', monospace; */
