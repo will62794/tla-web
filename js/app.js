@@ -315,11 +315,12 @@ function chooseNextState(statehash_short) {
 
     // If the next state already exists in the current trace, then treat it as a
     // "lasso" transition, and freeze the trace from continuing.
-    if (model.currTrace.map(s => s.fingerprint()).includes(statehash_short)) {
-        console.log("Reached LASSO!");
-        model.lassoTo = statehash_short;
-        return;
-    }
+    // * DISABLE LASSO TRANSITIONS FOR NOW. *
+    // if (model.currTrace.map(s => s.fingerprint()).includes(statehash_short)) {
+    //     console.log("Reached LASSO!");
+    //     model.lassoTo = statehash_short;
+    //     return;
+    // }
 
     console.log("nextState:", JSON.stringify(nextState));
     console.log("nextStatePred:", model.nextStatePred);
