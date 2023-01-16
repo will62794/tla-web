@@ -592,6 +592,17 @@ class TLAState {
 }
 
 /**
+ * Represents an abstract action of a parsed specification (i.e. a sub-expression of the next state relation).
+ */
+class TLAAction{
+    constructor(id, node, name) {
+        this.id = id;
+        this.node = node;
+        this.name = name;
+    }
+}
+
+/**
  * Generates and performs syntactic rewrites on a TLA+ spec as part of a
  * pre-processing step before parsing and evaluation.
  */
@@ -1024,6 +1035,27 @@ function evalExprStrInContext(evalCtx, exprStr) {
 }
 
 /**
+ * Return action name for a given action node.
+ */
+function extractActionName(node) {
+    // TODO: Check these cases to determine all action name extraction scenarios.
+    if (node.type === "bound_op") {
+        let opName = node.namedChildren[0].text;
+        return opName;
+    }
+    if (node.type === "bounded_quantification") {
+        // Strip away all outer quantifiers.
+        let curr_node = node;
+        while (curr_node.type === "bounded_quantification") {
+            curr_node = curr_node.namedChildren[2];
+        }
+        return curr_node.text;
+    } else {
+        return node.text;
+    }
+}
+
+/**
  * Parse and extract definitions and declarations from the given TLA+ module
  * text.
  */
@@ -1182,11 +1214,14 @@ function parseSpec(specText) {
         console.log("NEXTNODE:", nextNode);
         console.log("NEXT_CHILDR:", nextNode.namedChildren);
         if (nextNode.type === "disj_list") {
-            actions = nextNode.namedChildren.map(c => c.namedChildren[1]);
+            actions = nextNode.namedChildren.map((cnode, ind) => {
+                let actNode = cnode.namedChildren[1];
+                return new TLAAction(ind, actNode, extractActionName(actNode)); // TODO: fix.
+            });
         }
         // Default: treat Next as one big action.
         else {
-            actions = [nextNode];
+            actions = [new TLAAction(0, nextNode, "Next")];
         }
     }
 
@@ -3016,23 +3051,26 @@ class TlaInterpreter {
         return initStates;
     }
 
-    computeNextStates(treeObjs, constvals, initStates) {
+    computeNextStates(treeObjs, constvals, initStates, action) {
         let consts = treeObjs["const_decls"];
         let vars = treeObjs["var_decls"];
         let defns = treeObjs["op_defs"];
 
-        let nextDef = defns["Next"];
+        let nextDef = defns["Next"]["node"];
+        
+        // Optionally specify an action to consider as the next state relation
+        // when computing next state.
+        if (action) {
+            nextDef = action;
+        }
         // console.log(defns);
         console.log("<<<< NEXT >>>>");
-        // console.log(nextDef);
-        // console.log("nextDef.childCount: ", nextDef["node"].childCount);
-        // console.log("nextDef.type: ", nextDef["node"].type);
 
         let allNext = [];
         for (const istate of initStates) {
             let currState = _.cloneDeep(istate);
             // console.log("###### Computing next states from state: ", currState);
-            let ret = getNextStates(nextDef["node"], currState, defns, constvals);
+            let ret = getNextStates(nextDef, currState, defns, constvals);
             allNext = allNext.concat(ret);
         }
         return allNext;
