@@ -6,6 +6,11 @@ let tree;
 let parser;
 let languageName = "tlaplus";
 
+let Pane = {
+    Constants : 1,
+    Trace: 2
+}
+
 let model = {
     specText: null,
     allInitStates: [],
@@ -26,7 +31,8 @@ let model = {
     hiddenStateVars: [],
     // State hash that trace lasso goes back to.
     lassoTo: null,
-    errorObj: null
+    errorObj: null,
+    currPane: Pane.Trace
 }
 
 // The main app component.
@@ -100,13 +106,13 @@ function displayStateGraph() {
 
 function displayEvalGraph() {
     console.log("#displayEvalGraph");
-    let stategraphDiv = document.getElementById('trace-pane');
+    let stategraphDiv = document.getElementById('explorer-pane');
     stategraphDiv.hidden = false;
 
     // cytoscape.use("dagre");
 
     var cy = cytoscape({
-        container: document.getElementById('trace-pane'), // container to render in
+        container: document.getElementById('explorer-pane'), // container to render in
         style: [
             {
                 selector: 'node',
@@ -719,13 +725,13 @@ async function handleCodeChange(editor, changes) {
 
     $("#code-input-pane").resizable({
         handles: "e",
-        // alsoResize: "#trace-pane",
+        // alsoResize: "#explorer-pane",
         // handles: {"e": ".splitter"},
         // handleSelector: ".splitter",
         resizeHeight: false,
     });
 
-    // $( "#trace-pane" ).resizable({
+    // $( "#explorer-pane" ).resizable({
     // handles:"w"
     // });
 
@@ -758,8 +764,10 @@ async function handleCodeChange(editor, changes) {
     model.nextStatePred = model.specTreeObjs["op_defs"]["Next"]["node"];
     model.specAlias = model.specTreeObjs["op_defs"]["Alias"];
 
-    // Don't try to reload the spec yet if we have to instantiate constants.
+    // Don't try to reload the spec yet if we have to instantiate constants
+    // Also, switch to the appropriate pane.
     if (!_.isEmpty(model.specConsts)) {
+        // model.currPane = Pane.Constants; // TODO: Work out pane UI.
         return;
     }
 
@@ -804,9 +812,12 @@ function componentHiddenStateVars() {
     return m("div", { id: "hidden-state-vars" }, [titleElem].concat(hiddenStateVarElems))
 }
 
-function componentTracePane() {
-    return m("div", { id: "trace-pane" }, [
-        m("div", { id: "choose-constants-container" }, componentChooseConstants()),
+function chooseConstantsPane(){
+    return m("div", { id: "choose-constants-container" }, componentChooseConstants());
+}
+
+function tracePane(){
+    return m("span", [
         m("div", { id: "poss-next-states-title", class: "pane-title" }, (model.currTrace.length > 0) ? "Choose Next State" : "Choose Initial State"),
         m("div", { id: "initial-states", class: "tlc-state" }, componentNextStateChoices()),
         m("div", { id: "trace-container" }, [
@@ -817,6 +828,41 @@ function componentTracePane() {
             ]),
             componentTraceViewer()
         ])
+    ]);
+}
+
+// To be used for selecting different panes when/if we add that UI functionality.
+function componentPaneSelector() {
+    return m("div", { id: "pane-selector" }, [
+        m("table", { id: "pane-button-container", style: "margin:0 auto;" }, [
+            m("tr", {}, [
+                m("td", {
+                    class: "pane-select-button " + (model.currPane === Pane.Constants ? "selected" : ""),
+                    onclick: () => model.currPane = Pane.Constants
+                }, "Constants"),
+                m("td", {
+                    class: "pane-select-button " + (model.currPane === Pane.Trace ? "selected" : ""),
+                    onclick: () => model.currPane = Pane.Trace
+                }, "Trace"),
+            ])
+        ])
+    ])
+}
+
+function componentExplorerPane() {
+
+    // TODO: Work out pane UI.
+    // let paneElem = m("span", "EMPTY PANE");
+    // if(model.currPane === Pane.Trace){
+    //     paneElem = tracePane();
+    // } 
+    // if(model.currPane === Pane.Constants){
+    //     paneElem = chooseConstantsPane();
+    // }
+
+    return m("div", { id: "explorer-pane" }, [
+        chooseConstantsPane(),
+        tracePane()
     ])
 }
 
@@ -891,7 +937,7 @@ async function loadApp() {
                     // m("div", {class: "splitter"}),
 
                     // Display pane.
-                    componentTracePane()
+                    componentExplorerPane()
                 ])];
         }
     }
@@ -915,7 +961,7 @@ async function loadApp() {
                 ]),
 
                 // Eval graph pane.
-                m("div", { id: "trace-pane" }, [
+                m("div", { id: "explorer-pane" }, [
                     m("h1", "eval graph"),
                     m("div", { id: "eval-graph" })
                 ])

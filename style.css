@@ -302,7 +302,7 @@ body {
     /* background-color: lightgray; */
   }
 
-  #trace-pane {
+  #explorer-pane {
     flex: 1 1 auto;
     /* resizable */
     padding: 10px;
@@ -333,6 +333,40 @@ body {
   .CodeMirror{
     font-size:13px;
     /* font-family: 'Source Code Pro', monospace; */
+  }
+
+  #pane-selector{
+    /* background-color: red; */
+    /* width:100%; */
+    text-align: center;
+    width: 100%;
+    padding-bottom:10px;
+    padding-top:5px;
+    /* margin: 0 auto; */
+  }
+
+  #pane-button-container{
+    margin: 0 auto;
+    width: 50%;
+  }
+
+  .pane-select-button{
+    padding: 5px 0 0 5px;
+    width:80px;
+    text-align: center;
+    font-size:12px;
+  }
+
+  .pane-select-button:hover{
+    cursor: pointer;
+  }
+
+  #pane-selector tr{
+    width:100px;
+  }
+  
+  .pane-select-button.selected{
+    border-bottom: solid 1px gray;
   }
 
   #output-container {
