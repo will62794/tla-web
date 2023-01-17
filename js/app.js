@@ -32,7 +32,8 @@ let model = {
     // State hash that trace lasso goes back to.
     lassoTo: null,
     errorObj: null,
-    currPane: Pane.Trace
+    currPane: Pane.Trace,
+    nextStatePreview: null
 }
 
 // The main app component.
@@ -252,8 +253,14 @@ function componentNextStateChoiceElement(state, ind, actionLabel) {
     let nextStateElem = m("div", {
         class: "init-state",
         style: `opacity: ${opac}%`,
-        onclick: () => chooseNextState(hash)
-    }, m("table", {class:"trace-select-table"}, allElems));
+        onclick: () => chooseNextState(hash),
+        onmouseover: () => {
+            model.nextStatePreview = hash;
+        },
+        onmouseout: () => {
+            model.nextStatePreview = null;
+        }
+    }, m("table", { class: "trace-select-table" }, allElems));
     return nextStateElem;
 }
 
