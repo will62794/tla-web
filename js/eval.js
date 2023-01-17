@@ -1869,6 +1869,16 @@ function evalBoundPrefix(node, ctx) {
         return evalEnabled(node, ctx);
     }
 
+    // UNION
+    if (symbol.type === "union") {
+        let rhsVal = evalExpr(rhs, ctx)[0]["val"];
+        let outSetVal = new SetValue([]);
+        for (const elSet of rhsVal.getElems()) {
+            outSetVal = outSetVal.unionWith(elSet);
+        }
+        return [ctx.withVal(outSetVal)];
+    }
+
     // DOMAIN.
     if (symbol.type === "domain") {
         evalLog("DOMAIN op");
