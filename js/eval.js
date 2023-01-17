@@ -2209,6 +2209,27 @@ function evalBoundOp(node, ctx) {
         return [ctx.withVal(seqArgExprVal.tail())];
     }
 
+    if (opName == "SubSeq") {
+        let seqArgExpr = node.namedChildren[1];
+        let seqArgExprVal = evalExpr(seqArgExpr, ctx)[0]["val"]
+        let startIndexExpr = node.namedChildren[2];
+        let startIndexExprVal = evalExpr(startIndexExpr, ctx)[0]["val"]
+        let endIndexExpr = node.namedChildren[3];
+        let endIndexExprVal = evalExpr(endIndexExpr, ctx)[0]["val"]
+
+        // Try to interpret value as tuple, if possible.
+        seqArgExprVal = seqArgExprVal.toTuple();
+
+        assert(seqArgExprVal instanceof TupleValue);
+        assert(startIndexExprVal instanceof IntValue);
+        assert(endIndexExprVal instanceof IntValue);
+
+        let startIndex = startIndexExprVal.getVal() - 1; // TLA is 1-indexed.
+        let endIndex = endIndexExprVal.getVal(); // Note: end index is non-inclusive when using .slice()
+        let subSeqElems = seqArgExprVal.getElems().slice(startIndex, endIndex);
+        return [ctx.withVal(new TupleValue(subSeqElems))];
+    }
+
     // Check for the bound op in the set of known definitions.
     if (ctx["defns"].hasOwnProperty(opName)) {
         let opDefNode = ctx["defns"][opName]["node"];
@@ -3057,7 +3078,7 @@ class TlaInterpreter {
         let defns = treeObjs["op_defs"];
 
         let nextDef = defns["Next"]["node"];
-        
+
         // Optionally specify an action to consider as the next state relation
         // when computing next state.
         if (action) {
