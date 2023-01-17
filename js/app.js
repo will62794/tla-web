@@ -7,7 +7,7 @@ let parser;
 let languageName = "tlaplus";
 
 let Pane = {
-    Constants : 1,
+    Constants: 1,
     Trace: 2
 }
 
@@ -230,7 +230,7 @@ function componentNextStateChoiceElement(state, ind, actionLabel) {
     let stateVarElems = varNames.map((varname, idx) => {
         let cols = [
             m("td", { class: "state-varname" }, varname),
-            m("td", { class: "state-choice-varval"}, [tlaValView(state.getVarVal(varname))]),
+            m("td", { class: "state-choice-varval" }, [tlaValView(state.getVarVal(varname))]),
             // m("td", { class: "state-choice-varval"}, [state.getVarVal(varname).toString()]),
             m("td", { style: "width:5px" }, ""), // placeholder row.
         ]
@@ -308,6 +308,28 @@ function componentNextStateChoices(nextStates) {
     return nextStateElems;
 }
 
+function recomputeNextStates(fromState) {
+    let interp = new TlaInterpreter();
+    let nextStates;
+
+    // Compute next states broken down by action.
+    // TODO: Consider if this functionality more appropriately lives inside the interpreter logic.
+    if (model.actions.length > 1) {
+        let nextStatesByAction = {}
+        for (const action of model.actions) {
+            assert(action instanceof TLAAction);
+            nextStatesForAction = interp.computeNextStates(model.specTreeObjs, model.specConstVals, [fromState], action.node)
+                .map(c => c["state"].deprimeVars());
+            nextStatesByAction[action.id] = nextStatesForAction;
+        }
+        nextStates = nextStatesByAction;
+    } else {
+        nextStates = interp.computeNextStates(model.specTreeObjs, model.specConstVals, [fromState])
+            .map(c => c["state"].deprimeVars());
+    }
+    return nextStates;
+}
+
 // Step back one state in the current trace.
 function traceStepBack() {
     // Clear out a lasso condition in this case.
@@ -326,9 +348,7 @@ function traceStepBack() {
     } else {
         console.log("stepping back");
         let lastState = model.currTrace[model.currTrace.length - 1];
-        let interp = new TlaInterpreter();
-        let nextStates = interp.computeNextStates(model.specTreeObjs, model.specConstVals, [_.cloneDeep(lastState)])
-            .map(c => c["state"].deprimeVars());
+        let nextStates = recomputeNextStates(lastState);
         model.currNextStates = _.cloneDeep(nextStates);
     }
 }
@@ -373,27 +393,8 @@ function chooseNextState(statehash_short) {
 
     const start = performance.now();
 
-    let interp = new TlaInterpreter();
-
     try {
-        let nextStates;
-
-        // Compute next states broken down by action.
-        // TODO: Consider if this functionality more appropriately lives inside the interpreter logic.
-        if (model.actions.length > 1) {
-            let nextStatesByAction = {}
-            for (const action of model.actions) {
-                assert(action instanceof TLAAction);
-                nextStatesForAction = interp.computeNextStates(model.specTreeObjs, model.specConstVals, [nextState], action.node)
-                    .map(c => c["state"].deprimeVars());
-                nextStatesByAction[action.id] = nextStatesForAction;
-            }
-            nextStates = nextStatesByAction;
-        } else {
-            nextStates = interp.computeNextStates(model.specTreeObjs, model.specConstVals, [nextState])
-                .map(c => c["state"].deprimeVars());
-        }
-
+        let nextStates = recomputeNextStates(nextState);
         model.currNextStates = _.cloneDeep(nextStates);
         const duration = (performance.now() - start).toFixed(1);
         console.log(`Generation of next states took ${duration}ms`)
@@ -821,11 +822,11 @@ function componentHiddenStateVars() {
     return m("div", { id: "hidden-state-vars" }, [titleElem].concat(hiddenStateVarElems))
 }
 
-function chooseConstantsPane(){
+function chooseConstantsPane() {
     return m("div", { id: "choose-constants-container" }, componentChooseConstants());
 }
 
-function tracePane(){
+function tracePane() {
     return m("span", [
         m("div", { id: "poss-next-states-title", class: "pane-title" }, (model.currTrace.length > 0) ? "Choose Next State" : "Choose Initial State"),
         m("div", { id: "initial-states", class: "tlc-state" }, componentNextStateChoices()),
