@@ -238,12 +238,13 @@ function componentNextStateChoiceElement(state, ind, actionLabel) {
         ];
     });
 
-    let actionNameElem = [m("tr", { style: "border-bottom: solid 1px black;color:blue;font-size;16px;background-color:white;padding:3px;" }, actionLabelText)];
+    let actionNameElem = [m("tr", { style: "width:100%" }, [
+        m("td", { class: "action-name", colspan: 2 }, actionLabelText)
+    ])];
+
     let allElems = [];
 
-    // TODO: Re-enable action choice display text when ready.
-    // allElems = allElems.concat(actionNameElem)
-
+    allElems = allElems.concat(actionNameElem)
     allElems = allElems.concat(stateVarElems);
 
     let opac = model.lassoTo === null ? "100" : "50";
