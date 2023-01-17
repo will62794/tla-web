@@ -229,12 +229,13 @@ function componentNextStateChoiceElement(state, ind, actionLabel) {
     let stateVarElems = varNames.map((varname, idx) => {
         let cols = [
             m("td", { class: "state-varname" }, varname),
-            m("td", [tlaValView(state.getVarVal(varname))]),
-            m("td", { style: "width:15px" }, ""), // placeholder row.
+            m("td", { class: "state-choice-varval"}, [tlaValView(state.getVarVal(varname))]),
+            // m("td", { class: "state-choice-varval"}, [state.getVarVal(varname).toString()]),
+            m("td", { style: "width:5px" }, ""), // placeholder row.
         ]
 
         return [
-            m("tr", { style: "border-bottom: solid" }, cols)
+            m("tr", { style: "" }, cols)
         ];
     });
 
@@ -252,7 +253,7 @@ function componentNextStateChoiceElement(state, ind, actionLabel) {
         class: "init-state",
         style: `opacity: ${opac}%`,
         onclick: () => chooseNextState(hash)
-    }, allElems);
+    }, m("table", {class:"trace-select-table"}, allElems));
     return nextStateElem;
 }
 
