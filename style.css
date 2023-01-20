@@ -11,6 +11,36 @@ body {
 
   .const-input{
       margin:3px;
+      width:200px;
+  }
+
+  #constants-header{
+    display:flex;
+    /* background-color: blue; */
+  }
+
+  #constants-title{
+    /* background-color: orange; */
+    /* width:100px; */
+  }
+
+  #set-constants-button{
+    width:180px;
+    font-family:Arial;
+    /* background-color: red; */
+    vertical-align: middle;
+    margin-left:20px;
+    position: relative;
+  }
+
+  #set-constants-button .button-base{
+    padding-left:10px;
+    padding-right:10px;
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    vertical-align: middle;
+    text-align: center;
   }
 
   #choose-constants-elems{
@@ -21,10 +51,7 @@ body {
     font-family: monospace;
   }
 
-  #set-constants-button{
-    width:180px;
-    font-family:Arial;
-  }
+
 
   #app-title{
       color:gray;
@@ -37,7 +64,7 @@ body {
   }
 
   .pane-title{
-      font-size:18px;
+      font-size:16px;
       font-weight: bold;
       padding-bottom:8px;
       padding-top:8px;

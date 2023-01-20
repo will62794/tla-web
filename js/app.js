@@ -207,18 +207,22 @@ function componentChooseConstants() {
                 class: "const-input",
                 id: `const-val-input-${constDecl}`,
                 oninput: (e) => model.specConstInputVals[constDecl] = e.target.value,
-                value: model.specConstInputVals[constDecl]
+                value: model.specConstInputVals[constDecl],
+                placeholder: "Enter TLA+ value."
             })
         ])
         chooseConstsElems.push(newDiv);
     }
 
-    let setButtonDiv = m("div", { id: "set-constants-button", class: "button-base", onclick: setConstantValues }, "Set constant values")
+    let setButtonDiv = m("div", { id: "", class: "button-base", onclick: setConstantValues }, "Set constant values")
 
     return m("div", {}, [
-        m("div", { class: "pane-title" }, "Choose constants"),
+        m("div", { id: "constants-header" },
+            [
+                m("div", { id: "constants-title", class: "pane-title" }, "Choose Constants"),
+                m("div", { id: "set-constants-button" }, setButtonDiv)
+            ]),
         m("div", { id: "choose-constants-elems" }, chooseConstsElems),
-        setButtonDiv,
     ]);
 }
 
