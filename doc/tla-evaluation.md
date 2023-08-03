@@ -68,7 +68,7 @@ Note that there are various forms of disjunction that appear in TLA+ formulas. I
 
 Note that the third case can be expressed equivalently as `\E v \in S : x = v`, so we can consider only the first two cases. 
 
-In practice, we require the domain `S` of quantification to be finite, so we can assume that, after evaluating `S`, we will always be quantifying over some finite set. Thus, we can reduce the existential quantifier to the propositional disjunction case. That is, if `S = {e1,...,en}` we can rewrite
+In practice, we require the domain `S` of quantification to be finite, so we can assume that, after evaluating `S`, we will always be quantifying over some finite set. Thus, we can reduce the existential quantifier to propositional disjunction (the first case). That is, if `S = {e1,...,en}` we can rewrite
 
 ```tlaplus
 \E v \in S : P(v)
