@@ -33,7 +33,9 @@ let model = {
     lassoTo: null,
     errorObj: null,
     currPane: Pane.Trace,
-    nextStatePreview: null
+    nextStatePreview: null,
+    replMode: false,
+    replResult: null
 }
 
 // The main app component.
@@ -845,6 +847,43 @@ function tracePane() {
     ]);
 }
 
+function replResult(){
+    if(model.replResult !== null){
+        return model.replResult.toString();
+    } else{
+        return "";
+    }
+}
+
+function replPane() {
+    return m("div", [
+        m("h2", { id: "repl-title", class: "panje-title" }, "REPL Input"),
+        m("div", { id: "repl-container" }, [
+            m("input", {
+                class: "repl-input",
+                id: `repl-input`,
+                size: 50,
+                oninput: (e) => {
+                    model.replInput = e.target.value
+                    let ctx = new Context(null, new TLAState({}), model.specDefs, {}, model.specConstVals);
+                    try {
+                        let res = evalExprStrInContext(ctx, model.replInput);
+                        console.log(res);
+                        model.replResult = res;
+                    } catch (error) {
+                        // swallow parse errors here.
+                        console.log("swallowing parse errors during repl evaluation.")
+                    }
+                },
+                value: model.replInput,
+                placeholder: "Enter TLA+ expression."
+            }),
+            m("h2", { id: "repl-title", class: "panje-title" }, "Result"),
+            m("textarea", { id: "repl-result" }, replResult())
+        ])
+    ]);
+}
+
 // To be used for selecting different panes when/if we add that UI functionality.
 function componentPaneSelector() {
     return m("div", { id: "pane-selector" }, [
@@ -873,6 +912,13 @@ function componentExplorerPane() {
     // if(model.currPane === Pane.Constants){
     //     paneElem = chooseConstantsPane();
     // }
+
+    // Only show REPL pane in repl mode.
+    if(model.replMode){
+        return m("div", { id: "explorer-pane" }, [
+            replPane()
+        ]);     
+    }
 
     return m("div", { id: "explorer-pane" }, [
         chooseConstantsPane(),
@@ -934,7 +980,9 @@ async function loadApp() {
         onupdate: function () {
             // Keep trace viewer scrolled to bottom.
             let trace = document.getElementById("trace");
-            trace.scrollTo(0, trace.scrollHeight);
+            if(trace !== null){
+                trace.scrollTo(0, trace.scrollHeight);
+            }
         },
         view: function () {
             return [
@@ -995,6 +1043,11 @@ async function loadApp() {
     specPathArg = m.route.param("specpath");
     console.log("specpatharg", specPathArg);
     // specPathArg = urlParams["specpath"];
+
+    // Check for repl mode.
+    replArg = m.route.param("repl");
+    console.log("replArg", replArg);
+    model.replMode = replArg === true;
 
     // Load given spec.
     if (specPathArg !== undefined) {

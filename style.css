@@ -103,18 +103,19 @@ body {
   }
 
   #repl-container{
-    position:absolute;
-    right:0;
-    bottom:0;
-    background-color: gray;
-    margin-right:20px;
+    width:200px;
   }
 
-  #repl-text-input{
-    padding:10px;
-    font-size:16px;
+  #repl-result{
+    padding:15px;
+    font-size:20px;
     font-family: monospace;
+    border: solid 1px gray;
+    margin-top:10px;
+    min-height:20px;
+    width:400px;
   }
+
 
   header {
     box-sizing: border-box;
@@ -349,6 +350,26 @@ body {
     overflow: scroll;
     border-right:solid 0.5px lightgray;
     /* background-color: lightgray; */
+  }
+
+  #repl-container {
+    /* top: 0; */
+    /* left: 35%; */
+    /* bottom: 0; */
+    /* width:20%; */
+    /* right: 30%; */
+    padding-left:0px;
+    /* overflow: auto; */
+    /* overflow: scroll; */
+    /* border-right:solid 0.5px lightgray; */
+    /* background-color: lightgray; */
+    width:30%;
+  }
+
+  #repl-container input {
+    font-size:20px;
+    padding:15px;
+    font-family: monospace;
   }
 
   #explorer-pane {
