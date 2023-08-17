@@ -18,4 +18,4 @@ There are still a variety of TLA+ language features that [may not be implemented
 
 ## REPL Mode
 
-You can also open a specification in REPL mode, which gives you access to a REPL for dynamically evaluating TLA+ expressions in the context of a specification. See [here](https://will62794.github.io/tla-web/#!/home?specpath=./specs/repl.tla&repl=true) for an example REPL scratchpad.
+You can also open a specification in REPL mode, which gives you access to a live REPL for dynamically evaluating TLA+ expressions in the context of a specification. See [here](https://will62794.github.io/tla-web/#!/home?specpath=./specs/repl.tla&repl=true) for an example REPL scratchpad.
