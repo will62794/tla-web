@@ -44,7 +44,7 @@ let App;
 // Parse URL params;
 const urlSearchParams = new URLSearchParams(window.location.search);
 const urlParams = Object.fromEntries(urlSearchParams.entries());
-let enableEvalTracing = parseInt(urlParams["debug"]);
+let enableEvalTracing = false;
 
 
 function displayStateGraph() {
@@ -957,7 +957,8 @@ async function loadApp() {
     // let specPath = "./specs/lockserver_nodefs.tla";
     // let specPath = "./specs/lockserver_nodefs_anim.tla";
     // let specPath = "./specs/MongoLoglessDynamicRaft.tla";
-    let specPath = "./specs/Paxos.tla";
+    // let specPath = "./specs/Paxos.tla";
+    let specPath = "./specs/TwoPhase.tla";
     // let specPath = "./specs/simple_test.tla";
     // let specPath = "./specs/simple_lockserver.tla";
 
@@ -1038,6 +1039,9 @@ async function loadApp() {
             "/eval_debug_graph": EvalDebugGraph,
         });
 
+
+    let debug = parseInt(m.route.param("debug"));
+    enableEvalTracing = debug === 1;
 
     // Check for given spec in URL args.
     specPathArg = m.route.param("specpath");
