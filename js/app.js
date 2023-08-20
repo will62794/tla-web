@@ -775,6 +775,11 @@ async function handleCodeChange(editor, changes) {
     model.errorObj = null;
     model.actions = parsedSpecTree.actions;
 
+    if(!model.specTreeObjs["op_defs"].hasOwnProperty("Init")){
+        console.log("Warning: No 'Init' predicate found.");
+        return;
+    }
+
     model.specConsts = model.specTreeObjs["const_decls"];
     model.specDefs = model.specTreeObjs["op_defs"];
     model.nextStatePred = model.specTreeObjs["op_defs"]["Next"]["node"];
