@@ -295,16 +295,16 @@ function componentNextStateChoices(nextStates) {
             let nextStateElem = componentNextStateChoiceElement(state, i);
             nextStateElems.push(nextStateElem);
         }
-    } else{
-        // Action specific case.
-        for (const [actionId, nextStatesForAction] of Object.entries(nextStates)) {
-            let i = 0;
-            let action = model.actions[actionId];
-            for (const state of nextStatesForAction) {
-                let nextStateElem = componentNextStateChoiceElement(state, i, action.name);
-                nextStateElems.push(nextStateElem);
-                i += 1;
-            }
+    } 
+    
+    // Action specific case.
+    for (const [actionId, nextStatesForAction] of Object.entries(nextStates)) {
+        let i = 0;
+        let action = model.actions[actionId];
+        for (const state of nextStatesForAction) {
+            let nextStateElem = componentNextStateChoiceElement(state, i, action.name);
+            nextStateElems.push(nextStateElem);
+            i += 1;
         }
     }
 
