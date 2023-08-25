@@ -283,12 +283,14 @@ function componentNextStateChoices(nextStates) {
 
     let nextStateElems = [];
 
-    nextStateElems.push(componentErrorInfo());
+    // nextStateElems.push(componentErrorInfo());
 
     if (model.lassoTo !== null) {
         // If we're stuck in a lasso, don't permit any further next state choices.
         return [];
     }
+    // return m("table", 
+    //     m("tr", [m("th", {width: "100px"}, "x"), m("th", {width: "100px"}, "y")]));
 
     // Handle case where next states are not broken down per action.
     if (nextStates instanceof Array) {
@@ -310,7 +312,23 @@ function componentNextStateChoices(nextStates) {
             i += 1;
         }
     }
-    // console.log("next state elems:", nextStateElems);
+    console.log("next state elems:", nextStateElems[0]);
+
+    // Fill up rows of table/grid with max number of elements.
+    let outRows = [m("tr", componentErrorInfo())]
+    let statesPerRow = 2;
+    let currRow = [];
+    for(const elem of nextStateElems){
+        currRow.push(m("th", elem));
+
+        if(currRow.length == statesPerRow){
+            outRows.push(m("tr", {width: "100%", "margin":"5px"}, currRow));
+            currRow = [];
+        }
+    }
+    console.log(outRows);
+    return m("table", {width: "98%"}, outRows);
+
     return nextStateElems;
 }
 

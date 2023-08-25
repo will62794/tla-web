@@ -277,14 +277,17 @@ body {
   .trace-select-table  .action-name{
     color:black;
     /* font-family: Arial, Helvetica, sans-serif; */
-    font-size: 13px;
-    padding-bottom: 5px;
-    padding-top: 5px;
+    font-size: 12px;
+    padding-bottom: 3px;
+    /* width:90%; */
+    /* padding-top: 3px; */
+    /* margin-bottom:43px; */
     /* background-color: steelblue; */
     /* color:white; */
     /* border: solid 1px black; */
     text-decoration: underline;
-    font-weight: bold;
+    /* font-weight: bold; */
+    /* border-bottom:solid 1px black; */
   }
 
   .trace-expr-delete{
@@ -303,14 +306,22 @@ body {
     padding-right:10px;
   }
 
-  .init-state{
-      background-color:#ddd;
+  .init-state {
+      background-color:#eee;
       padding:1%;
-      width:45%;
-      float:left;
-      margin:1%;
+      width:94%;
+      /* float:left; */
+      margin:2%;
       border:solid;
       border-color:gray;
+      border-radius: 4px;
+  }
+
+  .init-state:hover{
+    background-color:#ddd;
+    cursor:pointer;
+    border:solid;
+    border-color: black;
   }
 
   .state-varname{
@@ -321,12 +332,6 @@ body {
     color:blue;
     /* border-top:solid; */
     /* padding-top:100px; */
-  }
-
-  .init-state:hover{
-      cursor:pointer;
-      border:solid;
-      border-color: steelblue;
   }
 
   #code-container, #query-container {
