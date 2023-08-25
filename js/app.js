@@ -295,7 +295,7 @@ function componentNextStateChoices(nextStates) {
             let nextStateElem = componentNextStateChoiceElement(state, i);
             nextStateElems.push(nextStateElem);
         }
-    } else{
+    } else {
         // Action specific case.
         for (const [actionId, nextStatesForAction] of Object.entries(nextStates)) {
             let i = 0;
@@ -312,14 +312,16 @@ function componentNextStateChoices(nextStates) {
     let outRows = [m("tr", componentErrorInfo())]
     let statesPerRow = 2;
     let currRow = [];
-    for(const elem of nextStateElems){
+    let count = 0;
+    for (const elem of nextStateElems) {
         currRow.push(m("th", elem));
-        if(currRow.length == statesPerRow){
-            outRows.push(m("tr", {width: "100%", "margin":"5px"}, currRow));
+        count += 1;
+        if (currRow.length == statesPerRow || count === nextStateElems.length) {
+            outRows.push(m("tr", { width: "100%", "margin": "5px" }, currRow));
             currRow = [];
         }
     }
-    return m("table", {width: "98%"}, outRows);
+    return m("table", { width: "98%" }, outRows);
 }
 
 function recomputeNextStates(fromState) {
