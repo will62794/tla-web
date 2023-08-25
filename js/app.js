@@ -35,7 +35,8 @@ let model = {
     currPane: Pane.Trace,
     nextStatePreview: null,
     replMode: false,
-    replResult: null
+    replResult: null,
+    constantsPaneHidden: false
 }
 
 // The main app component.
@@ -221,10 +222,13 @@ function componentChooseConstants() {
     return m("div", {}, [
         m("div", { id: "constants-header" },
             [
-                m("div", { id: "constants-title", class: "pane-title" }, "Choose Constants"),
+                // Allow hiding of choose constants pane.
+                m("div", { id: "constants-title", class: "pane-title", onclick: function(x){
+                    model.constantsPaneHidden = !model.constantsPaneHidden;
+                }}, "Choose Constants"),
                 m("div", { id: "set-constants-button" }, setButtonDiv)
             ]),
-        m("div", { id: "choose-constants-elems" }, chooseConstsElems),
+        m("div", { id: "choose-constants-elems", hidden: model.constantsPaneHidden }, chooseConstsElems),
     ]);
 }
 

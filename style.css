@@ -19,9 +19,8 @@ body {
     /* background-color: blue; */
   }
 
-  #constants-title{
-    /* background-color: orange; */
-    /* width:100px; */
+  #constants-title:hover{
+    cursor: pointer;
   }
 
   #set-constants-button{
