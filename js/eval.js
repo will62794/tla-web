@@ -1280,7 +1280,7 @@ function parseSpec(specText) {
  * initial/next state generation.
  */
 class Context {
-    constructor(val, state, defns, quant_bound, constants, prev_func_val) {
+    constructor(val, state, defns, quant_bound, constants, prev_func_val, operators_bound) {
 
         // @type: TLAValue
         // The result value of a TLA expression, or 'null' if no result has been
@@ -1307,6 +1307,10 @@ class Context {
         // stored as a mapping from identifier names to their TLC values.
         this.quant_bound = quant_bound;
 
+        // Currently bound operators in the in-progress expression evaluation e.g.
+        // those defined inside a LET-IN expressions.
+        this.operators_bound = operators_bound || {};
+
         // @type: TLAValue
         // Stores a binding of a previous function value (e.g. the @ symbol) for 
         // EXCEPT based record updates.
@@ -1329,9 +1333,10 @@ class Context {
         let stateNew = _.cloneDeep(this.state);
         let defnsNew = this.defns // don't copy this field.
         let quant_boundNew = _.cloneDeep(this.quant_bound);
+        let operators_boundNew = _.cloneDeep(this.operators_bound);
         let constants = _.cloneDeep(this.constants);
         let prev_func_val = _.cloneDeep(this.prev_func_val);
-        return new Context(valNew, stateNew, defnsNew, quant_boundNew, constants, prev_func_val);
+        return new Context(valNew, stateNew, defnsNew, quant_boundNew, constants, prev_func_val, operators_boundNew);
     }
 
     /**
@@ -1377,6 +1382,15 @@ class Context {
     withBoundVar(name, val) {
         let ctxCopy = this.clone();
         ctxCopy["quant_bound"][name] = val;
+        return ctxCopy;
+    }
+
+    /**
+     * Returns a new copy of this context with the operator 'op' bound to 'name'.
+     */
+    withBoundOp(name, op) {
+        let ctxCopy = this.clone();
+        ctxCopy["operators_bound"][name] = op;
         return ctxCopy;
     }
 
@@ -2288,37 +2302,45 @@ function evalBoundOp(node, ctx) {
     }
 
     // Check for the bound op in the set of known definitions.
-    if (ctx["defns"].hasOwnProperty(opName)) {
-        let opDefNode = ctx["defns"][opName]["node"];
-        let opDefObj = ctx["defns"][opName];
-        let opArgs = opDefObj["args"];
-        evalLog("defns", node);
-        evalLog("opDefObj", opDefObj);
+    let opDef = null;
+    if (ctx["defns"].hasOwnProperty(opName)){
+        opDef = ctx["defns"][opName];
+    } else if(ctx["operators_bound"].hasOwnProperty(opName)){
+        opDef = ctx["operators_bound"][opName];
+    } else{
+        // Unknown operator.
+        throw new Error("Error: unknown operator '" + opName + "'.");
+    }
 
-        // n-ary operator.
-        if (opArgs.length >= 1) {
-            // Evaluate each operator argument.
-            let opArgsEvald = node.namedChildren.slice(1).map(oarg => evalExpr(oarg, ctx));
-            let opArgVals = _.flatten(opArgsEvald);
-            evalLog("opArgVals:", opArgVals);
+    let opDefNode = opDef["node"];
+    let opDefObj = opDef;
+    let opArgs = opDefObj["args"];
+    evalLog("defns", node);
+    evalLog("opDefObj", opDefObj);
 
-            // Then, evaluate the operator defininition with these argument values bound
-            // to the appropriate names.
-            let opEvalContext = ctx.clone();
-            if (!opEvalContext.hasOwnProperty("quant_bound")) {
-                opEvalContext["quant_bound"] = {};
-            }
+    // n-ary operator.
+    if (opArgs.length >= 1) {
+        // Evaluate each operator argument.
+        let opArgsEvald = node.namedChildren.slice(1).map(oarg => evalExpr(oarg, ctx));
+        let opArgVals = _.flatten(opArgsEvald);
+        evalLog("opArgVals:", opArgVals);
 
-            evalLog("opDefNode", opDefNode);
-            for (var i = 0; i < opArgs.length; i++) {
-                // The parameter name in the operator definition.
-                let paramName = opArgs[i];
-                // console.log("paramName:", paramName);
-                opEvalContext["quant_bound"][paramName] = opArgVals[i]["val"];
-            }
-            evalLog("opEvalContext:", opEvalContext);
-            return evalExpr(opDefNode, opEvalContext);
+        // Then, evaluate the operator defininition with these argument values bound
+        // to the appropriate names.
+        let opEvalContext = ctx.clone();
+        if (!opEvalContext.hasOwnProperty("quant_bound")) {
+            opEvalContext["quant_bound"] = {};
         }
+
+        evalLog("opDefNode", opDefNode);
+        for (var i = 0; i < opArgs.length; i++) {
+            // The parameter name in the operator definition.
+            let paramName = opArgs[i];
+            // console.log("paramName:", paramName);
+            opEvalContext["quant_bound"][paramName] = opArgVals[i]["val"];
+        }
+        evalLog("opEvalContext:", opEvalContext);
+        return evalExpr(opDefNode, opEvalContext);
     }
 
     // Unknown operator.
@@ -2484,10 +2506,35 @@ function evalLetIn(node, ctx) {
     let newBoundCtx = ctx;
     for (const def of opDefs) {
         let defVarName = def.childForFieldName("name").text;
-        // Make sure to evaluate each new LET definition expression in the context of the 
-        // previously bound definitions.
-        let defVal = evalExpr(def.childForFieldName("definition"), newBoundCtx)[0]["val"];
-        newBoundCtx = newBoundCtx.withBoundVar(defVarName, defVal);
+
+        evalLog("LET IN def:", def);
+
+        // Iterate over children until we hit equality symbol as a way to
+        // extract op parameters.
+        let parameters = [];
+        for (const child of def.namedChildren.slice(1)) {
+            if (child.type === "def_eq") {
+                break;
+            }
+            parameters.push(child);
+        }
+
+        // Save the body of the defined operator.
+        let defBody = def.childForFieldName("definition");
+
+        evalLog("LET IN parameters:", parameters)
+
+        // 0-arity definition, so we can just evaluate it.
+        if (parameters.length == 0) {
+            // Make sure to evaluate each new LET definition expression in the context of the 
+            // previously bound definitions.
+            let defVal = evalExpr(defBody, newBoundCtx)[0]["val"];
+            newBoundCtx = newBoundCtx.withBoundVar(defVarName, defVal);
+        } else {
+            // >= 1-arity operator. So we don't evaluate it, but need to bind it as an operator in the context.
+            let op = { "name": defVarName, "args": parameters.map(p => p.text), "node": defBody };
+            newBoundCtx = newBoundCtx.withBoundOp(defVarName, op);
+        }
 
         //
         // Lazy evaluation variant. Disable for now until semantics are clearer.

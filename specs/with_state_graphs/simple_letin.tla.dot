@@ -3,7 +3,13 @@ nodesep=0.35;
 subgraph cluster_graph {
 color="white";
 -6236049847382918084 [label="x = [a |-> 6, b |-> 7, c |-> 16]",style = filled]
+-8796416551377027776 [label="x = 18",style = filled]
+3264821330489916307 [label="x = 15",style = filled]
+-8498723013506653393 [label="x = 105",style = filled]
 -6236049847382918084 -> -6236049847382918084 [label="",color="black",fontcolor="black"];
-{rank = same; -6236049847382918084;}
+-8796416551377027776 -> -8796416551377027776 [label="",color="black",fontcolor="black"];
+3264821330489916307 -> 3264821330489916307 [label="",color="black",fontcolor="black"];
+-8498723013506653393 -> -8498723013506653393 [label="",color="black",fontcolor="black"];
+{rank = same; -6236049847382918084;-8796416551377027776;3264821330489916307;-8498723013506653393;}
 }
 }
