@@ -274,11 +274,19 @@ function componentNextStateChoiceElement(state, ind, actionLabel) {
     return nextStateElem;
 }
 
+function errorMsgStr(errorObj) {
+    errorPosStr = "";
+    if (errorObj !== null && errorObj.errorPos === null) {
+        errorPosStr = errorObj.errorPos === null ? "" : "(" + errorObj.errorPos + ")";
+    }
+    return errorObj === null ? "" : errorObj.message + " " + errorPosStr;
+}
+
 function componentErrorInfo() {
     let errorInfo = m("div", {
         class: "error-info",
         hidden: model.errorObj === null
-    }, model.errorObj === null ? "" : model.errorObj.message + " (" + model.errorObj.errorPos + ")");
+    }, errorMsgStr(model.errorObj));
     return errorInfo;
 }
 
@@ -789,8 +797,19 @@ async function handleCodeChange(editor, changes) {
     model.errorObj = null;
     model.actions = parsedSpecTree.actions;
 
-    if(!model.specTreeObjs["op_defs"].hasOwnProperty("Init")){
-        console.log("Warning: No 'Init' predicate found.");
+    let hasInit = model.specTreeObjs["op_defs"].hasOwnProperty("Init");
+    let hasNext = model.specTreeObjs["op_defs"].hasOwnProperty("Next");
+
+    // Halt and display appropriate error if Init or Next is missing.
+    if (!hasInit || !hasNext) {
+        console.log("Warning: 'Init' or 'Next' predicate not found.");
+        let errMsg = "";
+        if (!hasInit) {
+            errMsg = "Initial state predicate missing. Please define one as 'Init'."
+        } else if (!hasNext) {
+            errMsg = "Next state predicate missing. Please define one as 'Next'."
+        }
+        model.errorObj = { message: "ERROR: " + errMsg, errorPos: null };
         return;
     }
 
