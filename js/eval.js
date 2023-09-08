@@ -109,6 +109,7 @@ class TLAValue {
     }
 }
 
+// Lazy value. Currently unused but may be utilized in future.
 class LazyValue extends TLAValue {
     constructor(n) {
         super(n);
@@ -668,7 +669,7 @@ class SyntaxRewriter {
         console.log("initial curr line,col:", lineArg, colArg);
         for (var f of _.reverse(this.sourceMapOffsets)) {
             // for (var f of this.sourceMapOffsets) {
-            console.log("smap:", f);
+            // console.log("smap:", f);
 
             let newPos = f(lineArg, colArg);
             lineArg = newPos[0];
@@ -697,7 +698,7 @@ class SyntaxRewriter {
             //         }
             //     }
             // }
-            console.log("curr line,col:", lineArg, colArg);
+            // console.log("curr line,col:", lineArg, colArg);
         }
         return [lineArg, colArg];
     }
@@ -2485,16 +2486,17 @@ function evalLetIn(node, ctx) {
         let defVarName = def.childForFieldName("name").text;
         // Make sure to evaluate each new LET definition expression in the context of the 
         // previously bound definitions.
-        // let defVal = evalExpr(def.childForFieldName("definition"), newBoundCtx)[0]["val"];
-        let defValLazy = new LazyValue();
-        defValLazy.expr = def.childForFieldName("definition");
-        defValLazy.context = newBoundCtx.clone();
+        let defVal = evalExpr(def.childForFieldName("definition"), newBoundCtx)[0]["val"];
+        newBoundCtx = newBoundCtx.withBoundVar(defVarName, defVal);
 
-        // let defVal = new IntValue(5);
-        // evalLog("defVarName:", defVarName);
-        // evalLog("defVal:", defVal);
-        // newBoundCtx = newBoundCtx.withBoundVar(defVarName, defVal);
-        newBoundCtx = newBoundCtx.withBoundVar(defVarName, defValLazy);
+        //
+        // Lazy evaluation variant. Disable for now until semantics are clearer.
+        //
+        // let defValLazy = new LazyValue();
+        // defValLazy.expr = def.childForFieldName("definition");
+        // defValLazy.context = newBoundCtx.clone();
+        // evalLog(`LETIN: Binding LazyValue for name '${defVarName}'`);
+        // newBoundCtx = newBoundCtx.withBoundVar(defVarName, defValLazy);
     }
     evalLog("newBoundCtx:", newBoundCtx);
     return evalExpr(letInExpr, newBoundCtx);
