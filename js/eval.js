@@ -1051,6 +1051,9 @@ function evalExprStrInContext(evalCtx, exprStr) {
  */
 function extractActionName(node) {
     // TODO: Check these cases to determine all action name extraction scenarios.
+    if(node.type === "identifier_ref"){
+        return node.text;
+    }
     if (node.type === "bound_op") {
         let opName = node.namedChildren[0].text;
         return opName;
@@ -1228,8 +1231,28 @@ function parseSpec(specText) {
         if (nextNode.type === "disj_list") {
             actions = nextNode.namedChildren.map((cnode, ind) => {
                 let actNode = cnode.namedChildren[1];
+                console.log("EXTRACTED ACTION:", actNode);
+
+                // If an action is just a plain identifier, then we treat it as its own action.
+                if (actNode.type === "identifier_ref") {
+                    return new TLAAction(ind, actNode, extractActionName(actNode));
+                }
+
+                // If an action is further broken down into a conjunction/disjunction list,
+                // don't parse it as a single action, and just fall back to single 'Next' action case.
+                disjunct_last_elem = actNode.namedChildren[actNode.namedChildren.length - 1];
+
+                if (disjunct_last_elem.type == "conj_list" ||
+                    disjunct_last_elem.type == "disj_list") {
+                    return null;
+                }
                 return new TLAAction(ind, actNode, extractActionName(actNode)); // TODO: fix.
             });
+
+            // Fall back to single action case.
+            if (actions.includes(null)) {
+                actions = [new TLAAction(0, nextNode, "Next")];
+            }
         }
         // Default: treat Next as one big action.
         else {
