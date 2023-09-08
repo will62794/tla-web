@@ -17,6 +17,17 @@ There are still a variety of TLA+ language features that [may not be implemented
 
 <!-- A basic, preliminary test suite can be found [here](https://will62794.github.io/tla-web/test.html). -->
 
+## Usage Notes
+
+The current tool expects that a specification has defined its initial state predicate and next state relation as `Init` and `Next` definitions, respectively. If your specification has these defined under different names, an error will be reported and spec evaluation will fail. Eventually this will be made configurable, but the current tool looks for these hard-coded definitions. Also, there is currently no support for user module imports, so specs are expected to be written in a single module. The interpreter does, however, by default support most operators from the [TLA+ standard modules](https://github.com/tlaplus/tlaplus/tree/c25a01393ef7d9b0315f3d3b1581988e7a4a57b2/tlatools/org.lamport.tlatools/src/tla2sany/StandardModules).
+
+Note that in addition to copying and pasting in the text of a TLA+ spec or writing it in the browser interface, you can also load a spec file from a given URL by using the following URL path format:
+```
+https://will62794.github.io/tla-web/#!/home?specpath=<tla_spec_url>
+```
+where `tla_spec_url` is a URL pointing to raw TLA file. For example, you can see that [this link](https://will62794.github.io/tla-web/#!/home?specpath=https://gist.githubusercontent.com/will62794/4250c4b6a8e68b0d9e038186739af8cc/raw/3470b5999f896abb478733e8fc07e7ed9e3039da/HourClock.tla) loads a simple spec from a [personal Github gist](https://gist.githubusercontent.com/will62794/4250c4b6a8e68b0d9e038186739af8cc/raw/3470b5999f896abb478733e8fc07e7ed9e3039da/HourClock.tla).
+
+
 ## REPL Mode
 
 You can also open a specification in REPL mode, which gives you access to a live REPL for dynamically evaluating TLA+ expressions in the context of a specification. See [here](https://will62794.github.io/tla-web/#!/home?specpath=./specs/repl.tla&repl=true) for an example REPL scratchpad.
