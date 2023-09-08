@@ -109,6 +109,18 @@ class TLAValue {
     }
 }
 
+class LazyValue extends TLAValue {
+    constructor(n) {
+        super(n);
+        this.expr = n;
+        this.context = n;
+    }
+
+    fingerprint(){
+        return evalExpr(this.expr, this.context)[0]["val"].fingerprint();
+    }
+}
+
 class IntValue extends TLAValue {
     constructor(n) {
         super(n);
@@ -2450,10 +2462,16 @@ function evalLetIn(node, ctx) {
         let defVarName = def.childForFieldName("name").text;
         // Make sure to evaluate each new LET definition expression in the context of the 
         // previously bound definitions.
-        let defVal = evalExpr(def.childForFieldName("definition"), newBoundCtx)[0]["val"];
+        // let defVal = evalExpr(def.childForFieldName("definition"), newBoundCtx)[0]["val"];
+        let defValLazy = new LazyValue();
+        defValLazy.expr = def.childForFieldName("definition");
+        defValLazy.context = newBoundCtx.clone();
+
+        // let defVal = new IntValue(5);
         // evalLog("defVarName:", defVarName);
         // evalLog("defVal:", defVal);
-        newBoundCtx = newBoundCtx.withBoundVar(defVarName, defVal);
+        // newBoundCtx = newBoundCtx.withBoundVar(defVarName, defVal);
+        newBoundCtx = newBoundCtx.withBoundVar(defVarName, defValLazy);
     }
     evalLog("newBoundCtx:", newBoundCtx);
     return evalExpr(letInExpr, newBoundCtx);
@@ -2626,6 +2644,11 @@ function evalExpr(node, ctx) {
 
     // evalLog("$$ evalExpr, node: ", node);
     evalLog("evalExpr -> (" + node.type + ") '" + node.text + "'");
+
+    if(node instanceof LazyValue){
+        console.log("Evaluating lazy value.", node);
+        return evalExpr(node.expr, node.context);
+    }
 
     if (node.type === "parentheses") {
         // evalLog(node);
