@@ -1420,6 +1420,20 @@ class Context {
     isPrimed() {
         return this.primed;
     }
+
+    hasOperatorBound(defName) {
+        return this["defns"].hasOwnProperty(defName) || this["operators_bound"].hasOwnProperty(defName);
+    }
+
+    getBoundOperator(defName) {
+        assert(this.hasOperatorBound(defName), `operator ${defName} not bound in context`);
+        if (this["defns"].hasOwnProperty(defName)) {
+            return this["defns"][defName];
+        }
+        if (this["operators_bound"].hasOwnProperty(defName)) {
+            return this["operators_bound"][defName];
+        }
+    }
 }
 
 function evalLnot(v, ctx) {
@@ -2339,6 +2353,23 @@ function evalBoundOp(node, ctx) {
                 // Don't evaluate LAMBA expressions, but record their nodes.
                 return arg;
             }
+
+            if (arg.type === "identifier_ref") {
+                // Also possible that a reference to a pre-defined operator is passed as an argument
+                // e.g.
+                //
+                // Plus(a,b) == a + b
+                // Op(F(_,_)) == F(2,3)
+                // val == Op(Plus)
+                //
+
+                // Check if this identifier is bound to an operator definition in the current
+                // context i.e. check if it is an >= 1 arity operator.
+                if (ctx.hasOperatorBound(arg.text) && ctx.getBoundOperator(arg.text)["args"].length > 0) {
+                    return arg;
+                }
+            }
+
             return evalExpr(arg, ctx)
         });
         let opArgVals = _.flatten(opArgsEvald);
@@ -2358,18 +2389,33 @@ function evalBoundOp(node, ctx) {
             // console.log("paramName:", paramName);
             // console.log("paramName:", opArgs[i]);
 
-            // For LAMBDA arguments, we need to bind their op definitions.
-            if (opArgVals[i].type === "lambda") {
+            let anonOpArgName;
+            let placeholders;
+            if (opArgVals[i].type === "lambda" || opArgVals[i].type === "identifier_ref") {
+                // Get the name of anonymous operator arg e.g. would be 'F' in the following definition.
+                // Op1(F(_), v) == ....
+                anonOpArgName = opArgs[i].namedChildren[0].text;
+
+                // The underscores (_) that act as anonymous placeholders for operator arguments.
+                placeholders = opArgs[i].namedChildren.filter(c => c.type === "placeholder");
+            }
+
+            if (opArgVals[i].type === "identifier_ref") {
+                // Pre-defined operator that is used as an argument to a higher order operator definition.
+                // So, we just use the existing operator definition (assuming it exists) and bind it with a new name.
+                // let opDef = opArgVals[i];
+                let opDefName = opArgVals[i].text;
+
+                let opDef = ctx.getBoundOperator(opDefName);
+                console.log("OP DEF ARG:", opDef);
+
+                let op = { "name": anonOpArgName, "args": opDef["args"], "node": opDef["node"] };
+                opEvalContext["operators_bound"][anonOpArgName] = op;
+            } else if (opArgVals[i].type === "lambda") {
+                // For LAMBDA arguments, we need to bind their op definitions.
                 let lambdaOp = opArgVals[i];
                 let lambdaArgs = lambdaOp.namedChildren.filter(c => c.type === "identifier");
                 let lambdaBody = lambdaOp.namedChildren[lambdaOp.namedChildren.length - 1];
-
-                // Get the name of anonymous operator arg e.g. would be 'F' in the following definition.
-                // Op1(F(_), v) == ....
-                let anonOpArgName = opArgs[i].namedChildren[0].text;
-
-                // The underscores (_) that act as anonymous placeholders for operator arguments.
-                let placeholders = opArgs[i].namedChildren.filter(c => c.type === "placeholder");
 
                 assert(placeholders.length === lambdaArgs.length,
                     `LAMBDA argument count of ${lambdaArgs.length} must match anonymous operator arg count of ${placeholders.length}.`)

@@ -14,50 +14,80 @@
         1
       ],
       "nodes": [
-        2,3,4,5,6
+        2,3,4,5,6,7,8,9,10,11
       ],
       "edges": [
-        0,1,2,3,4
+        0,1,2,3,4,5,6,7,8,9
       ]
     },
     {
-      "name": "%13",
+      "name": "%23",
       "color": "white",
       "nodesep": "0.35",
       "rank": "same",
       "_gvid": 1,
       "nodes": [
-        2,3,4,5,6
+        2,3,4,5,6,7,8,9,10,11
       ]
     },
     {
       "_gvid": 2,
-      "name": "5079263637246660081",
-      "label": "x = <<\"op1a\", 37>>",
+      "name": "-8714631190595358265",
+      "label": "x = <<\"1\", 37>>",
       "style": "filled"
     },
     {
       "_gvid": 3,
-      "name": "-9002919260264607162",
-      "label": "x = <<\"op1b\", 16>>",
+      "name": "4791116311436766832",
+      "label": "x = <<\"2\", 16>>",
       "style": "filled"
     },
     {
       "_gvid": 4,
-      "name": "2391613260400489824",
-      "label": "x = <<\"op2\", 32>>",
+      "name": "-4988819755933655245",
+      "label": "x = <<\"3\", 32>>",
       "style": "filled"
     },
     {
       "_gvid": 5,
-      "name": "-5722797652486893291",
-      "label": "x = <<\"op3\", 26>>",
+      "name": "3507760491754526711",
+      "label": "x = <<\"4\", 26>>",
       "style": "filled"
     },
     {
       "_gvid": 6,
-      "name": "-6754100323956080536",
-      "label": "x = <<\"op4\", 35157>>",
+      "name": "4156836481956588091",
+      "label": "x = <<\"5\", 35157>>",
+      "style": "filled"
+    },
+    {
+      "_gvid": 7,
+      "name": "7981769454953609343",
+      "label": "x = <<\"6\", 71>>",
+      "style": "filled"
+    },
+    {
+      "_gvid": 8,
+      "name": "408375458138110957",
+      "label": "x = <<\"6\", 132>>",
+      "style": "filled"
+    },
+    {
+      "_gvid": 9,
+      "name": "3527994426191400532",
+      "label": "x = <<\"7\", 35157>>",
+      "style": "filled"
+    },
+    {
+      "_gvid": 10,
+      "name": "-1518960515862546508",
+      "label": "x = <<\"8\", 30>>",
+      "style": "filled"
+    },
+    {
+      "_gvid": 11,
+      "name": "-4209749065133042428",
+      "label": "x = <<\"9\", 1116>>",
       "style": "filled"
     }
   ],
@@ -98,6 +128,46 @@
       "_gvid": 4,
       "tail": 6,
       "head": 6,
+      "color": "black",
+      "fontcolor": "black",
+      "label": ""
+    },
+    {
+      "_gvid": 5,
+      "tail": 7,
+      "head": 7,
+      "color": "black",
+      "fontcolor": "black",
+      "label": ""
+    },
+    {
+      "_gvid": 6,
+      "tail": 8,
+      "head": 8,
+      "color": "black",
+      "fontcolor": "black",
+      "label": ""
+    },
+    {
+      "_gvid": 7,
+      "tail": 9,
+      "head": 9,
+      "color": "black",
+      "fontcolor": "black",
+      "label": ""
+    },
+    {
+      "_gvid": 8,
+      "tail": 10,
+      "head": 10,
+      "color": "black",
+      "fontcolor": "black",
+      "label": ""
+    },
+    {
+      "_gvid": 9,
+      "tail": 11,
+      "head": 11,
       "color": "black",
       "fontcolor": "black",
       "label": ""
