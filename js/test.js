@@ -556,7 +556,7 @@ function testStateGraphEquiv(testId, stateGraph, specText, constvals) {
     }
 
     // Run all tests seuentially.
-    testAllSpecs(tests);
+    testAllSpecs(testsToRun);
 
 
     // Fetch all specs and state graphs first, then execute the tests.
