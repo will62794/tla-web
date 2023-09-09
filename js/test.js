@@ -249,6 +249,8 @@ function testStateGraphEquiv(testId, stateGraph, specText, constvals) {
         { "spec": "simple_quant_multi", "constvals": undefined },
         { "spec": "simple_multiline", "constvals": undefined },
         { "spec": "simple_letin", "constvals": undefined },
+        { "spec": "simple_operator", "constvals": undefined },
+        { "spec": "simple_lambda", "constvals": undefined },
         { "spec": "simple_seq", "constvals": undefined },
         { "spec": "simple_if_then", "constvals": undefined },
         { "spec": "simple_record", "constvals": undefined },
@@ -383,7 +385,6 @@ function testStateGraphEquiv(testId, stateGraph, specText, constvals) {
     function handleTestResult(test, specStateGraph, specText, statusObj) {
         let testsDiv = document.getElementById("tests");
         let statusDiv = document.getElementById("test_status-" + test["spec"]);
-        console.log(statusObj);
         if (statusObj["pass"]) {
             statusDiv.style = "margin-bottom:5px; font-weight: bold; color:" + "green";
             statusDiv.innerHTML = "STATUS: PASS &#10003 (" + (statusObj["duration_ms"] + "ms)");
@@ -544,19 +545,23 @@ function testStateGraphEquiv(testId, stateGraph, specText, constvals) {
         });
     }
 
-    function testAllSpecs(tests) {
+    function testAllSpecs(tests, onTestCompletion) {
         if (tests.length === 0) {
-            console.log("No more tests to run.");
+            onTestCompletion();
             return;
         }
         // Run this test, and then recurse on the remaining tests.
         fetchTestSpec(tests[0], function () {
-            testAllSpecs(tests.slice(1));
+            testAllSpecs(tests.slice(1), onTestCompletion);
         });
     }
 
-    // Run all tests seuentially.
-    testAllSpecs(testsToRun);
+    function onTestCompletion() {
+        console.log("All tests finished running.");
+    }
+
+    // Run all tests sequentially.
+    testAllSpecs(testsToRun, onTestCompletion);
 
 
     // Fetch all specs and state graphs first, then execute the tests.

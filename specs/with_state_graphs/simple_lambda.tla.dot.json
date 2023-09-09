@@ -1,0 +1,106 @@
+{
+  "name": "DiskGraph",
+  "directed": true,
+  "strict": true,
+  "nodesep": "0.35",
+  "_subgraph_cnt": 2,
+  "objects": [
+    {
+      "name": "cluster_graph",
+      "color": "white",
+      "nodesep": "0.35",
+      "_gvid": 0,
+      "subgraphs": [
+        1
+      ],
+      "nodes": [
+        2,3,4,5,6
+      ],
+      "edges": [
+        0,1,2,3,4
+      ]
+    },
+    {
+      "name": "%13",
+      "color": "white",
+      "nodesep": "0.35",
+      "rank": "same",
+      "_gvid": 1,
+      "nodes": [
+        2,3,4,5,6
+      ]
+    },
+    {
+      "_gvid": 2,
+      "name": "5079263637246660081",
+      "label": "x = <<\"op1a\", 37>>",
+      "style": "filled"
+    },
+    {
+      "_gvid": 3,
+      "name": "-9002919260264607162",
+      "label": "x = <<\"op1b\", 16>>",
+      "style": "filled"
+    },
+    {
+      "_gvid": 4,
+      "name": "2391613260400489824",
+      "label": "x = <<\"op2\", 32>>",
+      "style": "filled"
+    },
+    {
+      "_gvid": 5,
+      "name": "-5722797652486893291",
+      "label": "x = <<\"op3\", 26>>",
+      "style": "filled"
+    },
+    {
+      "_gvid": 6,
+      "name": "-6754100323956080536",
+      "label": "x = <<\"op4\", 35157>>",
+      "style": "filled"
+    }
+  ],
+  "edges": [
+    {
+      "_gvid": 0,
+      "tail": 2,
+      "head": 2,
+      "color": "black",
+      "fontcolor": "black",
+      "label": ""
+    },
+    {
+      "_gvid": 1,
+      "tail": 3,
+      "head": 3,
+      "color": "black",
+      "fontcolor": "black",
+      "label": ""
+    },
+    {
+      "_gvid": 2,
+      "tail": 4,
+      "head": 4,
+      "color": "black",
+      "fontcolor": "black",
+      "label": ""
+    },
+    {
+      "_gvid": 3,
+      "tail": 5,
+      "head": 5,
+      "color": "black",
+      "fontcolor": "black",
+      "label": ""
+    },
+    {
+      "_gvid": 4,
+      "tail": 6,
+      "head": 6,
+      "color": "black",
+      "fontcolor": "black",
+      "label": ""
+    }
+  ]
+}

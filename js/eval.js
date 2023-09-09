@@ -1153,7 +1153,18 @@ function parseSpec(specText) {
 
             // n-ary operator. save all parameters.
             while (cursor.currentFieldName() === "parameter") {
-                op_defs[opName]["args"].push(cursor.currentNode().text);
+                let currNode = cursor.currentNode();
+                // console.log("PARAMETER: ", currNode.text)
+                // console.log("PARAMETER: ", currNode.namedChildren[0])
+
+                //
+                // Note that we may be handling a higher order operator here, which can appear of the form
+                // Op2(l(_,_), a, b) == ...
+                //
+                // Regardless, we save the whole parameter node.
+                //
+                op_defs[opName]["args"].push(currNode);
+
                 cursor.gotoNextSibling();
                 if (!cursor.currentNode().isNamed()) {
                     cursor.gotoNextSibling();
@@ -2321,7 +2332,15 @@ function evalBoundOp(node, ctx) {
     // n-ary operator.
     if (opArgs.length >= 1) {
         // Evaluate each operator argument.
-        let opArgsEvald = node.namedChildren.slice(1).map(oarg => evalExpr(oarg, ctx));
+        let opArgsEvald = node.namedChildren.slice(1).map(arg => {
+            // Handle possible LAMBDA arguments which are supported for higher order operator
+            // definitions.
+            if (arg.type === "lambda") {
+                // Don't evaluate LAMBA expressions, but record their nodes.
+                return arg;
+            }
+            return evalExpr(arg, ctx)
+        });
         let opArgVals = _.flatten(opArgsEvald);
         evalLog("opArgVals:", opArgVals);
 
@@ -2335,9 +2354,35 @@ function evalBoundOp(node, ctx) {
         evalLog("opDefNode", opDefNode);
         for (var i = 0; i < opArgs.length; i++) {
             // The parameter name in the operator definition.
-            let paramName = opArgs[i];
+            let paramName = opArgs[i].text;
             // console.log("paramName:", paramName);
-            opEvalContext["quant_bound"][paramName] = opArgVals[i]["val"];
+            // console.log("paramName:", opArgs[i]);
+
+            // For LAMBDA arguments, we need to bind their op definitions.
+            if (opArgVals[i].type === "lambda") {
+                let lambdaOp = opArgVals[i];
+                let lambdaArgs = lambdaOp.namedChildren.filter(c => c.type === "identifier");
+                let lambdaBody = lambdaOp.namedChildren[lambdaOp.namedChildren.length - 1];
+
+                // Get the name of anonymous operator arg e.g. would be 'F' in the following definition.
+                // Op1(F(_), v) == ....
+                let anonOpArgName = opArgs[i].namedChildren[0].text;
+
+                // The underscores (_) that act as anonymous placeholders for operator arguments.
+                let placeholders = opArgs[i].namedChildren.filter(c => c.type === "placeholder");
+
+                assert(placeholders.length === lambdaArgs.length,
+                    `LAMBDA argument count of ${lambdaArgs.length} must match anonymous operator arg count of ${placeholders.length}.`)
+
+                // console.log("LAMBDA:", lambdaOp);
+                // console.log("LAMBDA args:", lambdaArgs);
+
+                let op = { "name": anonOpArgName, "args": lambdaArgs, "node": lambdaBody };
+                opEvalContext["operators_bound"][anonOpArgName] = op;
+            } else {
+                opEvalContext["quant_bound"][paramName] = opArgVals[i]["val"];
+            }
+
         }
         evalLog("opEvalContext:", opEvalContext);
         return evalExpr(opDefNode, opEvalContext);
@@ -2532,7 +2577,7 @@ function evalLetIn(node, ctx) {
             newBoundCtx = newBoundCtx.withBoundVar(defVarName, defVal);
         } else {
             // >= 1-arity operator. So we don't evaluate it, but need to bind it as an operator in the context.
-            let op = { "name": defVarName, "args": parameters.map(p => p.text), "node": defBody };
+            let op = { "name": defVarName, "args": parameters, "node": defBody };
             newBoundCtx = newBoundCtx.withBoundOp(defVarName, op);
         }
 
