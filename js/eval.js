@@ -9,6 +9,17 @@
 // For debugging.
 let depth = 0;
 
+const TLA_STANDARD_MODULES = [
+    "TLC",
+    "FiniteSets",
+    "Sequences",
+    "Integers",
+    "Bags",
+    "Naturals",
+    "Reals",
+    "Randomization"
+]
+
 // Simple assertion utility.
 function assert(condition, message) {
     if (!condition) {
@@ -1071,11 +1082,23 @@ function extractActionName(node) {
     }
 }
 
+// TODO: Extend this to parse fetched modules during spec parsing.
+function fetchModuleExtends(moduleNames, urlPath) {
+    console.log("Fetching module extends");
+    console.log(decodeURIComponent(urlPath));
+    const segments = decodeURIComponent(urlPath).split("/");
+    const baseSpecPath = segments.slice(0, segments.length - 1).join("/");
+    $.get(`${baseSpecPath}/${moduleNames[1]}.tla`, function (data) {
+        console.log("Fetched module spec");
+        console.log(data)
+    });
+}
+
 /**
  * Parse and extract definitions and declarations from the given TLA+ module
  * text.
  */
-function parseSpec(specText) {
+function parseSpec(specText, specPath) {
 
     // Perform syntactic rewrites.
     let rewriter = new SyntaxRewriter(specText, parser);
@@ -1106,6 +1129,7 @@ function parseSpec(specText) {
     fn_defs = {};
     var_decls = {};
     const_decls = {};
+    extends_modules = [];
 
     // Look for all variables and definitions defined in the module.
     let more = cursor.gotoFirstChild();
@@ -1117,6 +1141,13 @@ function parseSpec(specText) {
         // console.log("node text:", node.text);
         // console.log("node id:", node.id);
 
+        if (node.type === "extends") {
+            let extendsList = cursor.currentNode().namedChildren;
+            let extendsModuleNames = extendsList.map(n => n.text);
+            extends_modules = extendsModuleNames;
+            console.log("EXTENDS", extends_modules);
+            // fetchModuleExtends(extends_modules, specPath);
+        }
 
         if (node.type === "constant_declaration") {
             let constDecls = cursor.currentNode().namedChildren.filter(c => c.type !== "comment");
@@ -1279,6 +1310,7 @@ function parseSpec(specText) {
         "var_decls": var_decls,
         "op_defs": op_defs,
         "fn_defs": fn_defs,
+        "extends_modules": extends_modules,
         "actions": actions,
         "rewriter": rewriter
     }

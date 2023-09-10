@@ -790,7 +790,7 @@ async function handleCodeChange(editor, changes) {
     }
 
     let parsedSpecTree;
-    parsedSpecTree = parseSpec(newText);
+    parsedSpecTree = parseSpec(newText, model.specPath);
 
     model.specText = newText;
     model.specTreeObjs = parsedSpecTree;
@@ -996,7 +996,7 @@ async function loadApp() {
     // let specPath = "./specs/lockserver_nodefs_anim.tla";
     // let specPath = "./specs/MongoLoglessDynamicRaft.tla";
     // let specPath = "./specs/Paxos.tla";
-    let specPath = "./specs/TwoPhase.tla";
+    model.specPath = "./specs/TwoPhase.tla";
     // let specPath = "./specs/simple_test.tla";
     // let specPath = "./specs/simple_lockserver.tla";
 
@@ -1093,7 +1093,7 @@ async function loadApp() {
 
     // Load given spec.
     if (specPathArg !== undefined) {
-        specPath = specPathArg;
+        model.specPath = specPathArg;
     }
 
     const codeInput = document.getElementById('code-input');
@@ -1106,11 +1106,11 @@ async function loadApp() {
 
 
     // Download the specified spec and load it in the editor pane.
-    m.request(specPath, { responseType: "text" }).then(function (data) {
+    m.request(model.specPath, { responseType: "text" }).then(function (data) {
         const $codeEditor = document.querySelector('.CodeMirror');
         spec = data;
         model.specText = spec;
-        console.log("Retrieved spec:", specPath);
+        console.log("Retrieved spec:", model.specPath);
         if ($codeEditor) {
             $codeEditor.CodeMirror.setSize("100%", "100%");
             $codeEditor.CodeMirror.on("changes", () => {
