@@ -3,7 +3,7 @@
 \* High level specification of Raft protocol without dynamic reconfiguration.
 \*
 
-EXTENDS Naturals, Integers, FiniteSets, Sequences, TLC, Apalache
+EXTENDS Naturals, Integers, FiniteSets, Sequences, TLC
 
 
 CONSTANTS Server

@@ -199,11 +199,11 @@ function componentChooseConstants() {
     if (_.isEmpty(model.specConsts)) {
         return m("span", {}, "");
     }
-    console.log("Instantiating spec constants.");
+    // console.log("Instantiating spec constants.");
 
     let chooseConstsElems = [];
     for (const constDecl in model.specConsts) {
-        console.log(constDecl);
+        // console.log(constDecl);
         let newDiv = m("div", {}, [
             m("span", {}, m.trust("CONSTANT " + constDecl + " &#8592; ")),
             m("input", {
@@ -664,6 +664,8 @@ function componentTraceViewerState(state, ind, isLastState) {
     // Trace expression values, if any are present.
     let traceExprRows = model.traceExprs.map((expr, ind) => {
         let ctx = new Context(null, state, model.specDefs, {}, model.specConstVals);
+        // TODO: Will eventually need to propagate through cached module table in these expression evaluations,
+        // to support evaluation of expressions that may be defined in imported modules.
         let exprVal = evalExprStrInContext(ctx, expr);
         console.log("exprVal:", exprVal);
         let cols = [
@@ -755,6 +757,47 @@ function componentTraceViewer() {
     return m("div", { id: "trace" }, traceElems);
 }
 
+// Called when an updated spec is finished being re-parsed.
+function onSpecParse(newText, parsedSpecTree){
+
+    model.specText = newText;
+    model.specTreeObjs = parsedSpecTree;
+    model.errorObj = null;
+    model.actions = parsedSpecTree.actions;
+
+    let hasInit = model.specTreeObjs["op_defs"].hasOwnProperty("Init");
+    let hasNext = model.specTreeObjs["op_defs"].hasOwnProperty("Next");
+
+    // Halt and display appropriate error if Init or Next is missing.
+    if (!hasInit || !hasNext) {
+        console.log("Warning: 'Init' or 'Next' predicate not found.");
+        let errMsg = "";
+        if (!hasInit) {
+            errMsg = "Initial state predicate missing. Please define one as 'Init'."
+        } else if (!hasNext) {
+            errMsg = "Next state predicate missing. Please define one as 'Next'."
+        }
+        model.errorObj = { message: "ERROR: " + errMsg, errorPos: null };
+        return;
+    }
+
+    model.specConsts = model.specTreeObjs["const_decls"];
+    model.specDefs = model.specTreeObjs["op_defs"];
+    model.nextStatePred = model.specTreeObjs["op_defs"]["Next"]["node"];
+    model.specAlias = model.specTreeObjs["op_defs"]["Alias"];
+
+    // Don't try to reload the spec yet if we have to instantiate constants
+    // Also, switch to the appropriate pane.
+    if (!_.isEmpty(model.specConsts)) {
+        // model.currPane = Pane.Constants; // TODO: Work out pane UI.
+        return;
+    }
+
+    // const duration = (performance.now() - startTime).toFixed(1);
+
+    reloadSpec();
+}
+
 async function handleCodeChange(editor, changes) {
     console.log("handle code change");
 
@@ -790,44 +833,14 @@ async function handleCodeChange(editor, changes) {
     }
 
     let parsedSpecTree;
-    parsedSpecTree = parseSpec(newText, model.specPath);
+    // parsedSpecTree = parseSpec(newText, model.specPath);
 
-    model.specText = newText;
-    model.specTreeObjs = parsedSpecTree;
-    model.errorObj = null;
-    model.actions = parsedSpecTree.actions;
-
-    let hasInit = model.specTreeObjs["op_defs"].hasOwnProperty("Init");
-    let hasNext = model.specTreeObjs["op_defs"].hasOwnProperty("Next");
-
-    // Halt and display appropriate error if Init or Next is missing.
-    if (!hasInit || !hasNext) {
-        console.log("Warning: 'Init' or 'Next' predicate not found.");
-        let errMsg = "";
-        if (!hasInit) {
-            errMsg = "Initial state predicate missing. Please define one as 'Init'."
-        } else if (!hasNext) {
-            errMsg = "Next state predicate missing. Please define one as 'Next'."
-        }
-        model.errorObj = { message: "ERROR: " + errMsg, errorPos: null };
-        return;
-    }
-
-    model.specConsts = model.specTreeObjs["const_decls"];
-    model.specDefs = model.specTreeObjs["op_defs"];
-    model.nextStatePred = model.specTreeObjs["op_defs"]["Next"]["node"];
-    model.specAlias = model.specTreeObjs["op_defs"]["Alias"];
-
-    // Don't try to reload the spec yet if we have to instantiate constants
-    // Also, switch to the appropriate pane.
-    if (!_.isEmpty(model.specConsts)) {
-        // model.currPane = Pane.Constants; // TODO: Work out pane UI.
-        return;
-    }
-
-    const duration = (performance.now() - start).toFixed(1);
-
-    reloadSpec();
+    let spec = new TLASpec(newText, model.specPath);
+    return spec.parse().then(function(){
+        console.log("SPEC WAS PARSED.", spec);
+        onSpecParse(newText, spec.spec_obj);
+        m.redraw(); //explicitly re-draw on promise resolution.
+    });
 }
 
 function resetTrace() {
@@ -1116,25 +1129,26 @@ async function loadApp() {
             $codeEditor.CodeMirror.on("changes", () => {
                 // CodeMirror listeners are not known to Mithril, so trigger an explicit redraw after
                 // processing the code change.
-                handleCodeChange();
-                m.redraw();
-
-                // Load constants if given.
-                let constantParams = m.route.param("constants");
-                if (constantParams) {
-                    console.log("CONSTNS:", constantParams);
-                    model.specConstInputVals = constantParams;
-                    setConstantValues();
-                }
-
-                // Load trace if given.
-                let traceParamStr = m.route.param("trace")
-                if (traceParamStr) {
-                    traceParams = traceParamStr.split(",");
-                    for (const stateHash of traceParams) {
-                        chooseNextState(stateHash);
+                handleCodeChange().then(function(){
+                    // Load constants if given.
+                    let constantParams = m.route.param("constants");
+                    if (constantParams) {
+                        console.log("CONSTNS:", constantParams);
+                        model.specConstInputVals = constantParams;
+                        setConstantValues();
                     }
-                }
+
+                    // Load trace if given.
+                    let traceParamStr = m.route.param("trace")
+                    if (traceParamStr) {
+                        traceParams = traceParamStr.split(",");
+                        for (const stateHash of traceParams) {
+                            chooseNextState(stateHash);
+                        }
+                    }
+                    m.redraw();
+
+                })
             });
             $codeEditor.CodeMirror.setValue(spec);
         }

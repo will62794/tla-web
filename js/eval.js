@@ -1044,9 +1044,9 @@ function evalExprStrInContext(evalCtx, exprStr) {
     dummySpec += `Expr == ${exprStr}\n`;
     dummySpec += "====";
 
-    // const dummySpecTree = parser.parse(dummySpec, nullTree);
-    let dummyTreeObjs = parseSpec(dummySpec);
-    // console.log("dummy tree objs:", dummyTreeObjs);
+    let spec = new TLASpec(dummySpec);
+    spec.parseSync();
+    let dummyTreeObjs = spec.spec_obj;
 
     let opDefs = dummyTreeObjs["op_defs"];
     let exprNode = opDefs["Expr"].node;
@@ -1095,227 +1095,390 @@ function fetchModuleExtends(moduleNames, urlPath) {
 }
 
 /**
- * Parse and extract definitions and declarations from the given TLA+ module
- * text.
+ * Represents a parsed TLA+ specification, with helper methods and structures for 
+ * maintaining module extends/instances from a root module, etc.
  */
-function parseSpec(specText, specPath) {
+class TLASpec {
+    constructor(specText, specPath) {
 
-    // Perform syntactic rewrites.
-    let rewriter = new SyntaxRewriter(specText, parser);
-    let specTextRewritten = rewriter.doRewrites();
-    specText = specTextRewritten;
+        this.moduleTable = {};
+        this.moduleTableParsed = {};
 
-    // let orig = rewriter.getOrigLocation(7, 14);
-    // console.log("ORIGLOC:", orig);
+        this.specText = specText;
+        this.specPath = specPath;
 
-    // Now parse the rewritten spec to extract definitions, variables, etc.
-    let tree = parser.parse(specText + "\n", null);
-    let cursor = tree.walk();
-
-    // One level down from the top level tree node should contain the overall TLA module.
-    cursor.gotoFirstChild();
-    let node = cursor.currentNode();
-    assert(node.type === "module" || node.type === "extramodular_text");
-
-    // Extramodular text is considered as comments, to be ignored.
-    if (node.type === "extramodular_text") {
-        console.log("ignoring extramodular_text");
-        cursor.gotoNextSibling();
-        node = cursor.currentNode();
-        assert(node.type === "module");
     }
 
-    op_defs = {};
-    fn_defs = {};
-    var_decls = {};
-    const_decls = {};
-    extends_modules = [];
+    // TODO: Extend this to parse fetched modules during spec parsing.
+    fetchModuleExtends(moduleNames, urlPath) {
+        console.log("Fetching EXTENDS modules for spec:", urlPath);
+        // console.log("module names:", moduleNames);
+        // console.log(decodeURIComponent(urlPath));
+        const segments = decodeURIComponent(urlPath).split("/");
+        const baseSpecPath = segments.slice(0, segments.length - 1).join("/");
 
-    // Look for all variables and definitions defined in the module.
-    let more = cursor.gotoFirstChild();
-    while (more) {
-        more = cursor.gotoNextSibling();
+        // Fetch all module names, ignoring TLA+ standard modules.
+        let modulesToFetch = moduleNames.filter(m => !TLA_STANDARD_MODULES.includes(m));
+
+        console.log("modulesToFetch:", modulesToFetch);
+        let modulePromises = modulesToFetch.map(function (modName) {
+            return fetch(`${baseSpecPath}/${modName}.tla`).then(response => response.text());
+        });
+
+        var self = this;
+        return Promise.all(modulePromises).then(moduleTextValues => {
+            for (var i = 0; i < modulesToFetch.length; i++) {
+                let modName = modulesToFetch[i];
+                self.moduleTable[modName] = moduleTextValues[i];
+            }
+
+            let allFetches = modulesToFetch.map(function (modName, ind) {
+                return self.resolveSpecModuleImports(moduleTextValues[ind], `${baseSpecPath}/${modName}.tla`);
+            });
+            return Promise.all(allFetches);
+        });
+    }
+
+    //
+    // Construct module table by first walking module graph and fetching all modules and their text,
+    // before doing any further parsing of individual modules.
+    //
+    resolveSpecModuleImports(specText, specPath) {
+
+        // Perform syntactic rewrites.
+
+        // I don't think we need to do spec re-writing before fetching module table graph?
+        // let rewriter = new SyntaxRewriter(specText, parser);
+        // let specTextRewritten = rewriter.doRewrites();
+        // specText = specTextRewritten;
+
+        // Now parse the rewritten spec to extract definitions, variables, etc.
+        let tree = parser.parse(specText + "\n", null);
+        let cursor = tree.walk();
+
+        // One level down from the top level tree node should contain the overall TLA module.
+        cursor.gotoFirstChild();
         let node = cursor.currentNode();
-        // console.log(node);
-        // console.log("node type:", node.type);
-        // console.log("node text:", node.text);
-        // console.log("node id:", node.id);
+        assert(node.type === "module" || node.type === "extramodular_text");
 
-        if (node.type === "extends") {
-            let extendsList = cursor.currentNode().namedChildren;
-            let extendsModuleNames = extendsList.map(n => n.text);
-            extends_modules = extendsModuleNames;
-            console.log("EXTENDS", extends_modules);
-            // fetchModuleExtends(extends_modules, specPath);
-        }
-
-        if (node.type === "constant_declaration") {
-            let constDecls = cursor.currentNode().namedChildren.filter(c => c.type !== "comment");
-            for (const declNode of constDecls) {
-                const_decls[declNode.text] = { "id": declNode.id };
-            }
-        }
-
-        if (node.type === "variable_declaration") {
-            let varDecls = cursor.currentNode().namedChildren.filter(c => c.type !== "comment");
-            for (const declNode of varDecls) {
-                var_decls[declNode.text] = { "id": declNode.id };
-            }
-        }
-
-        if (node.type === "operator_definition") {
-            // TODO: Consider iterating through 'named' children only?
-            cursor.gotoFirstChild();
-
-            // The definition identifier name.
-            node = cursor.currentNode()
-            console.log(node.text, node)
-            // console.log(cursor.currentFieldName());
-            assert(node.type === "identifier");
-            let opName = node.text;
-
-            op_defs[opName] = { "name": opName, "args": [], "node": null };
-
-            // Skip the 'def_eq' symbol ("==").
+        // Extramodular text is considered as comments, to be ignored.
+        if (node.type === "extramodular_text") {
+            console.log("ignoring extramodular_text");
             cursor.gotoNextSibling();
-            if (!cursor.currentNode().isNamed()) {
-                cursor.gotoNextSibling();
+            node = cursor.currentNode();
+            assert(node.type === "module");
+        }
+
+        let extends_modules = [];
+
+        // Look for all variables and definitions defined in the module.
+        let more = cursor.gotoFirstChild();
+        while (more) {
+            more = cursor.gotoNextSibling();
+            let node = cursor.currentNode();
+            // console.log(node);
+            // console.log("node type:", node.type);
+            // console.log("node text:", node.text);
+            // console.log("node id:", node.id);
+
+            if (node.type === "extends") {
+                let extendsList = cursor.currentNode().namedChildren;
+                let extendsModuleNames = extendsList.map(n => n.text);
+                extends_modules = extends_modules.concat(extendsModuleNames);
+                // console.log("EXTENDS", extends_modules);
             }
 
-            // n-ary operator. save all parameters.
-            while (cursor.currentFieldName() === "parameter") {
-                let currNode = cursor.currentNode();
-                // console.log("PARAMETER: ", currNode.text)
-                // console.log("PARAMETER: ", currNode.namedChildren[0])
+            if (node.type === "instance") {
+                // TODO.
+            }
 
-                //
-                // Note that we may be handling a higher order operator here, which can appear of the form
-                // Op2(l(_,_), a, b) == ...
-                //
-                // Regardless, we save the whole parameter node.
-                //
-                op_defs[opName]["args"].push(currNode);
+        }
 
+        // Fetch all module instantiations that we've parsed.
+        return this.fetchModuleExtends(extends_modules, specPath);
+    }
+
+    /**
+     * 
+     * Parse a TLA+ spec viewed as the raw, root module text and its path.
+     */
+    async parse() {
+        // First resolve any module imports, and then parse the spec
+        // and any modules in the module import hierarchy.
+        console.log("specPath", this.specPath);
+        this.moduleTable = {};
+        var self = this;
+        
+        // TODO: Should eventually keep track of explicit module import graph, to correctly determine what
+        // expressions are imported in each module. Will likely need to handle this once extending beyond 
+        // simple EXTENDS imports (e.g. INSTANCE cases, etc.).
+        return this.resolveSpecModuleImports(this.specText, this.specPath).then(function () {
+            console.log("module table:", self.moduleTable);
+            let parsedSpec = self.parseSpecModule(self.specText);
+            console.log("PARSED MODULE TABLE:", self.moduleTableParsed);
+            self.spec_obj = parsedSpec;
+            self.spec_obj["module_table"] = self.moduleTableParsed;
+            return parsedSpec;
+        });
+    }
+
+    /**
+     * A synchronous version of 'parse' that can be used only if it is guaranteed that the given
+     * specification has no imported/instantiated modules.
+     * @returns 
+     */
+    parseSync() {
+        // First resolve any module imports, and then parse the spec
+        // and any modules in the module import hierarchy.
+        console.log("specPath", this.specPath);
+        this.moduleTable = {};
+        let parsedSpec = this.parseSpecModule(this.specText);
+        this.spec_obj = parsedSpec;
+        this.spec_obj["module_table"] = {};
+        return parsedSpec;
+    }
+
+    /**
+     * Parse and extract definitions and declarations from the given TLA+ module text.
+     */
+    parseSpecModule(specText) {
+        var self = this;
+
+        // Perform syntactic rewrites.
+        let rewriter = new SyntaxRewriter(specText, parser);
+        let specTextRewritten = rewriter.doRewrites();
+        specText = specTextRewritten;
+
+        // let orig = rewriter.getOrigLocation(7, 14);
+        // console.log("ORIGLOC:", orig);
+
+        // Now parse the rewritten spec to extract definitions, variables, etc.
+        let tree = parser.parse(specText + "\n", null);
+        let cursor = tree.walk();
+
+        // One level down from the top level tree node should contain the overall TLA module.
+        cursor.gotoFirstChild();
+        let node = cursor.currentNode();
+        assert(node.type === "module" || node.type === "extramodular_text");
+
+        // Extramodular text is considered as comments, to be ignored.
+        if (node.type === "extramodular_text") {
+            console.log("ignoring extramodular_text");
+            cursor.gotoNextSibling();
+            node = cursor.currentNode();
+            assert(node.type === "module");
+        }
+
+        let op_defs = {};
+        let fn_defs = {};
+        let var_decls = {};
+        let const_decls = {};
+        let extends_modules = [];
+
+        // Look for all variables and definitions defined in the module.
+        let more = cursor.gotoFirstChild();
+        while (more) {
+            more = cursor.gotoNextSibling();
+            let node = cursor.currentNode();
+            // console.log(node);
+            // console.log("node type:", node.type);
+            // console.log("node text:", node.text);
+            // console.log("node id:", node.id);
+
+            if (node.type === "extends") {
+                let extendsList = cursor.currentNode().namedChildren;
+                let extendsModuleNames = extendsList
+                    .map(n => n.text)
+                    .filter(m => !TLA_STANDARD_MODULES.includes(m));
+
+
+                // For each module we extend, we should parse it and store it in 
+                // the global module lookup table.
+                extendsModuleNames.map(function (modName) {
+                    console.log("Parsing EXTENDS module:", modName);
+                    let parsedObj = self.parseSpecModule(self.moduleTable[modName]);
+                    if (!self.moduleTableParsed.hasOwnProperty(modName)) {
+                        self.moduleTableParsed[modName] = parsedObj;
+                    }
+                })
+
+                extends_modules = extendsModuleNames;
+                console.log("EXTENDS", extends_modules);
+            }
+
+            if (node.type === "instance") {
+                // TODO.
+            }
+
+            if (node.type === "constant_declaration") {
+                let constDecls = cursor.currentNode().namedChildren.filter(c => c.type !== "comment");
+                for (const declNode of constDecls) {
+                    const_decls[declNode.text] = { "id": declNode.id };
+                }
+            }
+
+            if (node.type === "variable_declaration") {
+                let varDecls = cursor.currentNode().namedChildren.filter(c => c.type !== "comment");
+                for (const declNode of varDecls) {
+                    var_decls[declNode.text] = { "id": declNode.id };
+                }
+            }
+
+            if (node.type === "operator_definition") {
+                // TODO: Consider iterating through 'named' children only?
+                cursor.gotoFirstChild();
+
+                // The definition identifier name.
+                node = cursor.currentNode()
+                console.log(node.text, node)
+                // console.log(cursor.currentFieldName());
+                assert(node.type === "identifier");
+                let opName = node.text;
+
+                op_defs[opName] = { "name": opName, "args": [], "node": null };
+
+                // Skip the 'def_eq' symbol ("==").
                 cursor.gotoNextSibling();
                 if (!cursor.currentNode().isNamed()) {
                     cursor.gotoNextSibling();
                 }
-            }
 
-            // Skip any intervening comment nodes.
-            cursor.gotoNextSibling();
-            while (cursor.currentNode().type === "comment") {
+                // n-ary operator. save all parameters.
+                while (cursor.currentFieldName() === "parameter") {
+                    let currNode = cursor.currentNode();
+                    // console.log("PARAMETER: ", currNode.text)
+                    // console.log("PARAMETER: ", currNode.namedChildren[0])
+
+                    //
+                    // Note that we may be handling a higher order operator here, which can appear of the form
+                    // Op2(l(_,_), a, b) == ...
+                    //
+                    // Regardless, we save the whole parameter node.
+                    //
+                    op_defs[opName]["args"].push(currNode);
+
+                    cursor.gotoNextSibling();
+                    if (!cursor.currentNode().isNamed()) {
+                        cursor.gotoNextSibling();
+                    }
+                }
+
+                // Skip any intervening comment nodes.
                 cursor.gotoNextSibling();
-                console.log(cursor.currentNode());
-                console.log(cursor.currentNode().type);
-                console.log(cursor.currentFieldName());
+                while (cursor.currentNode().type === "comment") {
+                    cursor.gotoNextSibling();
+                    console.log(cursor.currentNode());
+                    console.log(cursor.currentNode().type);
+                    console.log(cursor.currentFieldName());
+                }
+
+                // We should now be at the definition node.
+                // console.log(cursor.currentNode().text)
+                let def = cursor.currentNode();
+                // console.log("def type:", def.type);
+                // console.log("def type:", def);
+
+                // console.log(cursor.currentNode());
+                // let var_ident = cursor.currentNode();
+                cursor.gotoParent();
+                // Save the variable declaration.
+                // var_decls[var_ident.text] = {"id": node.id}; 
+                op_defs[opName]["node"] = def;
+                // console.log("opDef:", op_defs[opName]);
             }
 
-            // We should now be at the definition node.
-            // console.log(cursor.currentNode().text)
-            let def = cursor.currentNode();
-            // console.log("def type:", def.type);
-            // console.log("def type:", def);
+            // e.g. F[x,y \in {1,2}, z \in {3,4}] == x + y + z
+            if (node.type === "function_definition") {
+                // TODO: Consider iterating through 'named' children only?
+                cursor.gotoFirstChild();
+                console.log("fn def named children:", node.namedChildren);
 
-            // console.log(cursor.currentNode());
-            // let var_ident = cursor.currentNode();
-            cursor.gotoParent();
-            // Save the variable declaration.
-            // var_decls[var_ident.text] = {"id": node.id}; 
-            op_defs[opName]["node"] = def;
-            // console.log("opDef:", op_defs[opName]);
+                let fnName = node.namedChildren[0].text;
+                let quant_bounds = node.namedChildren.filter(n => n.type === "quantifier_bound");
+                let fnDefNode = node;
+
+                // The definition identifier name.
+                node = cursor.currentNode()
+                console.log(node.text, node)
+                // console.log(cursor.currentFieldName());
+                // assert(node.type === "identifier");
+                // let fnName = node.text;
+
+                fn_defs[fnName] = { "name": fnName, "quant_bounds": quant_bounds, "node": null };
+                cursor.gotoParent();
+                // Save the function definition.
+                fn_defs[fnName]["node"] = fnDefNode;
+            }
+
         }
 
-        // e.g. F[x,y \in {1,2}, z \in {3,4}] == x + y + z
-        if (node.type === "function_definition") {
-            // TODO: Consider iterating through 'named' children only?
-            cursor.gotoFirstChild();
-            console.log("fn def named children:", node.namedChildren);
+        evalLog("module const declarations:", const_decls);
+        evalLog("module var declarations:", var_decls);
+        evalLog("module definitions:", op_defs);
+        evalLog("module fcn definitions:", fn_defs);
 
-            let fnName = node.namedChildren[0].text;
-            let quant_bounds = node.namedChildren.filter(n => n.type === "quantifier_bound");
-            let fnDefNode = node;
+        // Try parsing out actions if possible.
+        let actions = [];
+        if (op_defs.hasOwnProperty("Next")) {
+            let nextNode = op_defs["Next"].node;
 
-            // The definition identifier name.
-            node = cursor.currentNode()
-            console.log(node.text, node)
-            // console.log(cursor.currentFieldName());
-            // assert(node.type === "identifier");
-            // let fnName = node.text;
+            //
+            // Syntactic Action Pattern I:
+            //
+            // \/ Action1
+            // \/ Action2
+            // \/ ...
+            // \/ ActionN
+            //
+            console.log("NEXTNODE:", nextNode);
+            console.log("NEXT_CHILDR:", nextNode.namedChildren);
+            if (nextNode.type === "disj_list") {
+                actions = nextNode.namedChildren.map((cnode, ind) => {
+                    let actNode = cnode.namedChildren[1];
+                    console.log("EXTRACTED ACTION:", actNode);
 
-            fn_defs[fnName] = { "name": fnName, "quant_bounds": quant_bounds, "node": null };
-            cursor.gotoParent();
-            // Save the function definition.
-            fn_defs[fnName]["node"] = fnDefNode;
-        }
+                    // If an action is just a plain identifier, then we treat it as its own action.
+                    if (actNode.type === "identifier_ref") {
+                        return new TLAAction(ind, actNode, extractActionName(actNode));
+                    }
 
-    }
+                    // If an action is further broken down into a conjunction/disjunction list,
+                    // don't parse it as a single action, and just fall back to single 'Next' action case.
+                    let disjunct_last_elem = actNode.namedChildren[actNode.namedChildren.length - 1];
 
-    evalLog("module const declarations:", const_decls);
-    evalLog("module var declarations:", var_decls);
-    evalLog("module definitions:", op_defs);
-    evalLog("module fcn definitions:", fn_defs);
+                    if (disjunct_last_elem.type == "conj_list" ||
+                        disjunct_last_elem.type == "disj_list") {
+                        return null;
+                    }
+                    return new TLAAction(ind, actNode, extractActionName(actNode)); // TODO: fix.
+                });
 
-    // Try parsing out actions if possible.
-    let actions = [];
-    if (op_defs.hasOwnProperty("Next")) {
-        let nextNode = op_defs["Next"].node;
-
-        //
-        // Syntactic Action Pattern I:
-        //
-        // \/ Action1
-        // \/ Action2
-        // \/ ...
-        // \/ ActionN
-        //
-        console.log("NEXTNODE:", nextNode);
-        console.log("NEXT_CHILDR:", nextNode.namedChildren);
-        if (nextNode.type === "disj_list") {
-            actions = nextNode.namedChildren.map((cnode, ind) => {
-                let actNode = cnode.namedChildren[1];
-                console.log("EXTRACTED ACTION:", actNode);
-
-                // If an action is just a plain identifier, then we treat it as its own action.
-                if (actNode.type === "identifier_ref") {
-                    return new TLAAction(ind, actNode, extractActionName(actNode));
+                // Fall back to single action case.
+                if (actions.includes(null)) {
+                    actions = [new TLAAction(0, nextNode, "Next")];
                 }
-
-                // If an action is further broken down into a conjunction/disjunction list,
-                // don't parse it as a single action, and just fall back to single 'Next' action case.
-                disjunct_last_elem = actNode.namedChildren[actNode.namedChildren.length - 1];
-
-                if (disjunct_last_elem.type == "conj_list" ||
-                    disjunct_last_elem.type == "disj_list") {
-                    return null;
-                }
-                return new TLAAction(ind, actNode, extractActionName(actNode)); // TODO: fix.
-            });
-
-            // Fall back to single action case.
-            if (actions.includes(null)) {
+            }
+            // Default: treat Next as one big action.
+            else {
                 actions = [new TLAAction(0, nextNode, "Next")];
             }
         }
-        // Default: treat Next as one big action.
-        else {
-            actions = [new TLAAction(0, nextNode, "Next")];
+
+        console.log("ACTIONS: ", actions);
+
+        let objs = {
+            "const_decls": const_decls,
+            "var_decls": var_decls,
+            "op_defs": op_defs,
+            "fn_defs": fn_defs,
+            "extends_modules": extends_modules,
+            "actions": actions,
+            "rewriter": rewriter
         }
+
+        return objs;
     }
 
-    console.log("ACTIONS: ", actions);
-
-    objs = {
-        "const_decls": const_decls,
-        "var_decls": var_decls,
-        "op_defs": op_defs,
-        "fn_defs": fn_defs,
-        "extends_modules": extends_modules,
-        "actions": actions,
-        "rewriter": rewriter
-    }
-
-    return objs;
 }
 
 /**
@@ -1323,7 +1486,7 @@ function parseSpec(specText, specPath) {
  * initial/next state generation.
  */
 class Context {
-    constructor(val, state, defns, quant_bound, constants, prev_func_val, operators_bound) {
+    constructor(val, state, defns, quant_bound, constants, prev_func_val, operators_bound, module_table) {
 
         // @type: TLAValue
         // The result value of a TLA expression, or 'null' if no result has been
@@ -1363,6 +1526,9 @@ class Context {
         // should we treat all non-constant expressions (e.g. state variables) 
         // as being primed.
         this.primed = false;
+
+        // Mapping from module names to their parsed spec objects.
+        this.module_table = module_table || {};
     }
 
     /**
@@ -1378,8 +1544,9 @@ class Context {
         let quant_boundNew = _.cloneDeep(this.quant_bound);
         let operators_boundNew = _.cloneDeep(this.operators_bound);
         let constants = _.cloneDeep(this.constants);
+        let module_tableNew = this.module_table; // should never be modified
         let prev_func_val = _.cloneDeep(this.prev_func_val);
-        return new Context(valNew, stateNew, defnsNew, quant_boundNew, constants, prev_func_val, operators_boundNew);
+        return new Context(valNew, stateNew, defnsNew, quant_boundNew, constants, prev_func_val, operators_boundNew, module_tableNew);
     }
 
     /**
@@ -1451,6 +1618,20 @@ class Context {
      */
     isPrimed() {
         return this.primed;
+    }
+
+    /**
+     * Checks if an identifier is bound to a definition in some imported module.
+     */
+    getDefnBoundInModule(defn){
+        for(const m in this.module_table){
+            console.log(this.module_table[m]);
+            let moduleDefs = this.module_table[m]["op_defs"];
+            if(moduleDefs.hasOwnProperty(defn)){
+                return moduleDefs[defn];
+            }
+        }
+        return null;
     }
 
     hasOperatorBound(defName) {
@@ -2155,6 +2336,27 @@ function evalIdentifierRef(node, ctx) {
         return evalExpr(defNode, ctx);
     }
 
+    // Check for definition bound in an imported/instantiated module.
+    let boundDefn = ctx.getDefnBoundInModule(ident_name);
+    if (boundDefn !== null) {
+        return evalExpr(boundDefn.node, ctx);
+    }
+
+    // See if this identifier is a definition from an imported/instantiated module.
+    if (ctx.hasOwnProperty("defns") && ctx["defns"].hasOwnProperty(ident_name)) {
+        // Evaluate the definition in the current context.
+        let defNode = ctx["defns"][ident_name]["node"];
+
+        // Handle function definition case.
+        if (defNode.type === "function_definition") {
+            let quant_bounds = defNode.namedChildren.filter(n => n.type === "quantifier_bound");
+            let fexpr = _.last(defNode.namedChildren);
+            return evalFunctionLiteralInner(ctx, quant_bounds, fexpr);
+
+        }
+        return evalExpr(defNode, ctx);
+    }
+
     // See if this identifier is an instantiated CONSTANT symbol.
     if (ctx["constants"] !== undefined && ctx["constants"].hasOwnProperty(ident_name)) {
         // Return the instantiated constant value.
@@ -2364,7 +2566,10 @@ function evalBoundOp(node, ctx) {
         opDef = ctx["defns"][opName];
     } else if(ctx["operators_bound"].hasOwnProperty(opName)){
         opDef = ctx["operators_bound"][opName];
-    } else{
+    } else if(ctx.getDefnBoundInModule(opName) !== null){
+        opDef = ctx.getDefnBoundInModule(opName);
+    } 
+    else{
         // Unknown operator.
         throw new Error("Error: unknown operator '" + opName + "'.");
     }
@@ -2866,7 +3071,6 @@ function evalExpr(node, ctx) {
 
     // Record for debugging purposes.
     currEvalNode = node;
-    // console.log("currEvalNode:", currEvalNode);
 
     // evalLog("$$ evalExpr, node: ", node);
     evalLog("evalExpr -> (" + node.type + ") '" + node.text + "'");
@@ -3222,7 +3426,7 @@ function evalExpr(node, ctx) {
  * initial state predicate and an object 'vars' which contains exactly the
  * specification's state variables as keys.
  */
-function getInitStates(initDef, vars, defns, constvals) {
+function getInitStates(initDef, vars, defns, constvals, moduleTable) {
     // TODO: Pass this variable value as an argument to the evaluation functions.
     ASSIGN_PRIMED = false;
     depth = 0;
@@ -3237,7 +3441,8 @@ function getInitStates(initDef, vars, defns, constvals) {
     // We refer to a 'context' as the context for a single evaluation
     // branch, which contains a computed value along with a list of 
     // generated states.
-    let initCtx = new Context(null, emptyInitState, defns, {}, constvals);
+    let initCtx = new Context(null, emptyInitState, defns, {}, constvals, null, null, moduleTable);
+
     let ret_ctxs = evalExpr(initDef, initCtx);
     if (ret_ctxs === undefined) {
         console.error("Set of generated initial states is 'undefined'.");
@@ -3253,7 +3458,7 @@ function getInitStates(initDef, vars, defns, constvals) {
  * Generates all possible successor states from a given state and the syntax
  * tree node for the definition of the next state predicate.
  */
-function getNextStates(nextDef, currStateVars, defns, constvals) {
+function getNextStates(nextDef, currStateVars, defns, constvals, moduleTable) {
     // TODO: Pass this variable value as an argument to the evaluation functions.
     ASSIGN_PRIMED = true;
     depth = 0;
@@ -3265,7 +3470,7 @@ function getNextStates(nextDef, currStateVars, defns, constvals) {
     }
     evalLog("currStateVars:", currStateVars);
 
-    let initCtx = new Context(null, currStateVars, defns, {}, constvals);
+    let initCtx = new Context(null, currStateVars, defns, {}, constvals, null, null, moduleTable);
     // console.log("currStateVars:", currStateVars);
     let ret = evalExpr(nextDef, initCtx);
     evalLog("getNextStates eval ret:", ret);
@@ -3309,7 +3514,7 @@ class TlaInterpreter {
         evalLog("initDef.childCount: ", initDef["node"].childCount);
         evalLog("initDef.type: ", initDef["node"].type);
 
-        let initStates = getInitStates(initDef["node"], vars, defns, constvals);
+        let initStates = getInitStates(initDef["node"], vars, defns, constvals, treeObjs["module_table"]);
         // Keep only the valid states.
         initStates = initStates.filter(actx => actx["val"].getVal()).map(actx => actx["state"]);
         return initStates;
@@ -3334,7 +3539,7 @@ class TlaInterpreter {
         for (const istate of initStates) {
             let currState = _.cloneDeep(istate);
             // console.log("###### Computing next states from state: ", currState);
-            let ret = getNextStates(nextDef, currState, defns, constvals);
+            let ret = getNextStates(nextDef, currState, defns, constvals, treeObjs["module_table"]);
             allNext = allNext.concat(ret);
         }
         return allNext;
