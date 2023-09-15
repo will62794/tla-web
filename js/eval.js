@@ -2774,6 +2774,37 @@ function evalExcept(node, ctx) {
     return [ctx.withVal(updatedFnVal)];
 }
 
+function evalSetFilter(ctx, node){
+    // Extract the left and right side of the ":" of the set filter.
+    let singleQuantBound = node.namedChildren[0];
+    let rhsFilter = node.namedChildren[1];
+
+    // Evaluate the quantified domain.
+    assert(singleQuantBound.type === "quantifier_bound");
+    evalLog("singleQuantBound:", singleQuantBound, singleQuantBound.text);
+    let ident = singleQuantBound.namedChildren[0].text;
+    let domainExpr = singleQuantBound.namedChildren[2];
+    evalLog(domainExpr);
+    let domainExprVal = evalExpr(domainExpr, ctx)[0]["val"];
+
+    evalLog("domainExprVal:", domainExprVal);
+
+    // Return all values in domain for which the set filter evaluates to true.
+    let filteredVals = domainExprVal.getElems().filter(exprVal => {
+        // Evaluate rhs in context of the bound value and check its truth value.
+        let boundContext = ctx.clone();
+        if (!boundContext.hasOwnProperty("quant_bound")) {
+            boundContext["quant_bound"] = {};
+        }
+        boundContext["quant_bound"][ident] = exprVal;
+        let rhsFilterVal = evalExpr(rhsFilter, boundContext)[0]["val"];
+        evalLog("rhsFilterVal:", rhsFilterVal);
+        return rhsFilterVal.getVal();
+    });
+    evalLog("domainExprVal filtered:", filteredVals);
+    return [ctx.withVal(new SetValue(filteredVals))];
+}
+
 // For debugging.
 // TODO: Eventually move this all inside a dedicated class.
 let currEvalNode = null;
@@ -3092,34 +3123,7 @@ function evalExpr(node, ctx) {
     // {i \in A : <expr>}
     if (node.type === "set_filter") {
         evalLog("SET_FILTER", node);
-        // Extract the left and right side of the ":" of the set filter.
-        let singleQuantBound = node.namedChildren[0];
-        let rhsFilter = node.namedChildren[1];
-
-        // Evaluate the quantified domain.
-        assert(singleQuantBound.type === "quantifier_bound");
-        evalLog("singleQuantBound:", singleQuantBound, singleQuantBound.text);
-        let ident = singleQuantBound.namedChildren[0].text;
-        let domainExpr = singleQuantBound.namedChildren[2];
-        evalLog(domainExpr);
-        let domainExprVal = evalExpr(domainExpr, ctx)[0]["val"];
-
-        evalLog("domainExprVal:", domainExprVal);
-
-        // Return all values in domain for which the set filter evaluates to true.
-        let filteredVals = domainExprVal.getElems().filter(exprVal => {
-            // Evaluate rhs in context of the bound value and check its truth value.
-            let boundContext = ctx.clone();
-            if (!boundContext.hasOwnProperty("quant_bound")) {
-                boundContext["quant_bound"] = {};
-            }
-            boundContext["quant_bound"][ident] = exprVal;
-            let rhsFilterVal = evalExpr(rhsFilter, boundContext)[0]["val"];
-            evalLog("rhsFilterVal:", rhsFilterVal);
-            return rhsFilterVal.getVal();
-        });
-        evalLog("domainExprVal filtered:", filteredVals);
-        return [ctx.withVal(new SetValue(filteredVals))];
+        return evalSetFilter(ctx, node);
     }
 
     // <record>.<field>
