@@ -20,6 +20,15 @@ const TLA_STANDARD_MODULES = [
     "Randomization"
 ]
 
+// Some hard-coded modules which can be found in TLA+ CommunityModules repo:
+// https://github.com/tlaplus/CommunityModules/blob/master/modules
+const TLA_COMMUNITY_MODULES = [
+    "SequencesExt",
+    "FiniteSetExt"
+]
+
+const TLA_COMMUNITY_MODULES_BASE_URL = "https://raw.githubusercontent.com/tlaplus/CommunityModules/master/modules";
+
 // Simple assertion utility.
 function assert(condition, message) {
     if (!condition) {
@@ -1122,6 +1131,14 @@ class TLASpec {
 
         console.log("modulesToFetch:", modulesToFetch);
         let modulePromises = modulesToFetch.map(function (modName) {
+
+            // Look up CommunityModule imports from hard-coded repo.
+            // TODO: This will likely not work properly unitl we handle LOCAL INSTANCE 
+            // semantics correctly for modules.
+            if (TLA_COMMUNITY_MODULES.includes(modName)) {
+                return fetch(`${TLA_COMMUNITY_MODULES_BASE_URL}/${modName}.tla`).then(response => response.text());
+            }
+
             return fetch(`${baseSpecPath}/${modName}.tla`).then(response => response.text());
         });
 
