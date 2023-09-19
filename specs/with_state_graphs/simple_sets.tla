@@ -1,5 +1,6 @@
 ----------------------- MODULE simple_sets ------------------------
 EXTENDS Naturals, FiniteSets
+\* , FiniteSetsExt
 
 VARIABLE x
 
@@ -15,6 +16,8 @@ Init ==
     \/ x = UNION {{1,2,3},{3,5}}
     \/ x = UNION {{},{},{1,2},{3,4}}
     \/ x = UNION { {{1,2},{3,4}} , {{1,2},{5,6}}}
+    \* \/ x = Max({1,4,3,6})
+    \* \/ x = Max({3,7,5,0})
 
 Next == x' = x
 

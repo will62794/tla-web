@@ -24,7 +24,7 @@ const TLA_STANDARD_MODULES = [
 // https://github.com/tlaplus/CommunityModules/blob/master/modules
 const TLA_COMMUNITY_MODULES = [
     "SequencesExt",
-    "FiniteSetExt"
+    "FiniteSetsExt"
 ]
 
 const TLA_COMMUNITY_MODULES_BASE_URL = "https://raw.githubusercontent.com/tlaplus/CommunityModules/master/modules";
@@ -2493,6 +2493,23 @@ function evalBoundOp(node, ctx) {
         let argExprVal = evalExpr(argExpr, ctx)[0]["val"]
         evalLog("Cardinality val:", argExpr.text, argExprVal.length);
         return [ctx.withVal(new IntValue(argExprVal.size()))];
+    }
+
+    // Technically comes from 'FiniteSetsExt', but for now we implement it as a built-in operator.
+    // TODO: When module semantics are fully worked out, we won't want to always include this a default operator.
+    if (opName == "Max") {
+        let argExpr = node.namedChildren[1];
+        let argExprVal = evalExpr(argExpr, ctx)[0]["val"];
+        assert(argExprVal instanceof SetValue);
+        assert(argExprVal.getElems().length > 0, "Cannot compute 'Max' of an empty set.");
+        assert(argExprVal.getElems().every(e => e instanceof IntValue));
+
+        // Compute the max.
+        let intElems = argExprVal.getElems().map(e => e.getVal());
+        evalLog("Max val:", argExpr.text, intElems);
+        let maxVal = _.max(intElems);
+        evalLog("Max val:", maxVal);
+        return [ctx.withVal(new IntValue(maxVal))];
     }
 
     // Sequences 
