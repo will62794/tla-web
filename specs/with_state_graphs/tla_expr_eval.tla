@@ -85,6 +85,7 @@ Init == exprs = [
     fcnset3 |-> [{"a","b","c"} -> {{1,2},{3,4}}],
     fcnset4 |-> [{"x"} -> SUBSET {1,2}],
     fcnbuild1 |-> [i \in {0,1} |-> 0],
+    fcnexpr0 |-> 0 :> 1,
     fcnexpr1 |-> (0 :> 1),
     fcnexpr2 |-> (0 :> 1 @@ 2 :> 3),
     fcnexpr3 |-> (0 :> 1 @@ 2 :> 3 @@ 2 :> 4),
