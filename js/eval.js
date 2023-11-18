@@ -1621,6 +1621,12 @@ class Context {
         return ctxCopy;
     }
 
+    withBoundDefn(name, def) {
+        let ctxCopy = this.clone();
+        ctxCopy["defns"][name] = def;
+        return ctxCopy;
+    }
+
     /**
      * Returns a new copy of this context that has been set to "primed".
      */
@@ -2876,6 +2882,7 @@ function evalFunctionLiteral(node, ctx) {
 
 function evalLetIn(node, ctx) {
     let opDefs = node.namedChildren.filter(c => c.type === "operator_definition");
+    let fcnDefs = node.namedChildren.filter(c => c.type === "function_definition");
     let letInExpr = node.childForFieldName("expression");
 
     // Evaluate the expression with the bound definitions.
@@ -2920,6 +2927,14 @@ function evalLetIn(node, ctx) {
         // defValLazy.context = newBoundCtx.clone();
         // evalLog(`LETIN: Binding LazyValue for name '${defVarName}'`);
         // newBoundCtx = newBoundCtx.withBoundVar(defVarName, defValLazy);
+
+    }
+    // Also support function definitions in LET-IN expressions.
+    for (const def of fcnDefs) {
+        let fnName = def.namedChildren[0].text;
+        let quant_bounds = def.namedChildren.filter(n => n.type === "quantifier_bound");
+        let fnDef = { "name": fnName, "quant_bounds": quant_bounds, "node": def };
+        newBoundCtx = newBoundCtx.withBoundDefn(fnName, fnDef);
     }
     evalLog("newBoundCtx:", newBoundCtx);
     return evalExpr(letInExpr, newBoundCtx);
