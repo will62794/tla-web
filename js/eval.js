@@ -2347,6 +2347,8 @@ function evalIdentifierRef(node, ctx) {
         if (defNode.type === "function_definition") {
             let quant_bounds = defNode.namedChildren.filter(n => n.type === "quantifier_bound");
             let fexpr = _.last(defNode.namedChildren);
+            console.log("EVAL function literal inner.")
+            console.log("EVAL FCN LIT");
             return evalFunctionLiteralInner(ctx, quant_bounds, fexpr);
 
         }
@@ -2808,7 +2810,11 @@ function evalSetOfRecords(node, ctx) {
     return [ctx.withVal(new SetValue(outRecords))];
 }
 
-function evalFunctionLiteralInner(ctx, quant_bounds, fexpr) {
+// Evaluates a function literal definition at all elements in its domain.
+// Accepts an optional argument 'domainVal' which limits evaluation to only
+// compute function values at the given domain value.
+function evalFunctionLiteralInner(ctx, quant_bounds, fexpr, selectedDomainVal) {
+    evalLog("function_literal inner", fexpr, quant_bounds);
 
     let idents = quant_bounds.map(qb => {
         let domainVal = evalExpr(_.last(qb.namedChildren), ctx)[0]["val"];
@@ -2817,14 +2823,22 @@ function evalFunctionLiteralInner(ctx, quant_bounds, fexpr) {
             .map(x => [x, domainVal.getElems()]);
     });
 
-
     let domainIdents = _.flatten(idents).map(pair => pair[0]);
     let domainVals = _.flatten(idents).map(pair => pair[1]);
+    let domainTuples = cartesianProductOf(...domainVals);
+
+    // If a specific domain value was given, only evaluate at that domain value.
+    if (selectedDomainVal !== undefined) {
+        if (selectedDomainVal instanceof TupleValue) {
+            selectedDomainVal = selectedDomainVal.getElems();
+            domainTuples = [selectedDomainVal];
+        } else {
+            domainTuples = [[selectedDomainVal]];
+        }
+        evalLog("Evaluating function at selected domain val:", domainTuples)
+    }
 
     evalLog("domainIdents:", domainIdents);
-    evalLog("domainVals:", domainVals);
-
-    let domainTuples = cartesianProductOf(...domainVals);
     evalLog("domainTuples:", domainTuples);
 
     let fcnArgs = domainTuples.map(t => (t.length === 1) ? t[0] : new TupleValue(t));
@@ -3145,7 +3159,7 @@ function evalExpr(node, ctx) {
     if (node.type === "function_evaluation") {
         evalLog("function_evaluation: ", node.text);
 
-        let fnVal = evalExpr(node.namedChildren[0], ctx)[0]["val"];
+        let fnVal = null;
         let fnArgVal;
 
         // Multi-argument function evaluation, treated as tuple argument.
@@ -3157,7 +3171,34 @@ function evalExpr(node, ctx) {
             fnArgVal = evalExpr(node.namedChildren[1], ctx)[0]["val"];
         }
 
+        // If this is a recursive function evaluation, then we don't want to necessarily evaluate the 
+        // values of the function for all domain values upfront. Rather, we can just dynamically evaluate them as
+        // we go, starting with the current argument for this function.
+        let fnNode = node.namedChildren[0];
+        evalLog("fneval (fnval): ", fnArgVal);
+
+        // If this function has been previously defined, we need to look up its definition.
+        if (fnNode.type === "identifier_ref" &&
+            ctx["defns"].hasOwnProperty(fnNode.text) &&
+            ctx["defns"][fnNode.text].node.type === "function_definition") {
+
+            let fnDefNode = ctx["defns"][fnNode.text];
+            let fnExpr = _.last(fnDefNode.node.namedChildren);
+            let quant_bounds = fnDefNode["quant_bounds"];
+            // console.log("[fndefeval] fnDefNode:", fnDefNode);
+            // console.log("[fndefeval] quant_bounds:", quant_bounds);
+            // console.log("[fndefeval] fnArgVal:", fnArgVal);
+            ret = evalFunctionLiteralInner(ctx, quant_bounds, fnExpr, fnArgVal);
+            let fnVal = ret[0]["val"];
+            let res = fnVal.applyArg(fnArgVal);
+            // console.log("fres:", res);
+            return [ctx.withVal(res)];
+        }
+
+        // Otherwise proceed to evaluate function normally.
         evalLog("fneval (fnval,fnarg): ", fnVal, ",", fnArgVal);
+        fnVal = evalExpr(node.namedChildren[0], ctx)[0]["val"];
+
         // Tuples are considered as functions with natural number domains.
         let fnValRes;
         if (fnVal instanceof TupleValue) {
