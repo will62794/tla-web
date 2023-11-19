@@ -3,7 +3,11 @@ nodesep=0.35;
 subgraph cluster_graph {
 color="white";
 -2475708099053023668 [label="/\\ val = 6\n/\\ seq = <<1, 2, 3>>",style = filled]
+2321704306434589757 [label="/\\ val = 13\n/\\ seq = <<2, 5, 6>>",style = filled]
+-1018551116925958002 [label="/\\ val = 13\n/\\ seq = <<1, 1, 9>>",style = filled]
 -2475708099053023668 -> -2475708099053023668 [label="",color="black",fontcolor="black"];
-{rank = same; -2475708099053023668;}
+2321704306434589757 -> 2321704306434589757 [label="",color="black",fontcolor="black"];
+-1018551116925958002 -> -1018551116925958002 [label="",color="black",fontcolor="black"];
+{rank = same; -2475708099053023668;2321704306434589757;-1018551116925958002;}
 }
 }
