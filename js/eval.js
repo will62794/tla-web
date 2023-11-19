@@ -643,6 +643,9 @@ class SyntaxRewriter {
 
     setInUniqueVarId = 0;
     origSpecText;
+    identUniqueId = 0;
+    opArgsToRename = {};
+
     // Map from rewritten spec back to the original.
     // maps from (line_new, col_new) to (line_old, col_old)
 
@@ -868,6 +871,8 @@ class SyntaxRewriter {
         let visitedChildren = false;
         let indentLevel = 0;
 
+        let currOpDefNameContext = null;
+
         for (let i = 0; ; i++) {
             let displayName;
             if (cursor.nodeIsMissing) {
@@ -906,6 +911,10 @@ class SyntaxRewriter {
                     }
                     let node = cursor.currentNode();
 
+                    // console.log("(REWRITE) NODE:", node.text);
+                    // console.log("(REWRITE) NODEtype:", node.type);
+                    // console.log("Opargstorename:", this.opArgsToRename);
+
                     // Detect errors.
                     if (node.type === "ERROR") {
                         throw new Error("Parsing error.", { cause: node });
@@ -933,6 +942,28 @@ class SyntaxRewriter {
                         sourceRewrites.push(rewrite);
                         return sourceRewrites;
                     }
+
+                    // TODO: Initial framework for rewriting operator arguments to enforce global argname uniqueness,
+                    // that is disabled for now.
+                    // if (node.type === "identifier" || node.type === "identifier_ref") {
+                    //     let identName = node.text;
+                    //     console.log("IDENTIFIER or IDENTREF", identName);
+                    //     if (currOpDefNameContext !== null &&
+                    //         this.opArgsToRename.hasOwnProperty(currOpDefNameContext) &&
+                    //         Object.keys(this.opArgsToRename[currOpDefNameContext]["argsToRenameMap"]).length > 0) {
+                    //         if (!identName.includes("IDENTRENAMED") && this.opArgsToRename[currOpDefNameContext]["argsToRenameMap"].hasOwnProperty(identName)) {
+                    //             let outStr = this.opArgsToRename[currOpDefNameContext]["argsToRenameMap"][identName];
+                    //             let rewrite = {
+                    //                 startPosition: node.startPosition,
+                    //                 endPosition: node.endPosition,
+                    //                 newStr: outStr
+                    //             }
+                    //             sourceRewrites.push(rewrite);
+                    //             return sourceRewrites;
+                    //         }
+                    //     }
+                    // }
+
 
                     // Bound infix ops.
                     if (node.type === "bound_infix_op") {
@@ -968,6 +999,42 @@ class SyntaxRewriter {
                             return sourceRewrites;
                         }
 
+                    }
+                    
+                    // TODO: Initial framework for rewriting operator arguments to enforce global argname uniqueness.
+                    // But, need to think a bit more carefully about how this works in all cases e.g. with LAMBDA expressions
+                    // and nested LET-IN operator definitions, before we enable this via above syntax rewrite generation logic.
+                    if(node.type === "operator_definition"){
+
+                        let opName = node.namedChildren[0].text;
+                        let opArgsIdents = node.namedChildren.slice(1).filter(n => n.type === "identifier");
+                        let opArgsDecls = node.namedChildren.slice(1).filter(n => n.type === "operator_declaration");
+
+                        // Update the current context.
+                        currOpDefNameContext = opName;
+
+                        let opArgsIdentsNames = opArgsIdents.map(n => n.text).filter(n => !n.includes("IDENTRENAMED"));
+                        let opArgsDeclNames = opArgsDecls.map(n => n.namedChildren[0].text).filter(n => !n.includes("IDENTRENAMED"));
+                        // console.log("PARSE opArg:", opName);
+                        // console.log("PARSE idents:", opArgsIdents);
+                        // console.log("PARSE idents:", opArgsIdentsNames);
+                        // console.log("PARSE decls:", opArgsDecls);
+                        // console.log("PARSE decls:", opArgsDeclNames);
+
+                        // Do a uniqifer rename pass of all references to these operator args in the direct body of this operator.
+                        let opBodyNode = _.last(node.namedChildren);
+                        // console.log("PARSE BODY:", opBodyNode.text);
+                        let argsToRename = opArgsIdentsNames.concat(opArgsDeclNames);
+
+                        if(!this.opArgsToRename.hasOwnProperty(opName)){
+                            this.opArgsToRename[opName] = {"argsToRenameMap": {}};
+                        }
+                        this.identUniqueId += 1;
+                        let argsToRenameMap = {}
+                        for(const a of argsToRename){
+                            argsToRenameMap[a] = a + "_IDENTRENAMED_" + this.identUniqueId;
+                            this.opArgsToRename[opName]["argsToRenameMap"][a] = argsToRenameMap[a];
+                        }
                     }
 
                     if (node.type == "bounded_quantification") {
@@ -1266,6 +1333,9 @@ class TLASpec {
         let specTextRewritten = rewriter.doRewrites();
         specText = specTextRewritten;
 
+        // console.log("REWRITTEN:");
+        // console.log(specText);
+
         // let orig = rewriter.getOrigLocation(7, 14);
         // console.log("ORIGLOC:", orig);
 
@@ -1490,6 +1560,7 @@ class TLASpec {
             "fn_defs": fn_defs,
             "extends_modules": extends_modules,
             "actions": actions,
+            "spec_rewritten": specTextRewritten,
             "rewriter": rewriter
         }
 

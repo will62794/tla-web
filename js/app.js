@@ -505,6 +505,12 @@ function reloadSpec() {
     model.lassoTo = null;
     model.errorObj = null;
 
+    // if(model.showRewritten){
+    //     const $codeEditor = document.querySelector('.CodeMirror');
+    //     $codeEditor.CodeMirror.setValue(model.specTreeObjs.spec_rewritten);
+    //     return;
+    // }
+
     console.log("Generating initial states.");
     let interp = new TlaInterpreter();
     // let allInitStates;
@@ -1092,6 +1098,8 @@ async function loadApp() {
 
 
     let debug = parseInt(m.route.param("debug"));
+    let showRewritten = parseInt(m.route.param("show_rewritten"));
+    model.showRewritten = showRewritten;
     enableEvalTracing = debug === 1;
 
     // Check for given spec in URL args.

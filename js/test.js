@@ -253,6 +253,7 @@ async function testStateGraphEquiv(testId, stateGraph, parsedSpec, specPath, con
         { "spec": "simple_extends", "constvals": undefined }, // TODO: Still failing.
         { "spec": "simple_operator", "constvals": undefined },
         { "spec": "simple_lambda", "constvals": undefined },
+        { "spec": "simple_nested_lambda", "constvals": undefined },
         { "spec": "simple_seq", "constvals": undefined },
         { "spec": "simple_if_then", "constvals": undefined },
         { "spec": "simple_record", "constvals": undefined },
