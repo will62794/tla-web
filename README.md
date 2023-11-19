@@ -1,6 +1,8 @@
-# TLA+ Web Explorer Prototype
+# TLA+ Web Explorer
 
-This is a prototype of a web based TLA+ interface for exploring and sharing specifications and traces. The motivation is to have a better way to quickly interact with a TLA+ spec and easily share results. For example, provide a way to share error traces in a convenient, portable, and repeatable manner. A live version of the prototype is currently hosted [here](https://will62794.github.io/tla-web/#!/home). Here are some example specs to try out:
+This is a web-based interface for exploring and sharing TLA+ specifications. The motivation is to have a better way to quickly interact with a TLA+ spec and easily share results. For example, having a way to share counterexample traces in a convenient, portable, and repeatable manner. 
+
+A live version of the tool is currently hosted [here](https://will62794.github.io/tla-web/#!/home), and here are some example specs to try out:
 
 - [Lock server](https://will62794.github.io/tla-web/#!/home?specpath=.%2Fspecs%2Flockserver.tla&constants%5BServer%5D=%7B%22s1%22%2C%20%22s2%22%7D&constants%5BClient%5D=%7B%22c1%22%2C%20%22c2%22%7D)
 - [Two phase commit](https://will62794.github.io/tla-web/#!/home?specpath=.%2Fspecs%2FTwoPhase.tla)
@@ -13,7 +15,7 @@ The current version of the tool utilizes the [TLA+ tree-sitter grammar](https://
 <!-- Note also that you can basically use the existing web interface as a simple TLA+ expression evaluator, since making changes to definitions in the spec should automatically update the set of generated initial states. -->
 
 <!-- This project Utilizes the [TLA+ tree-sitter grammar](https://github.com/tlaplus-community/tree-sitter-tlaplus) to provide a web based TLA+ interface for exploring and sharing specifications.  -->
-There are still a variety of TLA+ language features that [may not be implemented yet](https://github.com/will62794/tla-web/issues), but a decent number of specs should be handled. For example, this [Paxos example](https://will62794.github.io/tla-web/#!/home?specpath=./specs/Paxos.tla) should be handled, though more thorough testing will be needed to verify the correctness of the interpreter on more complex examples like this.
+There are still some TLA+ language features that [may not be implemented](https://github.com/will62794/tla-web/issues), but a reasonable number of specs should be handled correctly. For example, see this [Paxos spec](https://will62794.github.io/tla-web/#!/home?specpath=./specs/Paxos.tla). Additional testing is needed, though, to verify the correctness of this interpreter on more complex specs.
 
 <!-- A basic, preliminary test suite can be found [here](https://will62794.github.io/tla-web/test.html). -->
 
