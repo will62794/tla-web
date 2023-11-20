@@ -634,11 +634,14 @@ function componentTraceViewerState(state, ind, isLastState) {
     // Optionally enable experimental animation feature.
     //
 
-    let enableAnimation = false;
+    // Special definition that will enable animation feature.
+    let animViewDefName = "AnimView";
+
+    let enableAnimation = model.specDefs.hasOwnProperty(animViewDefName);
     let vizSvg = m("svg", { width: 0, height: 0 }, []);
 
     if (enableAnimation) {
-        let viewNode = model.specTreeObjs["op_defs"]["View"].node;
+        let viewNode = model.specTreeObjs["op_defs"][animViewDefName].node;
         let initCtx = new Context(null, state, model.specDefs, {}, model.specConsts);
         console.log("view node:", viewNode);
         let ret = evalExpr(viewNode, initCtx);
@@ -647,7 +650,7 @@ function componentTraceViewerState(state, ind, isLastState) {
         // console.log("view:", viewVal);
 
         let viewSvgObj = makeSvgAnimObj(viewVal);
-        vizSvg = m("svg", { width: 600, height: 300 }, [viewSvgObj]);
+        vizSvg = m("div", {id:"anim-div"}, m("svg", { width: "100%", height: "100%" }, [viewSvgObj]));
     }
 
     let varNames = _.keys(state.getStateObj());
@@ -723,14 +726,17 @@ function componentTraceViewerState(state, ind, isLastState) {
     ])];
     let rows = headerRow.concat(varRows).concat(traceExprRows);
 
-    let rowElems = m("table", { class: "trace-state-table" }, rows);
+    let rowElemsTable = m("table", { class: "trace-state-table" }, rows);
+    // let rowElems = m("div", { class: "trace-state-table-div" }, rowElemsTable);
 
-    stateVarElems = m("div", rowElems);
+    // stateVarElems = m("div", {id:"trace-state-holder"}, [rowElems,vizSvg]);
+    stateVarElems = m("div", {id:"trace-state-holder"}, [rowElemsTable]);
 
-    let traceStateElem = m("div", { "class": "trace-state tlc-state" },
-        [stateVarElems]
-            .concat(vizSvg)
-    );
+    let traceStateElemChildren = [stateVarElems];
+    if(enableAnimation){
+        traceStateElemChildren.push(vizSvg);
+    }
+    let traceStateElem = m("div", { "class": "trace-state tlc-state" }, traceStateElemChildren);
     return traceStateElem;
 }
 

@@ -200,7 +200,9 @@ body {
       padding:6px;
       margin-bottom:3px;
       margin-top:5px;
-      width:90%;
+      width:100%;
+      /* min-height:200px; */
+      /* background-color: orange; */
   }
 
   .state-choice-varval{
@@ -211,9 +213,20 @@ body {
     border:solid 2px black;
   }
 
+  .trace-state-table-div{
+    /* float:left; */
+    /* border:solid 1px blue; */
+    width:45%;
+  }
+
   .trace-state-table .th-state-varname{
     border-right: 1px solid gray;
     font-weight: bold;
+  }
+
+  svg {
+    width:100%;
+    height: 100px;
   }
 
   .th-state-varname:hover{
@@ -527,4 +540,17 @@ body {
     font-size:14px;
     border:solid 1px gray;
     margin:5px;
+  }
+
+  #trace-state-holder{
+    width:60%;
+    /* background-color: yellowgreen; */
+    display: inline-block;
+  }
+
+  #anim-div{
+    border:solid 1px gray;
+    width:36%;
+    display: inline-block;
+    /* float:left; */
   }
