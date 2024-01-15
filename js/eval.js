@@ -204,6 +204,30 @@ class BoolValue extends TLAValue {
     }
 }
 
+
+// Basically behaves as a string value, but can be only be instantiated by CONSTANT declarations.
+class ModelValue extends TLAValue {
+    constructor(s) {
+        super(s);
+        this.val = s;
+    }
+    getVal() {
+        return this.val;
+    }
+    toString() {
+        return this.val;
+    }
+    toJSON() {
+        return this.val;
+    }
+    toJSONITF() {
+        return { "#type": "modelVal", "#value": this.val };
+    }
+    fingerprint() {
+        return this.val;
+    }
+}
+
 class StringValue extends TLAValue {
     constructor(s) {
         super(s);
@@ -1108,12 +1132,30 @@ class SyntaxRewriter {
     }
 }
 
+function checkModelValSet(exprNode){
+    if(exprNode.type === "finite_set_literal"){
+        console.log(exprNode.namedChildren);
+        let all_idents = exprNode.namedChildren.every(n => n.type === "identifier_ref");
+        // Treat these all as model values, identified their identifier ref string name.
+        if(all_idents){
+            console.log("Ident set")
+            let identSet = exprNode.namedChildren.map(n => n.text);
+            identSet = _.uniq(identSet);
+            let modelValueSet = new SetValue(identSet.map(n => new ModelValue(n)));
+            return modelValueSet;
+        }
+        // otherwise, try to evaluate.
+    }
+    return null;    
+}
+
 /**
  * Evaluate a TLA+ expression, given as a string, in the given context.
  */
-function evalExprStrInContext(evalCtx, exprStr) {
+function evalExprStrInContext(evalCtx, exprStr, checkForModelVal) {
     let nullTree;
     let start = performance.now();
+    let checkModelVals = checkForModelVal || false;
 
     // Create a dummy spec to parse/evaluate the expression.
     let dummySpec = "---- MODULE dummy_eval_spec ----\n";
@@ -1126,6 +1168,18 @@ function evalExprStrInContext(evalCtx, exprStr) {
 
     let opDefs = dummyTreeObjs["op_defs"];
     let exprNode = opDefs["Expr"].node;
+    console.log(opDefs);
+    console.log(exprNode);
+
+    // Try to check for set of model values.
+    if(checkModelVals){
+        modelValSet = checkModelValSet(exprNode);
+        if(modelValSet !== null){
+            return modelValSet;
+        }
+    }
+
+    
     let exprVal = evalExpr(exprNode, evalCtx)[0]["val"];
 
     const duration = (performance.now() - start).toFixed(1);

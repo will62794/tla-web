@@ -1,7 +1,8 @@
 body {
     margin: 0;
     padding: 0;
-    font-family: Arial, Helvetica, sans-serif;
+    /* font-family: Arial, Helvetica, sans-serif; */
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
   }
 
   h1,h2,h3,h4{
@@ -14,22 +15,38 @@ body {
       width:200px;
   }
 
-  #constants-header{
-    display:flex;
-    /* background-color: blue; */
+  #constants-box{
+    /* background-color: red; */
+    padding:9px;
+    border-bottom:solid lightgray 1px;
+    /* border-radius: 5px; */
   }
+
+  /* #constants-header{ */
+    /* display:flex; */
+    /* background-color: blue; */
+  /* } */
 
   #constants-title:hover{
     cursor: pointer;
   }
 
-  #set-constants-button{
-    width:180px;
-    font-family:Arial;
+  #set-constants-button {
+    /* display:flex; */
+    /* width:180px; */
+    /* font-size: 14px; */
+    /* font-family:Arial; */
+    /* font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol"; */
+
     /* background-color: red; */
-    vertical-align: middle;
-    margin-left:20px;
-    position: relative;
+    /* vertical-align: middle; */
+    /* margin-left:20px; */
+    width:180px;
+    /* padding:5px; */
+    margin-bottom:5px;
+    /* border-radius: 10px; */
+    text-align: center;
+    /* position: relative; */
   }
 
   #set-constants-button .button-base{
@@ -45,9 +62,13 @@ body {
   #choose-constants-elems{
       font-size: 14px;
       font-family: monospace;
+      font-family: Menlo, Monaco, "Times";
+
   }
   #choose-constants-elems input{
     font-family: monospace;
+    font-family: Menlo, Monaco, "Times";
+
   }
 
 
@@ -182,10 +203,10 @@ body {
   }
 
   .tlc-state{
-      font-family: monospace;
       /* font-family: 'JetBrains Mono', monospace; */
       /* font-family: 'Source Code Pro', monospace; */
       font-size: 12px;
+      font-family: Menlo, Monaco, "Times";
   }
 
   .trace-state b{
@@ -240,8 +261,7 @@ body {
     font-size:12px;
     padding-top:8px;
     padding-bottom:5px;
-    font-family: monospace;
-
+    font-family: Menlo, Monaco, "Times";
   }
 
   .hidden-state-var{
@@ -297,7 +317,12 @@ body {
     /* background-color: steelblue; */
     /* color:white; */
     /* border: solid 1px black; */
-    text-decoration: underline;
+    /* text-decoration: underline; */
+    /* border:solid gray 1px; */
+    width:100%;
+    background-color: lightgray;
+    font-weight:bold;
+    border-radius: 6px;
     /* font-weight: bold; */
     /* border-bottom:solid 1px black; */
   }
@@ -386,7 +411,7 @@ body {
   #repl-container input {
     font-size:20px;
     padding:15px;
-    font-family: monospace;
+    font-family: Menlo, Monaco, "Times";
   }
 
   #explorer-pane {
@@ -423,7 +448,7 @@ body {
 
   .CodeMirror{
     font-size:13px;
-    /* font-family: 'Source Code Pro', monospace; */
+    font-family: Menlo, Monaco, "Times";
   }
 
   #pane-selector{
@@ -477,13 +502,15 @@ body {
     height:18px;
     vertical-align: middle;
     font-size:12px;
-    border-radius: 3px;
+    border-radius: 5px;
     background-color: steelblue;
+    background-color: #440874;
+    background-color: #276983;
     color:white;
-    padding-left:6px;
-    padding-right:6px;
-    padding-top:3px;
-    padding-bottom:2px;
+    padding-left:7px;
+    padding-right:7px;
+    padding-top:4px;
+    padding-bottom:4px;
   }
   .button-base:hover{
     cursor: pointer;

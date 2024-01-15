@@ -193,6 +193,11 @@ function toggleSpec() {
     pane.style.width = "0%";
 }
 
+// Set a CONSTANT value to a string value equal to the name of the CONSTANT declaration.
+function setConstantAsString(constDecl){
+    model.specConstInputVals[constDecl] = '"' + constDecl + '"';
+}
+
 function componentChooseConstants() {
     // If there are CONSTANT declarations in the spec, we must
     // instantiate them with some concrete values.
@@ -205,29 +210,38 @@ function componentChooseConstants() {
     for (const constDecl in model.specConsts) {
         // console.log(constDecl);
         let newDiv = m("div", {}, [
-            m("span", {}, m.trust("CONSTANT " + constDecl + " &#8592; ")),
+            m("span", {}, m.trust("" + constDecl + " &#8592; ")),
             m("input", {
                 class: "const-input",
                 id: `const-val-input-${constDecl}`,
                 oninput: (e) => model.specConstInputVals[constDecl] = e.target.value,
                 value: model.specConstInputVals[constDecl],
                 placeholder: "Enter TLA+ value."
+            }),
+            m("button", {
+                // class: "const-input",
+                // id: `const-val-input-${constDecl}`,
+                onclick: (e) => setConstantAsString(constDecl),
+                value: model.specConstInputVals[constDecl],
+                placeholder: "Enter TLA+ value.",
+                innerHTML: "Set as string"
             })
         ])
         chooseConstsElems.push(newDiv);
     }
 
-    let setButtonDiv = m("div", { id: "", class: "button-base", onclick: setConstantValues }, "Set constant values")
+    let setButtonDiv = m("div", { id: "set-constants-button", class: "button-base", onclick: setConstantValues }, "Set CONSTANT Values")
 
-    return m("div", {}, [
-        m("div", { id: "constants-header" },
-            [
+    return m("div", {id: "constants-box"}, [
+        // m("div", { id: "constants-header" },
+        //     [
                 // Allow hiding of choose constants pane.
-                m("div", { id: "constants-title", class: "pane-title", onclick: function(x){
-                    model.constantsPaneHidden = !model.constantsPaneHidden;
-                }}, "Choose Constants"),
-                m("div", { id: "set-constants-button" }, setButtonDiv)
-            ]),
+                // m("div", { id: "constants-title", class: "pane-title", onclick: function(x){
+                //     model.constantsPaneHidden = !model.constantsPaneHidden;
+                // }}, "CONSTANT Instantiation"),
+        // m("div", { id: "set-constants-button" }, setButtonDiv),
+        setButtonDiv,
+            // ]),
         m("div", { id: "choose-constants-elems", hidden: model.constantsPaneHidden }, chooseConstsElems),
     ]);
 }
@@ -256,7 +270,10 @@ function componentNextStateChoiceElement(state, ind, actionLabel) {
 
     let allElems = [];
 
-    allElems = allElems.concat(actionNameElem)
+    if(model.currTrace.length > 0){
+        // Don't need this for initial state.
+        allElems = allElems.concat(actionNameElem);
+    }
     allElems = allElems.concat(stateVarElems);
 
     let opac = model.lassoTo === null ? "100" : "50";
@@ -453,7 +470,8 @@ function setConstantValues() {
 
         // TODO: Evaluate these in context of the current spec.
         let ctx = new Context(null, new TLAState({}), model.specDefs, {}, model.specConstVals);
-        let cVal = evalExprStrInContext(ctx, constValText);
+        let checkForModelVal = true
+        let cVal = evalExprStrInContext(ctx, constValText, checkForModelVal);
         console.log("cval:", cVal);
         constTlaVals[constDecl] = cVal;
     }
