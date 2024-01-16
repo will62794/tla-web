@@ -11,6 +11,11 @@ let Pane = {
     Trace: 2
 }
 
+let Tab = {
+    StateSelection: 1,
+    SpecEditor: 2
+}
+
 let model = {
     specText: null,
     allInitStates: [],
@@ -36,7 +41,8 @@ let model = {
     nextStatePreview: null,
     replMode: false,
     replResult: null,
-    constantsPaneHidden: false
+    constantsPaneHidden: false,
+    selectedTab: Tab.SpecEditor
 }
 
 // The main app component.
@@ -866,13 +872,13 @@ async function handleCodeChange(editor, changes) {
     // Enable resizable panes (experimental).
     // $( "#initial-states" ).resizable({handles:"s"});
 
-    $("#code-input-pane").resizable({
-        handles: "e",
-        // alsoResize: "#explorer-pane",
-        // handles: {"e": ".splitter"},
-        // handleSelector: ".splitter",
-        resizeHeight: false,
-    });
+    // $("#code-input-pane").resizable({
+    //     handles: "e",
+    //     // alsoResize: "#explorer-pane",
+    //     // handles: {"e": ".splitter"},
+    //     // handleSelector: ".splitter",
+    //     resizeHeight: false,
+    // });
 
     // $( "#explorer-pane" ).resizable({
     // handles:"w"
@@ -946,20 +952,49 @@ function chooseConstantsPane() {
     // return m("div", { id: "choose-constants-container" }, componentChooseConstants());
 }
 
-function midPane(){
-    return m("div", {id:"mid-pane"}, [
+function specEditorPane(hidden){
+    return m("div", { id: "code-input-pane", hidden:hidden }, [
+        m("div", { id: "code-container" }, [
+            m("textarea", { id: "code-input" })
+        ])
+    ]);
+}
+
+function stateSelectionPane(hidden){
+    // return m("div", {id:"mid-pane", hidden: hidden}, 
+    return m("div", {hidden: hidden}, [
         chooseConstantsPane(),
         m("div", { id: "poss-next-states-title", class: "pane-title" }, (model.currTrace.length > 0) ? "Choose Next State" : "Choose Initial State"),
         m("div", { id: "initial-states", class: "tlc-state" }, componentNextStateChoices()),
-        // m("div", { id: "trace-container" }, [
-        //     m("div", { class: "pane-heading", id: "trace-state-heading" }, [
-        //         m("div", { class: "pane-title" }, "Current Trace"),
-        //         componentButtonsContainer(),
-        //         componentHiddenStateVars()
-        //     ]),
-        //     componentTraceViewer()
-        // ])
-    ]);   
+    ]);    
+}
+
+function headerTabBar() {
+    return m("div", { id: "header-tab-bar" }, [
+        m("div", {
+            id: "state-selection-tab-button",
+            class: "header-tab",
+            onclick: () => model.selectedTab = Tab.StateSelection,
+            style: "background-color:" + ((model.selectedTab === Tab.StateSelection) ? "lightgray" : "none")
+        }, "Details"),
+        m("div", {
+            id: "spec-editor-tab-button", class: "header-tab",
+            onclick: () => model.selectedTab = Tab.SpecEditor,
+            style: "background-color:" + ((model.selectedTab === Tab.SpecEditor) ? "lightgray" : "none")
+        }, "Spec"),
+    ]);
+}
+
+function midPane(){
+    return [
+        m("div", {id:"mid-pane"}, [
+            headerTabBar(),
+            stateSelectionPane(model.selectedTab !== Tab.StateSelection), 
+            specEditorPane(model.selectedTab !== Tab.SpecEditor)
+        ])
+        // stateSelectionPane(model.selectedTab !== Tab.StateSelection), 
+        // specEditorPane(model.selectedTab !== Tab.SpecEditor)
+    ]; 
 }
 
 function tracePane() {
@@ -1123,11 +1158,11 @@ async function loadApp() {
             return [
                 m("div", { class: "panel-container" }, [
                     // TLA+ code pane.
-                    m("div", { id: "code-input-pane" }, [
-                        m("div", { id: "code-container" }, [
-                            m("textarea", { id: "code-input" })
-                        ])
-                    ]),
+                    // m("div", { id: "code-input-pane" }, [
+                    //     m("div", { id: "code-container" }, [
+                    //         m("textarea", { id: "code-input" })
+                    //     ])
+                    // ]),
 
                     // Splitter 
                     // TODO: Get this working.
@@ -1236,6 +1271,7 @@ async function loadApp() {
                 })
             });
             $codeEditor.CodeMirror.setValue(spec);
+            model.selectedTab = Tab.StateSelection;
         }
     });
 }

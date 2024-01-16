@@ -13,6 +13,7 @@ body {
   #mid-pane{
     /* background-color: red; */
     height:100%;
+    /* overflow-y: scroll; */
     width:49%;
     float:left;
   }
@@ -174,11 +175,37 @@ body {
     position: relative;
   }
 
+    #header-tab-bar {
+        display:grid;
+        /* width: 100%; */
+        grid-template-columns: 20% 20%;
+        border-bottom: 1px solid gray;
+        padding-bottom:6px;
+        /* grid-template-rows: 100%; */
+    }
+
+    .header-tab {
+        /* Rounded tab selection button */
+        border: 1px solid #aaa;
+        grid-column-start: col-start 0;
+        padding:5px;
+        text-align: center;
+        border-radius: 5px;
+        margin-left:5px;
+        margin-right:5px;
+        font-size: 14px;
+    }
+
+    .header-tab:hover{
+        cursor: pointer;
+        background-color: lightgray;
+    }
+
   #code-input-pane {
     flex: 0 0 auto;
     /* only manually resize */
     padding: 3px;
-    width: 33%;
+    width: 98%;
     min-height: 200px;
     min-width: 150px;
     height:100%;
@@ -192,7 +219,7 @@ body {
     flex-direction: row;
     /* border: 1px solid silver; */
     /* overflow: hidden; */
-    height: 100%;
+    height: 99%;
     
   }
 
@@ -212,8 +239,8 @@ body {
   #initial-states{
       /* min-height: 250px; */
       /* max-height:300px; */
-      height:90%;
-      width:98%;
+      /* height:90%; */
+      /* width:98%; */
       /* height:100px; */
       overflow-y:scroll;
       border-bottom: 1px lightgray solid;
@@ -413,7 +440,7 @@ body {
     flex: 1;
     position: relative;
     overflow: hidden;
-    border-right: 1px solid #aaa;
+    /* border-right: 1px solid #aaa; */
     border-bottom: 1px solid #aaa;
 
   }
@@ -432,7 +459,7 @@ body {
     /* background-color: lightgray; */
 
     /* background-color: orange; */
-    height:100%;
+    height:99%;
     width:49%;
     float:left;
     border-left:solid 1px lightgray;
@@ -465,7 +492,7 @@ body {
     width: 100%;
     min-height: 200px;
     min-width: 200px;
-    overflow: scroll;
+    /* overflow: scroll; */
   }
 
   .header-item {
@@ -551,10 +578,10 @@ body {
     background-color: #440874;
     background-color: #276983;
     color:white;
-    padding-left:7px;
-    padding-right:7px;
-    padding-top:4px;
-    padding-bottom:4px;
+    padding-left:8px;
+    padding-right:8px;
+    padding-top:5px;
+    padding-bottom:5px;
   }
   .button-base:hover{
     cursor: pointer;
