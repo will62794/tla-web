@@ -292,7 +292,7 @@ body {
   }
 
   .trace-state-table{
-    border:solid 2px black;
+    border:solid 1px gray;
     font-size:12px;
   }
 
@@ -647,7 +647,7 @@ body {
   }
 
   #trace-state-holder{
-    width:80%;
+    /* width:80%; */
     /* background-color: yellowgreen; */
     display: inline-block;
   }
