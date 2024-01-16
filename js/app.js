@@ -42,7 +42,8 @@ let model = {
     replMode: false,
     replResult: null,
     constantsPaneHidden: false,
-    selectedTab: Tab.SpecEditor
+    selectedTab: Tab.SpecEditor,
+    rootModName: ""
 }
 
 // The main app component.
@@ -849,6 +850,7 @@ function onSpecParse(newText, parsedSpecTree){
         return;
     }
 
+    model.rootModName = model.specTreeObjs["root_mod_name"];
     model.specConsts = model.specTreeObjs["const_decls"];
     model.specDefs = model.specTreeObjs["op_defs"];
     model.nextStatePred = model.specTreeObjs["op_defs"]["Next"]["node"];
@@ -982,6 +984,7 @@ function headerTabBar() {
             onclick: () => model.selectedTab = Tab.SpecEditor,
             style: "background-color:" + ((model.selectedTab === Tab.SpecEditor) ? "lightgray" : "none")
         }, "Spec"),
+        m("div", { id: "spec-name-header" }, "Root spec: " + model.rootModName + ".tla")
     ]);
 }
 

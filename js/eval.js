@@ -1428,6 +1428,7 @@ class TLASpec {
             assert(node.type === "module");
         }
 
+        let root_mod_name = node.namedChildren[1].text;
         let op_defs = {};
         let fn_defs = {};
         let var_decls = {};
@@ -1626,6 +1627,7 @@ class TLASpec {
         console.log("ACTIONS: ", actions);
 
         let objs = {
+            "root_mod_name": root_mod_name,
             "const_decls": const_decls,
             "var_decls": var_decls,
             "op_defs": op_defs,
