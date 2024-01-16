@@ -639,6 +639,24 @@ class TLAState {
         return hashSum(valsToHash);
     }
 
+    // Compute the set of variables that are different between this state and the given 'otherState'.
+    // Assumes they have the same set of state variables.
+    varDiff(otherState){
+        let stateKeys = Object.keys(this.stateVars).sort();
+        // Construct an array that is sequence of each state varialbe name and a
+        // fingerprint of its TLA value. Then we hash this array to produce the
+        // fingerprint for this state.
+        let varDiff = [];
+        for (var k of stateKeys) {
+            let mine = this.stateVars[k].fingerprint();
+            let other = otherState.stateVars[k].fingerprint();
+            if(mine !== other){
+                varDiff.push(k);
+            }
+        }
+        return varDiff;
+    }
+
     // toString(){
     //     return "[" + this.domain.map((dv,idx) => dv + " |-> " + this.values[idx]).join(", ") + "]";
     // }

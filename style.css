@@ -190,7 +190,7 @@ body {
   .panel-container {
     display: flex;
     flex-direction: row;
-    border: 1px solid silver;
+    /* border: 1px solid silver; */
     /* overflow: hidden; */
     height: 100%;
     
@@ -205,14 +205,18 @@ body {
     margin-left: 8px;
   }
 
+  #poss-next-states-title{
+    border-bottom: solid 1px lightgray;
+  }
+
   #initial-states{
       /* min-height: 250px; */
       /* max-height:300px; */
-      height:75%;
+      height:90%;
       width:98%;
       /* height:100px; */
       overflow-y:scroll;
-      /* border: 2px gray solid; */
+      border-bottom: 1px lightgray solid;
       /* border-radius: 5px; */
   }
 
@@ -382,7 +386,7 @@ body {
       padding:1%;
       width:94%;
       /* float:left; */
-      margin:2%;
+      margin:1%;
       border:solid;
       border-color:gray;
       border-radius: 4px;
@@ -424,7 +428,7 @@ body {
     padding-left:8px;
     /* overflow: auto; */
     overflow: scroll;
-    border-right:solid 0.5px lightgray;
+    /* border-right:solid 0.5px lightgray; */
     /* background-color: lightgray; */
 
     /* background-color: orange; */

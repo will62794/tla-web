@@ -299,7 +299,7 @@ function componentNextStateChoiceElement(state, ind, actionLabel) {
         style: `opacity: ${opac}%`,
         onclick: () => chooseNextState(hash),
         onmouseover: () => {
-            model.nextStatePreview = hash;
+            model.nextStatePreview = state;
         },
         onmouseout: () => {
             model.nextStatePreview = null;
@@ -356,7 +356,7 @@ function componentNextStateChoices(nextStates) {
 
     // Fill up rows of table/grid with max number of elements.
     let outRows = [m("tr", componentErrorInfo())]
-    let statesPerRow = 2;
+    let statesPerRow = 1;
     let currRow = [];
     let count = 0;
     for (const elem of nextStateElems) {
@@ -691,9 +691,23 @@ function componentTraceViewerState(state, ind, isLastState) {
     let varNames = _.keys(state.getStateObj());
     varNames = _.difference(varNames, model.hiddenStateVars);
     let varRows = varNames.map((varname, idx) => {
+        let varnameCol = "black";
+        let varDiff = null;
+        if (Object.keys(model.currNextStates).length > 0 && model.nextStatePreview !== null) {
+            let selectedNextState = model.nextStatePreview;
+            // console.log(selectedNextState);
+            let currState = model.currTrace[model.currTrace.length - 1];
+            varDiff = selectedNextState.varDiff(currState);
+            // console.log(varDiff);
+        }
+        // Show modified variables in blue.
+        if (varDiff !== null && varDiff.includes(varname) && ind === model.currTrace.length - 1) {
+            varnameCol = "blue";
+        }
         let cols = [
             m("td", {
                 class: "th-state-varname",
+                style: "color:" + varnameCol,
                 onclick: (e) => {
                     model.hiddenStateVars.push(varname);
                 }
