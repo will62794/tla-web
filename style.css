@@ -10,17 +10,39 @@ body {
       /* text-decoration: underline; */
   }
 
-  .const-input{
-      margin:3px;
-      width:200px;
+  #mid-pane{
+    /* background-color: red; */
+    height:100%;
+    width:49%;
+    float:left;
   }
 
-  #constants-box{
-    /* background-color: red; */
-    padding:9px;
-    border-bottom:solid lightgray 1px;
-    /* border-radius: 5px; */
+  .const-input{
+      margin:3px;
+      width:180px;
   }
+
+  #garden {
+    display: grid;
+    grid-template-columns: 20% 20% 20% 20% 20%;
+    grid-template-rows: 20% 20% 20% 20% 20%;
+  }
+
+    #constants-box {
+        width:96%;
+        /* height:100px; */
+        /* height:20%; */
+        /* display: block; */
+        /* height: auto; */
+        padding:8px;
+        border-bottom:solid lightgray 1px;
+        display: grid;
+        grid-template-columns: 29% 69%;
+        grid-template-rows: 100%;
+    }
+
+    /* #constants-box{ */
+    /* } */
 
   /* #constants-header{ */
     /* display:flex; */
@@ -41,7 +63,7 @@ body {
     /* background-color: red; */
     /* vertical-align: middle; */
     /* margin-left:20px; */
-    width:180px;
+    /* width:120px; */
     /* padding:5px; */
     margin-bottom:5px;
     /* border-radius: 10px; */
@@ -63,12 +85,15 @@ body {
       font-size: 14px;
       font-family: monospace;
       font-family: Menlo, Monaco, "Times";
+      /* float:left; */
+      /* height:100%; */
+      padding-left:10px;
+      grid-column-start: 2;
 
   }
   #choose-constants-elems input{
     font-family: monospace;
     font-family: Menlo, Monaco, "Times";
-
   }
 
 
@@ -86,14 +111,13 @@ body {
   .pane-title{
       font-size:16px;
       font-weight: bold;
-      padding-bottom:8px;
+      padding-bottom:12px;
       padding-top:8px;
   }
 
   #trace-state-heading{
-    /* border-bottom: solid 2px lightgray;
-    padding-bottom:5px; */
     width:98%;
+    border-bottom: solid 1px lightgray;
   }
 
   #toggle-spec-button{
@@ -154,7 +178,7 @@ body {
     flex: 0 0 auto;
     /* only manually resize */
     padding: 3px;
-    width: 50%;
+    width: 33%;
     min-height: 200px;
     min-width: 150px;
     height:100%;
@@ -184,12 +208,12 @@ body {
   #initial-states{
       /* min-height: 250px; */
       /* max-height:300px; */
-      height:35%;
+      height:75%;
       width:98%;
       /* height:100px; */
       overflow-y:scroll;
-      border: 2px gray solid;
-      border-radius: 5px;
+      /* border: 2px gray solid; */
+      /* border-radius: 5px; */
   }
 
   #initial-states,#next-states{
@@ -198,7 +222,7 @@ body {
 
   #trace{
     padding-left:15px;
-    height:50%;
+    height:85%;
     overflow-y: scroll;
   }
 
@@ -232,12 +256,13 @@ body {
 
   .trace-state-table{
     border:solid 2px black;
+    font-size:12px;
   }
 
   .trace-state-table-div{
     /* float:left; */
     /* border:solid 1px blue; */
-    width:45%;
+    width:75%;
   }
 
   .trace-state-table .th-state-varname{
@@ -280,7 +305,7 @@ body {
   .trace-state-table .th-state-traceexpr{
     border-right: 1px solid gray;
     font-weight: bold;
-    background-color: lightblue;
+    background-color: #eee;
   }
 
   .trace-state-table .tr-state-traceexpr-currinput{
@@ -296,9 +321,17 @@ body {
   .trace-state-table th{
     border-bottom: 1px solid gray;
     font-size:12px;
-    color:steelblue;
+    color:red;
+    color:    #276983;
+
     text-align: left;
     font-family: Arial, Helvetica, sans-serif;
+  }
+
+  #constant-buttons-div{
+    /* width:29%; */
+    grid-column-start: 1;
+
   }
 
   .trace-select-table td{
@@ -341,6 +374,7 @@ body {
     padding: 3px;
     padding-left:5px;
     padding-right:10px;
+    font-size:12px;
   }
 
   .init-state {
@@ -382,16 +416,22 @@ body {
 
   #trace-container {
     /* position: absolute; */
-    top: 0;
+    /* top: 0; */
     /* left: 35%; */
-    bottom: 0;
-    width:100%;
+    /* bottom: 0; */
+    /* width:100%; */
     /* right: 30%; */
-    padding-left:0px;
+    padding-left:8px;
     /* overflow: auto; */
     overflow: scroll;
     border-right:solid 0.5px lightgray;
     /* background-color: lightgray; */
+
+    /* background-color: orange; */
+    height:100%;
+    width:49%;
+    float:left;
+    border-left:solid 1px lightgray;
   }
 
   #repl-container {
@@ -417,7 +457,7 @@ body {
   #explorer-pane {
     flex: 1 1 auto;
     /* resizable */
-    padding: 10px;
+    padding: 8px;
     width: 100%;
     min-height: 200px;
     min-width: 200px;
@@ -491,7 +531,7 @@ body {
   }
 
   #trace-buttons{
-      width:80%;
+      width:98%;
       /* border:solid; */
       overflow: hidden;
   }
@@ -570,7 +610,7 @@ body {
   }
 
   #trace-state-holder{
-    width:60%;
+    width:80%;
     /* background-color: yellowgreen; */
     display: inline-block;
   }

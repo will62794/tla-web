@@ -198,6 +198,10 @@ function setConstantAsString(constDecl){
     model.specConstInputVals[constDecl] = '"' + constDecl + '"';
 }
 
+function toggleHiddenConstants(){
+    model.constantsPaneHidden = !model.constantsPaneHidden;
+}
+
 function componentChooseConstants() {
     // If there are CONSTANT declarations in the spec, we must
     // instantiate them with some concrete values.
@@ -218,19 +222,32 @@ function componentChooseConstants() {
                 value: model.specConstInputVals[constDecl],
                 placeholder: "Enter TLA+ value."
             }),
-            m("button", {
-                // class: "const-input",
-                // id: `const-val-input-${constDecl}`,
-                onclick: (e) => setConstantAsString(constDecl),
-                value: model.specConstInputVals[constDecl],
-                placeholder: "Enter TLA+ value.",
-                innerHTML: "Set as string"
-            })
+            // m("button", {
+            //     // class: "const-input",
+            //     // id: `const-val-input-${constDecl}`,
+            //     onclick: (e) => setConstantAsString(constDecl),
+            //     value: model.specConstInputVals[constDecl],
+            //     placeholder: "Enter TLA+ value.",
+            //     innerHTML: "Set as string"
+            // })
         ])
         chooseConstsElems.push(newDiv);
     }
 
-    let setButtonDiv = m("div", { id: "set-constants-button", class: "button-base", onclick: setConstantValues }, "Set CONSTANT Values")
+
+    function hideButtonDiv(){
+        let text = model.constantsPaneHidden ? "Show CONSTANTs" : "Hide CONSTANTs";
+        let hideButtonDiv = m("div", { id: "hide-constants-button", class: "button-base", onclick: toggleHiddenConstants }, text)
+        return hideButtonDiv;
+    }
+
+    function constantButtons(){
+        let setButtonDiv = m("div", { id: "set-constants-button", class: "button-base", onclick: setConstantValues }, "Set CONSTANTs");
+        if(model.constantsPaneHidden){
+            return [hideButtonDiv()];
+        }
+        return [setButtonDiv, hideButtonDiv()];
+    }
 
     return m("div", {id: "constants-box"}, [
         // m("div", { id: "constants-header" },
@@ -240,7 +257,7 @@ function componentChooseConstants() {
                 //     model.constantsPaneHidden = !model.constantsPaneHidden;
                 // }}, "CONSTANT Instantiation"),
         // m("div", { id: "set-constants-button" }, setButtonDiv),
-        setButtonDiv,
+        m("div", { id: "constant-buttons-div" }, constantButtons()),
             // ]),
         m("div", { id: "choose-constants-elems", hidden: model.constantsPaneHidden }, chooseConstsElems),
     ]);
@@ -735,11 +752,12 @@ function componentTraceViewerState(state, ind, isLastState) {
         traceExprRows = traceExprRows.concat([currTraceExprRow]);
     }
 
-    let stateColorBg = isLastState ? "yellow" : "none";
+    let stateColorBg = isLastState ? "lightyellow" : "none";
     let lassoToInd = (model.lassoTo !== null) ? _.findIndex(model.currTrace, s => s.fingerprint() === model.lassoTo) + 1 : ""
     let lassoNote = ((model.lassoTo !== null) && isLastState) ? " (Back to State " + lassoToInd + ")" : "";
+    let lastStateNote = isLastState ? "  (Current) " : "";
     let headerRow = [m("tr", { style: `background-color: ${stateColorBg}` }, [
-        m("th", { colspan: "2" }, "State " + (ind + 1) + lassoNote),
+        m("th", { colspan: "2" }, "State " + (ind + 1) + lastStateNote + lassoNote),
         m("th", { colspan: "2" }, "") // filler.
     ])];
     let rows = headerRow.concat(varRows).concat(traceExprRows);
@@ -910,22 +928,40 @@ function componentHiddenStateVars() {
 }
 
 function chooseConstantsPane() {
-    return m("div", { id: "choose-constants-container" }, componentChooseConstants());
+    return componentChooseConstants();
+    // return m("div", { id: "choose-constants-container" }, componentChooseConstants());
+}
+
+function midPane(){
+    return m("div", {id:"mid-pane"}, [
+        chooseConstantsPane(),
+        m("div", { id: "poss-next-states-title", class: "pane-title" }, (model.currTrace.length > 0) ? "Choose Next State" : "Choose Initial State"),
+        m("div", { id: "initial-states", class: "tlc-state" }, componentNextStateChoices()),
+        // m("div", { id: "trace-container" }, [
+        //     m("div", { class: "pane-heading", id: "trace-state-heading" }, [
+        //         m("div", { class: "pane-title" }, "Current Trace"),
+        //         componentButtonsContainer(),
+        //         componentHiddenStateVars()
+        //     ]),
+        //     componentTraceViewer()
+        // ])
+    ]);   
 }
 
 function tracePane() {
-    return m("span", [
-        m("div", { id: "poss-next-states-title", class: "pane-title" }, (model.currTrace.length > 0) ? "Choose Next State" : "Choose Initial State"),
-        m("div", { id: "initial-states", class: "tlc-state" }, componentNextStateChoices()),
-        m("div", { id: "trace-container" }, [
+    // return 
+    // m("span", [
+        // m("div", { id: "poss-next-states-title", class: "pane-title" }, (model.currTrace.length > 0) ? "Choose Next State" : "Choose Initial State"),
+        // m("div", { id: "initial-states", class: "tlc-state" }, componentNextStateChoices()),
+    return m("div", { id: "trace-container" }, [
             m("div", { class: "pane-heading", id: "trace-state-heading" }, [
-                m("div", { class: "pane-title" }, "Current Trace"),
+                m("div", { class: "pane-title", style:"font-size:20px" }, "Current Trace"),
                 componentButtonsContainer(),
                 componentHiddenStateVars()
             ]),
             componentTraceViewer()
-        ])
-    ]);
+        ]);
+    // ]);
 }
 
 function replResult(){
@@ -1002,7 +1038,8 @@ function componentExplorerPane() {
     }
 
     return m("div", { id: "explorer-pane" }, [
-        chooseConstantsPane(),
+        // chooseConstantsPane(),
+        midPane(),
         tracePane()
     ])
 }
@@ -1011,6 +1048,8 @@ function addTraceExpr(newTraceExpr) {
     // TODO: Also check for evaluation errors.
     if (newTraceExpr.length) {
         model.traceExprs.push(newTraceExpr);
+        // Clear the input text.
+        model.traceExprInputText = "";
     }
 }
 
