@@ -303,7 +303,7 @@ function componentNextStateChoiceElement(state, ind, actionLabel) {
 
     let allElems = [];
 
-    if(model.currTrace.length > 0){
+    if (model.currTrace.length > 0 && actionLabel) {
         // Don't need this for initial state.
         allElems = allElems.concat(actionNameElem);
     }
