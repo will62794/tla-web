@@ -13,7 +13,8 @@ let Pane = {
 
 let Tab = {
     StateSelection: 1,
-    SpecEditor: 2
+    SpecEditor: 2,
+    EvalGraph: 3
 }
 
 let model = {
@@ -43,7 +44,8 @@ let model = {
     replResult: null,
     constantsPaneHidden: false,
     selectedTab: Tab.SpecEditor,
-    rootModName: ""
+    rootModName: "",
+    debug: false
 }
 
 // The main app component.
@@ -116,14 +118,21 @@ function displayStateGraph() {
 
 
 function displayEvalGraph() {
+    // return;
     console.log("#displayEvalGraph");
-    let stategraphDiv = document.getElementById('explorer-pane');
-    stategraphDiv.hidden = false;
+    let stategraphDiv = document.getElementById('eval-graph-pane');
+    if(stategraphDiv === null){
+        // TODO: Work out synchronization of this eval graph computation with other UI
+        // element interactions properly.
+        return;
+    }
+    stategraphDiv.innerHTML = "";
+    // stategraphDiv.hidden = false;
 
     // cytoscape.use("dagre");
 
     var cy = cytoscape({
-        container: document.getElementById('explorer-pane'), // container to render in
+        container: stategraphDiv, // container to render in
         style: [
             {
                 selector: 'node',
@@ -467,6 +476,10 @@ function chooseNextState(statehash_short) {
         model.currNextStates = _.cloneDeep(nextStates);
         const duration = (performance.now() - start).toFixed(1);
         console.log(`Generation of next states took ${duration}ms`)
+
+        if(model.debug === 1){
+            displayEvalGraph();
+        }
     } catch (e) {
         console.error("Error computing next states.", e);
         if (currEvalNode !== null) {
@@ -972,7 +985,7 @@ function stateSelectionPane(hidden){
 }
 
 function headerTabBar() {
-    return m("div", { id: "header-tab-bar" }, [
+    let tabs = [
         m("div", {
             id: "state-selection-tab-button",
             class: "header-tab",
@@ -983,21 +996,38 @@ function headerTabBar() {
             id: "spec-editor-tab-button", class: "header-tab",
             onclick: () => model.selectedTab = Tab.SpecEditor,
             style: "background-color:" + ((model.selectedTab === Tab.SpecEditor) ? "lightgray" : "none")
-        }, "Spec"),
-        m("div", { id: "spec-name-header" }, "Root spec: " + model.rootModName + ".tla")
-    ]);
+        }, "Spec")
+    ]
+    let debug_tabs = [
+        m("div", {
+            id: "eval-graph-tab-button", class: "header-tab",
+            onclick: () => model.selectedTab = Tab.EvalGraph,
+            style: "background-color:" + ((model.selectedTab === Tab.EvalGraph) ? "lightgray" : "none")
+        }, "Eval Graph"),
+    ]
+    if (model.debug === 1) {
+        tabs = tabs.concat(debug_tabs);
+    }
+    let specName = m("div", { id: "spec-name-header" }, "Root spec: " + model.rootModName + ".tla")
+    tabs = tabs.concat(specName)
+    return m("div", { id: "header-tab-bar" }, tabs);
 }
 
-function midPane(){
+function midPane() {
+    let tabs = [
+        headerTabBar(),
+        stateSelectionPane(model.selectedTab !== Tab.StateSelection),
+        specEditorPane(model.selectedTab !== Tab.SpecEditor)
+    ];
+    let debug_tabs = [
+        componentEvalGraphPane(model.selectedTab !== Tab.EvalGraph)
+    ];
+    if (model.debug === 1) {
+        tabs = tabs.concat(debug_tabs);
+    }
     return [
-        m("div", {id:"mid-pane"}, [
-            headerTabBar(),
-            stateSelectionPane(model.selectedTab !== Tab.StateSelection), 
-            specEditorPane(model.selectedTab !== Tab.SpecEditor)
-        ])
-        // stateSelectionPane(model.selectedTab !== Tab.StateSelection), 
-        // specEditorPane(model.selectedTab !== Tab.SpecEditor)
-    ]; 
+        m("div", { id: "mid-pane" }, tabs)
+    ];
 }
 
 function tracePane() {
@@ -1096,6 +1126,14 @@ function componentExplorerPane() {
     ])
 }
 
+function componentEvalGraphPane(hidden){
+    // Eval graph pane.
+    return m("div", { id: "eval-graph-pane", hidden: hidden }, [
+        m("h1", "eval graph"),
+        m("div", { id: "eval-graph" })
+    ])
+}
+
 function addTraceExpr(newTraceExpr) {
     // TODO: Also check for evaluation errors.
     if (newTraceExpr.length) {
@@ -1122,9 +1160,9 @@ function checkInv(invExpr) {
 async function loadApp() {
 
     // Download example spec.
-    // let specPath = "./specs/simple1.tla";
+    // model.specPath = "./specs/simple2.tla";
     // let specPath = "./specs/simple2.tla";
-    // let specPath = "./specs/lockserver.tla";
+    // model.specPath = "./specs/lockserver.tla";
     // let specPath = "./specs/LamportMutex.tla";
     // let specPath = "./specs/lockserver_nodefs.tla";
     // let specPath = "./specs/lockserver_nodefs_anim.tla";
@@ -1132,7 +1170,7 @@ async function loadApp() {
     // let specPath = "./specs/Paxos.tla";
     model.specPath = "./specs/TwoPhase.tla";
     // let specPath = "./specs/simple_test.tla";
-    // let specPath = "./specs/simple_lockserver.tla";
+    // model.specPath = "./specs/simple_lockserver.tla";
 
 
     //
@@ -1173,6 +1211,7 @@ async function loadApp() {
 
                     // Display pane.
                     componentExplorerPane()
+                    // componentEvalGraphPane()
                 ])];
         }
     }
@@ -1184,12 +1223,12 @@ async function loadApp() {
         },
         onupdate: function () {
             // Keep trace viewer scrolled to bottom.
-            displayEvalGraph();
+            // displayEvalGraph();
         },
         view: function () {
             return [
                 // TLA+ code pane.
-                m("div", { id: "code-input-pane" }, [
+                m("div", { id: "code-input-pane", style:"height:10%" }, [
                     m("div", { id: "code-container" }, [
                         m("textarea", { id: "code-input" })
                     ])
@@ -1216,6 +1255,7 @@ async function loadApp() {
     let showRewritten = parseInt(m.route.param("show_rewritten"));
     model.showRewritten = showRewritten;
     enableEvalTracing = debug === 1;
+    model.debug = debug;
 
     // Check for given spec in URL args.
     specPathArg = m.route.param("specpath");
