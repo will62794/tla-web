@@ -405,6 +405,10 @@ function recomputeNextStates(fromState) {
         nextStates = interp.computeNextStates(model.specTreeObjs, model.specConstVals, [fromState])
             .map(c => c["state"].deprimeVars());
     }
+
+    if(model.debug === 1){
+        displayEvalGraph();
+    }
     return nextStates;
 }
 
@@ -476,10 +480,6 @@ function chooseNextState(statehash_short) {
         model.currNextStates = _.cloneDeep(nextStates);
         const duration = (performance.now() - start).toFixed(1);
         console.log(`Generation of next states took ${duration}ms`)
-
-        if(model.debug === 1){
-            displayEvalGraph();
-        }
     } catch (e) {
         console.error("Error computing next states.", e);
         if (currEvalNode !== null) {
