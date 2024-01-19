@@ -3741,6 +3741,9 @@ class TlaInterpreter {
         let defns = treeObjs["op_defs"];
         Object.assign(defns, treeObjs["fn_defs"]); // include function definitions.
 
+        // Reset for debugging.
+        evalNodeGraph = [];
+
         evalLog("consts:", consts);
 
         let initDef = defns["Init"];
@@ -3759,6 +3762,9 @@ class TlaInterpreter {
         let consts = treeObjs["const_decls"];
         let vars = treeObjs["var_decls"];
         let defns = treeObjs["op_defs"];
+
+        // Reset for debugging.
+        evalNodeGraph = [];
 
         let nextDef = defns["Next"]["node"];
 
