@@ -3887,6 +3887,7 @@ class TlaInterpreter {
 //
 
 let parent = null;
+let parentCtx = null;
 let evalNodeGraph = [];
 
 let origevalExpr = evalExpr;
@@ -3899,20 +3900,41 @@ evalExpr = function (...args) {
 
     // Test out tracking of evaluation graph for debugging.
     let currNode = args[0];
+    let currCtx = args[1];
+
+    function boundCtxStr(ctxArg) {
+        let boundVals = _.toPairs(ctxArg.quant_bound);
+        boundVals = _.sortBy(boundVals, p => p[0]);
+        let boundValsStr = boundVals.map(p => p[0] + "<-" + p[1].toString()).join("_");
+        if (boundValsStr.length === 0) {
+            return ""
+        }
+        return "_$$$_" + boundValsStr;
+    }
+
+    // Also should consider the values in the context as part of the node's 
+    // identity in the eval graph.
+    let boundValsStr = boundCtxStr(currCtx);
+
     let edge = null;
+    let nodeText = currNode.text + boundValsStr;
     if (parent !== null) {
+        let parentNodeText = parent.text + boundCtxStr(parentCtx);
         // console.log("nodeedge:", "\"" + currNode.text + "\"", "->", "\"" + parent.text + "\"");
-        edge = [currNode.text, parent.text]
+        edge = [nodeText, parentNodeText]
         // evalNodeGraph.push([currNode.text, parent.text]);
     }
 
     let origParent = parent;
+    let origParentCtx = parentCtx;
     parent = args[0];
+    parentCtx = args[1];
 
     // Run the original function to evaluate the expression.
     let ret = origevalExpr(...args);
     evalLog("evalreturn -> ", ret, args[0].text);
     parent = origParent;
+    parentCtx = origParentCtx;
 
     if (edge !== null && enableEvalTracing) {
         evalNodeGraph.push([edge, ret]);
