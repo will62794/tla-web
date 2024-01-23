@@ -70,6 +70,8 @@ Init == exprs = [
     setmap3 |-> {x + 2 : x \in {1,2,3} \cup {2,3,4}},
     setfilter1 |-> {x \in {1,2,3} : x > 1},
     subset1 |-> SUBSET {1,2,3},
+    subset3 |-> {1,2,3} \subseteq {1,2,3,4},
+    subset4 |-> {1,2,3,4} \subseteq {1,2,3,4},
     card1 |-> Cardinality({1,2,3}),
     card2 |-> Cardinality({1,2,3,3}),
 

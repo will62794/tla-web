@@ -291,6 +291,10 @@ class SetValue extends TLAValue {
         return new SetValue(_.intersectionWith(this.elems, otherSet.getElems(), _.isEqual));
     }
 
+    isSubsetOf(otherSet) {
+        return new BoolValue(this.intersectionWith(otherSet).size() === this.size());
+    }
+
     diffWith(otherSet) {
         return new SetValue(_.differenceWith(this.elems, otherSet.getElems(), _.isEqual));
     }
@@ -2261,6 +2265,19 @@ function evalBoundInfix(node, ctx) {
         assert(rhsVal instanceof IntValue);
         let rangeVal = _.range(lhsVal.getVal(), rhsVal.getVal() + 1).map(x => new IntValue(x));
         return [ctx.withVal(new SetValue(rangeVal))];
+    }
+
+    // Set subset
+    if (symbol.type === "subseteq") {
+        evalLog("bound_infix_op, symbol 'subseteq'");
+        // TODO: Will eventually need to figure out a more principled approach to object equality.
+        let lhsVal = evalExpr(lhs, ctx)[0]["val"];
+        evalLog("subseteq lhs:", lhsVal);
+        let rhsVal = evalExpr(rhs, ctx)[0]["val"];
+        evalLog("subseteq rhs:", rhsVal);
+        assert(lhsVal instanceof SetValue);
+        assert(rhsVal instanceof SetValue);
+        return [ctx.withVal(lhsVal.isSubsetOf(rhsVal))];
     }
 
     //
