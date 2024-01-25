@@ -323,7 +323,7 @@ function componentNextStateChoiceElement(stateObj, ind, actionLabel) {
     }
     // Show full states for initial state choices.
     // TODO: Possibly have option to toggle this behavior.
-    if(model.currTrace.length === 0){
+    if(model.currTrace.length === 0 || actionLabelText.length === 0){
         allElems = allElems.concat(stateVarElems);
     }
 
