@@ -188,7 +188,7 @@ body {
         grid-template-columns: 20% 20%;
         border-bottom: 1px solid gray;
         padding-bottom:6px;
-        height:4%;
+        /* height:4%; */
         /* grid-template-rows: 100%; */
     }
 
