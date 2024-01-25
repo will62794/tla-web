@@ -10,8 +10,6 @@ CONSTANTS Server
 
 CONSTANTS Secondary, Primary, Nil
 
-CONSTANT InitTerm
-
 VARIABLE currentTerm
 VARIABLE state
 VARIABLE log
@@ -275,36 +273,26 @@ SendConfig(i, j) ==
     /\ UNCHANGED <<currentTerm, state, log, immediatelyCommitted>>
 
 Init == 
-    /\ currentTerm = [i \in Server |-> InitTerm]
+    /\ currentTerm = [i \in Server |-> 0]
     /\ state       = [i \in Server |-> Secondary]
     /\ log = [i \in Server |-> <<>>]
     /\ immediatelyCommitted = {}
     /\ configVersion =  [i \in Server |-> 1]
-    /\ configTerm    =  [i \in Server |-> InitTerm]
+    /\ configTerm    =  [i \in Server |-> 0]
     /\ \E initConfig \in AllConfigs :
         /\ initConfig # {}
         /\ config = [i \in Server |-> initConfig]
 
 
-\* Add dummy precondition for now so TLC tags actions by name explicitly.
-ClientRequestAction == \E s \in Server : ClientRequest(s)
-GetEntriesAction == \E s, t \in Server : GetEntries(s, t)
-RollbackEntriesAction == \E s, t \in Server : RollbackEntries(s, t)
-BecomeLeaderAction == \E s \in Server : \E Q \in Quorums(config[s]) :  BecomeLeader(s, Q)
-CommitEntryAction ==  \E s \in Server :  \E Q \in Quorums(config[s]) : CommitEntry(s, Q)
-UpdateTermsActions == \E s,t \in Server : UpdateTerms(s, t)
-ReconfigAction == \E s \in Server, newConfig \in AllConfigs : Reconfig(s, newConfig)
-SendConfigAction == \E s,t \in Server : SendConfig(s, t)
-
 Next == 
-    \/ ClientRequestAction
-    \/ GetEntriesAction
-    \/ RollbackEntriesAction
-    \/ BecomeLeaderAction
-    \/ CommitEntryAction
-    \/ UpdateTermsActions
-    \/ ReconfigAction
-    \/ SendConfigAction
+    \/ \E s \in Server : ClientRequest(s)
+    \/ \E s, t \in Server : GetEntries(s, t)
+    \/ \E s, t \in Server : RollbackEntries(s, t)
+    \/ \E s \in Server : \E Q \in Quorums(config[s]) :  BecomeLeader(s, Q)
+    \/ \E s \in Server :  \E Q \in Quorums(config[s]) : CommitEntry(s, Q)
+    \/ \E s,t \in Server : UpdateTerms(s, t)
+    \/ \E s \in Server, newConfig \in AllConfigs : Reconfig(s, newConfig)
+    \/ \E s,t \in Server : SendConfig(s, t)
 
 --------------------------------------------------------------------------------
 
@@ -341,22 +329,22 @@ StateMachineSafety ==
 
 --------------------------------------------------------------------------------
 
-CONSTANTS 
-    MaxTerm, 
-    MaxLogLen,
-    MaxConfigVersion
+\* CONSTANTS 
+\*     MaxTerm, 
+\*     MaxLogLen,
+\*     MaxConfigVersion
 
-\* State Constraint. Used for model checking only.
-StateConstraint == 
-    \A s \in Server :
-        /\ currentTerm[s] <= MaxTerm
-        /\ Len(log[s]) <= MaxLogLen
-        /\ configVersion[s] <= MaxConfigVersion
+\* \* State Constraint. Used for model checking only.
+\* StateConstraint == 
+\*     \A s \in Server :
+\*         /\ currentTerm[s] <= MaxTerm
+\*         /\ Len(log[s]) <= MaxLogLen
+\*         /\ configVersion[s] <= MaxConfigVersion
 
-Symmetry == Permutations(Server)
+\* Symmetry == Permutations(Server)
 
-Terms == InitTerm..MaxTerm
-LogIndices == 1..MaxLogLen
-ConfigVersions == 1..MaxConfigVersion
+\* Terms == InitTerm..MaxTerm
+\* LogIndices == 1..MaxLogLen
+\* ConfigVersions == 1..MaxConfigVersion
 
 =============================================================================
