@@ -325,26 +325,4 @@ LeaderCompleteness ==
 StateMachineSafety == 
     \A c1, c2 \in immediatelyCommitted : (c1[1] = c2[1]) => (c1 = c2)
 
-\* TODO: Precise liveness specification under dynamic reconfiguration?
-
---------------------------------------------------------------------------------
-
-\* CONSTANTS 
-\*     MaxTerm, 
-\*     MaxLogLen,
-\*     MaxConfigVersion
-
-\* \* State Constraint. Used for model checking only.
-\* StateConstraint == 
-\*     \A s \in Server :
-\*         /\ currentTerm[s] <= MaxTerm
-\*         /\ Len(log[s]) <= MaxLogLen
-\*         /\ configVersion[s] <= MaxConfigVersion
-
-\* Symmetry == Permutations(Server)
-
-\* Terms == InitTerm..MaxTerm
-\* LogIndices == 1..MaxLogLen
-\* ConfigVersions == 1..MaxConfigVersion
-
 =============================================================================
