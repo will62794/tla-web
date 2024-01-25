@@ -10,6 +10,13 @@ body {
       /* text-decoration: underline; */
   }
 
+  #left-pane{
+    /* color:red; */
+    height:96%;
+    /* border:solid 1px red; */
+    /* overflow-y: scroll; */
+  }
+
   #mid-pane{
     /* background-color: red; */
     height:100%;
@@ -181,6 +188,7 @@ body {
         grid-template-columns: 20% 20%;
         border-bottom: 1px solid gray;
         padding-bottom:6px;
+        height:4%;
         /* grid-template-rows: 100%; */
     }
 
@@ -257,9 +265,11 @@ body {
       overflow-y:scroll;
       border-bottom: 1px lightgray solid;
       /* border-radius: 5px; */
+      height:80%;
+      font-size:12px;
   }
 
-  #initial-states,#next-states{
+  #next-states{
       font-size:12px;
   }
 
@@ -385,7 +395,7 @@ body {
   .trace-select-table  .action-name{
     color:black;
     /* font-family: Arial, Helvetica, sans-serif; */
-    font-size: 12px;
+    font-size: 14px;
     padding-bottom: 3px;
     /* width:90%; */
     /* padding-top: 3px; */
@@ -396,7 +406,7 @@ body {
     /* text-decoration: underline; */
     /* border:solid gray 1px; */
     width:100%;
-    background-color: lightgray;
+    /* background-color: lightgray; */
     font-weight:bold;
     border-radius: 6px;
     /* font-weight: bold; */

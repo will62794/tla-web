@@ -279,11 +279,25 @@ function componentChooseConstants() {
     ]);
 }
 
-function componentNextStateChoiceElement(state, ind, actionLabel) {
+function componentNextStateChoiceElement(stateObj, ind, actionLabel) {
+    let state = stateObj["state"];
+    let stateQuantBounds = stateObj["quant_bound"];
     let hash = state.fingerprint();
 
     let actionLabelText = actionLabel ? actionLabel : "";
     let varNames = _.keys(state.getStateObj());
+
+    // For now just assume actions have the form "Action(x,y,z)",
+    // so we only do replacements after the the first parenthesis.
+    let parenSplit = actionLabelText.indexOf("(");
+    let pre = actionLabelText.slice(0, parenSplit);
+    let post = actionLabelText.slice(parenSplit);
+    for(const [quant, bound] of Object.entries(stateQuantBounds)){
+        post = post.replace(quant, bound.toString())
+    }
+    actionLabelText = pre + post;
+
+
     let stateVarElems = varNames.map((varname, idx) => {
         let cols = [
             m("td", { class: "state-varname" }, varname),
@@ -307,7 +321,11 @@ function componentNextStateChoiceElement(state, ind, actionLabel) {
         // Don't need this for initial state.
         allElems = allElems.concat(actionNameElem);
     }
-    allElems = allElems.concat(stateVarElems);
+    // Show full states for initial state choices.
+    // TODO: Possibly have option to toggle this behavior.
+    if(model.currTrace.length === 0){
+        allElems = allElems.concat(stateVarElems);
+    }
 
     let opac = model.lassoTo === null ? "100" : "50";
     let nextStateElem = m("div", {
@@ -396,17 +414,26 @@ function recomputeNextStates(fromState) {
         let nextStatesByAction = {}
         for (const action of model.actions) {
             assert(action instanceof TLAAction);
-            nextStatesForAction = interp.computeNextStates(model.specTreeObjs, model.specConstVals, [fromState], action.node)
-                .map(c => c["state"].deprimeVars());
+            console.log("FROM:", fromState)
+            let nextStatesForAction = interp.computeNextStates(model.specTreeObjs, model.specConstVals, [fromState], action.node)
+            // console.log("nextStatesForAction", nextStatesForAction); 
+            nextStatesForAction = nextStatesForAction.map(c => {
+                let deprimed = c["state"].deprimeVars();
+                return { "state": deprimed, "quant_bound": c["quant_bound"] };
+            });
+            // nextStatesForActionQuantBound = nextStatesForActionQuantBound.map(c => c["quant_bound"]);
             nextStatesByAction[action.id] = nextStatesForAction;
         }
         nextStates = nextStatesByAction;
     } else {
         nextStates = interp.computeNextStates(model.specTreeObjs, model.specConstVals, [fromState])
-            .map(c => c["state"].deprimeVars());
+            .map(c => {
+                let deprimed = c["state"].deprimeVars();
+                return { "state": deprimed, "quant_bound": c["quant_bound"] };
+            });
     }
 
-    if(model.debug === 1){
+    if (model.debug === 1) {
         displayEvalGraph();
     }
     return nextStates;
@@ -430,14 +457,14 @@ function traceStepBack() {
     } else {
         console.log("stepping back");
         let lastState = model.currTrace[model.currTrace.length - 1];
-        let nextStates = recomputeNextStates(lastState);
+        let nextStates = recomputeNextStates(lastState["state"]);
         model.currNextStates = _.cloneDeep(nextStates);
     }
 }
 
 // Updates the current URL route to store the current trace.
 function updateTraceRouteParams() {
-    let traceHashed = model.currTrace.map(s => s.fingerprint());
+    let traceHashed = model.currTrace.map(s => s["state"].fingerprint());
     let oldParams = m.route.param();
     if (traceHashed.length === 0) {
         delete oldParams.trace;
@@ -451,7 +478,7 @@ function chooseNextState(statehash_short) {
     // console.log("currNextStates:", JSON.stringify(currNextStates));
     console.log("chooseNextState: ", statehash_short);
     let currNextStatesSet = _.flatten(_.values(model.currNextStates))
-    let nextStateChoices = currNextStatesSet.filter(s => s.fingerprint() === statehash_short);
+    let nextStateChoices = currNextStatesSet.filter(s => s["state"].fingerprint() === statehash_short);
     if (nextStateChoices.length === 0) {
         throw Error("Given state hash does not exist among possible next states.")
     }
@@ -476,7 +503,7 @@ function chooseNextState(statehash_short) {
     const start = performance.now();
 
     try {
-        let nextStates = recomputeNextStates(nextState);
+        let nextStates = recomputeNextStates(nextState["state"]);
         model.currNextStates = _.cloneDeep(nextStates);
         const duration = (performance.now() - start).toFixed(1);
         console.log(`Generation of next states took ${duration}ms`)
@@ -571,7 +598,9 @@ function reloadSpec() {
     // let allInitStates;
     let initStates;
     try {
-        initStates = interp.computeInitStates(model.specTreeObjs, model.specConstVals);
+        let includeFullCtx = true;
+        initStates = interp.computeInitStates(model.specTreeObjs, model.specConstVals, includeFullCtx);
+        initStates = initStates.map(c => ({"state": c["state"], "quant_bound": c["quant_bound"]}))
         model.allInitStates = _.cloneDeep(initStates);
         console.log("Set initial states: ", model.allInitStates);
     } catch (e) {
@@ -716,7 +745,7 @@ function componentTraceViewerState(state, ind, isLastState) {
         if (Object.keys(model.currNextStates).length > 0 && model.nextStatePreview !== null) {
             let selectedNextState = model.nextStatePreview;
             // console.log(selectedNextState);
-            let currState = model.currTrace[model.currTrace.length - 1];
+            let currState = model.currTrace[model.currTrace.length - 1]["state"];
             varDiff = selectedNextState.varDiff(currState);
             // console.log(varDiff);
         }
@@ -832,7 +861,7 @@ function componentTraceViewer() {
     for (var ind = 0; ind < model.currTrace.length; ind++) {
         let state = model.currTrace[ind];
         let isLastState = ind === model.currTrace.length - 1;
-        let traceStateElem = componentTraceViewerState(state, ind, isLastState);
+        let traceStateElem = componentTraceViewerState(state["state"], ind, isLastState);
         traceElems.push(traceStateElem);
     }
 
@@ -977,9 +1006,9 @@ function specEditorPane(hidden){
 
 function stateSelectionPane(hidden){
     // return m("div", {id:"mid-pane", hidden: hidden}, 
-    return m("div", {hidden: hidden}, [
+    return m("div", {id: "left-pane", hidden: hidden}, [
         chooseConstantsPane(),
-        m("div", { id: "poss-next-states-title", class: "pane-title" }, (model.currTrace.length > 0) ? "Choose Next State" : "Choose Initial State"),
+        m("div", { id: "poss-next-states-title", class: "pane-title" }, (model.currTrace.length > 0) ? "Choose Next Action" : "Choose Initial State"),
         m("div", { id: "initial-states", class: "tlc-state" }, componentNextStateChoices()),
     ]);    
 }

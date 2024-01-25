@@ -3752,7 +3752,9 @@ function getNextStates(nextDef, currStateVars, defns, constvals, moduleTable) {
 
 class TlaInterpreter {
 
-    computeInitStates(treeObjs, constvals) {
+    computeInitStates(treeObjs, constvals, includeFullCtx) {
+        var includeFullCtx = includeFullCtx || false;
+
         let consts = treeObjs["const_decls"];
         let vars = treeObjs["var_decls"];
         let defns = treeObjs["op_defs"];
@@ -3771,8 +3773,11 @@ class TlaInterpreter {
 
         let initStates = getInitStates(initDef["node"], vars, defns, constvals, treeObjs["module_table"]);
         // Keep only the valid states.
-        initStates = initStates.filter(actx => actx["val"].getVal()).map(actx => actx["state"]);
-        return initStates;
+        if(includeFullCtx){
+            return initStates.filter(actx => actx["val"].getVal())
+        } else{
+            return initStates.filter(actx => actx["val"].getVal()).map(actx => actx["state"]);
+        }
     }
 
     computeNextStates(treeObjs, constvals, initStates, action) {
