@@ -102,7 +102,8 @@ Environment ==
 -----------------------------------------------------------------------------
 
 Next ==
-  System \/ Environment
+  \/ System 
+  \/ Environment
 
 Spec == Init /\ [][Next]_vars /\ WF_vars(System)
 
