@@ -370,13 +370,15 @@ c2 == Circle(20, 10, 5, [fill |-> "red"])
 \* ServerIdDomain == 1..Cardinality(Server)
 RMIdDomain == 1..Cardinality(Server)
 Spacing == 100
-cs == [i \in RMIdDomain |-> Circle(50, i * Spacing, 10, 
+XBase == -10
+cs == [i \in RMIdDomain |-> Circle(XBase + 20, i * Spacing, 10, 
         [fill |-> 
             IF state[RMId[i]] = Primary 
                 THEN "green" 
             ELSE IF state[RMId[i]] = Secondary THEN "gray" 
             ELSE IF state[RMId[i]] = Secondary THEN "red" ELSE "gray"])]
-labels == [i \in RMIdDomain |-> Text(70, i * Spacing + 5, RMId[i], 
+labels == [i \in RMIdDomain |-> Text(XBase + 40, i * Spacing + 5, 
+        RMId[i] \o ", t=" \o ToString(currentTerm[RMId[i]]) \o ", " \o ToString(config[RMId[i]]), 
         [fill |-> 
             IF state[RMId[i]] = Primary 
                 THEN "green" 
