@@ -14,20 +14,20 @@
         1
       ],
       "nodes": [
-        2,3,4
+        2,3,4,5,6
       ],
       "edges": [
-        0,1,2
+        0,1,2,3,4
       ]
     },
     {
-      "name": "%9",
+      "name": "%13",
       "color": "white",
       "nodesep": "0.35",
       "rank": "same",
       "_gvid": 1,
       "nodes": [
-        2,3,4
+        2,3,4,5,6
       ]
     },
     {
@@ -46,6 +46,18 @@
       "_gvid": 4,
       "name": "740240026893633665",
       "label": "x = 9",
+      "style": "filled"
+    },
+    {
+      "_gvid": 5,
+      "name": "8201104834185781370",
+      "label": "x = \"1\"",
+      "style": "filled"
+    },
+    {
+      "_gvid": 6,
+      "name": "-4255171311609684408",
+      "label": "x = \"56\"",
       "style": "filled"
     }
   ],
@@ -70,6 +82,22 @@
       "_gvid": 2,
       "tail": 4,
       "head": 4,
+      "color": "black",
+      "fontcolor": "black",
+      "label": ""
+    },
+    {
+      "_gvid": 3,
+      "tail": 5,
+      "head": 5,
+      "color": "black",
+      "fontcolor": "black",
+      "label": ""
+    },
+    {
+      "_gvid": 4,
+      "tail": 6,
+      "head": 6,
       "color": "black",
       "fontcolor": "black",
       "label": ""

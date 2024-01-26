@@ -7,6 +7,8 @@ Init ==
     \/ x = "a" \o "b"
     \/ x = "dklksj" \o "pty" \o "kkgkg"
     \/ x = Len("abc") + Len("ghjfks")
+    \/ x = ToString(1)
+    \/ x = ToString(56)
     
 Next == x' = x
 ====

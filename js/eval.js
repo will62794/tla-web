@@ -2778,6 +2778,12 @@ function evalBoundOp(node, ctx) {
         return [ctx.withVal(new TupleValue(subSeqElems))];
     }
 
+    if (opName == "ToString") {
+        let argExpr = node.namedChildren[1];
+        let argExprVal = evalExpr(argExpr, ctx)[0]["val"]
+        return [ctx.withVal(new StringValue(argExprVal.toString()))];
+    }
+
     // Check for the bound op in the set of known definitions.
     let opDef = null;
     if (ctx["defns"].hasOwnProperty(opName)){
