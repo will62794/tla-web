@@ -94,6 +94,18 @@ function hashState(stateObj) {
     return hashSum(stateObj);
 }
 
+
+// Meant to represent an abstract node in the expression evaluation tree.
+// Can be evaluated on inputs and produces outputs that can then feed into
+// other eval nodes.
+class AbstractEvalNode {
+    constructor(name, type, children) {
+        this.name = name;
+        this.type = type;
+        this.children = children;
+    }
+}
+
 //
 //
 // TLA+ Value type definitions.
@@ -1652,7 +1664,7 @@ class TLASpec {
  * initial/next state generation.
  */
 class Context {
-    constructor(val, state, defns, quant_bound, constants, prev_func_val, operators_bound, module_table) {
+    constructor(val, state, defns, quant_bound, constants, prev_func_val, operators_bound, module_table, eval_node) {
 
         // @type: TLAValue
         // The result value of a TLA expression, or 'null' if no result has been
@@ -1695,6 +1707,8 @@ class Context {
 
         // Mapping from module names to their parsed spec objects.
         this.module_table = module_table || {};
+
+        this.eval_node = eval_node || null;
     }
 
     /**
@@ -1712,7 +1726,8 @@ class Context {
         let constants = _.cloneDeep(this.constants);
         let module_tableNew = this.module_table; // should never be modified
         let prev_func_val = _.cloneDeep(this.prev_func_val);
-        return new Context(valNew, stateNew, defnsNew, quant_boundNew, constants, prev_func_val, operators_boundNew, module_tableNew);
+        let eval_node = _.cloneDeep(this.eval_node);
+        return new Context(valNew, stateNew, defnsNew, quant_boundNew, constants, prev_func_val, operators_boundNew, module_tableNew, eval_node);
     }
 
     /**
@@ -1943,6 +1958,7 @@ function evalEq(lhs, rhs, ctx) {
             evalLog("rhsVal:", rhsVal);
             let lhsVals = evalExpr(lhs, ctx)[0]["val"];
             let boolVal = (lhsVals.fingerprint() === rhsVal.fingerprint())
+            ctx.eval_node = new AbstractEvalNode("eq_" + lhs.text, "eq", [rhsVals[0].eval_node])
             return [ctx.withVal(new BoolValue(boolVal))];
         }
 
@@ -1956,6 +1972,7 @@ function evalEq(lhs, rhs, ctx) {
                 evalLog("Variable (" + identName + ") getting value:", rhsVal);
                 let vret = (val === null) ? rhsVal : val;
                 evalLog(vret);
+                ctx.eval_node = new AbstractEvalNode("eq_" + lhs.text, "eq", [rhsVals[0].eval_node])
                 return vret;
             }
             return val;
@@ -2034,6 +2051,22 @@ function evalUnchanged(node, ctx) {
     }
 }
 
+function evalBoundInfix_plus(node, lhs, rhs, ctx){
+    evalLog("plus lhs:", lhs, lhs.text);
+    let plusLhsVal = evalExpr(lhs, ctx);
+    evalLog("plus lhs val:", plusLhsVal);
+    let lhsVal = plusLhsVal[0]["val"];
+    let rhsValVal = evalExpr(rhs, ctx)
+    let rhsVal = rhsValVal[0]["val"];
+    assert(lhsVal instanceof IntValue);
+    assert(rhsVal instanceof IntValue);
+    let outVal = lhsVal.plus(rhsVal);
+    ctx.eval_node = new AbstractEvalNode("plus_" + node.text, "plus", [plusLhsVal[0].eval_node, rhsValVal[0].eval_node])
+    // ctx.eval_node = {"children": [plusLhsVal[0].eval_node, rhsValVal[0].eval_node]}
+    evalLog("plus ret context:", ctx);
+    return [ctx.withVal(outVal)];    
+}
+
 // 'vars' is a list of possible partial state assignments known up to this point.
 function evalBoundInfix(node, ctx) {
     assert(ctx instanceof Context);
@@ -2048,6 +2081,8 @@ function evalBoundInfix(node, ctx) {
     // rhs
     let rhs = node.children[2];
 
+    // Eval results can also return abstract evaluation tree object?
+
     // Multiplication
     if (symbol.type === "mul") {
         evalLog("mul lhs:", lhs, lhs.text);
@@ -2057,20 +2092,13 @@ function evalBoundInfix(node, ctx) {
         let rhsVal = evalExpr(rhs, ctx)[0]["val"];
         let outVal = lhsVal.getVal() * rhsVal.getVal();
         // console.log("mul overall val:", outVal);
+        ctx.eval_node = {"children": [mulLhsVal.eval_node]}
         return [ctx.withVal(new IntValue(outVal))];
     }
 
     // Plus.
     if (symbol.type === "plus") {
-        evalLog("plus lhs:", lhs, lhs.text);
-        let plusLhsVal = evalExpr(lhs, ctx);
-        evalLog("plus lhs val:", plusLhsVal);
-        let lhsVal = plusLhsVal[0]["val"];
-        let rhsVal = evalExpr(rhs, ctx)[0]["val"];
-        assert(lhsVal instanceof IntValue);
-        assert(rhsVal instanceof IntValue);
-        let outVal = lhsVal.plus(rhsVal);
-        return [ctx.withVal(outVal)];
+        return evalBoundInfix_plus(node, lhs, rhs, ctx);
     }
 
     // Plus.
@@ -3633,6 +3661,8 @@ function evalExpr(node, ctx) {
 
     if (node.type === "nat_number") {
         // console.log(node.type, node.text);
+        // ctx.eval_node = {"children": [parseInt(node.text)]}
+        ctx.eval_node = new AbstractEvalNode("nat_number_" + node.text, "nat_number", [parseInt(node.text)]);
         return [ctx.withVal(new IntValue(parseInt(node.text)))];
     }
 
