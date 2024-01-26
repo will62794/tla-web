@@ -298,9 +298,13 @@ body {
       padding:6px;
       margin-bottom:3px;
       margin-top:5px;
-      width:100%;
+      width:95%;
       /* min-height:200px; */
       /* background-color: orange; */
+
+      display: grid;
+      grid-template-columns: 60% 40%;
+      grid-template-rows: 100%;
   }
 
   .state-choice-varval{
@@ -325,7 +329,7 @@ body {
 
   svg {
     width:100%;
-    height: 100px;
+    height: 90%;
   }
 
   .th-state-varname:hover{
@@ -666,11 +670,16 @@ body {
     /* width:80%; */
     /* background-color: yellowgreen; */
     display: inline-block;
+    grid-column-start: 1;
   }
 
   #anim-div{
     border:solid 1px gray;
-    width:36%;
+    width:80%;
+    height:90%;
     display: inline-block;
+    border-radius: 5px;
+    padding:15px;
     /* float:left; */
+    /* grid-column-start: 2; */
   }

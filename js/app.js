@@ -414,7 +414,7 @@ function recomputeNextStates(fromState) {
         let nextStatesByAction = {}
         for (const action of model.actions) {
             assert(action instanceof TLAAction);
-            console.log("FROM:", fromState)
+            // console.log("FROM:", fromState)
             let nextStatesForAction = interp.computeNextStates(model.specTreeObjs, model.specConstVals, [fromState], action.node)
             // console.log("nextStatesForAction", nextStatesForAction); 
             nextStatesForAction = nextStatesForAction.map(c => {
@@ -693,6 +693,7 @@ function tlaValView(tlaVal) {
 function makeSvgAnimObj(tlaAnimElem) {
     let name = tlaAnimElem.applyArg(new StringValue("name")).getVal();
     let attrs = tlaAnimElem.applyArg(new StringValue("attrs"));
+    let innerText = tlaAnimElem.applyArg(new StringValue("innerText"));
     let children = tlaAnimElem.applyArg(new StringValue("children"));
     // console.log("name:", name);
     // console.log("attrs:", attrs);
@@ -709,6 +710,9 @@ function makeSvgAnimObj(tlaAnimElem) {
     let rawVals = attrVals.map(v => v.getVal());
     let attrObj = _.fromPairs(_.zip(rawKeys, rawVals));
 
+    if (innerText.getVal().length > 0) {
+        return m(name, attrObj, innerText.getVal());
+    }
     return m(name, attrObj, childrenElems.map(c => makeSvgAnimObj(c)));
 }
 
@@ -726,8 +730,8 @@ function componentTraceViewerState(state, ind, isLastState) {
 
     if (enableAnimation) {
         let viewNode = model.specTreeObjs["op_defs"][animViewDefName].node;
-        let initCtx = new Context(null, state, model.specDefs, {}, model.specConsts);
-        console.log("view node:", viewNode);
+        let initCtx = new Context(null, state, model.specDefs, {}, model.specConstVals);
+        // console.log("view node:", viewNode);
         let ret = evalExpr(viewNode, initCtx);
         // console.log("ret", ret);
         viewVal = ret[0]["val"];
