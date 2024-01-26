@@ -256,6 +256,7 @@ async function testStateGraphEquiv(testId, stateGraph, parsedSpec, specPath, con
         { "spec": "simple_nested_lambda", "constvals": undefined },
         { "spec": "simple_folds", "constvals": undefined },
         { "spec": "simple_seq", "constvals": undefined },
+        { "spec": "simple_strings", "constvals": undefined },
         { "spec": "simple_if_then", "constvals": undefined },
         { "spec": "simple_record", "constvals": undefined },
         { "spec": "simple_recursive", "constvals": undefined },

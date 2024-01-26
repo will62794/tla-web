@@ -2317,8 +2317,17 @@ function evalBoundInfix(node, ctx) {
 
         let lhsVal = evalExpr(lhs, ctx)[0]["val"];
         let rhsVal = evalExpr(rhs, ctx)[0]["val"];
-        assert((lhsVal instanceof TupleValue) || (lhsVal instanceof FcnRcdValue));
-        assert((rhsVal instanceof TupleValue) || (rhsVal instanceof FcnRcdValue));
+        assert((lhsVal instanceof TupleValue) || (lhsVal instanceof FcnRcdValue) || (lhsVal instanceof StringValue));
+        assert((rhsVal instanceof TupleValue) || (rhsVal instanceof FcnRcdValue) || (rhsVal instanceof StringValue));
+
+        // If one of the values is a string, then they both must be.
+        // This matches the behavior of how TLC deasl with sequence ops applied to strings.
+        assert((lhsVal instanceof StringValue) === (rhsVal instanceof StringValue));
+
+        if(lhsVal instanceof StringValue){
+            assert((rhsVal instanceof StringValue));
+            return [ctx.withVal(new StringValue(lhsVal.getVal() + rhsVal.getVal()))];
+        }
 
         if (lhsVal instanceof FcnRcdValue) {
             lhsVal = lhsVal.toTuple();
@@ -2693,6 +2702,11 @@ function evalBoundOp(node, ctx) {
     if (opName == "Len") {
         let seqArgExpr = node.namedChildren[1];
         let seqArgExprVal = evalExpr(seqArgExpr, ctx)[0]["val"]
+
+        // Handle string values upfront.
+        if (seqArgExprVal instanceof StringValue) {
+            return [ctx.withVal(new IntValue(seqArgExprVal.getVal().length))];
+        }
 
         // Try to interpret value as tuple, if possible.
         seqArgExprVal = seqArgExprVal.toTuple();
