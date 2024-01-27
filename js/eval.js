@@ -3961,6 +3961,7 @@ class TlaInterpreter {
 let parent = null;
 let parentCtx = null;
 let evalNodeGraph = [];
+let edgeOrder = 0;
 
 let origevalExpr = evalExpr;
 evalExpr = function (...args) {
@@ -4009,7 +4010,8 @@ evalExpr = function (...args) {
     parentCtx = origParentCtx;
 
     if (edge !== null && enableEvalTracing) {
-        evalNodeGraph.push([edge, ret]);
+        evalNodeGraph.push([edge, ret, edgeOrder]);
+        edgeOrder += 1;
     }
 
     // evalLog("num ret ctxs: " , ret.length);
