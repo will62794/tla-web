@@ -3749,10 +3749,6 @@ function getInitStates(initDef, vars, defns, constvals, moduleTable) {
     if (ret_ctxs === undefined) {
         console.error("Set of generated initial states is 'undefined'.");
     }
-    console.log("Possible initial state assignments:");
-    for (const ctx of ret_ctxs) {
-        // console.log(ctx);
-    }
     return ret_ctxs;
 }
 
@@ -3816,8 +3812,6 @@ class TlaInterpreter {
         evalLog("consts:", consts);
 
         let initDef = defns["Init"];
-        console.log("<<<<< INIT >>>>>");
-        console.log(initDef);
         evalLog("initDef.childCount: ", initDef["node"].childCount);
         evalLog("initDef.type: ", initDef["node"].type);
 
@@ -3846,7 +3840,7 @@ class TlaInterpreter {
             nextDef = action;
         }
         // console.log(defns);
-        console.log("<<<< NEXT >>>>");
+        // console.log("<<<< NEXT >>>>");
 
         let allNext = [];
         for (const istate of initStates) {

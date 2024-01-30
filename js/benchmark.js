@@ -336,9 +336,9 @@ function randomTrace(treeObjs, maxTraceLen){
         // console.log("Computing next states for Paxos.");
 
         // Generate next states.
-        console.log(`current state ${l}:`, currState, currState.fingerprint());
+        // console.log(`current state ${l}:`, currState, currState.fingerprint());
         nextStates = interp.computeNextStates(treeObjs, {}, [currState]).map(c => c["state"].deprimeVars());
-        console.log(`num next states:`, nextStates.length);
+        // console.log(`num next states:`, nextStates.length);
         // console.log(`next states:`, nextStates);
 
         if (nextStates.length === 0) {
@@ -357,28 +357,26 @@ function testPaxosTraceSimulation(testId, specName){
     console.log("Running Paxos state generation benchmark.");
     res = $.get(specStatesPath).then(data => {
         specText = data;
-
         tree = null;
-        let treeObjs = parseSpec(specText);
 
-        const num_iters = 25;
-        let start;
+        // Parse the spec.
+        let spec = new TLASpec(specText, specStatesPath);
+        spec.parseSync();
 
-        let maxTraceLen = 6;
-        let numTraces = 50;
-        start = performance.now();
+        const maxTraceLen = 6;
+        const numTraces = 30;
+
+        let start = performance.now();
 
         for (var k = 0; k < numTraces; k++) {
-            console.log(`generating trace ${k}`);
-            randomTrace(treeObjs, maxTraceLen);
+            randomTrace(spec.spec_obj, maxTraceLen);
         }
         let duration = (performance.now() - start);
 
-        console.log(`Paxos random trace gen: computed ${numTraces} traces of maxlen=${maxTraceLen} in ${duration}ms`);
-
-        // console.log(`Paxos benchmark: computed ${initStates.length} init states in mean of ${meanInitDuration}ms over ${num_iters} runs`);
-        // console.log(`Paxos benchmark: computed ${nextStates.length} next states in mean of ${meanNextDuration}ms over ${num_iters} runs.`);
-    });      
+        let numStates = (numTraces * maxTraceLen);
+        let statesPerMin = ((numStates / duration) * 1000 * 60).toFixed(1);
+        console.log(`'Paxos' benchmark: ${numTraces} traces (len=${maxTraceLen}), duration=${duration.toFixed(1)}ms, states/min=${statesPerMin}`);
+    });
 }
 
 
