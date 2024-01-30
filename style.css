@@ -683,3 +683,21 @@ body {
     /* float:left; */
     /* grid-column-start: 2; */
   }
+
+  #load-spec-box{
+    position:absolute;
+    margin-top:10%;
+    margin-left:10%;
+    width:50%;
+    background-color:white;
+    box-shadow: 0 0 5px 2px rgba(0,0,0,0.5);
+    border:solid;
+    border-radius: 30px;
+    padding:25px;
+    font-size:12px;
+  }
+  #load-spec-box input {
+    padding:10px;
+    border-radius:10px;
+    width:380px;
+  }

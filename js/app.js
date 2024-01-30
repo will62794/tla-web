@@ -45,8 +45,14 @@ let model = {
     constantsPaneHidden: false,
     selectedTab: Tab.SpecEditor,
     rootModName: "",
-    debug: false
+    debug: false,
+    showLoadFileBox: false
 }
+
+const exampleSpecs = {
+    "TwoPhase": "./specs/TwoPhase.tla",
+    "lockserver": "./specs/lockserver.tla"
+};
 
 // The main app component.
 let App;
@@ -1018,6 +1024,25 @@ function stateSelectionPane(hidden){
     ]);    
 }
 
+function loadSpecBox(){
+    return m("div", { id: "load-spec-box", hidden: !model.showLoadFileBox}, [
+        m("h2", "Load an example spec or file"),
+        m("h3", "Examples"),
+        m("ul", {}, Object.keys(exampleSpecs).map( function(k) {
+            return m("li", k);
+        })),
+        // TODO.
+        // m("h3", "From local file"),
+        // m("div", {}, [
+        //     m("input", {type:"file", text:"file upload"}, "File upload:"),
+        // ]),
+        m("h3", "From URL"),
+        m("div", {}, [
+            m("input", {type:"text", text:"file upload", placeholder: "URL to .tla file."}, "From URL upload:")
+        ])
+    ])
+}
+
 function headerTabBar() {
     let tabs = [
         m("div", {
@@ -1043,7 +1068,12 @@ function headerTabBar() {
         tabs = tabs.concat(debug_tabs);
     }
     let specName = m("div", { id: "spec-name-header" }, "Root spec: " + model.rootModName + ".tla")
-    tabs = tabs.concat(specName)
+    let loadFile = m("div", { id: "spec-name-header", onclick: () => model.showLoadFileBox = true }, "Load")
+    tabs = tabs.concat(specName);
+    
+    // TODO: Enable this spec loading button and box.
+    // tabs = tabs.concat(loadFile);
+
     return m("div", { id: "header-tab-bar" }, tabs);
 }
 
@@ -1244,8 +1274,11 @@ async function loadApp() {
                     // m("div", {class: "splitter"}),
 
                     // Display pane.
-                    componentExplorerPane()
+                    componentExplorerPane(),
                     // componentEvalGraphPane()
+
+                    // TODO: Enable the spec loading box.
+                    // loadSpecBox()
                 ])];
         }
     }
