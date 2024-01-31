@@ -399,7 +399,7 @@ body {
   .trace-select-table  .action-name{
     color:black;
     /* font-family: Arial, Helvetica, sans-serif; */
-    font-size: 14px;
+    font-size: 12px;
     padding-bottom: 3px;
     /* width:90%; */
     /* padding-top: 3px; */
@@ -436,10 +436,10 @@ body {
 
   .init-state {
       background-color:#eee;
-      padding:1%;
-      width:94%;
+      padding:5px;
+      width:80%;
       /* float:left; */
-      margin:1%;
+      margin:3px;
       border:solid;
       border-color:gray;
       border-radius: 4px;
@@ -667,7 +667,7 @@ body {
   }
 
   #trace-state-holder{
-    /* width:80%; */
+    /* width:0%; */
     /* background-color: yellowgreen; */
     display: inline-block;
     grid-column-start: 1;
