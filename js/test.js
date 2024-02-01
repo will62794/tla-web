@@ -269,6 +269,7 @@ async function testStateGraphEquiv(testId, stateGraph, parsedSpec, specPath, con
         { "spec": "simple_var_tuple", "constvals": undefined },
         { "spec": "simple_choose", "constvals": undefined },
         { "spec": "simple_tlc_fn", "constvals": undefined },
+        { "spec": "simple_tlc_ops", "constvals": undefined },
         { "spec": "set_dot_notation", "constvals": undefined },
         { "spec": "record_literal_eval", "constvals": undefined },
         { "spec": "seq_append", "constvals": undefined },

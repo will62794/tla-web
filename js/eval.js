@@ -2812,6 +2812,13 @@ function evalBoundOp(node, ctx) {
         return [ctx.withVal(new StringValue(argExprVal.toString()))];
     }
 
+    // Just treat TLCEval as a no-op in the web interpreter.
+    if (opName == "TLCEval") {
+        let argExpr = node.namedChildren[1];
+        let argExprVal = evalExpr(argExpr, ctx)[0]["val"]
+        return [ctx.withVal(argExprVal)];
+    }
+
     // Check for the bound op in the set of known definitions.
     let opDef = null;
     if (ctx["defns"].hasOwnProperty(opName)){
