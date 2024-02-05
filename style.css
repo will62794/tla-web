@@ -204,10 +204,46 @@ body {
         font-size: 14px;
     }
     #spec-name-header{
-        grid-column-start: col-start 4;
+        grid-column-start: col-start 3;
         padding:5px;
         text-align: center;
         font-size: 14px;
+    }
+
+    #load-spec-button{
+        grid-column-start: col-start 4;
+        text-align: center;
+        font-size: 14px;
+        background-color: steelblue;
+        border: 1px solid #aaa;
+        padding:3px;
+        text-align: center;
+        border-radius: 5px;
+        margin-left:3px;
+        margin-right:3px;
+        color:white;
+    }
+
+    #load-spec-url-button {
+        margin-top:10px;
+        padding:4px;
+        padding-left:10px;
+        padding-right   :10px;
+    }
+
+
+    a:hover{
+        cursor: pointer;
+    }
+
+    button:hover{
+        cursor:pointer;
+    }
+
+    #load-spec-button:hover{
+        cursor: pointer;
+        /* color:black; */
+        background-color: gray;
     }
 
     .header-tab:hover{
@@ -690,9 +726,9 @@ body {
     margin-left:10%;
     width:50%;
     background-color:white;
-    box-shadow: 0 0 5px 2px rgba(0,0,0,0.5);
+    box-shadow: 0 0 5px 2px rgba(0,0,0,0.1);
     border:solid;
-    border-radius: 30px;
+    border-radius: 20px;
     padding:25px;
     font-size:12px;
   }

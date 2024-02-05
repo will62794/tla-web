@@ -46,12 +46,14 @@ let model = {
     selectedTab: Tab.SpecEditor,
     rootModName: "",
     debug: false,
-    showLoadFileBox: false
+    showLoadFileBox: false,
+    specUrlInputText: ""
 }
 
 const exampleSpecs = {
     "TwoPhase": "./specs/TwoPhase.tla",
-    "lockserver": "./specs/lockserver.tla"
+    "lockserver": "./specs/lockserver.tla",
+    "Raft": "./specs/AbstractRaft.tla"
 };
 
 // The main app component.
@@ -1029,7 +1031,12 @@ function loadSpecBox(){
         m("h2", "Load an example spec or file"),
         m("h3", "Examples"),
         m("ul", {}, Object.keys(exampleSpecs).map( function(k) {
-            return m("li", k);
+            return m("li", {}, m("a",{onclick: () => {
+                model.specPath = exampleSpecs[k];
+                loadSpecFromPath(model.specPath);
+                model.showLoadFileBox = !model.showLoadFileBox;
+            }
+            },  k));
         })),
         // TODO.
         // m("h3", "From local file"),
@@ -1038,7 +1045,23 @@ function loadSpecBox(){
         // ]),
         m("h3", "From URL"),
         m("div", {}, [
-            m("input", {type:"text", text:"file upload", placeholder: "URL to .tla file."}, "From URL upload:")
+            m("input", {
+                type:"text", 
+                text:"file upload", 
+                placeholder: "URL to .tla file.",
+                oninput: e => { model.specUrlInputText = e.target.value }
+            }, "From URL upload:")
+        ]),
+        m("div", {}, [
+            m("button", {
+                id:"load-spec-url-button", 
+                onclick: () => {
+                    model.specPath = model.specUrlInputText;
+                    loadSpecFromPath(model.specPath);
+                    // reloadSpec();
+                    model.showLoadFileBox = !model.showLoadFileBox;
+                }
+            }, "Load")
         ])
     ])
 }
@@ -1068,7 +1091,7 @@ function headerTabBar() {
         tabs = tabs.concat(debug_tabs);
     }
     let specName = m("div", { id: "spec-name-header" }, "Root spec: " + model.rootModName + ".tla")
-    let loadFile = m("div", { id: "spec-name-header", onclick: () => model.showLoadFileBox = true }, "Load")
+    // let loadFile = m("div", { id: "load-spec-button", onclick: () => model.showLoadFileBox = true }, "Load spec")
     tabs = tabs.concat(specName);
     
     // TODO: Enable this spec loading button and box.
@@ -1221,6 +1244,53 @@ function checkInv(invExpr) {
     }
 }
 
+// Fetch spec from given path (e.g. URL) and reload it in the editor pane and UI.
+function loadSpecFromPath(specPath){
+
+    // Download the specified spec and load it in the editor pane.
+    m.request(specPath, { responseType: "text" }).then(function (data) {
+        const $codeEditor = document.querySelector('.CodeMirror');
+        spec = data;
+        model.specText = spec;
+        console.log("Retrieved spec:", specPath);
+        if ($codeEditor) {
+            $codeEditor.CodeMirror.setSize("100%", "100%");
+            $codeEditor.CodeMirror.on("changes", () => {
+                // CodeMirror listeners are not known to Mithril, so trigger an explicit redraw after
+                // processing the code change.
+                handleCodeChange().then(function(){
+                    // Load constants if given.
+                    let constantParams = m.route.param("constants");
+                    if (constantParams) {
+                        console.log("CONSTNS:", constantParams);
+                        model.specConstInputVals = constantParams;
+                        setConstantValues();
+                    }
+
+                    // Load trace if given.
+                    let traceParamStr = m.route.param("trace")
+                    if (traceParamStr) {
+                        traceParams = traceParamStr.split(",");
+                        for (const stateHash of traceParams) {
+                            chooseNextState(stateHash);
+                        }
+                    }
+                    m.redraw();
+
+                })
+            });
+            $codeEditor.CodeMirror.setValue(spec);
+            model.selectedTab = Tab.StateSelection;
+
+            // Update query params.
+            updateTraceRouteParams();
+            let oldParams = m.route.param();
+            let newParams = Object.assign(oldParams, {specpath: model.specPath});
+            m.route.set("/home", newParams);
+        }
+    });
+}
+
 async function loadApp() {
 
     // Download example spec.
@@ -1258,6 +1328,11 @@ async function loadApp() {
             if(trace !== null){
                 trace.scrollTo(0, trace.scrollHeight);
             }
+
+            // let oldParams = m.route.param();
+            // let traceParamObj = traceHashed.length > 0 ? { trace: traceHashed.join(",") } : {}
+            // let newParams = Object.assign(oldParams, {specpath: model.specPath});
+            // m.route.set("/home", newParams);
         },
         view: function () {
             return [
@@ -1347,43 +1422,7 @@ async function loadApp() {
         // mode:"tlaplus"
     });
 
-
-    // Download the specified spec and load it in the editor pane.
-    m.request(model.specPath, { responseType: "text" }).then(function (data) {
-        const $codeEditor = document.querySelector('.CodeMirror');
-        spec = data;
-        model.specText = spec;
-        console.log("Retrieved spec:", model.specPath);
-        if ($codeEditor) {
-            $codeEditor.CodeMirror.setSize("100%", "100%");
-            $codeEditor.CodeMirror.on("changes", () => {
-                // CodeMirror listeners are not known to Mithril, so trigger an explicit redraw after
-                // processing the code change.
-                handleCodeChange().then(function(){
-                    // Load constants if given.
-                    let constantParams = m.route.param("constants");
-                    if (constantParams) {
-                        console.log("CONSTNS:", constantParams);
-                        model.specConstInputVals = constantParams;
-                        setConstantValues();
-                    }
-
-                    // Load trace if given.
-                    let traceParamStr = m.route.param("trace")
-                    if (traceParamStr) {
-                        traceParams = traceParamStr.split(",");
-                        for (const stateHash of traceParams) {
-                            chooseNextState(stateHash);
-                        }
-                    }
-                    m.redraw();
-
-                })
-            });
-            $codeEditor.CodeMirror.setValue(spec);
-            model.selectedTab = Tab.StateSelection;
-        }
-    });
+    loadSpecFromPath(model.specPath);
 }
 
 /**
