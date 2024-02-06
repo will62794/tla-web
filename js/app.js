@@ -51,9 +51,33 @@ let model = {
 }
 
 const exampleSpecs = {
-    "TwoPhase": "./specs/TwoPhase.tla",
-    "lockserver": "./specs/lockserver.tla",
-    "Raft": "./specs/AbstractRaft.tla"
+    "TwoPhase": {
+        specpath: "./specs/TwoPhase.tla",
+    },
+    "lockserver": {
+        specpath: "./specs/lockserver.tla",
+        constant_vals: {
+            "Server": "{s1,s2}",
+            "Client": "{s1,s2}"
+        }
+    },
+    "Paxos": {
+        specpath: "./specs/Paxos.tla"
+    },
+    "Raft": {
+        specpath: "./specs/AbstractRaft.tla",
+        constant_vals: {
+            "Server": "{s1,s2,s3}",
+            "Primary": "\"Primary\"",
+            "Secondary": "\"Secondary\"",
+            "Nil": "\"Nil\"",
+            "InitTerm": 0
+        }
+    },
+    "EWD998": {
+        specpath: "./specs/EWD998.tla"
+    }
+
 };
 
 // The main app component.
@@ -1032,8 +1056,14 @@ function loadSpecBox(){
         m("h3", "Examples"),
         m("ul", {}, Object.keys(exampleSpecs).map( function(k) {
             return m("li", {}, m("a",{onclick: () => {
-                model.specPath = exampleSpecs[k];
+                model.specPath = exampleSpecs[k].specpath;
                 loadSpecFromPath(model.specPath);
+                if(exampleSpecs[k].constant_vals !== undefined){
+                    for(const constDecl in exampleSpecs[k].constant_vals){
+                        model.specConstInputVals[constDecl] = exampleSpecs[k].constant_vals[constDecl];
+                    }
+                    setConstantValues();
+                }
                 model.showLoadFileBox = !model.showLoadFileBox;
             }
             },  k));
@@ -1062,6 +1092,14 @@ function loadSpecBox(){
                     model.showLoadFileBox = !model.showLoadFileBox;
                 }
             }, "Load")
+        ]),
+        m("div", {}, [
+            m("button", {
+                id:"close-spec-box-button", 
+                onclick: () => {
+                    model.showLoadFileBox = !model.showLoadFileBox;
+                }
+            }, "Close")
         ])
     ])
 }
@@ -1091,11 +1129,11 @@ function headerTabBar() {
         tabs = tabs.concat(debug_tabs);
     }
     let specName = m("div", { id: "spec-name-header" }, "Root spec: " + model.rootModName + ".tla")
-    // let loadFile = m("div", { id: "load-spec-button", onclick: () => model.showLoadFileBox = true }, "Load spec")
+    let loadFile = m("div", { id: "load-spec-button", onclick: () => model.showLoadFileBox = true }, "Load spec")
     tabs = tabs.concat(specName);
     
     // TODO: Enable this spec loading button and box.
-    // tabs = tabs.concat(loadFile);
+    tabs = tabs.concat(loadFile);
 
     return m("div", { id: "header-tab-bar" }, tabs);
 }
@@ -1353,7 +1391,7 @@ async function loadApp() {
                     // componentEvalGraphPane()
 
                     // TODO: Enable the spec loading box.
-                    // loadSpecBox()
+                    loadSpecBox()
                 ])];
         }
     }
