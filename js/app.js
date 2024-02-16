@@ -997,17 +997,23 @@ function resetTrace() {
     updateTraceRouteParams();
 }
 
+function copyTraceLinkToClipboard() {
+    let link = window.location.href;
+    navigator.clipboard.writeText(link);
+}
+
 function componentButtonsContainer() {
     return [m("div", { id: "trace-buttons" }, [
         m("div", { class: "button-base trace-button", id: "trace-back-button", onclick: traceStepBack }, "Back"),
         m("div", { class: "button-base trace-button", id: "trace-reset-button", onclick: resetTrace }, "Reset"),
+        m("div", { class: "button-base trace-button", id: "trace-reset-button", onclick: copyTraceLinkToClipboard }, "Copy trace link"),
         m("div", { class: "button-base trace-button", id: "trace-reset-button", onclick: () => addTraceExpr(model.traceExprInputText) }, "Add Trace Expression"),
         // m("div", { class: "button-base trace-button", id: "trace-reset-button", onclick: () => checkInv(model.traceExprInputText) }, "Check Invariant"),
         m("input", {
             class: "",
-            style: "font-family:monospace;width:200px;padding-left:5px;",
+            style: "font-family:monospace;width:210px;padding:5px;font-size:11px;",
             id: "trace-expr-input",
-            placeholder: "Enter TLA+ expression.",
+            placeholder: "Enter TLA+ trace expression.",
             value: model.traceExprInputText,
             oninput: e => { model.traceExprInputText = e.target.value }
         }),
@@ -1290,6 +1296,12 @@ function loadSpecFromPath(specPath){
         const $codeEditor = document.querySelector('.CodeMirror');
         spec = data;
         model.specText = spec;
+        model.specPath = specPath;
+
+        let oldParams = m.route.param();
+        let newParams = Object.assign(oldParams, {specpath: model.specPath});
+        m.route.set("/home", newParams);
+
         console.log("Retrieved spec:", specPath);
         if ($codeEditor) {
             $codeEditor.CodeMirror.setSize("100%", "100%");
@@ -1319,12 +1331,6 @@ function loadSpecFromPath(specPath){
             });
             $codeEditor.CodeMirror.setValue(spec);
             model.selectedTab = Tab.StateSelection;
-
-            // Update query params.
-            updateTraceRouteParams();
-            let oldParams = m.route.param();
-            let newParams = Object.assign(oldParams, {specpath: model.specPath});
-            m.route.set("/home", newParams);
         }
     });
 }
