@@ -58,7 +58,7 @@ const exampleSpecs = {
         specpath: "./specs/lockserver.tla",
         constant_vals: {
             "Server": "{s1,s2}",
-            "Client": "{s1,s2}"
+            "Client": "{c1,c2}"
         }
     },
     "Paxos": {
