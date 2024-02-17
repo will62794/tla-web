@@ -2161,7 +2161,11 @@ function evalBoundInfix(node, ctx) {
         evalLog("mul lhs val:", mulLhsVal);
         let lhsVal = mulLhsVal[0]["val"];
         let rhsVal = evalExpr(rhs, ctx)[0]["val"];
-        let outVal = lhsVal.getVal() % rhsVal.getVal();
+        // Javascript '%' is actually remainder, not modulo, so doesn't worka as desired
+        // for negative numbers.
+        let n = lhsVal.getVal();
+        let d = rhsVal.getVal();
+        let outVal = ((n % d) + d) % d
         // console.log("mul overall val:", outVal);
         return [ctx.withVal(new IntValue(outVal))];
     }

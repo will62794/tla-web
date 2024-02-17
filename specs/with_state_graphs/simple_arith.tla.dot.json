@@ -14,20 +14,20 @@
         1
       ],
       "nodes": [
-        2,3,4,5,6,7,8,9
+        2,3,4,5,6,7,8,9,10,11
       ],
       "edges": [
-        0,1,2,3,4,5,6,7
+        0,1,2,3,4,5,6,7,8,9
       ]
     },
     {
-      "name": "%19",
+      "name": "%23",
       "color": "white",
       "nodesep": "0.35",
       "rank": "same",
       "_gvid": 1,
       "nodes": [
-        2,3,4,5,6,7,8,9
+        2,3,4,5,6,7,8,9,10,11
       ]
     },
     {
@@ -62,18 +62,30 @@
     },
     {
       "_gvid": 7,
+      "name": "7158667421841284535",
+      "label": "x = 3",
+      "style": "filled"
+    },
+    {
+      "_gvid": 8,
       "name": "-5039642576729477619",
       "label": "x = 2",
       "style": "filled"
     },
     {
-      "_gvid": 8,
+      "_gvid": 9,
+      "name": "-7132380105738314465",
+      "label": "x = 4",
+      "style": "filled"
+    },
+    {
+      "_gvid": 10,
       "name": "740240026893633665",
       "label": "x = 9",
       "style": "filled"
     },
     {
-      "_gvid": 9,
+      "_gvid": 11,
       "name": "1855569396714172680",
       "label": "x = 10",
       "style": "filled"
@@ -140,6 +152,22 @@
       "_gvid": 7,
       "tail": 9,
       "head": 9,
+      "color": "black",
+      "fontcolor": "black",
+      "label": ""
+    },
+    {
+      "_gvid": 8,
+      "tail": 10,
+      "head": 10,
+      "color": "black",
+      "fontcolor": "black",
+      "label": ""
+    },
+    {
+      "_gvid": 9,
+      "tail": 11,
+      "head": 11,
       "color": "black",
       "fontcolor": "black",
       "label": ""
