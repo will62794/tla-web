@@ -55,6 +55,12 @@ const exampleSpecs = {
     "TwoPhase": {
         specpath: "./specs/TwoPhase.tla",
     },
+    "TeachingConcurrency": {
+        specpath: "./specs/Simple.tla",
+        constant_vals: {
+            "N": "3",
+        }
+    },
     "lockserver": {
         specpath: "./specs/lockserver.tla",
         constant_vals: {
