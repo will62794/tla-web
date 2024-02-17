@@ -25,6 +25,7 @@ let model = {
     currNextStates: [],
     currNextStatesAlias: [],
     currTrace: [],
+    currTraceActions: [],
     currTraceAliasVals: [],
     specTreeObjs: null,
     specDefs: null,
@@ -317,19 +318,8 @@ function componentNextStateChoiceElement(stateObj, ind, actionLabel) {
     let stateQuantBounds = stateObj["quant_bound"];
     let hash = state.fingerprint();
 
-    let actionLabelText = actionLabel ? actionLabel : "";
     let varNames = _.keys(state.getStateObj());
-
-    // For now just assume actions have the form "Action(x,y,z)",
-    // so we only do replacements after the the first parenthesis.
-    let parenSplit = actionLabelText.indexOf("(");
-    let pre = actionLabelText.slice(0, parenSplit);
-    let post = actionLabelText.slice(parenSplit);
-    for(const [quant, bound] of Object.entries(stateQuantBounds)){
-        post = post.replace(quant, bound.toString())
-    }
-    actionLabelText = pre + post;
-
+    let actionLabelText = getActionLabelText(actionLabel, stateQuantBounds);
 
     let stateVarElems = varNames.map((varname, idx) => {
         let cols = [
@@ -480,6 +470,7 @@ function traceStepBack() {
         return;
     }
     model.currTrace = model.currTrace.slice(0, model.currTrace.length - 1);
+    model.currTraceActions = model.currTraceActions.slice(0, model.currTraceActions.length - 1);
     updateTraceRouteParams();
 
     // Back to initial states.
@@ -507,11 +498,25 @@ function updateTraceRouteParams() {
     m.route.set("/home", newParams);
 }
 
+// Determine the action id that corresponds to the given next state, if it exists.
+function actionIdForNextState(nextStateHash) {
+    // Find the action id that corresponds to the selected next state.
+    let actionId = _.findKey(model.currNextStates, (states) => _.find(states, (s) => s["state"].fingerprint() === nextStateHash));
+    return actionId;
+}
+
 function chooseNextState(statehash_short) {
     // console.log("currNextStates:", JSON.stringify(currNextStates));
     console.log("chooseNextState: ", statehash_short);
     let currNextStatesSet = _.flatten(_.values(model.currNextStates))
     let nextStateChoices = currNextStatesSet.filter(s => s["state"].fingerprint() === statehash_short);
+
+    let nextStateActionId = null;
+    if (model.actions.length > 1 && model.currTrace.length >= 1) {
+        nextStateActionId = actionIdForNextState(statehash_short)
+        console.log("actionid:", nextStateActionId);
+    }
+
     if (nextStateChoices.length === 0) {
         throw Error("Given state hash does not exist among possible next states.")
     }
@@ -531,6 +536,7 @@ function chooseNextState(statehash_short) {
 
     // Append next state to the trace and update current route.
     model.currTrace.push(nextState);
+    model.currTraceActions.push(nextStateActionId);
     updateTraceRouteParams();
 
     const start = performance.now();
@@ -616,6 +622,7 @@ function showEvalError(currEvalNode, e) {
 function reloadSpec() {
     console.log("Clearing current trace.");
     model.currTrace = []
+    model.currTraceActions = []
     model.currTraceAliasVals = []
     model.lassoTo = null;
     model.errorObj = null;
@@ -749,11 +756,37 @@ function makeSvgAnimObj(tlaAnimElem) {
     return m(name, attrObj, childrenElems.map(c => makeSvgAnimObj(c)));
 }
 
-function componentTraceViewerState(state, ind, isLastState) {
+// Compute action label text with quantifier bound values filled in.
+function getActionLabelText(actionLabel, quantBounds) {
+    let actionLabelText = actionLabel ? actionLabel : "";
+
+    // For now just assume actions have the form "Action(x,y,z)",
+    // so we only do replacements after the the first parenthesis.
+    let parenSplit = actionLabelText.indexOf("(");
+    let pre = actionLabelText.slice(0, parenSplit);
+    let post = actionLabelText.slice(parenSplit);
+    for (const [quant, bound] of Object.entries(quantBounds)) {
+        post = post.replace(quant, bound.toString())
+    }
+    actionLabelText = pre + post;
+    return actionLabelText
+}
+
+function componentTraceViewerState(stateCtx, ind, isLastState, actionId) {
 
     //
     // Optionally enable experimental animation feature.
     //
+
+    let state = stateCtx["state"];
+    let stateQuantBounds = stateCtx["quant_bound"];
+    let varNames = _.keys(state.getStateObj());
+
+    console.log("statectx:", stateCtx);
+
+    let action = model.actions[actionId];
+    let actionLabel = action ? action.name : null;
+    let actionLabelText = getActionLabelText(actionLabel, stateQuantBounds);
 
     // Special definition that will enable animation feature.
     let animViewDefName = "AnimView";
@@ -771,10 +804,9 @@ function componentTraceViewerState(state, ind, isLastState) {
         // console.log("view:", viewVal);
 
         let viewSvgObj = makeSvgAnimObj(viewVal);
-        vizSvg = m("div", {id:"anim-div"}, m("svg", { width: "100%", height: "100%" }, [viewSvgObj]));
+        vizSvg = m("div", { id: "anim-div" }, m("svg", { width: "100%", height: "100%" }, [viewSvgObj]));
     }
 
-    let varNames = _.keys(state.getStateObj());
     varNames = _.difference(varNames, model.hiddenStateVars);
     let varRows = varNames.map((varname, idx) => {
         let varnameCol = "black";
@@ -856,8 +888,16 @@ function componentTraceViewerState(state, ind, isLastState) {
     let lassoToInd = (model.lassoTo !== null) ? _.findIndex(model.currTrace, s => s.fingerprint() === model.lassoTo) + 1 : ""
     let lassoNote = ((model.lassoTo !== null) && isLastState) ? " (Back to State " + lassoToInd + ")" : "";
     let lastStateNote = isLastState ? "  (Current) " : "";
-    let headerRow = [m("tr", { style: `background-color: ${stateColorBg}` }, [
-        m("th", { colspan: "2" }, "State " + (ind + 1) + lastStateNote + lassoNote),
+    let stateIndLabel = "State " + (ind + 1) + " " + lastStateNote;
+    let stateHeaderText = lassoNote;
+    if (actionId !== null) {
+        stateHeaderText += "   " + actionLabelText;
+    }
+    let headerRow = [m("tr", { style: `background-color: ${stateColorBg}`, class: "trace-state-header" }, [
+        m("th", { colspan: "2" }, [
+            m("span", { style: "color:black;padding-right:8px;border-right:solid 1px gray" }, stateIndLabel),
+            m("span", { style: "color:black;padding-left:8px" }, stateHeaderText)
+        ]),
         m("th", { colspan: "2" }, "") // filler.
     ])];
     let rows = headerRow.concat(varRows).concat(traceExprRows);
@@ -866,10 +906,10 @@ function componentTraceViewerState(state, ind, isLastState) {
     // let rowElems = m("div", { class: "trace-state-table-div" }, rowElemsTable);
 
     // stateVarElems = m("div", {id:"trace-state-holder"}, [rowElems,vizSvg]);
-    stateVarElems = m("div", {id:"trace-state-holder"}, [rowElemsTable]);
+    stateVarElems = m("div", { id: "trace-state-holder" }, [rowElemsTable]);
 
     let traceStateElemChildren = [stateVarElems];
-    if(enableAnimation){
+    if (enableAnimation) {
         traceStateElemChildren.push(vizSvg);
     }
     let traceStateElem = m("div", { "class": "trace-state tlc-state" }, traceStateElemChildren);
@@ -897,8 +937,9 @@ function componentTraceViewer() {
     let traceElems = [];
     for (var ind = 0; ind < model.currTrace.length; ind++) {
         let state = model.currTrace[ind];
+        let actionId = model.currTraceActions[ind];
         let isLastState = ind === model.currTrace.length - 1;
-        let traceStateElem = componentTraceViewerState(state["state"], ind, isLastState);
+        let traceStateElem = componentTraceViewerState(state, ind, isLastState, actionId);
         traceElems.push(traceStateElem);
     }
 
