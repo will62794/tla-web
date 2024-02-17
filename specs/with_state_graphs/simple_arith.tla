@@ -1,5 +1,5 @@
 ----------------------- MODULE simple_arith ------------------------
-EXTENDS Naturals
+EXTENDS Naturals, Integers
 
 VARIABLE x
 Init == 
@@ -8,6 +8,9 @@ Init ==
     \/ x = 6
     \/ x = 5 * 14
     \/ x = 8 * 3
+    \/ x = 3 % 5
+    \/ x = 5 % 3
+    \/ x = -2 % 6
     \/ x = 12 \div 5
     \/ x = 19 \div 2
     \/ x = 24 \div 4
