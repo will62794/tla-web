@@ -346,7 +346,8 @@ function componentNextStateChoiceElementForAction(ind, actionLabel, nextStatesFo
     //     ];
     // });
 
-    let actionName = getActionLabelText(actionLabel, quantBounds).name;
+    let actionLabelObj = getActionLabelText(actionLabel, quantBounds);
+    let actionName = actionLabelObj.name;
 
     let actionParamChoices = nextStatesForAction.map(st => {
         // let state = s["state"];
@@ -379,7 +380,15 @@ function componentNextStateChoiceElementForAction(ind, actionLabel, nextStatesFo
     if(actionDisabled){
         classList.push("action-choice-disabled");
     }
-    let actionNameDiv = [m("div", {class:classList.join(" ")}, actionName)]
+    let actionNameDiv = [m("div", {
+        class: classList.join(" "),
+        onclick: function () {
+            if (actionLabelObj.params.length == 0) {
+                let hash = nextStatesForAction[0]["state"].fingerprint();
+                chooseNextState(hash);
+            }
+        }
+    }, actionName)];
 
     let actionNameElem = [m("tr", { style: {width:"100%"} }, 
         m("td", {}, [m("div", {class: "flex-grid"}, 
