@@ -457,7 +457,7 @@ body {
   .action-choice-name, .action-choice-param{
     color:black;
     font-size: 12px;
-    width:100%;
+    /* width:100%; */
     font-weight:bold;
     padding-top:6px;
     padding-bottom:6px;
@@ -500,6 +500,7 @@ body {
 
   .action-choice-param:hover {
     background-color:steelblue;
+    cursor: pointer;
    } 
 
   .trace-expr-delete{
@@ -530,7 +531,14 @@ body {
       border-radius: 4px;
   }
 
-  .init-state:hover{
+  .init-state:hover{ 
+    /* background-color:#eee; */
+    cursor:pointer;
+    /* border:solid; */
+    /* border-color: black; */
+  }
+
+  .next-state-choice-full:hover{
     background-color:#eee;
     cursor:pointer;
     border:solid;

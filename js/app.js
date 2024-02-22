@@ -463,7 +463,7 @@ function componentNextStateChoiceElement(stateObj, ind, actionLabel) {
 
     let opac = model.lassoTo === null ? "100" : "50";
     let nextStateElem = m("div", {
-        class: "init-state",
+        class: "init-state next-state-choice-full",
         style: `opacity: ${opac}%`,
         onclick: () => chooseNextState(hash),
         onmouseover: () => {
