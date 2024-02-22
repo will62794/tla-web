@@ -410,13 +410,13 @@ function componentNextStateChoiceElementForAction(ind, actionLabel, nextStatesFo
     let nextStateElem = m("div", {
         class: "init-state",
         style: `opacity: ${opac}%`,
-        onclick: () => chooseNextState(hash),
-        onmouseover: () => {
-            model.nextStatePreview = state;
-        },
-        onmouseout: () => {
-            model.nextStatePreview = null;
-        }
+        onclick: () => chooseNextState(nextStatesForAction[0]["state"].fingerprint()),
+        // onmouseover: () => {
+        //     model.nextStatePreview = state;
+        // },
+        // onmouseout: () => {
+        //     model.nextStatePreview = null;
+        // }
     }, m("table", { class: "trace-select-table" }, allElems));
     return nextStateElem;
 }
