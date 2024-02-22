@@ -66,11 +66,10 @@ System ==
 
 -----------------------------------------------------------------------------
 
-SendMsg(i) ==
+SendMsg(i, recv) ==
     /\ active[i]
     /\ counter' = [counter EXCEPT ![i] = @ + 1]
-    /\ \E recv \in (Node \ {i}):
-            pending' = [pending EXCEPT ![recv] = @ + 1]
+    /\ pending' = [pending EXCEPT ![recv] = @ + 1]
     /\ UNCHANGED <<active, color, token>>
 
 \* Wakeup(i) in AsyncTerminationDetection.
@@ -101,9 +100,16 @@ Environment ==
 
 -----------------------------------------------------------------------------
 
+\* Next ==
+\*   \/ System 
+\*   \/ Environment
+
 Next ==
-  \/ System 
-  \/ Environment
+  \/ InitiateProbe
+  \/ \E i \in Node \ {0} : PassToken(i)
+  \/ \E n \in Node :  \E recv \in (Node \ {n}) : SendMsg(n, recv)
+  \/ \E n \in Node : RecvMsg(n)
+  \/ \E n \in Node : Deactivate(n)
 
 Spec == Init /\ [][Next]_vars /\ WF_vars(System)
 
