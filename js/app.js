@@ -364,7 +364,7 @@ function componentNextStateChoiceElementForAction(ind, actionLabel, nextStatesFo
             // colspan: 2,
             onclick: () => chooseNextState(hash),
             onmouseover: () => {
-                model.nextStatePreview = state;
+                model.nextStatePreview = st["state"];
             },
             onmouseout: () => {
                 model.nextStatePreview = null;
@@ -824,11 +824,11 @@ function tlaValView(tlaVal) {
     // Display tuples as lists of their items.
     if (tlaVal instanceof TupleValue) {
         if (tlaVal.getElems().length === 0) {
-            return m("span", "{}"); // empty set.
+            return m("span", "<<>>"); // empty set.
         }
         let borderStyle = { style: "border:solid 0.5px gray" };
 
-        let setElems = tlaVal.getElems().map((v, idx) => {
+        let tupleElems = tlaVal.getElems().map((v, idx) => {
             pre = idx === 0 ? "<< " : "&nbsp;&nbsp;&nbsp;";
             suff = idx === (tlaVal.getElems().length - 1) ? " >>" : ",";
             return m("tr", [
@@ -837,7 +837,10 @@ function tlaValView(tlaVal) {
             ]);
         });
 
-        return m("table", setElems);
+        // return m("table", tupleElems);
+
+        // TODO: Deal with cases where tuple is too long to show.
+        return m("table", [m("tr", m("td", tlaVal.toString()))]);
     }
 
     return m("span", tlaVal.toString());
