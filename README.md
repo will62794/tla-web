@@ -15,7 +15,7 @@ The current version of the tool utilizes the [TLA+ tree-sitter grammar](https://
 <!-- Note also that you can basically use the existing web interface as a simple TLA+ expression evaluator, since making changes to definitions in the spec should automatically update the set of generated initial states. -->
 
 <!-- This project Utilizes the [TLA+ tree-sitter grammar](https://github.com/tlaplus-community/tree-sitter-tlaplus) to provide a web based TLA+ interface for exploring and sharing specifications.  -->
-There are still some TLA+ language features that [may not be implemented](https://github.com/will62794/tla-web/issues), but a reasonable number of specs should be handled correctly. For example, see this [Paxos spec](https://will62794.github.io/tla-web/#!/home?specpath=./specs/Paxos.tla). Additional testing is needed to verify the correctness of this interpreter on more complex specs.
+<!-- There are still some TLA+ language features that [may not be implemented](https://github.com/will62794/tla-web/issues), but a reasonable number of specs should be handled correctly. For example, see this [Paxos spec](https://will62794.github.io/tla-web/#!/home?specpath=./specs/Paxos.tla). Additional testing is needed to verify the correctness of this interpreter on more complex specs. -->
 
 <!-- A basic, preliminary test suite can be found [here](https://will62794.github.io/tla-web/test.html). -->
 
