@@ -319,6 +319,96 @@ function componentChooseConstants() {
     ]);
 }
 
+
+function componentNextStateChoiceElementForAction(ind, actionLabel, nextStatesForAction) {
+    let actionDisabled = (nextStatesForAction.length === 0);
+    console.log(nextStatesForAction);
+    console.log(actionDisabled);
+
+    // stateObj = nextStatesForAction[0];
+    // let state = stateObj["state"];
+    // let stateQuantBounds = stateObj["quant_bound"];
+    // let hash = state.fingerprint();
+
+    // let varNames = _.keys(state.getStateObj());
+    // let actionLabelText = getActionLabelText(actionLabel, stateQuantBounds);
+
+    // let stateVarElems = varNames.map((varname, idx) => {
+    //     let cols = [
+    //         m("td", { class: "state-varname" }, varname),
+    //         m("td", { class: "state-choice-varval" }, [tlaValView(state.getVarVal(varname))]),
+    //         // m("td", { class: "state-choice-varval"}, [state.getVarVal(varname).toString()]),
+    //         m("td", { style: "width:5px" }, ""), // placeholder row.
+    //     ]
+
+    //     return [
+    //         m("tr", { style: "" }, cols)
+    //     ];
+    // });
+
+    let actionName = getActionLabelText(actionLabel, quantBounds).name;
+
+    let actionParamChoices = nextStatesForAction.map(st => {
+        // let state = s["state"];
+        let quantBounds = st["quant_bound"];
+        let hash = st["state"].fingerprint();
+    
+        // let varNames = _.keys(state.getStateObj());
+        let actionLabelText = getActionLabelText(actionLabel, quantBounds);
+        let classList = ["action-choice-param", "flex-col"];
+        if(actionDisabled){
+            classList.push("action-choice-disabled");
+        }
+        console.log(classList);
+        return m("div", 
+        { 
+            class: classList.join(" "), 
+            colspan: 2,
+            onclick: () => chooseNextState(hash),
+            // onmouseover: () => {
+            //     model.nextStatePreview = state;
+            // },
+            // onmouseout: () => {
+            //     model.nextStatePreview = null;
+            // }
+        }, 
+        actionLabelText.params);
+    });
+
+    let classList = ["action-choice-name", "flex-col"];
+    if(actionDisabled){
+        classList.push("action-choice-disabled");
+    }
+    let actionNameDiv = [m("div", {class:classList.join(" ")}, actionName)]
+
+    let actionNameElem = [m("tr", { style: {width:"100%"} }, 
+        m("td", {}, [m("div", {class: "flex-grid"}, 
+            [actionNameDiv].concat(actionParamChoices)
+        )])
+    )];
+
+    let allElems = [];
+
+    if (model.currTrace.length > 0 && actionLabel) {
+        // Don't need this for initial state.
+        allElems = allElems.concat(actionNameElem);
+    }
+
+    let opac = model.lassoTo === null ? "100" : "50";
+    let nextStateElem = m("div", {
+        class: "init-state",
+        style: `opacity: ${opac}%`,
+        onclick: () => chooseNextState(hash),
+        onmouseover: () => {
+            model.nextStatePreview = state;
+        },
+        onmouseout: () => {
+            model.nextStatePreview = null;
+        }
+    }, m("table", { class: "trace-select-table" }, allElems));
+    return nextStateElem;
+}
+
 function componentNextStateChoiceElement(stateObj, ind, actionLabel) {
     let state = stateObj["state"];
     let stateQuantBounds = stateObj["quant_bound"];
@@ -409,11 +499,17 @@ function componentNextStateChoices(nextStates) {
         for (const [actionId, nextStatesForAction] of Object.entries(nextStates)) {
             let i = 0;
             let action = model.actions[actionId];
-            for (const state of nextStatesForAction) {
-                let nextStateElem = componentNextStateChoiceElement(state, i, action.name);
-                nextStateElems.push(nextStateElem);
-                i += 1;
-            }
+
+            let nextStateElem = componentNextStateChoiceElementForAction(i, action.name, nextStatesForAction);
+            nextStateElems.push(nextStateElem);
+
+            // for (const state of nextStatesForAction.slice(0, 1)) {
+            //     let nextStateElem = componentNextStateChoiceElement(state, i, action.name);
+            //     nextStateElems.push(nextStateElem);
+            //     i += 1;
+            // }
+
+
         }
     }
 
@@ -769,12 +865,16 @@ function getActionLabelText(actionLabel, quantBounds) {
     // For now just assume actions have the form "Action(x,y,z)",
     // so we only do replacements after the the first parenthesis.
     let parenSplit = actionLabelText.indexOf("(");
+    if (parenSplit < 0) {
+        // No parameters to replace.
+        return { name: actionLabelText, params: "" };
+    }
     let pre = actionLabelText.slice(0, parenSplit);
     let post = actionLabelText.slice(parenSplit);
     for (const [quant, bound] of Object.entries(quantBounds)) {
         post = post.replace(quant, bound.toString())
     }
-    actionLabelText = pre + post;
+    actionLabelText = { name: pre, params: post };
     return actionLabelText
 }
 
