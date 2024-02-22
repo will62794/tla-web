@@ -488,7 +488,7 @@ body {
   }
 
   .action-choice-param:hover {
-    background-color:red;
+    background-color:steelblue;
    } 
 
   .trace-expr-delete{
