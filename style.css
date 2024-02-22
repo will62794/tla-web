@@ -459,6 +459,8 @@ body {
     font-size: 12px;
     width:100%;
     font-weight:bold;
+    padding-top:6px;
+    padding-bottom:6px;
   }
 
   .action-choice-name{
@@ -469,11 +471,12 @@ body {
     padding-right:12px;
     margin-right:10px;
     font-size:12px;
+
   }
 
   .action-choice-param {
     color:black;
-    font-size: 10px;
+    font-size: 12px;
     margin-left:5px;
     font-weight:bold;
     border-radius: 6px; 
@@ -482,8 +485,7 @@ body {
     border:solid 1px black;
     /* max-width:150px; */
     text-align: center;
-    padding-top:6px;
-    padding-bottom:6px;
+
   }
 
   .action-choice-disabled{

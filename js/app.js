@@ -322,8 +322,6 @@ function componentChooseConstants() {
 
 function componentNextStateChoiceElementForAction(ind, actionLabel, nextStatesForAction) {
     let actionDisabled = (nextStatesForAction.length === 0);
-    console.log(nextStatesForAction);
-    console.log(actionDisabled);
 
     // stateObj = nextStatesForAction[0];
     // let state = stateObj["state"];
@@ -410,8 +408,12 @@ function componentNextStateChoiceElementForAction(ind, actionLabel, nextStatesFo
     let nextStateElem = m("div", {
         class: "init-state",
         style: `opacity: ${opac}%`,
-        onclick: () => chooseNextState(nextStatesForAction[0]["state"].fingerprint()),
-        // onmouseover: () => {
+        onclick: function () {
+            if (actionLabelObj.params.length == 0) {
+                let hash = nextStatesForAction[0]["state"].fingerprint();
+                chooseNextState(hash);
+            }
+        }        // onmouseover: () => {
         //     model.nextStatePreview = state;
         // },
         // onmouseout: () => {
@@ -901,7 +903,7 @@ function componentTraceViewerState(stateCtx, ind, isLastState, actionId) {
     let stateQuantBounds = stateCtx["quant_bound"];
     let varNames = _.keys(state.getStateObj());
 
-    console.log("statectx:", stateCtx);
+    // console.log("statectx:", stateCtx);
 
     let action = model.actions[actionId];
     let actionLabel = action ? action.name : null;
