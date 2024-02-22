@@ -92,11 +92,11 @@ Deactivate(i) ==
     \*//\ active' # active
     /\ UNCHANGED <<pending, color, counter, token>>
 
-Environment == 
-    \E n \in Node:
-        \/ SendMsg(n)
-        \/ RecvMsg(n)
-        \/ Deactivate(n)
+\* Environment == 
+\*     \E n \in Node:
+\*         \/ SendMsg(n)
+\*         \/ RecvMsg(n)
+\*         \/ Deactivate(n)
 
 -----------------------------------------------------------------------------
 
