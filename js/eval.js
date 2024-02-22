@@ -1593,6 +1593,29 @@ class TLASpec {
         evalLog("module definitions:", op_defs);
         evalLog("module fcn definitions:", fn_defs);
 
+        function parseDisjNodeActions(node){
+            actions = node.namedChildren.map((cnode, ind) => {
+                let actNode = cnode.namedChildren[1];
+                console.log("EXTRACTED ACTION:", actNode);
+
+                // If an action is just a plain identifier, then we treat it as its own action.
+                if (actNode.type === "identifier_ref") {
+                    return new TLAAction(ind, actNode, extractActionName(actNode));
+                }
+
+                // If an action is further broken down into a conjunction/disjunction list,
+                // don't parse it as a single action, and just fall back to single 'Next' action case.
+                let disjunct_last_elem = actNode.namedChildren[actNode.namedChildren.length - 1];
+
+                // TODO: Eventually recurse down further to extract disjunctive actions.
+                if (disjunct_last_elem.type == "conj_list" || disjunct_last_elem.type == "disj_list") {
+                    return null;
+                }
+                return new TLAAction(ind, actNode, extractActionName(actNode)); // TODO: fix.
+            });      
+            return _.flatten(actions);      
+        }
+
         // Try parsing out actions if possible.
         let actions = [];
         if (op_defs.hasOwnProperty("Next")) {
@@ -1609,25 +1632,8 @@ class TLASpec {
             console.log("NEXTNODE:", nextNode);
             console.log("NEXT_CHILDR:", nextNode.namedChildren);
             if (nextNode.type === "disj_list") {
-                actions = nextNode.namedChildren.map((cnode, ind) => {
-                    let actNode = cnode.namedChildren[1];
-                    console.log("EXTRACTED ACTION:", actNode);
-
-                    // If an action is just a plain identifier, then we treat it as its own action.
-                    if (actNode.type === "identifier_ref") {
-                        return new TLAAction(ind, actNode, extractActionName(actNode));
-                    }
-
-                    // If an action is further broken down into a conjunction/disjunction list,
-                    // don't parse it as a single action, and just fall back to single 'Next' action case.
-                    let disjunct_last_elem = actNode.namedChildren[actNode.namedChildren.length - 1];
-
-                    if (disjunct_last_elem.type == "conj_list" ||
-                        disjunct_last_elem.type == "disj_list") {
-                        return null;
-                    }
-                    return new TLAAction(ind, actNode, extractActionName(actNode)); // TODO: fix.
-                });
+                actions = parseDisjNodeActions(nextNode);
+                // console.log("parsed actions:", actions);
 
                 // Fall back to single action case.
                 if (actions.includes(null)) {
