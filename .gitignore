@@ -17,3 +17,4 @@ states/
 *.nav
 *.snm
 *.toc
+node_modules/
