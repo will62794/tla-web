@@ -360,21 +360,24 @@ function componentNextStateChoiceElementForAction(ind, actionLabel, nextStatesFo
         if(actionDisabled){
             classList.push("action-choice-disabled");
         }
-        console.log(classList);
         return m("div", 
         { 
             class: classList.join(" "), 
-            colspan: 2,
+            // colspan: 2,
             onclick: () => chooseNextState(hash),
-            // onmouseover: () => {
-            //     model.nextStatePreview = state;
-            // },
-            // onmouseout: () => {
-            //     model.nextStatePreview = null;
-            // }
+            onmouseover: () => {
+                model.nextStatePreview = state;
+            },
+            onmouseout: () => {
+                model.nextStatePreview = null;
+            }
         }, 
         actionLabelText.params);
     });
+
+    if (actionLabelObj.params.length == 0) {
+        actionParamChoices = [];
+    }
 
     let classList = ["action-choice-name", "flex-col"];
     if(actionDisabled){
@@ -390,7 +393,7 @@ function componentNextStateChoiceElementForAction(ind, actionLabel, nextStatesFo
         }
     }, actionName)];
 
-    let actionNameElem = [m("tr", { style: {width:"100%"} }, 
+    let actionNameElem = [m("tr", {}, 
         m("td", {}, [m("div", {class: "flex-grid"}, 
             [actionNameDiv].concat(actionParamChoices)
         )])
@@ -424,7 +427,8 @@ function componentNextStateChoiceElement(stateObj, ind, actionLabel) {
     let hash = state.fingerprint();
 
     let varNames = _.keys(state.getStateObj());
-    let actionLabelText = getActionLabelText(actionLabel, stateQuantBounds);
+    let actionLabelObj = getActionLabelText(actionLabel, stateQuantBounds);
+    let actionLabelText = actionLabelObj.name + actionLabelObj.params;
 
     let stateVarElems = varNames.map((varname, idx) => {
         let cols = [
@@ -901,7 +905,8 @@ function componentTraceViewerState(stateCtx, ind, isLastState, actionId) {
 
     let action = model.actions[actionId];
     let actionLabel = action ? action.name : null;
-    let actionLabelText = getActionLabelText(actionLabel, stateQuantBounds);
+    let actionLabelObj = getActionLabelText(actionLabel, stateQuantBounds);
+    let actionLabelText = actionLabelObj.name + actionLabelObj.params;
 
     // Special definition that will enable animation feature.
     let animViewDefName = "AnimView";

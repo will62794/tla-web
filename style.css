@@ -303,6 +303,7 @@ body {
       /* border-radius: 5px; */
       height:80%;
       font-size:12px;
+      width:100%;
   }
 
   #next-states{
@@ -458,34 +459,42 @@ body {
     font-size: 12px;
     width:100%;
     font-weight:bold;
-    border-radius: 6px; 
-    padding:6px;   
   }
 
   .action-choice-name{
-    width:280px;
+    /* max-width:250px; */
+    /* border:solid 1px black; */
+    border-right:solid 1px gray;
+    padding:4px;   
+    padding-right:12px;
+    margin-right:10px;
+    font-size:12px;
   }
 
   .action-choice-param {
     color:black;
-    font-size: 12px;
-    margin-left:10px;
+    font-size: 10px;
+    margin-left:5px;
     font-weight:bold;
     border-radius: 6px; 
-    padding:6px;   
-    width: 100%;
+    padding:3px;   
+    /* width: 100%; */
+    border:solid 1px black;
+    /* max-width:150px; */
+    text-align: center;
+    padding-top:6px;
+    padding-bottom:6px;
   }
 
   .action-choice-disabled{
-    border:solid 1px white;
     color:lightgray
   }
 
-  .action-choice-disabled:hover{
+  /* .action-choice-disabled:hover{ */
     /* border:solid 1px white; */
     /* color:lightgray; */
     /* background-color: white; */
-  }
+  /* } */
 
   .action-choice-param:hover {
     background-color:steelblue;
@@ -511,7 +520,7 @@ body {
   .init-state {
       /* background-color:#eee; */
       padding:5px;
-      width:80%;
+      width:95%;
       /* float:left; */
       margin:3px;
       border:solid;
@@ -787,6 +796,12 @@ body {
     padding-right   :5px;
     margin-top:40px;
     /* background-color: steelblue; */
+  }
+
+  .action-choice-param-container{
+    overflow-x: scroll;
+    width:80%;
+    border:solid 1px lightgray;
   }
 
   .flex-grid {
