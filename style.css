@@ -398,14 +398,15 @@ body {
 
   .trace-state-table .th-state-traceexpr{
     border-right: 1px solid gray;
-    font-weight: bold;
-    background-color: #eee;
+    /* font-weight: bold; */
+    /* background-color: #eee; */
   }
 
   .trace-state-table .tr-state-traceexpr-currinput{
     border-right: 1px solid gray;
-    font-weight: bold;
-    background-color: #ddd;
+    /* font-weight: bold; */
+    /* background-color: #ddd; */
+    color:gray;
   }
 
   .trace-state-table .tr-state-traceexpr-currinput-error{
@@ -506,7 +507,14 @@ body {
 
   .trace-expr-delete{
     cursor: pointer;
-    font-size:6px;
+    font-size:9px;
+    /* font-weight:bold; */
+    color:gray;
+    text-align:center;
+  }
+
+  .trace-expr-delete:hover{
+    color:red;
   }
 
   table, th, td {

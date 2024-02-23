@@ -606,6 +606,17 @@ function traceStepBack() {
     }
 }
 
+// Adds the given new params to the current route params and updates the route.
+function updateRouteParams(newParams){
+    let oldParams = m.route.param();
+    let updatedParams = Object.assign(oldParams, newParams);
+    m.route.set("/home", updatedParams);
+}
+
+function clearRouteParams(){
+    m.route.set("/home", {});
+}
+
 // Updates the current URL route to store the current trace.
 function updateTraceRouteParams() {
     let traceHashed = model.currTrace.map(s => s["state"].fingerprint());
@@ -746,6 +757,7 @@ function reloadSpec() {
     model.currTraceAliasVals = []
     model.lassoTo = null;
     model.errorObj = null;
+    model.traceExprs = [];
 
     // if(model.showRewritten){
     //     const $codeEditor = document.querySelector('.CodeMirror');
@@ -978,11 +990,14 @@ function componentTraceViewerState(stateCtx, ind, isLastState, actionId) {
             // Button to delete trace expression.
             m("td", {
                 class: "trace-expr-delete",
-                style: "font-weight:bold;color:red;text-align:center;",
                 onclick: (e) => { _.remove(model.traceExprs, v => (v === expr)) }
-            }, m.trust("&#10060;")), // placeholder row.
+            }, m("span", "Remove")), // placeholder row.
         ]
 
+        // Demarcate trace expressions.
+        if (ind === 0) {
+            return m("tr", { class: "tr-state-traceexpr", style: "border-top: solid 2px;" }, cols);
+        }
         return m("tr", { class: "tr-state-traceexpr", style: "border-bottom: solid" }, cols);
     });
 
@@ -1231,7 +1246,10 @@ function loadSpecBox(){
         m("h3", "Examples"),
         m("ul", {}, Object.keys(exampleSpecs).map( function(k) {
             return m("li", {}, m("a",{onclick: () => {
+                clearRouteParams();
                 model.specPath = exampleSpecs[k].specpath;
+                model.currTrace = []
+                model.traceExprs = [];
                 loadSpecFromPath(model.specPath);
                 if(exampleSpecs[k].constant_vals !== undefined){
                     for(const constDecl in exampleSpecs[k].constant_vals){
@@ -1440,6 +1458,8 @@ function addTraceExpr(newTraceExpr) {
         model.traceExprs.push(newTraceExpr);
         // Clear the input text.
         model.traceExprInputText = "";
+
+        updateRouteParams({traceExprs: model.traceExprs});
     }
 }
 
@@ -1466,6 +1486,7 @@ function loadSpecFromPath(specPath){
         spec = data;
         model.specText = spec;
         model.specPath = specPath;
+        model.traceExprs = [];
 
         let oldParams = m.route.param();
         let newParams = Object.assign(oldParams, {specpath: model.specPath});
@@ -1484,6 +1505,12 @@ function loadSpecFromPath(specPath){
                         console.log("CONSTNS:", constantParams);
                         model.specConstInputVals = constantParams;
                         setConstantValues();
+                    }
+
+                    // Load trace expression if given.
+                    let traceExpressions = m.route.param("traceExprs")
+                    if (traceExpressions) {
+                        model.traceExprs = traceExpressions;
                     }
 
                     // Load trace if given.
