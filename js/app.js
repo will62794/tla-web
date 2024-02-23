@@ -48,7 +48,8 @@ let model = {
     rootModName: "",
     debug: false,
     showLoadFileBox: false,
-    specUrlInputText: ""
+    specUrlInputText: "",
+    specEditorChanges: []
 }
 
 const exampleSpecs = {
@@ -1133,6 +1134,14 @@ function onSpecParse(newText, parsedSpecTree){
 
 async function handleCodeChange(editor, changes) {
     console.log("handle code change");
+
+    // model.specEditorChanges = model.specEditorChanges.concat(changes);
+
+    // // Iterate over changes.
+    // for (const change of changes) {
+    //     console.log("CHANGE:", change);
+    //     console.log("CHANGE:", change.from);
+    // }
 
     // Enable resizable panes (experimental).
     // $( "#initial-states" ).resizable({handles:"s"});
