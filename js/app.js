@@ -1135,13 +1135,19 @@ function onSpecParse(newText, parsedSpecTree){
 async function handleCodeChange(editor, changes) {
     console.log("handle code change");
 
-    // model.specEditorChanges = model.specEditorChanges.concat(changes);
+    model.specEditorChanges = model.specEditorChanges.concat(changes).filter(c => c !== undefined);
 
-    // // Iterate over changes.
-    // for (const change of changes) {
-    //     console.log("CHANGE:", change);
-    //     console.log("CHANGE:", change.from);
+    // Iterate over changes.
+    // if(changes){
+    //     for (const change of changes) {
+    //         console.log("CHANGE:", change);
+    //         console.log("CHANGE:", change.from);
+    //     }
     // }
+
+    // TODO: Enable once working out concurrency issues.
+    // updateRouteParams({changes: model.specEditorChanges.slice(1)});
+
 
     // Enable resizable panes (experimental).
     // $( "#initial-states" ).resizable({handles:"s"});
@@ -1497,6 +1503,8 @@ function loadSpecFromPath(specPath){
         model.specPath = specPath;
         model.traceExprs = [];
 
+        let parsedChanges = m.route.param("changes");
+
         let oldParams = m.route.param();
         let newParams = Object.assign(oldParams, {specpath: model.specPath});
         m.route.set("/home", newParams);
@@ -1535,6 +1543,18 @@ function loadSpecFromPath(specPath){
                 })
             });
             $codeEditor.CodeMirror.setValue(spec);
+
+            // Load changes if given.
+            // TODO: Enable once working out concurrency subtleties.
+            // if (parsedChanges) {
+            //     model.specEditorChanges = parsedChanges;
+            //     for(const change of parsedChanges){
+            //         // $codeEditor.CodeMirror.
+            //         console.log(change);
+            //         $codeEditor.CodeMirror.replaceRange(change.text[0], change.from, change.to, change.origin);
+            //     }
+            // }
+
             model.selectedTab = Tab.StateSelection;
         }
     });
