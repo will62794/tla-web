@@ -573,7 +573,7 @@ function recomputeNextStates(fromState) {
             nextStatesByAction[action.id] = nextStatesForAction;
 
             const duration = (performance.now() - start).toFixed(1);
-            console.log(`Generating next states for action '${action.name} took ${duration}ms)`)
+            console.log(`Generating next states for action '${action.name}' took ${duration}ms`)
     
         }
         nextStates = nextStatesByAction;
