@@ -1717,6 +1717,22 @@ class Context {
         this.eval_node = eval_node || null;
     }
 
+    cloneDeepVal(){
+        return _.cloneDeep(this.val);
+    }
+
+    cloneDeepState(){
+        return _.cloneDeep(this.state);
+    }
+
+    cloneDeepQuantBound(){
+        return _.cloneDeep(this.quant_bound);
+    }
+
+    cloneDeepOperatorsBound(){
+        return _.cloneDeep(this.operators_bound);
+    }
+
     /**
      * Return a copy of this Context object.
      * 
@@ -1724,11 +1740,11 @@ class Context {
      * definitions that never change.
      */
     clone() {
-        let valNew = _.cloneDeep(this.val);
-        let stateNew = _.cloneDeep(this.state);
+        let valNew = this.cloneDeepVal();
+        let stateNew = this.cloneDeepState();
         let defnsNew = this.defns // don't copy this field.
-        let quant_boundNew = _.cloneDeep(this.quant_bound);
-        let operators_boundNew = _.cloneDeep(this.operators_bound);
+        let quant_boundNew = this.cloneDeepQuantBound();
+        let operators_boundNew = this.cloneDeepOperatorsBound();
         let constants = _.cloneDeep(this.constants);
         let module_tableNew = this.module_table; // should never be modified
         let prev_func_val = _.cloneDeep(this.prev_func_val);
@@ -4018,11 +4034,11 @@ evalExpr = function (...args) {
 
     // Run the original function to evaluate the expression.
     let ret = origevalExpr(...args);
+    const duration = (performance.now() - start).toFixed(1);
+
     evalLog("evalreturn -> ", ret, args[0].text);
     parent = origParent;
     parentCtx = origParentCtx;
-
-    const duration = (performance.now() - start).toFixed(1);
 
     if (edge !== null && enableEvalTracing) {
         evalNodeGraph.push([edge, ret, edgeOrder, duration]);
