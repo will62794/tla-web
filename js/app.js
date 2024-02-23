@@ -1052,7 +1052,7 @@ function componentTraceViewerState(stateCtx, ind, isLastState, actionId) {
     let headerRow = [m("tr", { style: `background-color: ${stateColorBg}`, class: "trace-state-header" }, [
         m("th", { colspan: "2" }, [
             m("span", { style: "color:black;padding-right:8px;border-right:solid 1px gray" }, stateIndLabel),
-            m("span", { style: "color:black;padding-left:8px" }, stateHeaderText)
+            m("span", { style: "color:black;padding-left:8px;font-family:monospace;" }, stateHeaderText)
         ]),
         m("th", { colspan: "2" }, "") // filler.
     ])];
