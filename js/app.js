@@ -40,6 +40,7 @@ let model = {
     lassoTo: null,
     errorObj: null,
     currPane: Pane.Trace,
+    tracePaneHidden: false,
     nextStatePreview: null,
     replMode: false,
     replResult: null,
@@ -1370,7 +1371,10 @@ function midPane() {
         tabs = tabs.concat(debug_tabs);
     }
     return [
-        m("div", { id: "mid-pane" }, tabs)
+        m("div", { 
+            id: "mid-pane", 
+            style: {width: model.tracePaneHidden ? "85%" : "49%"} 
+        }, tabs)
     ];
 }
 
@@ -1379,13 +1383,25 @@ function tracePane() {
     // m("span", [
         // m("div", { id: "poss-next-states-title", class: "pane-title" }, (model.currTrace.length > 0) ? "Choose Next State" : "Choose Initial State"),
         // m("div", { id: "initial-states", class: "tlc-state" }, componentNextStateChoices()),
-    return m("div", { id: "trace-container" }, [
+    return m("div", { 
+                id: "trace-container", 
+                // hidden: model.tracePaneHidden,
+                style: {width: model.tracePaneHidden ? "10%" : "50%"}
+            }, [
             m("div", { class: "pane-heading", id: "trace-state-heading" }, [
                 m("div", { class: "pane-title", style:"font-size:20px" }, "Current Trace"),
-                componentButtonsContainer(),
-                componentHiddenStateVars()
+                
+                model.tracePaneHidden ? "" : componentButtonsContainer(),
+                model.tracePaneHidden ? "" : componentHiddenStateVars(),
+                m("div", { 
+                    class: "toggle-trace-button", 
+                    style:"font-size:10px;",
+                    onclick: function(){
+                        model.tracePaneHidden = !model.tracePaneHidden;
+                    }
+                }, model.tracePaneHidden ? "Show Trace" : "Hide Trace"),
             ]),
-            componentTraceViewer()
+            model.tracePaneHidden ? "" : componentTraceViewer()
         ]);
     // ]);
 }

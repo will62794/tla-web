@@ -588,7 +588,6 @@ body {
 
     /* background-color: orange; */
     height:99%;
-    width:49%;
     float:left;
     border-left:solid 1px lightgray;
   }
@@ -693,6 +692,17 @@ body {
       width:98%;
       /* border:solid; */
       overflow: hidden;
+  }
+
+  .toggle-trace-button{
+    padding-bottom: 2px;
+    padding-top: 2px;
+    color:gray;
+  }
+
+  .toggle-trace-button:hover{
+    cursor: pointer;
+    color:black;
   }
 
   .button-base{
