@@ -392,9 +392,12 @@ function componentNextStateChoiceElementForAction(ind, actionLabel, nextStatesFo
     }, actionName)];
 
     let actionNameElem = [m("tr", {}, 
+        [m("td", {}, [m("div", {class: ""}, 
+            actionNameDiv
+        )]),
         m("td", {}, [m("div", {class: "flex-grid"}, 
-            [actionNameDiv].concat(actionParamChoices)
-        )])
+            actionParamChoices
+        )])]
     )];
 
     let allElems = [];
