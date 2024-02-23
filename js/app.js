@@ -682,9 +682,13 @@ function chooseNextState(statehash_short) {
 
     try {
         let nextStates = recomputeNextStates(nextState["state"]);
-        model.currNextStates = _.cloneDeep(nextStates);
         const duration = (performance.now() - start).toFixed(1);
-        console.log(`Generation of next states took ${duration}ms`)
+
+        const start2 = performance.now();
+        model.currNextStates = _.cloneDeep(nextStates);
+        const duration2 = (performance.now() - start2).toFixed(1);
+
+        console.log(`Generating next states took ${duration}ms (cloning took ${duration2}ms )`)
     } catch (e) {
         console.error("Error computing next states.", e);
         if (currEvalNode !== null) {
