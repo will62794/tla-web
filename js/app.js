@@ -1554,13 +1554,18 @@ async function loadApp() {
 
     App = {
         count: 1,
-        oninit: function () {
-            // let constantParams = m.route.param("constants");
-            // if(constantParams){
-            //     console.log("CONSTNS:", constantParams);
-            //     model.specConstInputVals = constantParams;
-            //     setConstantValues();
-            // }
+        oncreate: function () {
+            // Initialized code editor on creation of app pane.
+            const codeInput = document.getElementById('code-input');
+            codeEditor = CodeMirror.fromTextArea(codeInput, {
+                lineNumbers: true,
+                showCursorWhenSelecting: true,
+                // TODO: Work out tlaplus mode functionality for syntax highlighting.
+                // mode:"tlaplus"
+            });
+
+            codeEditor.on('changes', handleCodeChange);
+
         },
         onupdate: function () {
             // Keep trace viewer scrolled to bottom.
@@ -1654,13 +1659,16 @@ async function loadApp() {
         model.specPath = specPathArg;
     }
 
-    const codeInput = document.getElementById('code-input');
-    codeEditor = CodeMirror.fromTextArea(codeInput, {
-        lineNumbers: true,
-        showCursorWhenSelecting: true,
-        // TODO: Work out tlaplus mode functionality for syntax highlighting.
-        // mode:"tlaplus"
-    });
+    // const codeInput = document.getElementById('code-input');
+    // console.log(CodeMirror);
+    // console.log(codeInput);
+    // console.log(document.readyState);
+    // codeEditor = CodeMirror.fromTextArea(codeInput, {
+    //     lineNumbers: true,
+    //     showCursorWhenSelecting: true,
+    //     // TODO: Work out tlaplus mode functionality for syntax highlighting.
+    //     // mode:"tlaplus"
+    // });
 
     loadSpecFromPath(model.specPath);
 }
@@ -1677,14 +1685,14 @@ async function init() {
     let tree = null;
     var ASSIGN_PRIMED = false;
 
-    let codeEditor = CodeMirror.fromTextArea(codeInput, {
-        lineNumbers: true,
-        showCursorWhenSelecting: true,
-        // TODO: Work out tlaplus mode functionality for syntax highlighting.
-        // mode:"tlaplus"
-    });
+    // let codeEditor = CodeMirror.fromTextArea(codeInput, {
+    //     lineNumbers: true,
+    //     showCursorWhenSelecting: true,
+    //     // TODO: Work out tlaplus mode functionality for syntax highlighting.
+    //     // mode:"tlaplus"
+    // });
 
-    codeEditor.on('changes', handleCodeChange);
+    // codeEditor.on('changes', handleCodeChange);
 
     // Load the tree-sitter TLA+ parser.
     let language;
