@@ -215,12 +215,13 @@ function displayEvalGraph() {
         let edge = edgeData[0];
         let retVal = edgeData[1];
         let edgeOrder = edgeData[2];
+        let evalDur = edgeData[3];
         cy.add({
             group: 'edges', data: {
                 id: 'e' + eind,
                 source: hashSum(edge[0]),
                 target: hashSum(edge[1]),
-                label: retVal[0]["val"].toString() + "_" + edgeOrder + "(" + retVal.length + ")"
+                label: retVal[0]["val"].toString() + "_" + edgeOrder + "(" + retVal.length + ") [" + evalDur + "ms]"
             }
         });
         eind++;

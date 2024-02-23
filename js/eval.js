@@ -4014,14 +4014,18 @@ evalExpr = function (...args) {
     parent = args[0];
     parentCtx = args[1];
 
+    let start = performance.now();
+
     // Run the original function to evaluate the expression.
     let ret = origevalExpr(...args);
     evalLog("evalreturn -> ", ret, args[0].text);
     parent = origParent;
     parentCtx = origParentCtx;
 
+    const duration = (performance.now() - start).toFixed(1);
+
     if (edge !== null && enableEvalTracing) {
-        evalNodeGraph.push([edge, ret, edgeOrder]);
+        evalNodeGraph.push([edge, ret, edgeOrder, duration]);
         edgeOrder += 1;
     }
 
