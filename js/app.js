@@ -646,14 +646,14 @@ function actionIdForNextState(nextStateHash) {
 
 function chooseNextState(statehash_short) {
     // console.log("currNextStates:", JSON.stringify(currNextStates));
-    console.log("chooseNextState: ", statehash_short);
+    // console.log("chooseNextState: ", statehash_short);
     let currNextStatesSet = _.flatten(_.values(model.currNextStates))
     let nextStateChoices = currNextStatesSet.filter(s => s["state"].fingerprint() === statehash_short);
 
     let nextStateActionId = null;
     if (model.actions.length > 1 && model.currTrace.length >= 1) {
         nextStateActionId = actionIdForNextState(statehash_short)
-        console.log("actionid:", nextStateActionId);
+        // console.log("actionid:", nextStateActionId);
     }
 
     if (nextStateChoices.length === 0) {
@@ -670,8 +670,8 @@ function chooseNextState(statehash_short) {
     //     return;
     // }
 
-    console.log("nextState:", JSON.stringify(nextState));
-    console.log("nextStatePred:", model.nextStatePred);
+    // console.log("nextState:", JSON.stringify(nextState));
+    // console.log("nextStatePred:", model.nextStatePred);
 
     // Append next state to the trace and update current route.
     model.currTrace.push(nextState);
