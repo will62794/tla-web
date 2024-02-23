@@ -560,6 +560,8 @@ function recomputeNextStates(fromState) {
         for (const action of model.actions) {
             assert(action instanceof TLAAction);
             // console.log("FROM:", fromState)
+            const start = performance.now();
+
             let nextStatesForAction = interp.computeNextStates(model.specTreeObjs, model.specConstVals, [fromState], action.node)
             // console.log("nextStatesForAction", nextStatesForAction); 
             nextStatesForAction = nextStatesForAction.map(c => {
@@ -568,6 +570,10 @@ function recomputeNextStates(fromState) {
             });
             // nextStatesForActionQuantBound = nextStatesForActionQuantBound.map(c => c["quant_bound"]);
             nextStatesByAction[action.id] = nextStatesForAction;
+
+            const duration = (performance.now() - start).toFixed(1);
+            console.log(`Generating next states for action '${action.name} took ${duration}ms)`)
+    
         }
         nextStates = nextStatesByAction;
     } else {
