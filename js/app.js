@@ -1215,13 +1215,13 @@ function copyTraceLinkToClipboard() {
 
 function componentButtonsContainer() {
     return [m("div", { id: "trace-buttons" }, [
-        m("div", { class: "button-base trace-button", id: "trace-back-button", onclick: traceStepBack }, "Back"),
-        m("div", { class: "button-base trace-button", id: "trace-reset-button", onclick: resetTrace }, "Reset"),
-        m("div", { class: "button-base trace-button", id: "trace-reset-button", onclick: copyTraceLinkToClipboard }, "Copy trace link"),
-        m("div", { class: "button-base trace-button", id: "trace-reset-button", onclick: () => addTraceExpr(model.traceExprInputText) }, "Add Trace Expression"),
+        m("button", { class: "btn btn-sm btn-primary button-bagse tracfe-button", id: "trace-back-button", onclick: traceStepBack }, "Back"),
+        m("button", { class: "btn btn-sm btn-primary button-bagse trface-button", id: "trace-reset-button", onclick: resetTrace }, "Reset"),
+        m("button", { class: "btn btn-sm btn-primary button-bagse trface-button", id: "trace-reset-button", onclick: copyTraceLinkToClipboard }, "Copy trace link"),
+        m("button", { class: "btn btn-sm btn-primary button-bagse trface-button", id: "trace-reset-button", onclick: () => addTraceExpr(model.traceExprInputText) }, "Add Trace Expression"),
         // m("div", { class: "button-base trace-button", id: "trace-reset-button", onclick: () => checkInv(model.traceExprInputText) }, "Check Invariant"),
         m("input", {
-            class: "",
+            class: "form-control",
             style: "font-family:monospace;width:210px;padding:5px;font-size:11px;",
             id: "trace-expr-input",
             placeholder: "Enter TLA+ trace expression.",
@@ -1262,7 +1262,7 @@ function stateSelectionPane(hidden){
     // return m("div", {id:"mid-pane", hidden: hidden}, 
     return m("div", {id: "left-pane", hidden: hidden}, [
         chooseConstantsPane(),
-        m("div", { id: "poss-next-states-title", class: "pane-title" }, (model.currTrace.length > 0) ? "Choose Next Action" : "Choose Initial State"),
+        m("h5", { id: "poss-next-states-title", class: "" }, (model.currTrace.length > 0) ? "Choose Next Action" : "Choose Initial State"),
         m("div", { id: "initial-states", class: "tlc-state" }, componentNextStateChoices()),
     ]);    
 }
@@ -1389,7 +1389,7 @@ function tracePane() {
                 style: {width: model.tracePaneHidden ? "10%" : "50%"}
             }, [
             m("div", { class: "pane-heading", id: "trace-state-heading" }, [
-                m("div", { class: "pane-title", style:"font-size:20px" }, "Current Trace"),
+                m("h5", { class: "", style:"" }, "Current Trace"),
                 
                 model.tracePaneHidden ? "" : componentButtonsContainer(),
                 model.tracePaneHidden ? "" : componentHiddenStateVars(),
