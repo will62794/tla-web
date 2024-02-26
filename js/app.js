@@ -14,7 +14,8 @@ let Pane = {
 let Tab = {
     StateSelection: 1,
     SpecEditor: 2,
-    EvalGraph: 3
+    Load: 3,
+    EvalGraph: 4
 }
 
 let TraceTab = {
@@ -1301,9 +1302,9 @@ function stateSelectionPane(hidden){
     ]);    
 }
 
-function loadSpecBox(){
+function loadSpecBox(hidden){
     // return m("div", { id: "load-spec-box", hidden: !model.showLoadFileBox}, [
-    return m("div", { id: "load-spec-box", hidden: false}, [
+    return m("div", { id: "load-spec-box", hidden: hidden}, [
         m("h3", "Load a specification"),
         m("h4", "Examples"),
         m("ul", {}, Object.keys(exampleSpecs).map( function(k) {
@@ -1414,11 +1415,11 @@ function headerTabBar() {
     ]);
 }
 
-function loadPane(){
+function loadPane(hidden){
     // let specName = m("div", { id: "spec-name-header" }, "Root spec: " + model.rootModName + ".tla")
     let loadFile = m("div", { id: "load-spec-button", onclick: () => model.showLoadFileBox = true }, "Load spec");
     // return m("div", {}, [loadFile]);
-    return loadSpecBox();
+    return loadSpecBox(hidden);
 }
 
 function midPane() {
