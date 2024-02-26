@@ -1720,7 +1720,7 @@ async function loadApp() {
                 // Header.
                 m("nav", { class: "navbar bg-body-tertiary" }, [
                     m("div", {class:"container-fluid"}, [
-                        m("span", {class:"navbar-brand mb-0 h1"}, "TLA+ Explorer") 
+                        m("a", {class:"navbar-brand mb-0 h1", href: "https://github.com/will62794/tla-web"}, "TLA+ Web Explorer") 
                     ])
                 ]),
 
