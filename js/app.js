@@ -13,9 +13,10 @@ let Pane = {
 
 let Tab = {
     StateSelection: 1,
-    SpecEditor: 2,
-    Load: 3,
-    EvalGraph: 4
+    Constants: 2,
+    SpecEditor: 3,
+    Load: 4,
+    EvalGraph: 5
 }
 
 let TraceTab = {
@@ -268,7 +269,7 @@ function toggleHiddenConstants(){
     model.constantsPaneHidden = !model.constantsPaneHidden;
 }
 
-function componentChooseConstants() {
+function componentChooseConstants(hidden) {
     // If there are CONSTANT declarations in the spec, we must
     // instantiate them with some concrete values.
     if (_.isEmpty(model.specConsts)) {
@@ -308,14 +309,21 @@ function componentChooseConstants() {
     }
 
     function constantButtons(){
-        let setButtonDiv = m("button", { id: "set-constants-button", class: "btn btn-sm btn-primary", onclick: setConstantValues }, "Set CONSTANTs");
+        let setButtonDiv = m("button", { 
+            id: "set-constants-button", 
+            class: "btn btn-sm btn-primary", 
+            onclick: () => {
+                setConstantValues();
+                model.selectedTab = Tab.StateSelection;
+            } 
+        }, "Set CONSTANTs");
         if(model.constantsPaneHidden){
-            return [hideButtonDiv()];
+            // return [hideButtonDiv()];
         }
-        return [setButtonDiv, hideButtonDiv()];
+        return [setButtonDiv];
     }
 
-    return m("div", {id: "constants-box"}, [
+    return m("div", {id: "constants-box", hidden: hidden}, [
         // m("div", { id: "constants-header" },
         //     [
                 // Allow hiding of choose constants pane.
@@ -1280,10 +1288,10 @@ function componentHiddenStateVars() {
     return m("div", { id: "hidden-state-vars" }, [titleElem].concat(hiddenStateVarElems))
 }
 
-function chooseConstantsPane() {
-    return componentChooseConstants();
+// function chooseConstantsPane() {
+    // return componentChooseConstants();
     // return m("div", { id: "choose-constants-container" }, componentChooseConstants());
-}
+// }
 
 function specEditorPane(hidden){
     return m("div", { id: "code-input-pane", hidden:hidden }, [
@@ -1295,8 +1303,8 @@ function specEditorPane(hidden){
 
 function stateSelectionPane(hidden){
     // return m("div", {id:"mid-pane", hidden: hidden}, 
-    return m("div", {id: "left-pane", hidden: hidden}, [
-        chooseConstantsPane(),
+    return m("div", {id: "state-choices-pane", hidden: hidden}, [
+        // chooseConstantsPane(),
         // m("h5", { id: "poss-next-states-title", class: "" }, (model.currTrace.length > 0) ? "Choose Next Action" : "Choose Initial State"),
         m("div", { id: "initial-states", class: "tlc-state" }, componentNextStateChoices()),
     ]);    
@@ -1379,6 +1387,12 @@ function headerTabBar() {
             // style: "background-color:" + ((model.selectedTab === Tab.StateSelection) ? "lightgray" : "none")
         }, m("a", {class: model.selectedTab === Tab.StateSelection ? "nav-link active" : "nav-link"}, "Actions")),
         m("li", {
+            // id: "state-selection-tab-button",
+            class: "nav-item",
+            onclick: () => model.selectedTab = Tab.Constants,
+            // style: "background-color:" + ((model.selectedTab === Tab.StateSelection) ? "lightgray" : "none")
+        }, m("a", {class: model.selectedTab === Tab.Constants ? "nav-link active" : "nav-link"}, "Constants")),
+        m("li", {
             // id: "spec-editor-tab-button", 
             class: "nav-item",
             onclick: () => model.selectedTab = Tab.SpecEditor,
@@ -1426,6 +1440,7 @@ function midPane() {
     let tabs = [
         headerTabBar(),
         stateSelectionPane(model.selectedTab !== Tab.StateSelection),
+        componentChooseConstants(model.selectedTab !== Tab.Constants),
         specEditorPane(model.selectedTab !== Tab.SpecEditor),
         loadPane(model.selectedTab !== Tab.Load)
     ];
@@ -1436,7 +1451,6 @@ function midPane() {
         tabs = tabs.concat(debug_tabs);
     }
     return [
-        m("div", { id: "spec-name-fheader", style:"font-size:14px;margin-bottom:10px;" }, "Root spec: " + model.rootModName + ".tla"),
         m("div", { 
             id: "mid-pane", 
             style: {width: model.tracePaneHidden ? "85%" : "49%"} 
@@ -1721,16 +1735,38 @@ async function loadApp() {
                 // Header.
                 m("nav", { class: "navbar bg-body-tertiary" }, [
                     m("div", {class:"container-fluid"}, [
-                        m("a", {class:"navbar-brand mb-0 h1", href: "https://github.com/will62794/tla-web"}, "TLA+ Web Explorer") 
-                    ])
+                        m("a", {class:"navbar-brand mb-0 h1", href: "https://github.com/will62794/tla-web"}, [
+                            "TLA+ Web Explorer"
+                        ]) ,
+                        m("span", {class:"navbar-text", href: "https://github.com/will62794/tla-web"}, 
+                            [
+                                m("span", "Root spec: " + model.rootModName + (model.rootModName.length > 0 ? ".tla" : "")),
+                                model.rootModName.length === 0 ? m("div", {class:"spinner-border spinner-border-sm"}) : m("span")
+                            ]
+                        )                        // m("span", {class:"navbar-nav"}, [
+                            // m("li", {class:"nav-item"}, "Text")
+                        // ])
+                    ]),
+                    
                 ]),
+                // m("nav", { class: "navbar bg-body-tertiary", style:"height:30px;" }, [
+                //     m("div", {class:"container-fluid"}, [
+                //         m("span", {class:"py-0 mb-0 navbar-text", href: "https://github.com/will62794/tla-web"}, 
+                //             [
+                //                 m("span", "Root spec: " + model.rootModName + (model.rootModName.length > 0 ? ".tla" : "")),
+                //                 model.rootModName.length === 0 ? m("div", {class:"spinner-border spinner-border-sm"}) : m("span")
+                //             ]
+                //         )
+                //     ])
+                // ]),
 
                 // The main app panes.
-                m("div", { class: "panel-container container-fluid" }, [
+                m("div", { class: "panel-container" }, [
+                    // m("div", { id: "spec-name-fheader", style:"font-size:14px;margin-bottom:10px;width:100%;" }, "Root spec: " + model.rootModName + ".tla"),
                     // Display pane.
-                    componentExplorerPane(),
-                    // TODO: Enable the spec loading box.
-                    // loadSpecBox()
+                    midPane(),
+                    tracePane()
+                    // componentExplorerPane(),
                 ])];
         }
     }

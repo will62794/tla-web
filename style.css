@@ -3,6 +3,7 @@ body {
     padding: 0;
     /* font-family: Arial, Helvetica, sans-serif; */
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
+    overflow-y:hidden;
   }
 
   h1,h2,h3,h4{
@@ -10,17 +11,10 @@ body {
       /* text-decoration: underline; */
   }
 
-  #left-pane{
-    /* color:red; */
-    height:100%;
-    /* border:solid 1px red; */
-    overflow-y: scroll;
-  }
-
   #mid-pane{
     /* background-color: red; */
-    height:100%;
-    overflow-y: scroll;
+    height:90%;
+    /* overflow-y: scroll; */
     width:49%;
     float:left;
   }
@@ -44,9 +38,9 @@ body {
         /* height: auto; */
         padding:8px;
         border-bottom:solid lightgray 1px;
-        display: grid;
-        grid-template-columns: 29% 69%;
-        grid-template-rows: 100%;
+        /* display: grid; */
+        /* grid-template-columns: 29% 69%; */
+        /* grid-template-rows: 100%; */
     }
 
     /* #constants-box{ */
@@ -276,8 +270,8 @@ body {
     display: flex;
     flex-direction: row;
     /* border: 1px solid silver; */
-    overflow: hidden;
-    height: 91%;
+    overflow-y: hidden;
+    height: 100%;
     
   }
 
@@ -314,8 +308,9 @@ body {
 
   #trace{
     padding-left:15px;
-    height:80%;
+    height:100%;
     overflow-y: scroll;
+    /* border-bottom:solid 1px lightgray; */
   }
 
   .tlc-state{
@@ -383,6 +378,15 @@ body {
     padding-top:8px;
     padding-bottom:5px;
     font-family: Menlo, Monaco, "Times";
+  }
+
+  #state-choices-pane{
+    /* color:red; */
+    height:92%;
+    /* border-bottom:solid 1px gray; */
+    /* overflow-y: scroll; */
+    overflow-y: scroll;
+
   }
 
   .hidden-state-var{
@@ -584,14 +588,14 @@ body {
     /* right: 30%; */
     padding-left:8px;
     /* overflow: auto; */
-    overflow: hidden;
+    /* overflow: hidden; */
     /* border-right:solid 0.5px lightgray; */
     /* background-color: lightgray; */
 
     /* background-color: orange; */
-    height:99%;
-    float:left;
-    border-left:solid 1px lightgray;
+    height:70%;
+    /* float:left; */
+    border-left:solid 2px lightgray;
   }
 
   #repl-container {
@@ -600,7 +604,7 @@ body {
     /* bottom: 0; */
     /* width:20%; */
     /* right: 30%; */
-    padding-left:0px;
+    padding-left:10px;
     /* overflow: auto; */
     /* overflow: scroll; */
     /* border-right:solid 0.5px lightgray; */
@@ -614,15 +618,14 @@ body {
     font-family: Menlo, Monaco, "Times";
   }
 
-  #explorer-pane {
+  /* #explorer-pane {
     flex: 1 1 auto;
-    /* resizable */
     padding: 8px;
     width: 100%;
     min-height: 200px;
     min-width: 200px;
-    overflow-y: scroll;
-  }
+    overflow-y: hidden;
+  } */
 
   .header-item {
     margin-right: 30px;
