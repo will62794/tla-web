@@ -1394,6 +1394,7 @@ function headerTabBar() {
         m("li", {
             // id: "state-selection-tab-button",
             class: "nav-item",
+            hidden: _.isEmpty(model.specConsts),
             onclick: () => model.selectedTab = Tab.Constants,
             // style: "background-color:" + ((model.selectedTab === Tab.StateSelection) ? "lightgray" : "none")
         }, m("a", {class: model.selectedTab === Tab.Constants ? "nav-link active" : "nav-link"}, "Constants")),
