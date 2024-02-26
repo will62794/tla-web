@@ -1306,7 +1306,10 @@ function stateSelectionPane(hidden){
     return m("div", {id: "state-choices-pane", hidden: hidden}, [
         // chooseConstantsPane(),
         // m("h5", { id: "poss-next-states-title", class: "" }, (model.currTrace.length > 0) ? "Choose Next Action" : "Choose Initial State"),
-        m("div", { id: "initial-states", class: "tlc-state" }, componentNextStateChoices()),
+        m("div", { id: "initial-states", class: "tlc-state" }, [
+            model.currTrace.length === 0 ? m("div", {style: "padding:6px;"}, "Choose Initial State") : m("span"),
+            componentNextStateChoices()
+        ]),
     ]);    
 }
 
