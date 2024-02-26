@@ -3992,6 +3992,9 @@ let edgeOrder = 0;
 
 let origevalExpr = evalExpr;
 evalExpr = function (...args) {
+    if(!enableEvalTracing){
+        return origevalExpr(...args);
+    }
     depth += 1;
 
     // let ctx = args[1];

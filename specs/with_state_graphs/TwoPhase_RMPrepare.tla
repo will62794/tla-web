@@ -21,7 +21,7 @@ EXTENDS TLC, Naturals
 (***************************************************************************)
 \* CONSTANT RM \* The set of resource managers
 
-RM == {"rm1", "rm2", "rm3"}
+RM == {"rm1", "rm2", "rm3", "rm4", "rm5"}
 
 VARIABLES
   rmState,       \* $rmState[rm]$ is the state of resource manager RM.

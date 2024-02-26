@@ -2,13 +2,17 @@ strict digraph DiskGraph {
 nodesep=0.35;
 subgraph cluster_graph {
 color="white";
--7021904198391026175 [label="/\\ msgs = {}\n/\\ rmState = [rm1 |-> \"working\", rm2 |-> \"working\", rm3 |-> \"working\"]\n/\\ tmState = \"init\"\n/\\ tmPrepared = {}",style = filled]
--7021904198391026175 -> 5834824466510720846 [label="",color="black",fontcolor="black"];
-5834824466510720846 [label="/\\ msgs = {[type |-> \"Prepared\", rm |-> \"rm1\"]}\n/\\ rmState = [rm1 |-> \"prepared\", rm2 |-> \"working\", rm3 |-> \"working\"]\n/\\ tmState = \"init\"\n/\\ tmPrepared = {}"];
--7021904198391026175 -> 7573257450440809913 [label="",color="black",fontcolor="black"];
-7573257450440809913 [label="/\\ msgs = {[type |-> \"Prepared\", rm |-> \"rm2\"]}\n/\\ rmState = [rm1 |-> \"working\", rm2 |-> \"prepared\", rm3 |-> \"working\"]\n/\\ tmState = \"init\"\n/\\ tmPrepared = {}"];
--7021904198391026175 -> 6137223010935005046 [label="",color="black",fontcolor="black"];
-6137223010935005046 [label="/\\ msgs = {[type |-> \"Prepared\", rm |-> \"rm3\"]}\n/\\ rmState = [rm1 |-> \"working\", rm2 |-> \"working\", rm3 |-> \"prepared\"]\n/\\ tmState = \"init\"\n/\\ tmPrepared = {}"];
-{rank = same; -7021904198391026175;}
+4012547417037692401 [label="/\\ msgs = {}\n/\\ rmState = [ rm1 |-> \"working\",\n  rm2 |-> \"working\",\n  rm3 |-> \"working\",\n  rm4 |-> \"working\",\n  rm5 |-> \"working\" ]\n/\\ tmState = \"init\"\n/\\ tmPrepared = {}",style = filled]
+4012547417037692401 -> -452979896181394214 [label="",color="black",fontcolor="black"];
+-452979896181394214 [label="/\\ msgs = {[type |-> \"Prepared\", rm |-> \"rm1\"]}\n/\\ rmState = [ rm1 |-> \"prepared\",\n  rm2 |-> \"working\",\n  rm3 |-> \"working\",\n  rm4 |-> \"working\",\n  rm5 |-> \"working\" ]\n/\\ tmState = \"init\"\n/\\ tmPrepared = {}"];
+4012547417037692401 -> 951806115973701886 [label="",color="black",fontcolor="black"];
+951806115973701886 [label="/\\ msgs = {[type |-> \"Prepared\", rm |-> \"rm2\"]}\n/\\ rmState = [ rm1 |-> \"working\",\n  rm2 |-> \"prepared\",\n  rm3 |-> \"working\",\n  rm4 |-> \"working\",\n  rm5 |-> \"working\" ]\n/\\ tmState = \"init\"\n/\\ tmPrepared = {}"];
+4012547417037692401 -> 1026071513945460459 [label="",color="black",fontcolor="black"];
+1026071513945460459 [label="/\\ msgs = {[type |-> \"Prepared\", rm |-> \"rm3\"]}\n/\\ rmState = [ rm1 |-> \"working\",\n  rm2 |-> \"working\",\n  rm3 |-> \"prepared\",\n  rm4 |-> \"working\",\n  rm5 |-> \"working\" ]\n/\\ tmState = \"init\"\n/\\ tmPrepared = {}"];
+4012547417037692401 -> -4577416556643960822 [label="",color="black",fontcolor="black"];
+-4577416556643960822 [label="/\\ msgs = {[type |-> \"Prepared\", rm |-> \"rm4\"]}\n/\\ rmState = [ rm1 |-> \"working\",\n  rm2 |-> \"working\",\n  rm3 |-> \"working\",\n  rm4 |-> \"prepared\",\n  rm5 |-> \"working\" ]\n/\\ tmState = \"init\"\n/\\ tmPrepared = {}"];
+4012547417037692401 -> 850052742641833176 [label="",color="black",fontcolor="black"];
+850052742641833176 [label="/\\ msgs = {[type |-> \"Prepared\", rm |-> \"rm5\"]}\n/\\ rmState = [ rm1 |-> \"working\",\n  rm2 |-> \"working\",\n  rm3 |-> \"working\",\n  rm4 |-> \"working\",\n  rm5 |-> \"prepared\" ]\n/\\ tmState = \"init\"\n/\\ tmPrepared = {}"];
+{rank = same; 4012547417037692401;}
 }
 }
