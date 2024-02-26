@@ -290,6 +290,7 @@ async function testStateGraphEquiv(testId, stateGraph, parsedSpec, specPath, con
         { "spec": "Paxos_1b_case1", "constvals": undefined },
         { "spec": "NQueens_N3", "constvals": { "N": new IntValue(3) } },
         { "spec": "TwoPhase", "constvals": undefined },
+        { "spec": "TwoPhase_RMPrepare", "constvals": undefined },
         { "spec": "LogExample_bounded", "constvals": undefined },
         { "spec": "Elevator", "constvals": undefined },
         // {"spec": "DieHard", "constvals": undefined},

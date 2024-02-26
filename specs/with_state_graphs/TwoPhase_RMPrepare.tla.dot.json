@@ -1,0 +1,81 @@
+{
+  "name": "DiskGraph",
+  "directed": true,
+  "strict": true,
+  "nodesep": "0.35",
+  "_subgraph_cnt": 2,
+  "objects": [
+    {
+      "name": "cluster_graph",
+      "color": "white",
+      "nodesep": "0.35",
+      "_gvid": 0,
+      "subgraphs": [
+        1
+      ],
+      "nodes": [
+        2,3,4,5
+      ],
+      "edges": [
+        0,1,2
+      ]
+    },
+    {
+      "name": "%9",
+      "color": "white",
+      "nodesep": "0.35",
+      "rank": "same",
+      "_gvid": 1,
+      "nodes": [
+        2
+      ]
+    },
+    {
+      "_gvid": 2,
+      "name": "-7021904198391026175",
+      "label": "\/\\\\ msgs = {}\\n\/\\\\ rmState = [rm1 |-> \"working\", rm2 |-> \"working\", rm3 |-> \"working\"]\\n\/\\\\ tmState = \"init\"\\n\/\\\\ tmPrepared = {}",
+      "style": "filled"
+    },
+    {
+      "_gvid": 3,
+      "name": "5834824466510720846",
+      "label": "\/\\\\ msgs = {[type |-> \"Prepared\", rm |-> \"rm1\"]}\\n\/\\\\ rmState = [rm1 |-> \"prepared\", rm2 |-> \"working\", rm3 |-> \"working\"]\\n\/\\\\ tmState = \"init\"\\n\/\\\\ tmPrepared = {}"
+    },
+    {
+      "_gvid": 4,
+      "name": "7573257450440809913",
+      "label": "\/\\\\ msgs = {[type |-> \"Prepared\", rm |-> \"rm2\"]}\\n\/\\\\ rmState = [rm1 |-> \"working\", rm2 |-> \"prepared\", rm3 |-> \"working\"]\\n\/\\\\ tmState = \"init\"\\n\/\\\\ tmPrepared = {}"
+    },
+    {
+      "_gvid": 5,
+      "name": "6137223010935005046",
+      "label": "\/\\\\ msgs = {[type |-> \"Prepared\", rm |-> \"rm3\"]}\\n\/\\\\ rmState = [rm1 |-> \"working\", rm2 |-> \"working\", rm3 |-> \"prepared\"]\\n\/\\\\ tmState = \"init\"\\n\/\\\\ tmPrepared = {}"
+    }
+  ],
+  "edges": [
+    {
+      "_gvid": 0,
+      "tail": 2,
+      "head": 3,
+      "color": "black",
+      "fontcolor": "black",
+      "label": ""
+    },
+    {
+      "_gvid": 1,
+      "tail": 2,
+      "head": 4,
+      "color": "black",
+      "fontcolor": "black",
+      "label": ""
+    },
+    {
+      "_gvid": 2,
+      "tail": 2,
+      "head": 5,
+      "color": "black",
+      "fontcolor": "black",
+      "label": ""
+    }
+  ]
+}

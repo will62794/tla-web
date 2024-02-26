@@ -1,0 +1,14 @@
+strict digraph DiskGraph {
+nodesep=0.35;
+subgraph cluster_graph {
+color="white";
+-7021904198391026175 [label="/\\ msgs = {}\n/\\ rmState = [rm1 |-> \"working\", rm2 |-> \"working\", rm3 |-> \"working\"]\n/\\ tmState = \"init\"\n/\\ tmPrepared = {}",style = filled]
+-7021904198391026175 -> 5834824466510720846 [label="",color="black",fontcolor="black"];
+5834824466510720846 [label="/\\ msgs = {[type |-> \"Prepared\", rm |-> \"rm1\"]}\n/\\ rmState = [rm1 |-> \"prepared\", rm2 |-> \"working\", rm3 |-> \"working\"]\n/\\ tmState = \"init\"\n/\\ tmPrepared = {}"];
+-7021904198391026175 -> 7573257450440809913 [label="",color="black",fontcolor="black"];
+7573257450440809913 [label="/\\ msgs = {[type |-> \"Prepared\", rm |-> \"rm2\"]}\n/\\ rmState = [rm1 |-> \"working\", rm2 |-> \"prepared\", rm3 |-> \"working\"]\n/\\ tmState = \"init\"\n/\\ tmPrepared = {}"];
+-7021904198391026175 -> 6137223010935005046 [label="",color="black",fontcolor="black"];
+6137223010935005046 [label="/\\ msgs = {[type |-> \"Prepared\", rm |-> \"rm3\"]}\n/\\ rmState = [rm1 |-> \"working\", rm2 |-> \"working\", rm3 |-> \"prepared\"]\n/\\ tmState = \"init\"\n/\\ tmPrepared = {}"];
+{rank = same; -7021904198391026175;}
+}
+}
