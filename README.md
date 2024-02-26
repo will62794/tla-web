@@ -1,6 +1,6 @@
 # TLA+ Web Explorer
 
-This is a web-based interface for exploring and sharing TLA+ specifications. The motivation is to have a better way to quickly interact with a TLA+ spec and easily share results. For example, having a way to share counterexample traces in a convenient, portable, and repeatable manner. 
+This is a web-based interface for exploring and sharing TLA+ specifications. The motivation is to have a better way to quickly interact with a TLA+ spec and easily share results e.g., having a way to share counterexample traces in a convenient, portable, and repeatable manner. 
 
 A live version of the tool is currently hosted [here](https://will62794.github.io/tla-web/#!/home), and here are some example specs to try out:
 
