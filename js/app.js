@@ -17,6 +17,11 @@ let Tab = {
     EvalGraph: 3
 }
 
+let TraceTab = {
+    Trace: 1,
+    REPL: 2,
+}
+
 let model = {
     specText: null,
     allInitStates: [],
@@ -46,6 +51,7 @@ let model = {
     replResult: null,
     constantsPaneHidden: false,
     selectedTab: Tab.SpecEditor,
+    selectedTraceTab: TraceTab.Trace,
     rootModName: "",
     debug: false,
     showLoadFileBox: false,
@@ -296,12 +302,12 @@ function componentChooseConstants() {
 
     function hideButtonDiv(){
         let text = model.constantsPaneHidden ? "Show CONSTANTs" : "Hide CONSTANTs";
-        let hideButtonDiv = m("div", { id: "hide-constants-button", class: "button-base", onclick: toggleHiddenConstants }, text)
+        let hideButtonDiv = m("div", { id: "hide-constants-button", class: "btn btn-primary btn-sm", onclick: toggleHiddenConstants }, text)
         return hideButtonDiv;
     }
 
     function constantButtons(){
-        let setButtonDiv = m("div", { id: "set-constants-button", class: "button-base", onclick: setConstantValues }, "Set CONSTANTs");
+        let setButtonDiv = m("button", { id: "set-constants-button", class: "btn btn-sm btn-primary", onclick: setConstantValues }, "Set CONSTANTs");
         if(model.constantsPaneHidden){
             return [hideButtonDiv()];
         }
@@ -1049,10 +1055,11 @@ function componentTraceViewerState(stateCtx, ind, isLastState, actionId) {
     if (actionId !== null) {
         stateHeaderText += "   " + actionLabelText;
     }
-    let headerRow = [m("tr", { style: `background-color: ${stateColorBg}`, class: "trace-state-header" }, [
-        m("th", { colspan: "2" }, [
-            m("span", { style: "color:black;padding-right:8px;border-right:solid 1px gray" }, stateIndLabel),
-            m("span", { style: "color:black;padding-left:8px;font-family:monospace;" }, stateHeaderText)
+    let headerRow = [m("tr", { style: `background-color: ${stateColorBg};border-bottom:solid 2px gray;`, class: "trace-state-header" }, [
+        m("th", { colspan: "2", }, [
+            m("span", { style: "color:black;padding-right:16px;border-right:solid 0px gray;font-size:14px;" }, stateIndLabel),
+            // m("span", { style: "color:black;padding-right:8px;border-right:solid 0px gray;font-size:14px;" }, stateIndLabel),
+            m("span", { style: "color:black;padding-bottom:2px;font-family:monospace;font-size:12px;" }, stateHeaderText)
         ]),
         m("th", { colspan: "2" }, "") // filler.
     ])];
@@ -1088,7 +1095,7 @@ function traceStateView(state) {
     return m("svg", { width: 100, height: 50 }, serverProcElems.concat(clientProcElems));
 }
 
-function componentTraceViewer() {
+function componentTraceViewer(hidden) {
     // let stateInd = 0;
     let traceElems = [];
     for (var ind = 0; ind < model.currTrace.length; ind++) {
@@ -1099,7 +1106,28 @@ function componentTraceViewer() {
         traceElems.push(traceStateElem);
     }
 
-    return m("div", { id: "trace" }, traceElems);
+
+    return m("div", {hidden: hidden}, [
+        m("div", { class: "pane-heading", id: "trace-state-heading" }, [
+            // m("h5", { class: "", style:"" }, "Current Trace"),
+            model.tracePaneHidden ? "" : componentButtonsContainer(),
+            model.tracePaneHidden ? "" : componentHiddenStateVars(),
+            // m("div", { 
+            //     class: "toggle-trace-button", 
+            //     style:"font-size:10px;",
+            //     onclick: function(){
+            //         model.tracePaneHidden = !model.tracePaneHidden;
+            //     }
+            // }, model.tracePaneHidden ? "Show Trace" : "Hide Trace"),
+        ]),
+        m("div", { id: "trace", hidden: model.tracePaneHidden }, traceElems)
+    ])
+    
+
+    // return m("div", { id: "trace", hidden: model.tracePaneHidden || hidden }, [
+
+    //     traceElems
+    // ]);
 }
 
 // Called when an updated spec is finished being re-parsed.
@@ -1214,16 +1242,22 @@ function copyTraceLinkToClipboard() {
 }
 
 function componentButtonsContainer() {
-    return [m("div", { id: "trace-buttons" }, [
-        m("button", { class: "btn btn-sm btn-primary button-bagse tracfe-button", id: "trace-back-button", onclick: traceStepBack }, "Back"),
-        m("button", { class: "btn btn-sm btn-primary button-bagse trface-button", id: "trace-reset-button", onclick: resetTrace }, "Reset"),
-        m("button", { class: "btn btn-sm btn-primary button-bagse trface-button", id: "trace-reset-button", onclick: copyTraceLinkToClipboard }, "Copy trace link"),
-        m("button", { class: "btn btn-sm btn-primary button-bagse trface-button", id: "trace-reset-button", onclick: () => addTraceExpr(model.traceExprInputText) }, "Add Trace Expression"),
+    return [m("div", { id: "trace-buttons", class:"input-group mb-3" }, [
+        m("button", { class: "btn btn-sm btn-outline-primary button-bagse", id: "trace-bacfk-button", onclick: traceStepBack }, "Back"),
+        m("button", { class: "btn btn-sm btn-outline-primary button-bagse", id: "trace-refset-button", onclick: resetTrace }, "Reset"),
+        m("button", { class: "btn btn-sm btn-outline-primary button-bagse", id: "trace-refset-button", onclick: copyTraceLinkToClipboard }, "Copy trace link"),
+        
+        m("button", { 
+            class: "btn btn-sm btn-outline-primary", 
+            disabled: model.traceExprInputText.length === 0,
+            id: "trace-reset-button", 
+            onclick: () => addTraceExpr(model.traceExprInputText) 
+        }, "Add Trace Expression"),
         // m("div", { class: "button-base trace-button", id: "trace-reset-button", onclick: () => checkInv(model.traceExprInputText) }, "Check Invariant"),
         m("input", {
-            class: "form-control",
-            style: "font-family:monospace;width:210px;padding:5px;font-size:11px;",
-            id: "trace-expr-input",
+            class: "form-control form-control-sm",
+            style: "font-family:monospace;",
+            id: "trace-expr-infput",
             placeholder: "Enter TLA+ trace expression.",
             value: model.traceExprInputText,
             oninput: e => { model.traceExprInputText = e.target.value }
@@ -1262,15 +1296,16 @@ function stateSelectionPane(hidden){
     // return m("div", {id:"mid-pane", hidden: hidden}, 
     return m("div", {id: "left-pane", hidden: hidden}, [
         chooseConstantsPane(),
-        m("h5", { id: "poss-next-states-title", class: "" }, (model.currTrace.length > 0) ? "Choose Next Action" : "Choose Initial State"),
+        // m("h5", { id: "poss-next-states-title", class: "" }, (model.currTrace.length > 0) ? "Choose Next Action" : "Choose Initial State"),
         m("div", { id: "initial-states", class: "tlc-state" }, componentNextStateChoices()),
     ]);    
 }
 
 function loadSpecBox(){
-    return m("div", { id: "load-spec-box", hidden: !model.showLoadFileBox}, [
-        m("h2", "Load an example spec or file"),
-        m("h3", "Examples"),
+    // return m("div", { id: "load-spec-box", hidden: !model.showLoadFileBox}, [
+    return m("div", { id: "load-spec-box", hidden: false}, [
+        m("h3", "Load a specification"),
+        m("h4", "Examples"),
         m("ul", {}, Object.keys(exampleSpecs).map( function(k) {
             return m("li", {}, m("a",{onclick: () => {
                 clearRouteParams();
@@ -1293,29 +1328,38 @@ function loadSpecBox(){
         // m("div", {}, [
         //     m("input", {type:"file", text:"file upload"}, "File upload:"),
         // ]),
-        m("h3", "From URL"),
-        m("div", {}, [
-            m("input", {
-                type:"text", 
-                text:"file upload", 
-                placeholder: "URL to .tla file.",
-                oninput: e => { model.specUrlInputText = e.target.value }
-            }, "From URL upload:")
-        ]),
-        m("div", {}, [
+        m("h4", "From URL"),
+        // m("div", {}, [
+        //     m("input", {
+        //         type:"text", 
+        //         text:"file upload", 
+        //         placeholder: "URL to .tla file.",
+        //         oninput: e => { model.specUrlInputText = e.target.value }
+        //     }, "From URL upload:")
+        // ]),
+        m("div", {class: "input-group mb-3"}, [
             m("button", {
-                id:"load-spec-url-button", 
+                id:"load-spec-urfl-button", 
+                class: "btn btn-sm btn-secondary",
                 onclick: () => {
                     model.specPath = model.specUrlInputText;
                     loadSpecFromPath(model.specPath);
                     // reloadSpec();
                     model.showLoadFileBox = !model.showLoadFileBox;
                 }
-            }, "Load")
+            }, "Load"),
+            m("input", {
+                type:"text", 
+                text:"file upload", 
+                class:"form-control form-control-sm",
+                placeholder: "URL to .tla file.",
+                oninput: e => { model.specUrlInputText = e.target.value }
+            }, "From URL upload:"),
         ]),
         m("div", {}, [
             m("button", {
-                id:"close-spec-box-button", 
+                id:"close-spec-box-button",
+                class: "btn btn-sm btn-secondary", 
                 onclick: () => {
                     model.showLoadFileBox = !model.showLoadFileBox;
                 }
@@ -1325,44 +1369,64 @@ function loadSpecBox(){
 }
 
 function headerTabBar() {
+    let activeClasses = "nav-link active";
     let tabs = [
-        m("div", {
-            id: "state-selection-tab-button",
-            class: "header-tab",
+        m("li", {
+            // id: "state-selection-tab-button",
+            class: "nav-item",
             onclick: () => model.selectedTab = Tab.StateSelection,
-            style: "background-color:" + ((model.selectedTab === Tab.StateSelection) ? "lightgray" : "none")
-        }, "Details"),
-        m("div", {
-            id: "spec-editor-tab-button", class: "header-tab",
+            // style: "background-color:" + ((model.selectedTab === Tab.StateSelection) ? "lightgray" : "none")
+        }, m("a", {class: model.selectedTab === Tab.StateSelection ? "nav-link active" : "nav-link"}, "Actions")),
+        m("li", {
+            // id: "spec-editor-tab-button", 
+            class: "nav-item",
             onclick: () => model.selectedTab = Tab.SpecEditor,
-            style: "background-color:" + ((model.selectedTab === Tab.SpecEditor) ? "lightgray" : "none")
-        }, "Spec")
+            // style: "background-color:" + ((model.selectedTab === Tab.SpecEditor) ? "lightgray" : "none")
+        }, m("a", {class: model.selectedTab === Tab.SpecEditor ? "nav-link active" : "nav-link"}, "Spec")),
+        m("li", {
+            // id: "spec-editor-tab-button", 
+            class: "nav-item",
+            onclick: () => model.selectedTab = Tab.Load,
+            // style: "background-color:" + ((model.selectedTab === Tab.SpecEditor) ? "lightgray" : "none")
+        }, m("a", {class: model.selectedTab === Tab.Load ? "nav-link active" : "nav-link"}, "Load"))
     ]
     let debug_tabs = [
         m("div", {
-            id: "eval-graph-tab-button", class: "header-tab",
+            // id: "eval-graph-tab-button", 
+            class: "nav-item",
             onclick: () => model.selectedTab = Tab.EvalGraph,
-            style: "background-color:" + ((model.selectedTab === Tab.EvalGraph) ? "lightgray" : "none")
-        }, "Eval Graph"),
+            // style: "background-color:" + ((model.selectedTab === Tab.EvalGraph) ? "lightgray" : "none")
+        }, m("a", {class: model.selectedTab === Tab.EvalGraph ? "nav-link active" : "nav-link"}, "Eval Graph")),
     ]
     if (model.debug === 1) {
         tabs = tabs.concat(debug_tabs);
     }
-    let specName = m("div", { id: "spec-name-header" }, "Root spec: " + model.rootModName + ".tla")
-    let loadFile = m("div", { id: "load-spec-button", onclick: () => model.showLoadFileBox = true }, "Load spec")
-    tabs = tabs.concat(specName);
+
+    // tabs = tabs.concat(specName);
     
     // TODO: Enable this spec loading button and box.
-    tabs = tabs.concat(loadFile);
+    // tabs = tabs.concat(loadFile);
 
-    return m("div", { id: "header-tab-bar" }, tabs);
+    let navStyle = "nav-tabs";
+    // let navStyle = "nav-pills";
+    return m("div", {}, [
+        m("ul", { class: `nav ${navStyle}` }, tabs)
+    ]);
+}
+
+function loadPane(){
+    // let specName = m("div", { id: "spec-name-header" }, "Root spec: " + model.rootModName + ".tla")
+    let loadFile = m("div", { id: "load-spec-button", onclick: () => model.showLoadFileBox = true }, "Load spec");
+    // return m("div", {}, [loadFile]);
+    return loadSpecBox();
 }
 
 function midPane() {
     let tabs = [
         headerTabBar(),
         stateSelectionPane(model.selectedTab !== Tab.StateSelection),
-        specEditorPane(model.selectedTab !== Tab.SpecEditor)
+        specEditorPane(model.selectedTab !== Tab.SpecEditor),
+        loadPane(model.selectedTab !== Tab.Load)
     ];
     let debug_tabs = [
         componentEvalGraphPane(model.selectedTab !== Tab.EvalGraph)
@@ -1371,6 +1435,7 @@ function midPane() {
         tabs = tabs.concat(debug_tabs);
     }
     return [
+        m("div", { id: "spec-name-fheader", style:"font-size:14px;margin-bottom:10px;" }, "Root spec: " + model.rootModName + ".tla"),
         m("div", { 
             id: "mid-pane", 
             style: {width: model.tracePaneHidden ? "85%" : "49%"} 
@@ -1379,6 +1444,31 @@ function midPane() {
 }
 
 function tracePane() {
+    let tabs = [
+        m("li", {
+            class: "nav-item",
+            onclick: () => model.selectedTraceTab = TraceTab.Trace,
+        }, m("a", {class: model.selectedTraceTab === TraceTab.Trace ? "nav-link active" : "nav-link"}, "Trace")),
+        m("li", {
+            class: "nav-item",
+            onclick: () => model.selectedTraceTab = TraceTab.REPL,
+        }, m("a", {class: model.selectedTraceTab === TraceTab.REPL ? "nav-link active" : "nav-link"}, "REPL"))
+    ]
+    if (model.debug === 1) {
+        tabs = tabs.concat(debug_tabs);
+    }
+    // tabs = tabs.concat(specName);
+    
+    // TODO: Enable this spec loading button and box.
+    // tabs = tabs.concat(loadFile);
+
+    let navStyle = "nav-tabs";
+    // let navStyle = "nav-pills";
+    tabs =  m("div", {}, [
+        m("ul", { class: `nav ${navStyle}` }, tabs)
+    ]);
+
+
     // return 
     // m("span", [
         // m("div", { id: "poss-next-states-title", class: "pane-title" }, (model.currTrace.length > 0) ? "Choose Next State" : "Choose Initial State"),
@@ -1388,20 +1478,9 @@ function tracePane() {
                 // hidden: model.tracePaneHidden,
                 style: {width: model.tracePaneHidden ? "10%" : "50%"}
             }, [
-            m("div", { class: "pane-heading", id: "trace-state-heading" }, [
-                m("h5", { class: "", style:"" }, "Current Trace"),
-                
-                model.tracePaneHidden ? "" : componentButtonsContainer(),
-                model.tracePaneHidden ? "" : componentHiddenStateVars(),
-                m("div", { 
-                    class: "toggle-trace-button", 
-                    style:"font-size:10px;",
-                    onclick: function(){
-                        model.tracePaneHidden = !model.tracePaneHidden;
-                    }
-                }, model.tracePaneHidden ? "Show Trace" : "Hide Trace"),
-            ]),
-            model.tracePaneHidden ? "" : componentTraceViewer()
+            tabs,
+            componentTraceViewer(model.selectedTraceTab !== TraceTab.Trace),
+            replPane(model.selectedTraceTab !== TraceTab.REPL)
         ]);
     // ]);
 }
@@ -1414,12 +1493,12 @@ function replResult(){
     }
 }
 
-function replPane() {
-    return m("div", [
-        m("h2", { id: "repl-title", class: "panje-title" }, "REPL Input"),
+function replPane(hidden) {
+    return m("div", {hidden: hidden}, [
+        // m("h4", { id: "repl-title", class: "panje-title" }, "REPL Input"),
         m("div", { id: "repl-container" }, [
             m("input", {
-                class: "repl-input",
+                class: "replf-input form-control",
                 id: `repl-input`,
                 size: 50,
                 oninput: (e) => {
@@ -1437,8 +1516,8 @@ function replPane() {
                 value: model.replInput,
                 placeholder: "Enter TLA+ expression."
             }),
-            m("h2", { id: "repl-title", class: "panje-title" }, "Result"),
-            m("textarea", { id: "repl-result" }, replResult())
+            m("h5", { id: "repl-tifftle", class: "panje-title", style:"margin-top:10px" }, "Result"),
+            m("div", { id: "repl-result" }, replResult())
         ])
     ]);
 }
@@ -1613,15 +1692,16 @@ async function loadApp() {
         oncreate: function () {
             // Initialized code editor on creation of app pane.
             const codeInput = document.getElementById('code-input');
-            codeEditor = CodeMirror.fromTextArea(codeInput, {
-                lineNumbers: true,
-                showCursorWhenSelecting: true,
-                // TODO: Work out tlaplus mode functionality for syntax highlighting.
-                // mode:"tlaplus"
-            });
-
-            codeEditor.on('changes', handleCodeChange);
-
+            if(codeInput){
+                codeEditor = CodeMirror.fromTextArea(codeInput, {
+                    lineNumbers: true,
+                    showCursorWhenSelecting: true,
+                    // TODO: Work out tlaplus mode functionality for syntax highlighting.
+                    // mode:"tlaplus"
+                });
+    
+                codeEditor.on('changes', handleCodeChange);
+            }
         },
         onupdate: function () {
             // Keep trace viewer scrolled to bottom.
@@ -1637,24 +1717,19 @@ async function loadApp() {
         },
         view: function () {
             return [
-                m("div", { class: "panel-container" }, [
-                    // TLA+ code pane.
-                    // m("div", { id: "code-input-pane" }, [
-                    //     m("div", { id: "code-container" }, [
-                    //         m("textarea", { id: "code-input" })
-                    //     ])
-                    // ]),
+                // Header.
+                m("nav", { class: "navbar bg-body-tertiary" }, [
+                    m("div", {class:"container-fluid"}, [
+                        m("span", {class:"navbar-brand mb-0 h1"}, "TLA+ Explorer") 
+                    ])
+                ]),
 
-                    // Splitter 
-                    // TODO: Get this working.
-                    // m("div", {class: "splitter"}),
-
+                // The main app panes.
+                m("div", { class: "panel-container container-fluid" }, [
                     // Display pane.
                     componentExplorerPane(),
-                    // componentEvalGraphPane()
-
                     // TODO: Enable the spec loading box.
-                    loadSpecBox()
+                    // loadSpecBox()
                 ])];
         }
     }

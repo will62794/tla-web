@@ -12,15 +12,15 @@ body {
 
   #left-pane{
     /* color:red; */
-    height:96%;
+    height:100%;
     /* border:solid 1px red; */
-    /* overflow-y: scroll; */
+    overflow-y: scroll;
   }
 
   #mid-pane{
     /* background-color: red; */
     height:100%;
-    /* overflow-y: scroll; */
+    overflow-y: scroll;
     width:49%;
     float:left;
   }
@@ -155,17 +155,19 @@ body {
   }
 
   #repl-container{
-    width:200px;
+    /* width:200px; */
+    margin-top:20px;
   }
 
   #repl-result{
     padding:15px;
     font-size:20px;
     font-family: monospace;
-    border: solid 1px gray;
-    margin-top:10px;
+    border-top: solid 1px gray;
+    margin-top:15px;
     min-height:20px;
     width:400px;
+    /* border-radius: 5px; */
   }
 
 
@@ -274,8 +276,8 @@ body {
     display: flex;
     flex-direction: row;
     /* border: 1px solid silver; */
-    /* overflow: hidden; */
-    height: 99%;
+    overflow: hidden;
+    height: 91%;
     
   }
 
@@ -301,7 +303,7 @@ body {
       overflow-y:scroll;
       /* border-bottom: 1px lightgray solid; */
       /* border-radius: 5px; */
-      height:80%;
+      /* height:80%; */
       font-size:12px;
       width:100%;
   }
@@ -312,7 +314,7 @@ body {
 
   #trace{
     padding-left:15px;
-    height:85%;
+    height:80%;
     overflow-y: scroll;
   }
 
@@ -582,7 +584,7 @@ body {
     /* right: 30%; */
     padding-left:8px;
     /* overflow: auto; */
-    overflow: scroll;
+    overflow: hidden;
     /* border-right:solid 0.5px lightgray; */
     /* background-color: lightgray; */
 
@@ -603,12 +605,12 @@ body {
     /* overflow: scroll; */
     /* border-right:solid 0.5px lightgray; */
     /* background-color: lightgray; */
-    width:30%;
+    width:70%;
   }
 
   #repl-container input {
-    font-size:20px;
-    padding:15px;
+    font-size:16px;
+    /* padding:15px; */
     font-family: Menlo, Monaco, "Times";
   }
 
@@ -619,7 +621,7 @@ body {
     width: 100%;
     min-height: 200px;
     min-width: 200px;
-    /* overflow: scroll; */
+    overflow-y: scroll;
   }
 
   .header-item {
@@ -689,9 +691,10 @@ body {
   }
 
   #trace-buttons{
-      width:98%;
+      /* width:98%; */
       /* border:solid; */
-      overflow: hidden;
+      /* overflow: hidden; */
+      margin-top:10px;
   }
 
   .toggle-trace-button{
@@ -797,14 +800,14 @@ body {
   }
 
   #load-spec-box{
-    position:absolute;
-    margin-top:10%;
-    margin-left:15%;
-    width:45%;
+    /* position:absolute; */
+    margin-top:2%;
+    margin-left:2%;
+    width:85%;
     background-color:white;
-    box-shadow: 0 0 5px 2px rgba(0,0,0,0.1);
-    border:solid;
-    border-radius: 20px;
+    /* box-shadow: 0 0 5px 2px rgba(0,0,0,0.1); */
+    border:solid 1px gray;
+    border-radius: 10px;
     padding:25px;
     font-size:12px;
   }
