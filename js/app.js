@@ -1321,6 +1321,7 @@ function loadSpecBox(hidden){
                 model.specPath = exampleSpecs[k].specpath;
                 model.currTrace = []
                 model.traceExprs = [];
+                model.rootModName = "";
                 loadSpecFromPath(model.specPath);
                 if(exampleSpecs[k].constant_vals !== undefined){
                     for(const constDecl in exampleSpecs[k].constant_vals){
@@ -1351,6 +1352,7 @@ function loadSpecBox(hidden){
                 id:"load-spec-urfl-button", 
                 class: "btn btn-sm btn-secondary",
                 onclick: () => {
+                    model.rootModName = "";
                     model.specPath = model.specUrlInputText;
                     loadSpecFromPath(model.specPath);
                     // reloadSpec();
