@@ -1316,8 +1316,8 @@ function stateSelectionPane(hidden){
 function loadSpecBox(hidden){
     // return m("div", { id: "load-spec-box", hidden: !model.showLoadFileBox}, [
     return m("div", { id: "load-spec-box", hidden: hidden}, [
-        m("h3", "Load a specification"),
-        m("h4", "Examples"),
+        m("h4", "Load a specification"),
+        m("h5", "Examples"),
         m("ul", {}, Object.keys(exampleSpecs).map( function(k) {
             return m("li", {}, m("a",{onclick: () => {
                 clearRouteParams();
@@ -1341,7 +1341,7 @@ function loadSpecBox(hidden){
         // m("div", {}, [
         //     m("input", {type:"file", text:"file upload"}, "File upload:"),
         // ]),
-        m("h4", "From URL"),
+        m("h5", "From URL"),
         // m("div", {}, [
         //     m("input", {
         //         type:"text", 
@@ -1739,7 +1739,7 @@ async function loadApp() {
         view: function () {
             return [
                 // Header.
-                m("nav", { class: "navbar bg-body-tertiary" }, [
+                m("nav", { class: "navbar bg-body-tertiary border-bottom mb-2" }, [
                     m("div", {class:"container-fluid"}, [
                         m("a", {class:"navbar-brand mb-0 h1", href: "https://github.com/will62794/tla-web"}, [
                             "TLA+ Web Explorer"
