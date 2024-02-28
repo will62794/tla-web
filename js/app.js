@@ -1475,9 +1475,7 @@ function tracePane() {
             onclick: () => model.selectedTraceTab = TraceTab.REPL,
         }, m("a", {class: model.selectedTraceTab === TraceTab.REPL ? "nav-link active" : "nav-link"}, "REPL"))
     ]
-    if (model.debug === 1) {
-        tabs = tabs.concat(debug_tabs);
-    }
+
     // tabs = tabs.concat(specName);
     
     // TODO: Enable this spec loading button and box.
