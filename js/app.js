@@ -362,7 +362,8 @@ function componentNextStateChoiceElementForAction(ind, actionLabel, nextStatesFo
     //     ];
     // });
 
-    let actionLabelObj = getActionLabelText(actionLabel, quantBounds);
+
+    let actionLabelObj = getActionLabelText(actionLabel);
     let actionName = actionLabelObj.name;
 
     let actionParamChoices = nextStatesForAction.map(st => {
@@ -402,7 +403,7 @@ function componentNextStateChoiceElementForAction(ind, actionLabel, nextStatesFo
     let actionNameDiv = [m("div", {
         class: classList.join(" "),
         onclick: function () {
-            if (actionLabelObj.params.length == 0) {
+            if (!actionDisabled && actionLabelObj.params.length == 0) {
                 let hash = nextStatesForAction[0]["state"].fingerprint();
                 chooseNextState(hash);
             }
@@ -932,9 +933,12 @@ function getActionLabelText(actionLabel, quantBounds) {
     }
     let pre = actionLabelText.slice(0, parenSplit);
     let post = actionLabelText.slice(parenSplit);
-    for (const [quant, bound] of Object.entries(quantBounds)) {
-        post = post.replace(quant, bound.toString())
+    if(quantBounds){
+        for (const [quant, bound] of Object.entries(quantBounds)) {
+            post = post.replace(quant, bound.toString())
+        }
     }
+    
     actionLabelText = { name: pre, params: post };
     return actionLabelText
 }

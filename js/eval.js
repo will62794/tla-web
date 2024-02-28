@@ -2515,13 +2515,16 @@ function evalConjList(parent, conjs, ctx) {
     if (ctx["val"] === null) {
         ctx["val"] = new BoolValue(true);
     }
+
+    let shortCircuit = true;
+
     // Filter out any comments contained in this conjunction.
     return conjs.filter(c => !["comment", "block_comment"].includes(c.type)).reduce((prev, conj) => {
         let res = prev.map(ctxPrev => {
             // If this context has already evaluated to false, then the overall
             // conjunction list will evaluate to false, so we can short-circuit
             // the expression evaluation and terminate early.
-            if (ctxPrev["val"].getVal() === false) {
+            if (ctxPrev["val"].getVal() === false && shortCircuit) {
                 return [ctxPrev];
             }
 
