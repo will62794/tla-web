@@ -2519,7 +2519,8 @@ function evalConjList(parent, conjs, ctx) {
     let shortCircuit = true;
 
     // Filter out any comments contained in this conjunction.
-    return conjs.filter(c => !["comment", "block_comment"].includes(c.type)).reduce((prev, conj) => {
+    let conjs_filtered = conjs.filter(c => !["comment", "block_comment"].includes(c.type));
+    return conjs_filtered.reduce((prev, conj) => {
         let res = prev.map(ctxPrev => {
             // If this context has already evaluated to false, then the overall
             // conjunction list will evaluate to false, so we can short-circuit
