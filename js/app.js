@@ -370,13 +370,18 @@ function componentNextStateChoiceElementForAction(ind, actionLabel, nextStatesFo
         // let state = s["state"];
         let quantBounds = st["quant_bound"];
         let hash = st["state"].fingerprint();
-    
+
         // let varNames = _.keys(state.getStateObj());
         let actionLabelText = getActionLabelText(actionLabel, quantBounds);
         let classList = ["action-choice-param", "flex-col"];
         if(actionDisabled){
             classList.push("action-choice-disabled");
         }
+
+        // console.log("actionlabel:", actionLabelText, st, hash);
+
+        // TODO: Disambiguate action labels when they have different quant bounds
+        // but lead to the same state.
         return m("div", 
         { 
             class: classList.join(" "), 
