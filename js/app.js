@@ -386,7 +386,7 @@ function componentNextStateChoiceElementForAction(ind, actionLabel, nextStatesFo
         { 
             class: classList.join(" "), 
             // colspan: 2,
-            onclick: () => chooseNextState(hash),
+            onclick: () => chooseNextState(hash, hashQuantBounds(quantBounds)),
             onmouseover: () => {
                 model.nextStatePreview = st["state"];
             },
@@ -647,9 +647,29 @@ function clearRouteParams(){
     m.route.set("/home", {});
 }
 
+// Compute a hash of a quantifier bounds objects, which should be simply a
+// mapping from identifier strings to TLA values.
+function hashQuantBounds(quantBounds){
+    let keysSorted = _.keys(quantBounds).sort();
+    let kvPairs = keysSorted.map(k => [k, quantBounds[k].fingerprint()]);
+    return hashSum(kvPairs);
+}
+
 // Updates the current URL route to store the current trace.
 function updateTraceRouteParams() {
-    let traceHashed = model.currTrace.map(s => s["state"].fingerprint());
+    let traceHashed = model.currTrace.map((s, ind) => {
+        let action = model.currTraceActions[ind];
+        quantBounds = "";
+        // Append the quant bounds used for the action to execute this step in the trace, if
+        // one is available.
+        if(action !== undefined && action.length > 1 && action[1] !== undefined){
+            let quantBounds = action[1];
+            return s["state"].fingerprint() + "_" + quantBounds;
+        } else{
+            return s["state"].fingerprint();
+        }
+
+    });
     let oldParams = m.route.param();
     if (traceHashed.length === 0) {
         delete oldParams.trace;
@@ -666,11 +686,23 @@ function actionIdForNextState(nextStateHash) {
     return actionId;
 }
 
-function chooseNextState(statehash_short) {
+function chooseNextState(statehash_short, quantBoundsHash) {
     // console.log("currNextStates:", JSON.stringify(currNextStates));
     // console.log("chooseNextState: ", statehash_short);
-    let currNextStatesSet = _.flatten(_.values(model.currNextStates))
-    let nextStateChoices = currNextStatesSet.filter(s => s["state"].fingerprint() === statehash_short);
+
+    let currNextStatesSet = _.flatten(_.values(model.currNextStates));
+    let nextStateChoices = currNextStatesSet.filter(s => {
+        if (quantBoundsHash === undefined) {
+            return s["state"].fingerprint() === statehash_short;
+        } else {
+            // If quant bounds are given, then choose next state that both
+            // matches state hash and also matches the quant bounds hash. This
+            // can matter when, for example, two distinct actions (e.g. those
+            // with different parameters) lead to the same state.
+            let sameQuantParams = _.isEqual(hashQuantBounds(s["quant_bound"]), quantBoundsHash);
+            return s["state"].fingerprint() === statehash_short && sameQuantParams;
+        }
+    });
 
     let nextStateActionId = null;
     if (model.actions.length > 1 && model.currTrace.length >= 1) {
@@ -697,7 +729,9 @@ function chooseNextState(statehash_short) {
 
     // Append next state to the trace and update current route.
     model.currTrace.push(nextState);
-    model.currTraceActions.push(nextStateActionId);
+    // Recrod the quant bounds used in the action as well in case we need to tell between two different actions
+    // with the same type but different params that lead to the same state.
+    model.currTraceActions.push([nextStateActionId, quantBoundsHash]);
     updateTraceRouteParams();
 
     const start = performance.now();
@@ -1118,7 +1152,7 @@ function componentTraceViewer(hidden) {
     let traceElems = [];
     for (var ind = 0; ind < model.currTrace.length; ind++) {
         let state = model.currTrace[ind];
-        let actionId = model.currTraceActions[ind];
+        let actionId = model.currTraceActions[ind][0];
         let isLastState = ind === model.currTrace.length - 1;
         let traceStateElem = componentTraceViewerState(state, ind, isLastState, actionId);
         traceElems.push(traceStateElem);
@@ -1612,19 +1646,19 @@ function addTraceExpr(newTraceExpr) {
     }
 }
 
-function checkInv(invExpr) {
-    let interp = new TlaInterpreter();
-    let res = interp.computeReachableStates(model.specTreeObjs, model.specConstVals, invExpr);
-    if (!res["invHolds"]) {
-        let badState = res["invFirstViolatingState"];
-        console.log("bad state:", badState);
-        console.log("trace hash:", res["hashTrace"]);
-        resetTrace();
-        for (const stateHash of res["hashTrace"]) {
-            chooseNextState(stateHash);
-        }
-    }
-}
+// function checkInv(invExpr) {
+//     let interp = new TlaInterpreter();
+//     let res = interp.computeReachableStates(model.specTreeObjs, model.specConstVals, invExpr);
+//     if (!res["invHolds"]) {
+//         let badState = res["invFirstViolatingState"];
+//         console.log("bad state:", badState);
+//         console.log("trace hash:", res["hashTrace"]);
+//         resetTrace();
+//         for (const stateHash of res["hashTrace"]) {
+//             chooseNextState(stateHash);
+//         }
+//     }
+// }
 
 // Fetch spec from given path (e.g. URL) and reload it in the editor pane and UI.
 function loadSpecFromPath(specPath){
@@ -1669,7 +1703,16 @@ function loadSpecFromPath(specPath){
                     if (traceParamStr) {
                         traceParams = traceParamStr.split(",");
                         for (const stateHash of traceParams) {
-                            chooseNextState(stateHash);
+                            // Check each state for possible quant bounds hash,
+                            // if it has one.
+                            let stateAndQuantBounds = stateHash.split("_");
+                            if(stateAndQuantBounds.length > 1){
+                                let justStateHash = stateAndQuantBounds[0];
+                                let quantBoundHash = stateAndQuantBounds[1];
+                                chooseNextState(justStateHash, quantBoundHash);
+                            } else{
+                                chooseNextState(stateHash);
+                            }
                         }
                     }
                     m.redraw();
