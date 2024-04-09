@@ -223,16 +223,16 @@ csAction ==   TRUE /\ \E self \in Procs : cs(self)
 exitAction == TRUE /\ \E self \in Procs : exit(self)
 
 Next == 
-    \/ ncsAction
-    \/ e1Action
-    \/ e2Action
-    \/ e3Action
-    \/ e4Action
-    \/ w1aAction
-    \/ w1bAction
-    \/ w2Action
-    \/ csAction
-    \/ exitAction
+    \/ \E self \in Procs : ncs(self) 
+    \/ \E self \in Procs : e1(self) 
+    \/ \E self \in Procs : e2(self) 
+    \/ \E self \in Procs : e3(self) 
+    \/ \E self \in Procs : e4(self)
+    \/ \E self \in Procs : w1a(self) 
+    \/ \E self \in Procs : w1b(self) 
+    \/ \E self \in Procs : w2(self) 
+    \/ \E self \in Procs : cs(self) 
+    \/ \E self \in Procs : exit(self)
 
 \* Spec == /\ Init /\ [][Next]_vars
         \* /\ \A self \in Procs : WF_vars((pc[self] # "ncs") /\ p(self))
