@@ -31,22 +31,6 @@ VARIABLES
 
 vars == <<rmState, tmState, tmPrepared, msgs>>
 
-    (***********************************************************************)
-    (* In the protocol, processes communicate with one another by sending  *)
-    (* messages.  Since we are specifying only safety, a process is not    *)
-    (* required to receive a message, so there is no need to model message *)
-    (* loss.  (There's no difference between a process not being able to   *)
-    (* receive a message because the message was lost and a process simply *)
-    (* ignoring the message.)  We therefore represent message passing with *)
-    (* a variable $msgs$ whose value is the set of all messages that have  *)
-    (* been sent.  Messages are never removed from $msgs$.  An action      *)
-    (* that, in an implementation, would be enabled by the receipt of a    *)
-    (* certain message is here enabled by the existence of that message in *)
-    (* $msgs$.  (Receipt of the same message twice is therefore allowed;   *)
-    (* but in this particular protocol, receiving a message for the second *)
-    (* time has no effect.)                                                *)
-    (***********************************************************************)
-
 Message ==
   (*************************************************************************)
   (* The set of all possible messages.  Messages of type $"Prepared"$ are  *)
@@ -56,15 +40,6 @@ Message ==
   (* of such a message.                                                    *)
   (*************************************************************************)
   [type : {"Prepared"}, rm : RM]  \cup  [type : {"Commit", "Abort"}]
-   
-TypeOK ==  
-  (*************************************************************************)
-  (* The type-correctness invariant                                        *)
-  (*************************************************************************)
-  /\ rmState \in [RM -> {"working", "prepared", "committed", "aborted"}]
-  /\ tmState \in {"init", "committed", "aborted"}
-  /\ tmPrepared \in SUBSET RM
-  /\ msgs \in SUBSET Message
 
 Init ==   
   (*************************************************************************)
