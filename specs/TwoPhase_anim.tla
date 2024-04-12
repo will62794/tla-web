@@ -1,6 +1,6 @@
 ------------------------------- MODULE TwoPhase_anim ----------------------------- 
 \* benchmark: tla-twophase
-EXTENDS TLC, Naturals
+EXTENDS TLC, Naturals, Sequences, FiniteSets
 
 (***************************************************************************)
 (* This specification describes the Two-Phase Commit protocol, in which a  *)
@@ -21,7 +21,7 @@ EXTENDS TLC, Naturals
 (***************************************************************************)
 \* CONSTANT RM \* The set of resource managers
 
-RM == {"rm1", "rm2"}
+CONSTANT RM
 
 VARIABLES
   rmState,       \* $rmState[rm]$ is the state of resource manager RM.
@@ -169,8 +169,9 @@ TCConsistent ==
   (*************************************************************************)
 
 ------------------------------------------------------------
+
 \* 
-\* Animation stuff.
+\* Animation definitions.
 \* 
 
 \* Merge two records
@@ -178,19 +179,33 @@ Merge(r1, r2) ==
     LET D1 == DOMAIN r1 D2 == DOMAIN r2 IN
     [k \in (D1 \cup D2) |-> IF k \in D1 THEN r1[k] ELSE r2[k]]
 
-SVGElem(_name, _attrs, _children) == [name |-> _name, attrs |-> _attrs, children |-> _children ]
+SVGElem(_name, _attrs, _children, _innerText) == [name |-> _name, attrs |-> _attrs, children |-> _children, innerText |-> _innerText ]
+
+Text(x, y, text, attrs) == 
+    (**************************************************************************)
+    (* Text element.'x' and 'y' should be given as integers, and 'text' given *)
+    (* as a string.                                                           *)
+    (**************************************************************************)
+    LET svgAttrs == [x |-> x, 
+                     y |-> y] IN
+    SVGElem("text", Merge(svgAttrs, attrs), <<>>, text) 
 
 \* Circle element. 'cx', 'cy', and 'r' should be given as integers.
 Circle(cx, cy, r, attrs) == 
     LET svgAttrs == [cx |-> cx, 
                      cy |-> cy, 
                      r  |-> r] IN
-    SVGElem("circle", Merge(svgAttrs, attrs), <<>>)
+    SVGElem("circle", Merge(svgAttrs, attrs), <<>>, "")
 
 \* Group element. 'children' is as a sequence of elements that will be contained in this group.
-Group(children, attrs) == SVGElem("g", attrs, children)
+Group(children, attrs) == SVGElem("g", attrs, children, "")
 
 Injective(f) == \A x, y \in DOMAIN f : f[x] = f[y] => x = y
+
+---------------------------------------------------------------------
+
+CommitColor == "green"
+AbortColor == "red"
 
 \* Establish a fixed mapping to assign an ordering to elements in these sets.
 \* ServerId == CHOOSE f \in [Server -> 1..Cardinality(Person)] : Injective(f)
@@ -201,12 +216,26 @@ c1 == Circle(10, 10, 3, [fill |-> "red"])
 c2 == Circle(20, 10, 3, [fill |-> "red"])
 \* ServerIdDomain == 1..Cardinality(Server)
 RMIdDomain == 1..2
-cs == [i \in RMIdDomain |-> Circle(20 * i, 10, 6, 
+
+TMElem == Circle(40, 50, 6, [fill |-> IF tmState = "committed" THEN CommitColor ELSE IF tmState = "init" THEN "gray" ELSE AbortColor])
+RMTextElems == 
+    [i \in RMIdDomain |->
+        Text(30 * i, 10, RMId[i], ("fill" :> "black" @@ "text-anchor" :> "middle"))
+    ]
+    \* <<Text(10, 10, "RM1", [fill |-> "black"]), Text(20, 10, "RM2", [fill |-> "black"]), Text(40, 50, "TM", [fill |-> "black"])>>
+TMTextElems == <<
+    Text(50, 70, "TM", ("fill" :> "black" @@ "text-anchor" :> "middle")),
+    Text(50, 90, ToString(tmPrepared), ("fill" :> "black" @@ "text-anchor" :> "middle"))
+>>
+TextElems == RMTextElems \o TMTextElems
+\* RM elements node circles with corresponding colors.
+RMElems == [i \in RMIdDomain |-> Circle(30 * i, 18, 6, 
         [fill |-> 
             IF rmState[RMId[i]] = "prepared" 
                 THEN "blue" 
-            ELSE IF rmState[RMId[i]] = "committed" THEN "green" 
-            ELSE IF rmState[RMId[i]] = "aborted" THEN "red" ELSE "gray"])]
-AnimView == Group(cs, [i \in {} |-> {}])
+            ELSE IF rmState[RMId[i]] = "committed" THEN CommitColor 
+            ELSE IF rmState[RMId[i]] = "aborted" THEN AbortColor ELSE "gray"])]
+
+AnimView == Group(RMElems \o <<TMElem>> \o TextElems, [i \in {} |-> {}])
 
 =============================================================================

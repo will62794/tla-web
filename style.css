@@ -337,7 +337,7 @@ body {
       /* background-color: orange; */
 
       display: grid;
-      grid-template-columns: 85% 15%;
+      grid-template-columns: 75% 25%;
       grid-template-rows: 100%;
   }
 
@@ -799,7 +799,7 @@ body {
     border-radius: 5px;
     padding:15px;
     /* float:left; */
-    /* grid-column-start: 2; */
+    /* grid-column-start: 3; */
   }
 
   #load-spec-box{
