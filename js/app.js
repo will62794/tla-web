@@ -1232,7 +1232,7 @@ function onSpecParse(newText, parsedSpecTree){
 
     // Don't try to reload the spec yet if we have to instantiate constants
     // Also, switch to the appropriate pane.
-    if (!_.isEmpty(model.specConsts)) {
+    if (!_.isEmpty(model.specConsts) && _.isEmpty(model.specConstInputVals)) {
         console.log("specConsts:", model.specConsts);
         console.log("Switching to constants pane");
         // model.currPane = Pane.Constants; // TODO: Work out pane UI.
