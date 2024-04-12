@@ -1,7 +1,0 @@
-{
-    "compilerOptions": {
-        "allowJs": false,
-        "checkJs": false,
-        "noEmit": true
-    }
-}
