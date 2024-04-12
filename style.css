@@ -373,12 +373,16 @@ body {
   }
 
   #hidden-state-vars{
-    /* border:solid; */
     font-size:12px;
     padding-top:8px;
     padding-bottom:5px;
-    font-family: Menlo, Monaco, "Times";
+    /* font-family: Menlo, Monaco, "Times"; */
   }
+
+  .hidden-state-var{
+    font-family: Menlo, Monaco, "Times";
+  }    
+
 
   #state-choices-pane{
     /* color:red; */
@@ -847,4 +851,8 @@ body {
   .flex-col {
     /* flex: 1; */
     flex-shrink: 1;
+  }
+
+  .form-check-input:hover{
+    cursor: pointer;
   }

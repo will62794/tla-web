@@ -58,7 +58,8 @@ let model = {
     debug: false,
     showLoadFileBox: false,
     specUrlInputText: "",
-    specEditorChanges: []
+    specEditorChanges: [],
+    enableAnimationView: false
 }
 
 const exampleSpecs = {
@@ -1002,10 +1003,10 @@ function componentTraceViewerState(stateCtx, ind, isLastState, actionId) {
     // Special definition that will enable animation feature.
     let animViewDefName = "AnimView";
 
-    let enableAnimation = model.specDefs.hasOwnProperty(animViewDefName);
+    model.animationExists = model.specDefs.hasOwnProperty(animViewDefName);
     let vizSvg = m("svg", { width: 0, height: 0 }, []);
 
-    if (enableAnimation) {
+    if (model.animationExists && model.enableAnimationView) {
         let viewNode = model.specTreeObjs["op_defs"][animViewDefName].node;
         let initCtx = new Context(null, state, model.specDefs, {}, model.specConstVals);
         // console.log("view node:", viewNode);
@@ -1124,7 +1125,7 @@ function componentTraceViewerState(stateCtx, ind, isLastState, actionId) {
     stateVarElems = m("div", { id: "trace-state-holder" }, [rowElemsTable]);
 
     let traceStateElemChildren = [stateVarElems];
-    if (enableAnimation) {
+    if (model.animationExists && model.enableAnimationView) {
         traceStateElemChildren.push(vizSvg);
     }
     let traceStateElem = m("div", { "class": "trace-state tlc-state" }, traceStateElemChildren);
@@ -1158,23 +1159,40 @@ function componentTraceViewer(hidden) {
         traceElems.push(traceStateElem);
     }
 
+    let children = [
+        model.tracePaneHidden ? "" : componentButtonsContainer(),
+    ];
 
-    return m("div", {hidden: hidden}, [
-        m("div", { class: "pane-heading", id: "trace-state-heading" }, [
-            // m("h5", { class: "", style:"" }, "Current Trace"),
-            model.tracePaneHidden ? "" : componentButtonsContainer(),
-            model.tracePaneHidden ? "" : componentHiddenStateVars(),
-            // m("div", { 
-            //     class: "toggle-trace-button", 
-            //     style:"font-size:10px;",
-            //     onclick: function(){
-            //         model.tracePaneHidden = !model.tracePaneHidden;
-            //     }
-            // }, model.tracePaneHidden ? "Show Trace" : "Hide Trace"),
-        ]),
+    if (!model.tracePaneHidden && model.hiddenStateVars.length > 0) {
+        children.push(componentHiddenStateVars(model.tracePaneHidden));
+    }
+
+    if (model.animationExists) {
+        let animSwitch = m("div", { class: "form-check form-switch" }, [
+            m("input", {
+                class: "form-check-input",
+                type: "checkbox",
+                role: "switch",
+                id: "animateSwitchCheck",
+                onclick: function (event) {
+                    // console.log("Toggle status: ", checked);
+                    model.enableAnimationView = this.checked;
+                }
+            }),
+            m("label", {
+                class: "form-check-label",
+                for: "animateSwitchCheck",
+                role: "switch"
+            }, "Show animation")
+        ]);
+        children.push(animSwitch);
+    }
+
+    return m("div", { hidden: hidden }, [
+        m("div", { class: "pane-heading", id: "trace-state-heading" }, children),
         m("div", { id: "trace", hidden: model.tracePaneHidden }, traceElems)
     ])
-    
+
 
     // return m("div", { id: "trace", hidden: model.tracePaneHidden || hidden }, [
 
@@ -1323,7 +1341,7 @@ function componentButtonsContainer() {
     ])];
 }
 
-function componentHiddenStateVars() {
+function componentHiddenStateVars(hidden) {
     let titleElem = m("span", { style: "font-weight:bold" }, model.hiddenStateVars.length === 0 ? "" : "Hidden variables:")
     let hiddenStateVarElems = model.hiddenStateVars.map(vname => {
         return m("span", {
@@ -1332,7 +1350,7 @@ function componentHiddenStateVars() {
             onclick: () => _.remove(model.hiddenStateVars, (x) => x === vname)
         }, vname)
     })
-    return m("div", { id: "hidden-state-vars" }, [titleElem].concat(hiddenStateVarElems))
+    return m("div", { id: "hidden-state-vars", hidden: hidden }, [titleElem].concat(hiddenStateVarElems))
 }
 
 // function chooseConstantsPane() {
