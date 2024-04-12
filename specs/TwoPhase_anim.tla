@@ -217,7 +217,7 @@ c2 == Circle(20, 10, 3, [fill |-> "red"])
 \* ServerIdDomain == 1..Cardinality(Server)
 RMIdDomain == 1..2
 
-TMElem == Circle(40, 50, 6, [fill |-> IF tmState = "committed" THEN CommitColor ELSE IF tmState = "init" THEN "gray" ELSE AbortColor])
+TMElem == Circle(40, 85, 10, [fill |-> IF tmState = "committed" THEN CommitColor ELSE IF tmState = "init" THEN "gray" ELSE AbortColor])
 RMTextElems == 
     [i \in RMIdDomain |->
         Text(30 * i, 10, RMId[i], ("fill" :> "black" @@ "text-anchor" :> "middle"))
@@ -225,11 +225,11 @@ RMTextElems ==
     \* <<Text(10, 10, "RM1", [fill |-> "black"]), Text(20, 10, "RM2", [fill |-> "black"]), Text(40, 50, "TM", [fill |-> "black"])>>
 TMTextElems == <<
     Text(50, 70, "TM", ("fill" :> "black" @@ "text-anchor" :> "middle")),
-    Text(50, 90, ToString(tmPrepared), ("fill" :> "black" @@ "text-anchor" :> "middle"))
+    Text(50, 110, ToString(tmPrepared), ("fill" :> "black" @@ "text-anchor" :> "middle"))
 >>
 TextElems == RMTextElems \o TMTextElems
 \* RM elements node circles with corresponding colors.
-RMElems == [i \in RMIdDomain |-> Circle(30 * i, 18, 6, 
+RMElems == [i \in RMIdDomain |-> Circle(30 * i, 25, 10, 
         [fill |-> 
             IF rmState[RMId[i]] = "prepared" 
                 THEN "blue" 
