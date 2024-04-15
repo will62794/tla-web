@@ -1,5 +1,4 @@
 ------------------------------- MODULE TwoPhase_anim ----------------------------- 
-\* benchmark: tla-twophase
 EXTENDS TLC, Naturals, Sequences, FiniteSets
 
 (***************************************************************************)
@@ -19,8 +18,6 @@ EXTENDS TLC, Naturals, Sequences, FiniteSets
 (* protocol--that is, what is allowed to happen.  What must happen would   *)
 (* be described by liveness properties, which we do not specify.           *)
 (***************************************************************************)
-\* CONSTANT RM \* The set of resource managers
-
 CONSTANT RM
 
 VARIABLES
@@ -192,7 +189,7 @@ c2 == Circle(20, 10, 3, [fill |-> "red"])
 \* ServerIdDomain == 1..Cardinality(Server)
 RMIdDomain == 1..2
 
-TMElem == Circle(40, 85, 10, [fill |-> IF tmState = "committed" THEN CommitColor ELSE IF tmState = "init" THEN "gray" ELSE AbortColor])
+TMElem == Circle(50, 85, 10, [fill |-> IF tmState = "committed" THEN CommitColor ELSE IF tmState = "init" THEN "gray" ELSE AbortColor])
 RMTextElems == 
     [i \in RMIdDomain |->
         Text(30 * i, 10, RMId[i], ("fill" :> "black" @@ "text-anchor" :> "middle"))
