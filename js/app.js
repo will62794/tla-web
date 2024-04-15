@@ -1230,8 +1230,15 @@ function onSpecParse(newText, parsedSpecTree){
     model.nextStatePred = model.specTreeObjs["op_defs"]["Next"]["node"];
     model.specAlias = model.specTreeObjs["op_defs"]["Alias"];
 
-    // Don't try to reload the spec yet if we have to instantiate constants
-    // Also, switch to the appropriate pane.
+     // Load constants if given.
+     let constantParams = m.route.param("constants");
+     if (constantParams) {
+         console.log("CONSTNS:", constantParams);
+         model.specConstInputVals = constantParams;
+         setConstantValues();
+     }
+
+    // console.log("constinputvals:", model.specConstInputVals);
     if (!_.isEmpty(model.specConsts) && _.isEmpty(model.specConstInputVals)) {
         console.log("specConsts:", model.specConsts);
         console.log("Switching to constants pane");
@@ -1706,13 +1713,6 @@ function loadSpecFromPath(specPath){
                 // CodeMirror listeners are not known to Mithril, so trigger an explicit redraw after
                 // processing the code change.
                 handleCodeChange().then(function(){
-                    // Load constants if given.
-                    let constantParams = m.route.param("constants");
-                    if (constantParams) {
-                        console.log("CONSTNS:", constantParams);
-                        model.specConstInputVals = constantParams;
-                        setConstantValues();
-                    }
 
                     // Load trace expression if given.
                     let traceExpressions = m.route.param("traceExprs")
