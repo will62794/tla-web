@@ -6,7 +6,7 @@ A live version of the tool is currently hosted [here](https://will62794.github.i
 
 - [Lock server](https://will62794.github.io/tla-web/#!/home?specpath=.%2Fspecs%2Flockserver.tla&constants%5BServer%5D=%7B%22s1%22%2C%20%22s2%22%7D&constants%5BClient%5D=%7B%22c1%22%2C%20%22c2%22%7D)
 - [Two phase commit](https://will62794.github.io/tla-web/#!/home?specpath=.%2Fspecs%2FTwoPhase.tla)
-- [Two phase commit (animated)](https://will62794.github.io/tla-web/#!/home?specpath=.%2Fspecs%2FTwoPhase_anim.tla&trace=c99c20ba&constants%5BRM%5D=%7Brm1%2Crm2%7D)
+- [Two phase commit (animated)](https://will62794.github.io/tla-web/#!/home?specpath=.%2Fspecs%2FTwoPhase_anim.tla&constants%5BRM%5D=%7Brm1%2Crm2%7D)
 - [Paxos](https://will62794.github.io/tla-web/#!/home?specpath=./specs/Paxos.tla)
 - [Raft](https://will62794.github.io/tla-web/#!/home?specpath=.%2Fspecs%2FAbstractRaft.tla&constants%5BServer%5D=%7B"s1"%2C"s2"%2C%20"s3"%7D&constants%5BSecondary%5D="Secondary"&constants%5BPrimary%5D="Primary"&constants%5BNil%5D="Nil"&constants%5BInitTerm%5D=0)
 - [EWD998](https://will62794.github.io/tla-web/#!/home?specpath=.%2Fspecs%2FEWD998.tla)
