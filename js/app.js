@@ -57,6 +57,7 @@ let model = {
     rootModName: "",
     debug: false,
     showLoadFileBox: false,
+    loadSpecFailed: false,
     specUrlInputText: "",
     specEditorChanges: [],
     enableAnimationView: false
@@ -1431,7 +1432,7 @@ function loadSpecBox(hidden){
         m("div", {class: "input-group mb-3"}, [
             m("button", {
                 id:"load-spec-urfl-button", 
-                class: "btn btn-sm btn-secondary",
+                class: ("btn btn-sm btn-secondary" + (model.loadSpecFailed ? " btn-danger" : "")),
                 onclick: () => {
                     model.rootModName = "";
                     model.specPath = model.specUrlInputText;
@@ -1448,6 +1449,7 @@ function loadSpecBox(hidden){
                 oninput: e => { model.specUrlInputText = e.target.value }
             }, "From URL upload:"),
         ]),
+        m("div", model.loadSpecFailed ? "Error fetching spec from given URL. Make sure the link is to a raw TLA+ file." : ""),
         m("div", {}, [
             m("button", {
                 id:"close-spec-box-button",
@@ -1705,6 +1707,7 @@ function loadSpecFromPath(specPath){
         model.specText = spec;
         model.specPath = specPath;
         model.traceExprs = [];
+        model.loadSpecFailed = false;
 
         let parsedChanges = m.route.param("changes");
 
@@ -1762,6 +1765,9 @@ function loadSpecFromPath(specPath){
 
             model.selectedTab = Tab.StateSelection;
         }
+    }).catch(function(e) {
+        console.log("Error loading file ", specPath, e);
+        model.loadSpecFailed = true;
     });
 }
 
@@ -1825,7 +1831,7 @@ async function loadApp() {
                         m("span", {class:"navbar-text", href: "https://github.com/will62794/tla-web"}, 
                             [
                                 m("span", "Root spec: " + model.rootModName + (model.rootModName.length > 0 ? ".tla" : "")),
-                                model.rootModName.length === 0 ? m("div", {class:"spinner-border spinner-border-sm"}) : m("span")
+                                model.rootModName.length === 0 && !model.loadSpecFailed ? m("div", {class:"spinner-border spinner-border-sm"}) : m("span")
                             ]
                         )                        // m("span", {class:"navbar-nav"}, [
                             // m("li", {class:"nav-item"}, "Text")
