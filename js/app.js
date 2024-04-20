@@ -1393,6 +1393,8 @@ function stateSelectionPane(hidden){
 }
 
 function loadSpecBox(hidden){
+    let loadFailedErrMsg = "Error fetching spec from given URL. Make sure the link is to a raw TLA+ file.";
+
     // return m("div", { id: "load-spec-box", hidden: !model.showLoadFileBox}, [
     return m("div", { id: "load-spec-box", hidden: hidden}, [
         m("h4", "Load a specification"),
@@ -1432,7 +1434,7 @@ function loadSpecBox(hidden){
         m("div", {class: "input-group mb-3"}, [
             m("button", {
                 id:"load-spec-urfl-button", 
-                class: ("btn btn-sm btn-secondary" + (model.loadSpecFailed ? " btn-danger" : "")),
+                class: "btn btn-sm btn-secondary",
                 onclick: () => {
                     model.rootModName = "";
                     model.specPath = model.specUrlInputText;
@@ -1444,12 +1446,12 @@ function loadSpecBox(hidden){
             m("input", {
                 type:"text", 
                 text:"file upload", 
-                class:"form-control form-control-sm",
+                class:"form-control form-control-sm" + (model.loadSpecFailed ? " is-invalid" : ""),
                 placeholder: "URL to .tla file.",
                 oninput: e => { model.specUrlInputText = e.target.value }
             }, "From URL upload:"),
         ]),
-        m("div", model.loadSpecFailed ? "Error fetching spec from given URL. Make sure the link is to a raw TLA+ file." : ""),
+        m("div", model.loadSpecFailed ? loadFailedErrMsg : ""),
         m("div", {}, [
             m("button", {
                 id:"close-spec-box-button",
