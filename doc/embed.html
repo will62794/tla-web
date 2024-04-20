@@ -1,0 +1,87 @@
+<html>
+    <head>
+    </head>
+    <body>
+        <!-- The JS dependencies needed to get the TLA+ parser and interpreter running. -->
+        <script src="https://cdn.jsdelivr.net/npm/lodash@4.17.21/lodash.min.js"></script>
+        <script src="/js/eval.js"></script>
+        <script>LANGUAGE_BASE_URL = "js";</script>
+        <script src=/js/tree-sitter.js></script>
+
+        <!-- Basic sample document structure.  -->
+        <h1>TLA+ Interpreter Embed Example</h1>
+
+        <h3>Sample of 1 initial state.</h3>
+        <div id="tla-init-states"></div>
+        <h3>Sample of 1 next state.</h3>
+        <div id="tla-next-states"></div>
+
+        <script>
+        //
+        // Main script that sets up and runs the interpreter.
+        //
+
+        let tree;
+        let parser;
+        let languageName = "tlaplus";
+        let enableEvalTracing = false;
+
+        /**
+         * Main UI initialization logic. 
+         */
+        async function init() {
+            const codeInput = document.getElementById('code-input');
+
+            await TreeSitter.init();
+            parser = new TreeSitter();
+
+            let tree = null;
+            var ASSIGN_PRIMED = false;
+
+            // Load the tree-sitter TLA+ parser.
+            let language;
+            const url = `/${LANGUAGE_BASE_URL}/tree-sitter-${languageName}.wasm`;
+            try {
+                language = await TreeSitter.Language.load(url);
+            } catch (e) {
+                console.error(e);
+                return;
+            }
+
+            tree = null;
+            parser.setLanguage(language);
+
+            // Define a very simple spec inline.
+            // This can also be fetched from a remote URL.
+            let specText = `
+            ---- MODULE test ----
+            VARIABLE x,y
+            Init == x = 0 /\\ y = 0
+            Next == x' = x + 1 /\\ y' = y + 2
+            ====`;
+
+            // Parse the spec.
+            let spec = new TLASpec(specText, "");
+            spec.parse().then(function () {
+
+                // Initialize the interpreter after parsing the spec.
+                let interp = new TlaInterpreter();
+
+                // Generate initial states.
+                let initStates = interp.computeInitStates(spec.spec_obj, {}, false);
+                console.log("Init states:", initStates);
+                document.getElementById('tla-init-states').innerHTML = initStates[0];
+
+                // Generate next states from the set of initial states.
+                let nextStates = interp.computeNextStates(spec.spec_obj, {}, initStates);
+                console.log("Next states:", nextStates);
+                document.getElementById('tla-next-states').innerHTML = nextStates[0].state;
+            });
+        }
+
+        // Initialize things.
+        init();
+        </script>
+    </body>
+
+</html>

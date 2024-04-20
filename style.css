@@ -820,7 +820,7 @@ body {
   }
   #load-spec-box input {
     padding:10px;
-    border-radius:10px;
+    /* border-radius:10px; */
     width:380px;
   }
 
