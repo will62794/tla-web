@@ -846,8 +846,8 @@ class SyntaxRewriter {
                 let newEndCol = prechunk[prechunk.length - 1].length + rewrite["newStr"].length - 1;
 
                 let transform = (targetRow, targetCol) => {
-                    console.log("newStartRow, newEndRow", newStartRow, newEndRow);
-                    console.log("start", newEndRow);
+                    // console.log("newStartRow, newEndRow", newStartRow, newEndRow);
+                    // console.log("start", newEndRow);
                     // if(targetRow < newStartRow){
                     //     return [targetRow, targetCol];
                     // }
@@ -858,8 +858,8 @@ class SyntaxRewriter {
                         // Diff from end of new chunk.
                         let lineDiff = targetRow - newEndRow;
                         let colDiff = targetRow === newEndRow ? targetCol - newEndCol : newEndCol;
-                        console.log("lineDiff:", lineDiff);
-                        console.log("colDiff:", colDiff);
+                        // console.log("lineDiff:", lineDiff);
+                        // console.log("colDiff:", colDiff);
                         // console.log("startRow:", startRow);
                         // console.log("startRow:", startRow);
 
