@@ -2216,6 +2216,10 @@ function evalBoundInfix(node, ctx) {
     if (symbol.type === "implies") {
         // (a => b) <=> (~a \/ b)
         let a = evalExpr(lhs, ctx)[0]["val"];
+        // Short circuit evaluation of implication.
+        if (!a.getVal()) {
+            return [ctx.withVal(new BoolValue(true))];
+        }
         let b = evalExpr(rhs, ctx)[0]["val"];
         return [ctx.withVal(new BoolValue(!a.getVal() || b.getVal()))];
     }
