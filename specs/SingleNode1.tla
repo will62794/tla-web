@@ -2,6 +2,20 @@
 
 EXTENDS Naturals, Sequences, SequencesExt
 
+SelectSeqLocal(s, Test(_)) == 
+  (*************************************************************************)
+  (* The subsequence of s consisting of all elements s[i] such that        *)
+  (* Test(s[i]) is true.                                                   *)
+  (*************************************************************************)
+  LET F[i \in 0..Len(s)] == 
+        (*******************************************************************)
+        (* F[i] equals SelectSeq(SubSeq(s, 1, i), Test]                    *)
+        (*******************************************************************)
+        IF i = 0 THEN << >>
+                 ELSE IF Test(s[i]) THEN Append(F[i-1], s[i])
+                                    ELSE F[i-1]
+  IN F[Len(s)]
+
 RwTxRequest == "RwTxRequest"
 RwTxResponse == "RwTxResponse"
 RoTxRequest == "RoTxRequest"
@@ -104,7 +118,7 @@ RwTxExecuteAction ==
         /\ UNCHANGED history
 
 LedgerBranchTxOnly(branch) ==
-    LET SubBranch == SelectSeq(branch, LAMBDA e : "tx" \in DOMAIN e)
+    LET SubBranch == SelectSeqLocal(branch, LAMBDA e : "tx" \in DOMAIN e)
     IN [i \in DOMAIN SubBranch |-> SubBranch[i].tx]
 
 \* Response to a read-write transaction

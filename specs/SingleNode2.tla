@@ -2,6 +2,22 @@
 
 EXTENDS Naturals, Sequences, SequencesExt
 
+
+SelectSeqLocal(s, Test(_)) == 
+  (*************************************************************************)
+  (* The subsequence of s consisting of all elements s[i] such that        *)
+  (* Test(s[i]) is true.                                                   *)
+  (*************************************************************************)
+  LET F[i \in 0..Len(s)] == 
+        (*******************************************************************)
+        (* F[i] equals SelectSeq(SubSeq(s, 1, i), Test]                    *)
+        (*******************************************************************)
+        IF i = 0 THEN << >>
+                 ELSE IF Test(s[i]) THEN Append(F[i-1], s[i])
+                                    ELSE F[i-1]
+  IN F[Len(s)]
+
+
 RwTxRequest == "RwTxRequest"
 RwTxResponse == "RwTxResponse"
 RoTxRequest == "RoTxRequest"
@@ -104,7 +120,7 @@ RwTxExecuteAction ==
         /\ UNCHANGED history
 
 LedgerBranchTxOnly(branch) ==
-    LET SubBranch == SelectSeq(branch, LAMBDA e : "tx" \in DOMAIN e)
+    LET SubBranch == SelectSeqLocal(branch, LAMBDA e : "tx" \in DOMAIN e)
     IN [i \in DOMAIN SubBranch |-> SubBranch[i].tx]
 
 \* Response to a read-write transaction
@@ -132,11 +148,12 @@ RwTxResponseAction ==
 \* Note that a request could only be committed if it's in the highest view's ledger
 StatusCommittedResponseAction ==
     /\ \E i \in DOMAIN history :
-        LET view == history[i].tx_id[1]
-            seqno == history[i].tx_id[2]
-        IN /\ history[i].type = RwTxResponse
-           /\ Len(Last(ledgerBranches)) >= seqno
-           /\ Last(ledgerBranches)[seqno].view = view
+        \* LET view == history[i].tx_id[1]
+            \* seqno == history[i].tx_id[2]
+           \* Modified to avoid errors with non-lazy evaluation.
+           /\ history[i].type = RwTxResponse
+           /\ Len(Last(ledgerBranches)) >= history[i].tx_id[2]
+           /\ Last(ledgerBranches)[history[i].tx_id[2]].view = history[i].tx_id[1]
            \* There is no future InvalidStatus that's incompatible with this commit
            \* This is to accomodate StatusInvalidResponseAction making future commits invalid,
            \* and is an unnecessary complication for model checking. It does facilitate trace
@@ -145,8 +162,8 @@ StatusCommittedResponseAction ==
            /\ \lnot \E j \in DOMAIN history:
                 /\ history[j].type = TxStatusReceived
                 /\ history[j].status = InvalidStatus
-                /\ history[j].tx_id[1] = view
-                /\ history[j].tx_id[2] <= seqno
+                /\ history[j].tx_id[1] = history[i].tx_id[1]
+                /\ history[j].tx_id[2] <= history[i].tx_id[2]
            \* Reply
            /\ history' = Append(
               history,[
