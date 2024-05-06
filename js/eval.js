@@ -24,7 +24,9 @@ const TLA_STANDARD_MODULES = [
 // https://github.com/tlaplus/CommunityModules/blob/master/modules
 const TLA_COMMUNITY_MODULES = [
     "SequencesExt",
-    "FiniteSetsExt"
+    "FiniteSetsExt",
+    "Functions",
+    "Folds"
 ]
 
 const TLA_COMMUNITY_MODULES_BASE_URL = "https://raw.githubusercontent.com/tlaplus/CommunityModules/master/modules";
