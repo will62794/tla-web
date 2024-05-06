@@ -23,10 +23,16 @@ const TLA_STANDARD_MODULES = [
 // Some hard-coded modules which can be found in TLA+ CommunityModules repo:
 // https://github.com/tlaplus/CommunityModules/blob/master/modules
 const TLA_COMMUNITY_MODULES = [
-    "SequencesExt",
+    "BagsExt",
+    "Bitwise",
+    "Combinatorics",
     "FiniteSetsExt",
+    "Folds",
     "Functions",
-    "Folds"
+    "Graphs",
+    "Relation",
+    "SequencesExt",
+    "UndirectedGraphs"
 ]
 
 const TLA_COMMUNITY_MODULES_BASE_URL = "https://raw.githubusercontent.com/tlaplus/CommunityModules/master/modules";
