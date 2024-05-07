@@ -2786,6 +2786,37 @@ function evalBoundOp(node, ctx) {
         return [ctx.withVal(new IntValue(seqArgExprVal.length()))];
     }
 
+    if (opName == "SelectSeq") {
+        let seqArgExpr = node.namedChildren[1];
+        let selectLambda = node.namedChildren[2];
+
+        let seqArgExprVal = evalExpr(seqArgExpr, ctx)[0]["val"];
+        console.log(selectLambda);
+
+        // Try to interpret value as tuple, if possible.
+        seqArgExprVal = seqArgExprVal.toTuple();
+
+        // For each element in the sequence, evaluate the lambda function on
+        // that value.
+        let lambdaArgs = selectLambda.namedChildren.filter(c => c.type === "identifier");
+        let lambdaBody = selectLambda.namedChildren[selectLambda.namedChildren.length - 1];
+
+        // console.log("lambda args:", lambdaArgs);
+        // console.log("lambda body:", lambdaBody);
+
+        let selectedRet = seqArgExprVal.getElems().filter(function(el){
+            // let op = { "name": defVarName, "args": parameters, "node": defBody };
+            // newBoundCtx = newBoundCtx.withBoundVar(defVarName, op);
+            ret = evalExpr(lambdaBody, ctx.withBoundVar(lambdaArgs[0].text, el));
+            return ret[0]["val"].getVal();
+        });
+        // console.log("filter ret:", selectedRet);
+
+        assert(seqArgExprVal instanceof TupleValue);
+        
+        return [ctx.withVal(new TupleValue(selectedRet))];
+    }
+
     // Append(seq, v)
     if (opName == "Append") {
         let seqArgExpr = node.namedChildren[1];
