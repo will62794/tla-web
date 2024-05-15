@@ -1417,11 +1417,29 @@ function loadSpecBox(hidden){
             }
             },  k));
         })),
-        // TODO.
-        // m("h3", "From local file"),
-        // m("div", {}, [
-        //     m("input", {type:"file", text:"file upload"}, "File upload:"),
-        // ]),
+        m("h5", "From local file"),
+        m("div", {}, [
+            m("button", {
+                id:"load-spec-file-button",
+                class: "btn btn-sm btn-secondary",
+                onclick: () => {
+                    model.rootModName = "";
+                    model.specPath = model.specUrlInputText;
+                    loadData(model.specPath, model.localFile);
+                    model.showLoadFileBox = !model.showLoadFileBox;
+                }
+            }, "Load"),
+            m("input", {id:"load-local-file", type:"file", text:"file upload",
+            onchange: e => {
+                model.specUrlInputText = e.target.value;
+                file = e.target.files[0];
+                reader = new FileReader();
+                reader.onload = (e) => {
+                    model.localFile = e.target.result;
+                };
+                reader.readAsText(file);
+            }}, "File upload:"),
+        ]),
         m("h5", "From URL"),
         // m("div", {}, [
         //     m("input", {
@@ -1699,74 +1717,78 @@ function addTraceExpr(newTraceExpr) {
 //     }
 // }
 
+function loadData(specPath, data) {
+    const $codeEditor = document.querySelector('.CodeMirror');
+    spec = data;
+    model.specText = spec;
+    model.specPath = specPath;
+    model.traceExprs = [];
+    model.loadSpecFailed = false;
+
+    let parsedChanges = m.route.param("changes");
+
+    let oldParams = m.route.param();
+    let newParams = Object.assign(oldParams, {specpath: model.specPath});
+    m.route.set("/home", newParams);
+
+    console.log("Retrieved spec:", specPath);
+    if ($codeEditor) {
+        $codeEditor.CodeMirror.setSize("100%", "100%");
+        $codeEditor.CodeMirror.on("changes", () => {
+            // CodeMirror listeners are not known to Mithril, so trigger an explicit redraw after
+            // processing the code change.
+            handleCodeChange().then(function(){
+
+                // Load trace expression if given.
+                let traceExpressions = m.route.param("traceExprs")
+                if (traceExpressions) {
+                    model.traceExprs = traceExpressions;
+                }
+
+                // Load trace if given.
+                let traceParamStr = m.route.param("trace")
+                if (traceParamStr) {
+                    traceParams = traceParamStr.split(",");
+                    for (const stateHash of traceParams) {
+                        // Check each state for possible quant bounds hash,
+                        // if it has one.
+                        let stateAndQuantBounds = stateHash.split("_");
+                        if(stateAndQuantBounds.length > 1){
+                            let justStateHash = stateAndQuantBounds[0];
+                            let quantBoundHash = stateAndQuantBounds[1];
+                            chooseNextState(justStateHash, quantBoundHash);
+                        } else{
+                            chooseNextState(stateHash);
+                        }
+                    }
+                }
+                m.redraw();
+
+            })
+        });
+        $codeEditor.CodeMirror.setValue(spec);
+
+        // Load changes if given.
+        // TODO: Enable once working out concurrency subtleties.
+        // if (parsedChanges) {
+        //     model.specEditorChanges = parsedChanges;
+        //     for(const change of parsedChanges){
+        //         // $codeEditor.CodeMirror.
+        //         console.log(change);
+        //         $codeEditor.CodeMirror.replaceRange(change.text[0], change.from, change.to, change.origin);
+        //     }
+        // }
+
+        model.selectedTab = Tab.StateSelection;
+    }
+}
+
 // Fetch spec from given path (e.g. URL) and reload it in the editor pane and UI.
 function loadSpecFromPath(specPath){
 
     // Download the specified spec and load it in the editor pane.
     m.request(specPath, { responseType: "text" }).then(function (data) {
-        const $codeEditor = document.querySelector('.CodeMirror');
-        spec = data;
-        model.specText = spec;
-        model.specPath = specPath;
-        model.traceExprs = [];
-        model.loadSpecFailed = false;
-
-        let parsedChanges = m.route.param("changes");
-
-        let oldParams = m.route.param();
-        let newParams = Object.assign(oldParams, {specpath: model.specPath});
-        m.route.set("/home", newParams);
-
-        console.log("Retrieved spec:", specPath);
-        if ($codeEditor) {
-            $codeEditor.CodeMirror.setSize("100%", "100%");
-            $codeEditor.CodeMirror.on("changes", () => {
-                // CodeMirror listeners are not known to Mithril, so trigger an explicit redraw after
-                // processing the code change.
-                handleCodeChange().then(function(){
-
-                    // Load trace expression if given.
-                    let traceExpressions = m.route.param("traceExprs")
-                    if (traceExpressions) {
-                        model.traceExprs = traceExpressions;
-                    }
-
-                    // Load trace if given.
-                    let traceParamStr = m.route.param("trace")
-                    if (traceParamStr) {
-                        traceParams = traceParamStr.split(",");
-                        for (const stateHash of traceParams) {
-                            // Check each state for possible quant bounds hash,
-                            // if it has one.
-                            let stateAndQuantBounds = stateHash.split("_");
-                            if(stateAndQuantBounds.length > 1){
-                                let justStateHash = stateAndQuantBounds[0];
-                                let quantBoundHash = stateAndQuantBounds[1];
-                                chooseNextState(justStateHash, quantBoundHash);
-                            } else{
-                                chooseNextState(stateHash);
-                            }
-                        }
-                    }
-                    m.redraw();
-
-                })
-            });
-            $codeEditor.CodeMirror.setValue(spec);
-
-            // Load changes if given.
-            // TODO: Enable once working out concurrency subtleties.
-            // if (parsedChanges) {
-            //     model.specEditorChanges = parsedChanges;
-            //     for(const change of parsedChanges){
-            //         // $codeEditor.CodeMirror.
-            //         console.log(change);
-            //         $codeEditor.CodeMirror.replaceRange(change.text[0], change.from, change.to, change.origin);
-            //     }
-            // }
-
-            model.selectedTab = Tab.StateSelection;
-        }
+        loadData(specPath, data);
     }).catch(function(e) {
         console.log("Error loading file ", specPath, e);
         model.loadSpecFailed = true;
