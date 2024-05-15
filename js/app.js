@@ -1419,23 +1419,16 @@ function loadSpecBox(hidden){
         })),
         m("h5", "From local file"),
         m("div", {}, [
-            m("button", {
-                id:"load-spec-file-button",
-                class: "btn btn-sm btn-secondary",
-                onclick: () => {
-                    model.rootModName = "";
-                    model.specPath = model.specUrlInputText;
-                    loadData(model.specPath, model.localFile);
-                    model.showLoadFileBox = !model.showLoadFileBox;
-                }
-            }, "Load"),
             m("input", {id:"load-local-file", type:"file", text:"file upload",
             onchange: e => {
                 model.specUrlInputText = e.target.value;
                 file = e.target.files[0];
                 reader = new FileReader();
                 reader.onload = (e) => {
-                    model.localFile = e.target.result;
+                    model.rootModName = "";
+                    model.specPath = model.specUrlInputText;
+                    loadData(model.specPath, e.target.result);
+                    model.showLoadFileBox = !model.showLoadFileBox;
                 };
                 reader.readAsText(file);
             }}, "File upload:"),
