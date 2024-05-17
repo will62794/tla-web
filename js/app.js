@@ -1415,23 +1415,29 @@ function loadSpecBox(hidden){
                 }
                 model.showLoadFileBox = !model.showLoadFileBox;
             }
-            },  k));
+            }, k));
         })),
-        // TODO.
-        // m("h3", "From local file"),
-        // m("div", {}, [
-        //     m("input", {type:"file", text:"file upload"}, "File upload:"),
-        // ]),
+        m("h5", "From local file"),
+        m("div", {}, [
+            m("input", {
+                id: "load-local-file", type: "file", text: "file upload",
+                onchange: e => {
+                    file = e.target.files[0];
+                    reader = new FileReader();
+                    reader.onload = (e) => {
+                        model.rootModName = "";
+                        let specText = e.target.result;
+                        let specPath = null;
+                        model.specPath = specPath
+                        loadSpecText(specText, specPath)
+                        model.showLoadFileBox = !model.showLoadFileBox;
+                    };
+                    reader.readAsText(file);
+                }
+            }, "File upload:"),
+        ]),
         m("h5", "From URL"),
-        // m("div", {}, [
-        //     m("input", {
-        //         type:"text", 
-        //         text:"file upload", 
-        //         placeholder: "URL to .tla file.",
-        //         oninput: e => { model.specUrlInputText = e.target.value }
-        //     }, "From URL upload:")
-        // ]),
-        m("div", {class: "input-group mb-3"}, [
+        m("div", { class: "input-group mb-3" }, [
             m("button", {
                 id:"load-spec-urfl-button", 
                 class: "btn btn-sm btn-secondary",
@@ -1451,16 +1457,7 @@ function loadSpecBox(hidden){
                 oninput: e => { model.specUrlInputText = e.target.value }
             }, "From URL upload:"),
         ]),
-        m("div", model.loadSpecFailed ? loadFailedErrMsg : ""),
-        m("div", {}, [
-            m("button", {
-                id:"close-spec-box-button",
-                class: "btn btn-sm btn-secondary", 
-                onclick: () => {
-                    model.showLoadFileBox = !model.showLoadFileBox;
-                }
-            }, "Close")
-        ])
+        m("div", model.loadSpecFailed ? loadFailedErrMsg : "")
     ])
 }
 
@@ -1699,74 +1696,87 @@ function addTraceExpr(newTraceExpr) {
 //     }
 // }
 
-// Fetch spec from given path (e.g. URL) and reload it in the editor pane and UI.
-function loadSpecFromPath(specPath){
+//
+// Load spec from given spec text and reload it in the editor pane and UI.
+// Given 'specPath' may be null if spec is loaded from a file directly.
+//
+function loadSpecText(text, specPath) {
+    const $codeEditor = document.querySelector('.CodeMirror');
+    spec = text;
+    model.specText = spec;
+    model.specPath = specPath;
+    model.traceExprs = [];
+    model.loadSpecFailed = false;
 
-    // Download the specified spec and load it in the editor pane.
-    m.request(specPath, { responseType: "text" }).then(function (data) {
-        const $codeEditor = document.querySelector('.CodeMirror');
-        spec = data;
-        model.specText = spec;
-        model.specPath = specPath;
-        model.traceExprs = [];
-        model.loadSpecFailed = false;
+    let parsedChanges = m.route.param("changes");
 
-        let parsedChanges = m.route.param("changes");
+    let oldParams = m.route.param();
+    let newParams = Object.assign(oldParams, { specpath: model.specPath, trace: "" });
+    // May not have a specpath if we've loaded from a file, so no need to record 
+    // anything in the URL.
+    if (newParams["specpath"] === null) {
+        delete newParams["specpath"];
+    }
+    delete newParams["trace"];
+    m.route.set("/home", newParams);
 
-        let oldParams = m.route.param();
-        let newParams = Object.assign(oldParams, {specpath: model.specPath});
-        m.route.set("/home", newParams);
+    console.log("Retrieved spec:", specPath);
+    if ($codeEditor) {
+        $codeEditor.CodeMirror.setSize("100%", "100%");
+        $codeEditor.CodeMirror.on("changes", () => {
+            // CodeMirror listeners are not known to Mithril, so trigger an explicit redraw after
+            // processing the code change.
+            handleCodeChange().then(function () {
 
-        console.log("Retrieved spec:", specPath);
-        if ($codeEditor) {
-            $codeEditor.CodeMirror.setSize("100%", "100%");
-            $codeEditor.CodeMirror.on("changes", () => {
-                // CodeMirror listeners are not known to Mithril, so trigger an explicit redraw after
-                // processing the code change.
-                handleCodeChange().then(function(){
+                // Load trace expression if given.
+                let traceExpressions = m.route.param("traceExprs")
+                if (traceExpressions) {
+                    model.traceExprs = traceExpressions;
+                }
 
-                    // Load trace expression if given.
-                    let traceExpressions = m.route.param("traceExprs")
-                    if (traceExpressions) {
-                        model.traceExprs = traceExpressions;
-                    }
-
-                    // Load trace if given.
-                    let traceParamStr = m.route.param("trace")
-                    if (traceParamStr) {
-                        traceParams = traceParamStr.split(",");
-                        for (const stateHash of traceParams) {
-                            // Check each state for possible quant bounds hash,
-                            // if it has one.
-                            let stateAndQuantBounds = stateHash.split("_");
-                            if(stateAndQuantBounds.length > 1){
-                                let justStateHash = stateAndQuantBounds[0];
-                                let quantBoundHash = stateAndQuantBounds[1];
-                                chooseNextState(justStateHash, quantBoundHash);
-                            } else{
-                                chooseNextState(stateHash);
-                            }
+                // Load trace if given.
+                let traceParamStr = m.route.param("trace")
+                if (traceParamStr) {
+                    traceParams = traceParamStr.split(",");
+                    for (const stateHash of traceParams) {
+                        // Check each state for possible quant bounds hash,
+                        // if it has one.
+                        let stateAndQuantBounds = stateHash.split("_");
+                        if (stateAndQuantBounds.length > 1) {
+                            let justStateHash = stateAndQuantBounds[0];
+                            let quantBoundHash = stateAndQuantBounds[1];
+                            chooseNextState(justStateHash, quantBoundHash);
+                        } else {
+                            chooseNextState(stateHash);
                         }
                     }
-                    m.redraw();
+                }
+                m.redraw();
 
-                })
-            });
-            $codeEditor.CodeMirror.setValue(spec);
+            })
+        });
+        $codeEditor.CodeMirror.setValue(spec);
 
-            // Load changes if given.
-            // TODO: Enable once working out concurrency subtleties.
-            // if (parsedChanges) {
-            //     model.specEditorChanges = parsedChanges;
-            //     for(const change of parsedChanges){
-            //         // $codeEditor.CodeMirror.
-            //         console.log(change);
-            //         $codeEditor.CodeMirror.replaceRange(change.text[0], change.from, change.to, change.origin);
-            //     }
-            // }
+        // Load changes if given.
+        // TODO: Enable once working out concurrency subtleties.
+        // if (parsedChanges) {
+        //     model.specEditorChanges = parsedChanges;
+        //     for(const change of parsedChanges){
+        //         // $codeEditor.CodeMirror.
+        //         console.log(change);
+        //         $codeEditor.CodeMirror.replaceRange(change.text[0], change.from, change.to, change.origin);
+        //     }
+        // }
 
-            model.selectedTab = Tab.StateSelection;
-        }
+        model.selectedTab = Tab.StateSelection;
+    }
+}
+
+// Fetch spec from given path (e.g. URL) and reload it in the editor pane and UI.
+function loadSpecFromPath(specPath){
+    // Download the specified spec and load it in the editor pane.
+    m.request(specPath, { responseType: "text" }).then(function (specText) {
+        loadSpecText(specText, specPath);
     }).catch(function(e) {
         console.log("Error loading file ", specPath, e);
         model.loadSpecFailed = true;
