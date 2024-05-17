@@ -1370,6 +1370,10 @@ class TLASpec {
 
             if (node.type === "instance") {
                 // TODO.
+                console.log("INSTANCE node:", node);
+                let extendsList = cursor.currentNode().namedChildren;
+                let extendsModuleNames = extendsList.map(n => n.text);
+                extends_modules = extends_modules.concat(extendsModuleNames);
             }
 
         }
@@ -1469,7 +1473,7 @@ class TLASpec {
             // console.log("node text:", node.text);
             // console.log("node id:", node.id);
 
-            if (node.type === "extends") {
+            if (node.type === "extends" || node.type === "instance") {
                 let extendsList = cursor.currentNode().namedChildren;
                 let extendsModuleNames = extendsList
                     .map(n => n.text)
@@ -1566,6 +1570,67 @@ class TLASpec {
                 // let var_ident = cursor.currentNode();
                 cursor.gotoParent();
                 // Save the variable declaration.
+                // var_decls[var_ident.text] = {"id": node.id}; 
+                op_defs[opName]["node"] = def;
+                // console.log("opDef:", op_defs[opName]);
+
+            }
+
+            // M == INSTANCE Mod1 
+            if (node.type === "module_definition") {
+                console.log("MODULE DEF:", node.text, node)
+
+                // TODO: Consider iterating through 'named' children only?
+                cursor.gotoFirstChild();
+
+                // The definition identifier name.
+                node = cursor.currentNode()
+                // console.log(cursor.currentFieldName());
+                assert(node.type === "identifier");
+                let opName = node.text;
+
+                op_defs[opName] = { "name": opName, "args": [], "node": null };
+
+                // Skip the 'def_eq' symbol ("==").
+                cursor.gotoNextSibling();
+                if (!cursor.currentNode().isNamed()) {
+                    cursor.gotoNextSibling();
+                }
+
+                // n-ary operator. save all parameters.
+                while (cursor.currentFieldName() === "parameter") {
+                    let currNode = cursor.currentNode();
+                    // console.log("PARAMETER: ", currNode.text)
+                    // console.log("PARAMETER: ", currNode.namedChildren[0])
+
+                    //
+                    // Note that we may be handling a higher order operator here, which can appear of the form
+                    // Op2(l(_,_), a, b) == ...
+                    //
+                    // Regardless, we save the whole parameter node.
+                    //
+                    op_defs[opName]["args"].push(currNode);
+
+                    cursor.gotoNextSibling();
+                    if (!cursor.currentNode().isNamed()) {
+                        cursor.gotoNextSibling();
+                    }
+                }
+
+                // Skip any intervening comment nodes.
+                cursor.gotoNextSibling();
+                while (cursor.currentNode().type === "comment") {
+                    cursor.gotoNextSibling();
+                    console.log(cursor.currentNode());
+                    console.log(cursor.currentNode().type);
+                    console.log(cursor.currentFieldName());
+                }
+
+                // We should now be at the definition node.
+                // console.log(cursor.currentNode().text)
+                let def = cursor.currentNode();
+                cursor.gotoParent();
+                
                 // var_decls[var_ident.text] = {"id": node.id}; 
                 op_defs[opName]["node"] = def;
                 // console.log("opDef:", op_defs[opName]);
