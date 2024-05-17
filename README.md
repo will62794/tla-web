@@ -24,6 +24,8 @@ The current version of the tool utilizes the [TLA+ tree-sitter grammar](https://
 
 The current tool expects that a specification has defined its initial state predicate and next state relation as `Init` and `Next` definitions, respectively. If your specification has these defined under different names, an error will be reported and spec evaluation will fail. Eventually this will be made configurable, but the current tool looks for these hard-coded definitions. Also, there is currently no support for user module imports, so specs are expected to be written in a single module. The interpreter does, however, by default support most operators from the [TLA+ standard modules](https://github.com/tlaplus/tlaplus/tree/c25a01393ef7d9b0315f3d3b1581988e7a4a57b2/tlatools/org.lamport.tlatools/src/tla2sany/StandardModules).
 
+You can also see a live demo of the tool and its features in [this presentation](https://www.youtube.com/watch?v=kSSWmxQLvmw), which also gives a very high level overview of the tool architecture and implementation details.
+
 <!-- Note that in addition to copying and pasting in the text of a TLA+ spec or writing it in the browser interface, you can also load a spec file from a given URL by using the following URL path format: -->
 <!-- ``` -->
 <!-- https://will62794.github.io/tla-web/#!/home?specpath=<tla_spec_url> -->
