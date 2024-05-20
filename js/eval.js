@@ -1881,6 +1881,10 @@ function evalLand(lhs, rhs, ctx) {
     evalLog("## LAND - LHS:", lhs.text, ", RHS: ", rhs.text);
     let lhsEval = _.flattenDeep(evalExpr(lhs, ctx));
     evalLog("lhsEval:", lhsEval);
+    if (!lhsEval[0]["val"].val) {
+        // Short-circuit.
+        return lhsEval;
+    }
     let rhsEval = lhsEval.map(lctx => {
         evalLog("rhs:", rhs.text);
         evalLog("lctx:", lctx);
