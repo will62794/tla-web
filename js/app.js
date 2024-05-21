@@ -99,7 +99,7 @@ const exampleSpecs = {
             "InitTerm": 0
         }
     },
-    "EWD998": {
+    "EWD998 (animated)": {
         specpath: "./specs/EWD998.tla"
     }
 
