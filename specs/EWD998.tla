@@ -1,5 +1,5 @@
 ------------------------------- MODULE EWD998 -------------------------------
-EXTENDS Integers
+EXTENDS Integers, TLC, Sequences
 
 N == 3
 
@@ -112,5 +112,92 @@ Next ==
   \/ \E n \in Node : Deactivate(n)
 
 Spec == Init /\ [][Next]_vars /\ WF_vars(System)
+
+-----------------------------------------------------------------------------
+
+terminated ==
+    \A n \in Node : ~active[n] /\ pending[n] = 0
+
+-----------------------------------------------------------------------------
+
+\* 
+\* Animation definitions.
+\* 
+
+\* Merge two records
+Merge(r1, r2) == 
+    LET D1 == DOMAIN r1 D2 == DOMAIN r2 IN
+    [k \in (D1 \cup D2) |-> IF k \in D1 THEN r1[k] ELSE r2[k]]
+
+SVGElem(_name, _attrs, _children, _innerText) == [name |-> _name, attrs |-> _attrs, children |-> _children, innerText |-> _innerText ]
+
+Text(x, y, text, attrs) == 
+    (**************************************************************************)
+    (* Text element.'x' and 'y' should be given as integers, and 'text' given *)
+    (* as a string.                                                           *)
+    (**************************************************************************)
+    LET svgAttrs == [x |-> x, 
+                     y |-> y] IN
+    SVGElem("text", Merge(svgAttrs, attrs), <<>>, text) 
+
+\* Circle element. 'cx', 'cy', and 'r' should be given as integers.
+Circle(cx, cy, r, attrs) == 
+    LET svgAttrs == [cx |-> cx, 
+                     cy |-> cy, 
+                     r  |-> r] IN
+    SVGElem("circle", Merge(svgAttrs, attrs), <<>>, "")
+
+Rect(x, y, w, h, attrs) == 
+    LET svgAttrs == [x      |-> x, 
+                     y      |-> y, 
+                     width  |-> w, 
+                     height |-> h] IN
+    SVGElem("rect", Merge(svgAttrs, attrs), <<>>, "")
+
+Line(x1, y1, x2, y2, attrs) == 
+    LET svgAttrs == [x1 |-> x1, 
+                     y1 |-> y1, 
+                     x2 |-> x2,
+                     y2 |-> y2] IN
+    SVGElem("line", Merge(svgAttrs, attrs), <<>>, "")
+
+\* Group element. 'children' is as a sequence of elements that will be contained in this group.
+Group(children, attrs) == SVGElem("g", attrs, children, "")
+
+-----------------------------------------------------------------------------
+
+AnimNodes ==
+    \* Domain 0..N-1 (Node) not supported by animation module.
+    \* Offset by one to define a sequence instead.
+    1..N
+
+Coords ==
+    LET area == 1000 
+        base == 50
+    IN [ n \in AnimNodes |-> IF n = 1 THEN [x|->0, y|->0]
+                             ELSE IF n = 2 THEN [x|->base, y|->0]
+                             ELSE [x|->base \div 2, y|-> (2 * area) \div base] ]
+
+NodeCount == 
+    [n \in AnimNodes |-> Text(Coords[n].x + 10, Coords[n].y + 15, ToString(counter[n-1]),
+        ("fill" :> "black" @@ "text-anchor" :> "middle"))]
+
+RingNetwork == 
+    [n \in AnimNodes |-> Rect(Coords[n].x, Coords[n].y, 20, 20,
+        [rx |-> IF ~active[n-1] THEN "0" ELSE "15",
+         stroke |-> "black", opacity |-> "0.3",
+         fill |-> color[n-1]])]
+
+Token == 
+    <<Circle(Coords[token.pos+1].x, Coords[token.pos+1].y, 5, 
+        [stroke |-> "black", opacity |-> "0.3",
+         fill |-> "black"])>>
+
+MessageCount == 
+    [n \in AnimNodes |-> Text(Coords[n].x, Coords[n].y, ToString(pending[n-1]),
+        ("fill" :> "black" @@ "text-anchor" :> "middle" @@ "transform" :> "translate(22.5 18) scale(0.5 0.5)"))]
+
+AnimView ==
+    Group(NodeCount \o RingNetwork \o Token \o MessageCount, ("transform" :> "translate(20 20) scale(1.5 1.5)"))
 
 =============================================================================
