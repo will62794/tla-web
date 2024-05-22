@@ -1,7 +1,7 @@
 ------------------------------- MODULE EWD998 -------------------------------
 EXTENDS Integers, TLC, Sequences
 
-N == 3
+CONSTANT N
 
 Node == 0 .. N-1
 

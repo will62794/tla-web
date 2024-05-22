@@ -100,7 +100,10 @@ const exampleSpecs = {
         }
     },
     "EWD998 (animated)": {
-        specpath: "./specs/EWD998.tla"
+        specpath: "./specs/EWD998.tla",
+        constant_vals: {
+            "N": "3"
+        }
     }
 
 };
