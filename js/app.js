@@ -1431,6 +1431,9 @@ function loadSpecBox(hidden){
                         model.specPath = specPath
                         loadSpecText(specText, specPath)
                         model.showLoadFileBox = !model.showLoadFileBox;
+                        // Clear the current trace.
+                        model.currTrace = [];
+                        updateTraceRouteParams();
                     };
                     reader.readAsText(file);
                 }
@@ -1711,13 +1714,12 @@ function loadSpecText(text, specPath) {
     let parsedChanges = m.route.param("changes");
 
     let oldParams = m.route.param();
-    let newParams = Object.assign(oldParams, { specpath: model.specPath, trace: "" });
+    let newParams = Object.assign(oldParams, { specpath: model.specPath });
     // May not have a specpath if we've loaded from a file, so no need to record 
     // anything in the URL.
     if (newParams["specpath"] === null) {
         delete newParams["specpath"];
     }
-    delete newParams["trace"];
     m.route.set("/home", newParams);
 
     console.log("Retrieved spec:", specPath);
