@@ -9,7 +9,7 @@ A live version of the tool is currently hosted [here](https://will62794.github.i
 - [Two phase commit (animated)](https://will62794.github.io/tla-web/#!/home?specpath=.%2Fspecs%2FTwoPhase_anim.tla&constants%5BRM%5D=%7Brm1%2Crm2%7D)
 - [Paxos](https://will62794.github.io/tla-web/#!/home?specpath=./specs/Paxos.tla)
 - [Raft](https://will62794.github.io/tla-web/#!/home?specpath=.%2Fspecs%2FAbstractRaft.tla&constants%5BServer%5D=%7B"s1"%2C"s2"%2C%20"s3"%7D&constants%5BSecondary%5D="Secondary"&constants%5BPrimary%5D="Primary"&constants%5BNil%5D="Nil"&constants%5BInitTerm%5D=0)
-- [EWD998](https://will62794.github.io/tla-web/#!/home?specpath=.%2Fspecs%2FEWD998.tla)
+- [EWD998 (animated)](https://will62794.github.io/tla-web/#!/home?specpath=.%2Fspecs%2FEWD998.tla&constants%5BN%5D=3)
 
 The current version of the tool utilizes the [TLA+ tree-sitter grammar](https://github.com/tlaplus-community/tree-sitter-tlaplus) for parsing TLA+ specs and implements a [TLA+ interpreter/executor](https://github.com/will62794/tla-web/blob/89d763c6001fa91dfc55780fedd47a9fbbf4e934/js/eval.js#L726-L778) on top of this in Javascript. This allows the tool to interpret specs natively in the browser, without relying on an external language server. The Javascript interpreter is likely much slower than TLC, but efficient model checking isn't currently a goal of the tool. 
 
