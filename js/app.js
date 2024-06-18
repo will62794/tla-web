@@ -1838,21 +1838,25 @@ async function loadApp() {
             // m.route.set("/home", newParams);
         },
         view: function () {
+            let spinner = model.rootModName.length === 0 && !model.loadSpecFailed ? m("div", {class:"spinner-border spinner-border-sm"}) : m("span");
             return [
                 // Header.
                 m("nav", { class: "navbar bg-body-tertiary border-bottom mb-2" }, [
                     m("div", {class:"container-fluid"}, [
+                        
+                        m("span", {class:"navbar-text", href: "https://github.com/will62794/tla-web"}, 
+                            [
+                                m("span", {}, [
+                                    m("span", {style:"font-weight:bold"}, "Root module: "),
+                                    m("span", model.rootModName + (model.rootModName.length > 0 ? ".tla" : "")),
+                                    spinner
+                                ]
+                                )
+                            ]
+                        ),                        
                         m("a", {class:"navbar-brand mb-0 h1", href: "https://github.com/will62794/tla-web"}, [
                             "TLA+ Web Explorer"
                         ]) ,
-                        m("span", {class:"navbar-text", href: "https://github.com/will62794/tla-web"}, 
-                            [
-                                m("span", "Root spec: " + model.rootModName + (model.rootModName.length > 0 ? ".tla" : "")),
-                                model.rootModName.length === 0 && !model.loadSpecFailed ? m("div", {class:"spinner-border spinner-border-sm"}) : m("span")
-                            ]
-                        )                        // m("span", {class:"navbar-nav"}, [
-                            // m("li", {class:"nav-item"}, "Text")
-                        // ])
                     ]),
                     
                 ]),
