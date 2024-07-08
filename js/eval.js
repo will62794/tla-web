@@ -1361,15 +1361,23 @@ class TLASpec {
             // console.log("node text:", node.text);
             // console.log("node id:", node.id);
 
-            if (node.type === "extends") {
+            if (node.type === "extends" || node.type === "instance") {
                 let extendsList = cursor.currentNode().namedChildren;
                 let extendsModuleNames = extendsList.map(n => n.text);
                 extends_modules = extends_modules.concat(extendsModuleNames);
                 // console.log("EXTENDS", extends_modules);
             }
 
-            if (node.type === "instance") {
-                // TODO.
+            // Module instantiation like:
+            // M1 == INSTANCE Module1 WITH A <- 5, ...
+            // TODO: Keep track of instantatiation with substitutions in each module (?)
+            if (node.type === "module_definition") {
+                let nodes = cursor.currentNode().namedChildren;
+                let name = nodes[0];
+                let def = nodes[2];
+                // The name of the module being instantiated.
+                let moduleIdentRef = (def.namedChildren[0].text);
+                extends_modules = extends_modules.concat(moduleIdentRef);
             }
 
         }
@@ -1469,7 +1477,7 @@ class TLASpec {
             // console.log("node text:", node.text);
             // console.log("node id:", node.id);
 
-            if (node.type === "extends") {
+            if (node.type === "extends" || node.type === "instance") {
                 let extendsList = cursor.currentNode().namedChildren;
                 let extendsModuleNames = extendsList
                     .map(n => n.text)
