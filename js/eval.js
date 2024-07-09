@@ -1587,17 +1587,26 @@ class TLASpec {
                 console.log("op defs:", parsedObj["op_defs"])
             }
 
-            // Foo == INSTANCE Bar WITH A <- 5, B <- 6
+            // Foo == INSTANCE Bar [ WITH A <- 5, B <- 6 ]
             if (node.type === "module_definition") {
                 let nodes = cursor.currentNode().namedChildren;
-                let name = nodes[0];
-                let def = nodes[2];
+                let defName = nodes[0].text;
+
                 // The name of the module being instantiated.
-                let moduleIdentRef = (def.namedChildren[0].text);
-                imported_modules = imported_modules.concat(moduleIdentRef);
-                // Substitutions.
-                instance_modules[moduleIdentRef] = {};
-                // TODO: Add substituted definitions into current module.
+                let modName = (nodes[2].namedChildren[0].text);
+
+                // imported_modules = imported_modules.concat(modName);
+                // instance_modules[modName] = {};
+
+                // Add substituted definitions into current module.
+                let parsedObj = self.parseSpecModule(self.moduleTable[modName]);
+                for(const opName in parsedObj["op_defs"]){
+                    let prefix = defName + "!";
+                    let substOpName = prefix + opName;
+                    let origOpDef = parsedObj["op_defs"][opName];
+                    op_defs[substOpName] = { "name": opName, "args": origOpDef.args, "node": origOpDef.node, "name_prefix": prefix }
+                }                
+                console.log("op defs:", op_defs)
             }
 
             if (node.type === "constant_declaration") {
@@ -2526,6 +2535,22 @@ function evalEnabled(node, ctx) {
     evalLog("rhs ENABLED: ", rhsVal);
     assert(rhsVal instanceof BoolValue);
     return [ctx.withVal(rhsVal)];
+}
+
+// M!Op
+function evalPrefixedOp(node, ctx) {
+    let lhs = node.children[0];
+    let rhs = node.children[1];
+
+    // See if there is an (imported) definition that exists for this operator given
+    // this module prefixing.
+    let prefixedOpName = lhs.text + rhs.text;
+    if (ctx.hasOperatorBound(prefixedOpName)) {
+        opDef = ctx.getBoundOperator(prefixedOpName);
+        // console.log("PREFIXED OP DEFINITION:", prefixedOpName);
+        // console.log("PREFIXED OP DEFINITION:", opDef);
+        return evalExpr(opDef.node, ctx);
+    }
 }
 
 function evalBoundPrefix(node, ctx) {
@@ -3662,6 +3687,10 @@ function evalExpr(node, ctx) {
 
     if (node.type === "bound_op") {
         return evalBoundOp(node, ctx)
+    }
+
+    if (node.type === "prefixed_op") {
+        return evalPrefixedOp(node, ctx);
     }
 
     if (node.type === "bound_infix_op") {
