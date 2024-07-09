@@ -1012,26 +1012,30 @@ class SyntaxRewriter {
                         return sourceRewrites;
                     }
 
-                    // TODO: Initial framework for rewriting operator arguments to enforce global argname uniqueness,
-                    // that is disabled for now.
-                    // if (node.type === "identifier" || node.type === "identifier_ref") {
-                    //     let identName = node.text;
-                    //     console.log("IDENTIFIER or IDENTREF", identName);
-                    //     if (currOpDefNameContext !== null &&
-                    //         this.opArgsToRename.hasOwnProperty(currOpDefNameContext) &&
-                    //         Object.keys(this.opArgsToRename[currOpDefNameContext]["argsToRenameMap"]).length > 0) {
-                    //         if (!identName.includes("IDENTRENAMED") && this.opArgsToRename[currOpDefNameContext]["argsToRenameMap"].hasOwnProperty(identName)) {
-                    //             let outStr = this.opArgsToRename[currOpDefNameContext]["argsToRenameMap"][identName];
-                    //             let rewrite = {
-                    //                 startPosition: node.startPosition,
-                    //                 endPosition: node.endPosition,
-                    //                 newStr: outStr
-                    //             }
-                    //             sourceRewrites.push(rewrite);
-                    //             return sourceRewrites;
-                    //         }
-                    //     }
-                    // }
+                    // Rewrite simple definitions by replacing them with underlying definition expression.
+                    // e.g. part of so-called "beta-reduction".
+                    if (node.type === "identifier_ref") {
+                        let identName = node.text;
+
+                        // Handle only plain definitions with no args i.e. A == 5
+                        // 
+                        // TODO: Consider how to re-enable this logic safely (given interaction of syntax and semantics i.e. indenting).
+                        // We may want to ultimately just leave this disabled.
+                        // 
+
+                        // if(this.moduleDefs.hasOwnProperty(identName) && this.moduleDefs[identName].args.length == 0){
+                        //     console.log("FOUND MODULE DEF:", this.moduleDefs[identName]);
+                        //     // Replace the reference with the definition's expression. 
+                        //     let rewrite = {
+                        //         startPosition: node.startPosition,
+                        //         endPosition: node.endPosition,
+                        //         newStr: "(" + this.moduleDefs[identName].node.text + ")"
+                        //     }
+                        //     sourceRewrites.push(rewrite);
+                        //     return sourceRewrites;
+                        // }
+
+                    }
 
 
                     // Bound infix ops.
