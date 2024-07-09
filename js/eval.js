@@ -736,6 +736,7 @@ class SyntaxRewriter {
         let rewriteBatch = this.genSyntaxRewrites(specTree);
 
         // Apply AST rewrite batches until a fixpoint is reached.
+        const start = performance.now();
         while (rewriteBatch.length > 0) {
             // console.log("New syntax rewrite iteration");
             // console.log("rewrite batch: ", rewriteBatch, "length: ", rewriteBatch.length);
@@ -744,7 +745,9 @@ class SyntaxRewriter {
             specTree = this.parser.parse(specTextRewritten + "\n", null);
             rewriteBatch = this.genSyntaxRewrites(specTree);
         }
-        console.log("REWRITTEN:", specTextRewritten);
+        const duration = (performance.now() - start).toFixed(1);
+        console.log(`Completed spec rewriting in ${duration}ms`)
+        console.log(specTextRewritten);
         return specTextRewritten;
     }
 
