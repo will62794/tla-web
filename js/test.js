@@ -235,6 +235,7 @@ async function testStateGraphEquiv(testId, stateGraph, parsedSpec, specPath, con
         { "spec": "simple_negation", "constvals": undefined },
         { "spec": "simple_domain", "constvals": undefined },
         { "spec": "simple_implies", "constvals": undefined },
+        { "spec": "simple_definition", "constvals": undefined },
         { "spec": "simple6", "constvals": undefined },
         { "spec": "simple7", "constvals": undefined },
         { "spec": "simple8", "constvals": undefined },
