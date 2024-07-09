@@ -1619,8 +1619,11 @@ class TLASpec {
     parseSpecModule(specText) {
         var self = this;
 
+        let module_op_defs = self.extractModuleDefinitions(specText);
+        // console.log("MOD OP DEFS:", module_op_defs);
+
         // Perform syntactic rewrites.
-        let rewriter = new SyntaxRewriter(specText, parser);
+        let rewriter = new SyntaxRewriter(specText, parser, module_op_defs);
         let specTextRewritten = rewriter.doRewrites();
         specText = specTextRewritten;
 
