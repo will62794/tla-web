@@ -1271,6 +1271,7 @@ function fetchModuleExtends(moduleNames, urlPath) {
  * maintaining module extends/instances from a root module, etc.
  */
 class TLASpec {
+    // TODO: We probably want to eventually rename this to more accurately represent its role as a single (e.g. root) TLA+ module.
     constructor(specText, specPath) {
 
         this.moduleTable = {};
@@ -1282,7 +1283,7 @@ class TLASpec {
     }
 
     // TODO: Extend this to parse fetched modules during spec parsing.
-    fetchModuleExtends(moduleNames, urlPath) {
+    fetchModules(moduleNames, urlPath) {
         console.log("Fetching EXTENDS modules for spec:", urlPath);
         // console.log("module names:", moduleNames);
         // console.log(decodeURIComponent(urlPath));
@@ -1292,7 +1293,7 @@ class TLASpec {
         // Fetch all module names, ignoring TLA+ standard modules.
         let modulesToFetch = moduleNames.filter(m => !TLA_STANDARD_MODULES.includes(m));
 
-        console.log("modulesToFetch:", modulesToFetch);
+        console.log("fetching modules:", modulesToFetch);
         let modulePromises = modulesToFetch.map(function (modName) {
 
             // Look up CommunityModule imports from hard-coded repo.
@@ -1307,27 +1308,22 @@ class TLASpec {
 
         var self = this;
         return Promise.all(modulePromises).then(moduleTextValues => {
-            for (var i = 0; i < modulesToFetch.length; i++) {
-                let modName = modulesToFetch[i];
-                self.moduleTable[modName] = moduleTextValues[i];
-            }
-
-            let allFetches = modulesToFetch.map(function (modName, ind) {
-                return self.resolveSpecModuleImports(moduleTextValues[ind], `${baseSpecPath}/${modName}.tla`);
-            });
-            return Promise.all(allFetches);
+            return _.zipObject(modulesToFetch, moduleTextValues);
         });
     }
 
-    //
-    // Construct module table by first walking module graph and fetching all modules and their text,
-    // before doing any further parsing of individual modules.
-    //
-    resolveSpecModuleImports(specText, specPath) {
+    /**
+     * Parse a module given as text and extract set of module names that are
+     * imported/extended in this module. 
+     *
+     * Does not do any further fetching/parsing on the set of imported modules.
+     */
+    extractModuleImports(specText) {
 
         // Perform syntactic rewrites.
-
-        // I don't think we need to do spec re-writing before fetching module table graph?
+        // 
+        // N.B. I don't think we need to do spec re-writing before fetching module table graph?
+        // 
         // let rewriter = new SyntaxRewriter(specText, parser);
         // let specTextRewritten = rewriter.doRewrites();
         // specText = specTextRewritten;
@@ -1349,7 +1345,7 @@ class TLASpec {
             assert(node.type === "module");
         }
 
-        let extends_modules = [];
+        let imported_modules = [];
 
         // Look for all variables and definitions defined in the module.
         let more = cursor.gotoFirstChild();
@@ -1364,8 +1360,8 @@ class TLASpec {
             if (node.type === "extends" || node.type === "instance") {
                 let extendsList = cursor.currentNode().namedChildren;
                 let extendsModuleNames = extendsList.map(n => n.text);
-                extends_modules = extends_modules.concat(extendsModuleNames);
-                // console.log("EXTENDS", extends_modules);
+                imported_modules = imported_modules.concat(extendsModuleNames);
+                // console.log("EXTENDS", imported_modules);
             }
 
             // Module instantiation like:
@@ -1377,13 +1373,50 @@ class TLASpec {
                 let def = nodes[2];
                 // The name of the module being instantiated.
                 let moduleIdentRef = (def.namedChildren[0].text);
-                extends_modules = extends_modules.concat(moduleIdentRef);
+                imported_modules = imported_modules.concat(moduleIdentRef);
             }
 
         }
 
-        // Fetch all module instantiations that we've parsed.
-        return this.fetchModuleExtends(extends_modules, specPath);
+        return imported_modules;
+    }
+
+    /**
+     * Given text of a root TLA+ module, discovers all transitive module dependencies
+     * required by this root module, and builds a table mapping from module name
+     * to full module text for every module in this set. 
+     * 
+     * Does not explicitly maintain module dependency graph or imported
+     * definitions/declarations. We assume that is done after using the table
+     * built and returned by this function.
+     */
+    resolveModuleImports(rootModuleText) {
+        var self = this;
+
+        let importedModules = this.extractModuleImports(rootModuleText);
+        console.log("imported modules:", importedModules);
+
+        // For each imported module, we fetch its text. This gives us a map from
+        // module names to their full module text.
+        return this.fetchModules(importedModules, this.specPath).then(function (importedModuleMap) {
+            // A map from module name to full module text.
+            console.log("MAP:", importedModuleMap);
+            // For each module, we now parse it again to extract module imports, and recurse to fetch its imported modules.
+            let allPromises = [];
+            for (const modName in importedModuleMap) {
+                // Recursively resolve module imports for each fetched module.
+                let ret = self.resolveModuleImports(importedModuleMap[modName]);
+                allPromises.push(ret);
+            }
+
+            return Promise.all(allPromises).then(function (vals) {
+                // Merge all discovered module tables together.
+                for (const v of vals) {
+                    importedModuleMap = _.merge(importedModuleMap, v);
+                }
+                return importedModuleMap;
+            })
+        })
     }
 
     /**
@@ -1393,19 +1426,30 @@ class TLASpec {
     async parse() {
         // First resolve any module imports, and then parse the spec
         // and any modules in the module import hierarchy.
-        console.log("specPath", this.specPath);
-        this.moduleTable = {};
+        console.log("Parsing spec from path:", this.specPath);
         var self = this;
-        
-        // TODO: Should eventually keep track of explicit module import graph, to correctly determine what
-        // expressions are imported in each module. Will likely need to handle this once extending beyond 
-        // simple EXTENDS imports (e.g. INSTANCE cases, etc.).
-        return this.resolveSpecModuleImports(this.specText, this.specPath).then(function () {
-            console.log("module table:", self.moduleTable);
+
+        return this.resolveModuleImports(this.specText).then(function (fullModuleTable) {
+            console.log("Resolved full module table:", fullModuleTable);
+            self.moduleTable = fullModuleTable;
+
+            // 
+            // Once the global module table has been fetched and stored, we shouldn't need to fetch any more specs.
+            // Now, we just go through and parse the text of each fetched module and store it.
+            // 
+            for (const modName in fullModuleTable) {
+                let parsedObj = self.parseSpecModule(fullModuleTable[modName]);
+                self.moduleTableParsed[modName] = parsedObj;
+            }
+
             let parsedSpec = self.parseSpecModule(self.specText);
-            console.log("PARSED MODULE TABLE:", self.moduleTableParsed);
             self.spec_obj = parsedSpec;
             self.spec_obj["module_table"] = self.moduleTableParsed;
+
+            // TODO. Walk through the module import graph to determine the set of
+            // definitions/declarations that should be defined via import in the root module.
+
+            console.log("PARSED MODULE TABLE:", self.moduleTableParsed);
             return parsedSpec;
         });
     }
