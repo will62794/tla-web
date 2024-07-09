@@ -1293,7 +1293,7 @@ class TLASpec {
         // Fetch all module names, ignoring TLA+ standard modules.
         let modulesToFetch = moduleNames.filter(m => !TLA_STANDARD_MODULES.includes(m));
 
-        console.log("fetching modules:", modulesToFetch);
+        // console.log("fetching modules:", modulesToFetch);
         let modulePromises = modulesToFetch.map(function (modName) {
 
             // Look up CommunityModule imports from hard-coded repo.
@@ -1406,7 +1406,7 @@ class TLASpec {
         // module names to their full module text.
         return this.fetchModules(importedModules, this.specPath).then(function (importedModuleMap) {
             // A map from module name to full module text.
-            console.log("MAP:", importedModuleMap);
+            // console.log("MAP:", importedModuleMap);
             // For each module, we now parse it again to extract module imports, and recurse to fetch its imported modules.
             let allPromises = [];
             for (const modName in importedModuleMap) {
@@ -1436,18 +1436,20 @@ class TLASpec {
         var self = this;
 
         return this.resolveModuleImports(this.specText).then(function (fullModuleTable) {
-            console.log("Resolved full module table:", fullModuleTable);
+            console.log(`Resolved module table (${Object.keys(fullModuleTable).length} transitively imported modules):`, Object.keys(fullModuleTable));
             self.moduleTable = fullModuleTable;
 
             // 
             // Once the global module table has been fetched and stored, we shouldn't need to fetch any more specs.
             // Now, we just go through and parse the text of each fetched module and store it.
             // 
-            for (const modName in fullModuleTable) {
-                let parsedObj = self.parseSpecModule(fullModuleTable[modName]);
-                self.moduleTableParsed[modName] = parsedObj;
-            }
+            // console.log("Pre-parsing all modules in global module table.");
+            // for (const modName in fullModuleTable) {
+            //     let parsedObj = self.parseSpecModule(fullModuleTable[modName]);
+            //     self.moduleTableParsed[modName] = parsedObj;
+            // }
 
+            // Now parse the root module, which will use the global module table as needed as it proceeds.
             let parsedSpec = self.parseSpecModule(self.specText);
             self.spec_obj = parsedSpec;
             self.spec_obj["module_table"] = self.moduleTableParsed;
@@ -1512,11 +1514,14 @@ class TLASpec {
 
         let root_mod_name = node.namedChildren[1].text;
         let op_defs = {};
+        let imported_op_defs = {};
         let fn_defs = {};
         let var_decls = {};
         let const_decls = {};
         let extends_modules = [];
         let instance_modules = {};
+
+        console.log(">>> PARSING ROOT MODULE:", root_mod_name);
 
         // Look for all variables and definitions defined in the module.
         let more = cursor.gotoFirstChild();
@@ -1599,13 +1604,35 @@ class TLASpec {
                 // instance_modules[modName] = {};
 
                 // Add substituted definitions into current module.
+                console.log("Parsing module from INSTANCE definition:", modName);
+                console.log("NODES: ", nodes);
+
                 let parsedObj = self.parseSpecModule(self.moduleTable[modName]);
+
+                if (!self.moduleTableParsed.hasOwnProperty(modName)) {
+                    self.moduleTableParsed[modName] = parsedObj;
+                }
+
                 for(const opName in parsedObj["op_defs"]){
                     let prefix = defName + "!";
                     let substOpName = prefix + opName;
                     let origOpDef = parsedObj["op_defs"][opName];
-                    op_defs[substOpName] = { "name": opName, "args": origOpDef.args, "node": origOpDef.node, "name_prefix": prefix }
-                }                
+                    // N.B. Notes on module semantics: https://lamport.azurewebsites.net/tla/newmodule.html
+                    // IF we are evaluating an expression from a named module instantation (e.g. M!Expr), 
+                    // then this expression should be able to refer to definitions that appear in the original module M.
+                    op_defs[substOpName] = { "name": opName, "args": origOpDef.args, "node": origOpDef.node, "name_prefix": prefix, "module_name": modName }
+                }   
+                
+                let substs = nodes[2].namedChildren.filter(n => n.type === "substitution");
+                for(const subst of substs){
+                    let substKey = subst.namedChildren[0];
+                    let substVal = subst.namedChildren[2];
+                    console.log("INSTANCE subst:", substKey.text, substVal.text);
+                    // Add these substitutions as defintions in the current module.
+                    // These substitutions should only be for VARIABLE or CONSTANT declarations.
+                    // TODO: Handle VARIABLE substitutions correctly.
+                    op_defs[substKey.text] = { "name": substKey.text, "args": [], "node": substVal };
+                }   
                 console.log("op defs:", op_defs)
             }
 
@@ -1776,6 +1803,7 @@ class TLASpec {
             "const_decls": const_decls,
             "var_decls": var_decls,
             "op_defs": op_defs,
+            "imported_op_defs": imported_op_defs,
             "fn_defs": fn_defs,
             "extends_modules": extends_modules,
             "actions": actions,
@@ -2549,7 +2577,18 @@ function evalPrefixedOp(node, ctx) {
         opDef = ctx.getBoundOperator(prefixedOpName);
         // console.log("PREFIXED OP DEFINITION:", prefixedOpName);
         // console.log("PREFIXED OP DEFINITION:", opDef);
-        return evalExpr(opDef.node, ctx);
+
+        // console.log("mod table:", ctx.module_table);
+        let moduleDefs = ctx.module_table[opDef.module_name]["op_defs"];
+        console.log("module defs:", moduleDefs);
+
+        // Evaluate this expression with access to definitions inside the original module.
+        // TODO: Re-consider this as an approach to evaluating named module instantation definitions?
+        let newCtx = ctx.clone();
+        for(const k in moduleDefs){
+            newCtx = newCtx.withBoundDefn(k, moduleDefs[k]);
+        }
+        return evalExpr(opDef.node, newCtx);
     }
 }
 
