@@ -256,6 +256,7 @@ async function testStateGraphEquiv(testId, stateGraph, parsedSpec, specPath, con
         { "spec": "simple_letin", "constvals": undefined },
         { "spec": "simple_extends", "constvals": undefined },
         { "spec": "simple_extends_instance", "constvals": undefined },
+        { "spec": "simple_extends_instance_with_subst", "constvals": undefined },
         // { "spec": "simple_extends_instance_def", "constvals": undefined },
         // { "spec": "simple_extends_instance_def_with_subst", "constvals": undefined },
         { "spec": "simple_operator", "constvals": undefined },

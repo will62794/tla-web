@@ -1357,11 +1357,17 @@ class TLASpec {
             // console.log("node text:", node.text);
             // console.log("node id:", node.id);
 
-            if (node.type === "extends" || node.type === "instance") {
+            // EXTENDS M
+            if (node.type === "extends") {
                 let extendsList = cursor.currentNode().namedChildren;
                 let extendsModuleNames = extendsList.map(n => n.text);
                 imported_modules = imported_modules.concat(extendsModuleNames);
-                // console.log("EXTENDS", imported_modules);
+            }
+
+            // INSTANCE M [WITH A <- 5, B <- 6]
+            if (node.type === "instance") {
+                let instanceModName = cursor.currentNode().namedChildren[0].text;
+                imported_modules.push(instanceModName);
             }
 
             // Module instantiation like:
@@ -1510,6 +1516,7 @@ class TLASpec {
         let var_decls = {};
         let const_decls = {};
         let extends_modules = [];
+        let instance_modules = {};
 
         // Look for all variables and definitions defined in the module.
         let more = cursor.gotoFirstChild();
@@ -1521,7 +1528,8 @@ class TLASpec {
             // console.log("node text:", node.text);
             // console.log("node id:", node.id);
 
-            if (node.type === "extends" || node.type === "instance") {
+            // EXTENDS M1, M2, M3
+            if (node.type === "extends") {
                 let extendsList = cursor.currentNode().namedChildren;
                 let extendsModuleNames = extendsList
                     .map(n => n.text)
@@ -1536,14 +1544,60 @@ class TLASpec {
                     if (!self.moduleTableParsed.hasOwnProperty(modName)) {
                         self.moduleTableParsed[modName] = parsedObj;
                     }
+
+                    // Go ahead and add all definitions from this module to the current module (?)
+                    op_defs = _.merge(op_defs, parsedObj["op_defs"]);
                 })
 
                 extends_modules = extendsModuleNames;
                 console.log("EXTENDS", extends_modules);
             }
 
+            // E.g.
+            // 
+            // INSTANCE M
+            // INSTANCE M WITH A <- 5, B <- 6
+            // 
             if (node.type === "instance") {
-                // TODO.
+                let instanceNodes = cursor.currentNode().namedChildren;
+                let modName = instanceNodes[0].text;
+                let substs = instanceNodes.filter(n => n.type === "substitution");
+                console.log("INSTANCE modname:", instanceNodes);
+                console.log("INSTANCE LIST:", modName);
+                console.log("INSTANCE subs:", substs);
+                for(const subst of substs){
+                    let substKey = subst.namedChildren[0];
+                    let substVal = subst.namedChildren[2];
+                    console.log("INSTANCE subst:", substKey.text, substVal.text);
+                    // Add these substitutions as defintions in the current module.
+                    // These substitutions should only be for VARIABLE or CONSTANT declarations.
+                    // TODO: Handle VARIABLE substitutions correctly.
+                    op_defs[substKey.text] = { "name": substKey.text, "args": [], "node": substVal };
+                }   
+
+                console.log("Parsing INSTANCE module:", modName);
+                let parsedObj = self.parseSpecModule(self.moduleTable[modName]);
+                if (!self.moduleTableParsed.hasOwnProperty(modName)) {
+                    self.moduleTableParsed[modName] = parsedObj;
+                }
+
+                // Go ahead and add all definitions from this module to the current module (?)
+                // TODO: Check for substitutions.
+                op_defs = _.merge(op_defs, parsedObj["op_defs"]);
+                console.log("op defs:", parsedObj["op_defs"])
+            }
+
+            // Foo == INSTANCE Bar WITH A <- 5, B <- 6
+            if (node.type === "module_definition") {
+                let nodes = cursor.currentNode().namedChildren;
+                let name = nodes[0];
+                let def = nodes[2];
+                // The name of the module being instantiated.
+                let moduleIdentRef = (def.namedChildren[0].text);
+                imported_modules = imported_modules.concat(moduleIdentRef);
+                // Substitutions.
+                instance_modules[moduleIdentRef] = {};
+                // TODO: Add substituted definitions into current module.
             }
 
             if (node.type === "constant_declaration") {
@@ -2659,10 +2713,10 @@ function evalIdentifierRef(node, ctx) {
     }
 
     // Check for definition bound in an imported/instantiated module.
-    let boundDefn = ctx.getDefnBoundInModule(ident_name);
-    if (boundDefn !== null) {
-        return evalExpr(boundDefn.node, ctx);
-    }
+    // let boundDefn = ctx.getDefnBoundInModule(ident_name);
+    // if (boundDefn !== null) {
+    //     return evalExpr(boundDefn.node, ctx);
+    // }
 
     // See if this identifier is a definition from an imported/instantiated module.
     if (ctx.hasOwnProperty("defns") && ctx["defns"].hasOwnProperty(ident_name)) {
