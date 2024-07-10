@@ -1749,7 +1749,11 @@ class TLASpec {
                 for (const opName in parsedObj["op_defs"]) {
                     let substPairs = substs.map(s => [s.namedChildren[0].text, s.namedChildren[2]]);
                     console.log(substPairs);
-                    parsedObj["op_defs"][opName]["substitutions"] = _.fromPairs(substPairs);
+                    let currentSubs = parsedObj["op_defs"][opName]["substitutions"];
+                    console.log("current subs:", currentSubs);
+                    // Add any new substitutions to already existing set of substitutions for this definition.
+                    parsedObj["op_defs"][opName]["substitutions"] = _.merge(currentSubs, _.fromPairs(substPairs));
+                    console.log("new subs:", parsedObj["op_defs"][opName]["substitutions"]);
                 }
 
                 op_defs = _.merge(op_defs, parsedObj["op_defs"]);
@@ -2297,10 +2301,12 @@ function evalEq(lhs, rhs, ctx) {
     // Deal with equality of variable on left hand side.
     let identName = lhs.text;
 
-    // Check for substitution that may define this identifier.
-    if (ctx.hasSubstitutionFor(identName)) {
+    // Check for substitutions that may re-define this identifier.
+    // We recursively apply substitutions until we reach a fixpoint, 
+    // to handle the case of transitive module imports.
+    while (ctx.hasSubstitutionFor(identName)) {
         let subNode = ctx["substitutions"][identName];
-        evalLog("Substituted node:", identName, subNode);
+        evalLog("Substituted node:", subNode.text, "for", identName);
         lhs = subNode;
         identName = subNode.text;
     }
@@ -3013,7 +3019,7 @@ function evalIdentifierRef(node, ctx) {
     // Check for substitutions (via module instantiations) that may re-define this identifier.
     if (ctx.hasSubstitutionFor(ident_name)) {
         let subNode = ctx["substitutions"][ident_name];
-        evalLog("Substituted node:", ident_name, subNode);
+        evalLog("Substituted node:", subNode.text, "for", ident_name);
         return evalExpr(subNode, ctx.clone());
     }
 
