@@ -2730,7 +2730,25 @@ function evalPrefixedOp(node, ctx) {
     let rhs = node.children[1];
 
     console.log(lhs);
-    console.log(lhs.namedChildren[0].namedChildren[0].namedChildren);
+
+    // 
+    // If there are parameterized module arguments, then we evaluate this expression in the context of module
+    // M but with the substitutions parameterized on the argument values.
+    // 
+    // e.g. M(x, y) == INSTANCE simple_extends_M4 WITH Val <- x, ValB <- y * 5
+    //
+    // TODO: Eventually support parameterized instantiation properly at some point.
+    // 
+
+    // For an expression like M(11,12)!Op, this extracts the module arguments (11,12).
+    let moduleNode = lhs.namedChildren[0].namedChildren[0].namedChildren;
+    let paramArgVals = [];
+    if(moduleNode.length > 1){
+        let paramModuleArgs = lhs.namedChildren[0].namedChildren[0].namedChildren.slice(1);
+        console.log("paramModuleArgs:", paramModuleArgs);
+        paramArgVals = paramModuleArgs.map(a => evalExpr(a, ctx)[0]["val"]);
+    }
+    console.log("paramArgVals:", paramArgVals);
 
     // See if there is an (imported) definition that exists for this operator given
     // this module prefixing.
