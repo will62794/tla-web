@@ -715,10 +715,12 @@ class SyntaxRewriter {
     // Map from rewritten spec back to the original.
     // maps from (line_new, col_new) to (line_old, col_old)
 
-    constructor(origSpecText, parser) {
+    constructor(origSpecText, parser, moduleDefs) {
         this.origSpecText = origSpecText;
         this.parser = parser;
         this.sourceMapOffsets = [];
+        // User-defined definitions within this module.
+        this.moduleDefs = moduleDefs;
     }
 
     /**
@@ -1379,14 +1381,19 @@ class TLASpec {
 
             // Module instantiation like:
             // M1 == INSTANCE Module1 WITH A <- 5, ...
-            // TODO: Keep track of instantatiation with substitutions in each module (?)
+            // M1(x,y) == INSTANCE Module1 WITH A <- 5, ...
             if (node.type === "module_definition") {
                 let nodes = cursor.currentNode().namedChildren;
-                let name = nodes[0];
-                let def = nodes[2];
-                // The name of the module being instantiated.
-                let moduleIdentRef = (def.namedChildren[0].text);
-                imported_modules = imported_modules.concat(moduleIdentRef);
+                let params = cursor.currentNode().namedChildren.filter(n => n.type === "identifier").slice(1);
+                console.log(nodes)
+                console.log(params);
+
+                // Extract the name of the module being instantiated.
+                // e.g. INSTANCE Module1 WITH A <- 5
+                let instance = cursor.currentNode().namedChildren.filter(n => n.type === "instance")[0];
+                let modName = instance.namedChildren[0].text;
+
+                imported_modules = imported_modules.concat(modName);
             }
 
         }
@@ -1733,13 +1740,15 @@ class TLASpec {
             // Foo == INSTANCE Bar [ WITH A <- 5, B <- 6 ]
             if (node.type === "module_definition") {
                 let nodes = cursor.currentNode().namedChildren;
+
                 let defName = nodes[0].text;
+                let params = cursor.currentNode().namedChildren.filter(n => n.type === "identifier").slice(1);
 
-                // The name of the module being instantiated.
-                let modName = (nodes[2].namedChildren[0].text);
 
-                // imported_modules = imported_modules.concat(modName);
-                // instance_modules[modName] = {};
+                // Extract the name of the module being instantiated.
+                // e.g. INSTANCE Module1 WITH A <- 5
+                let instance = cursor.currentNode().namedChildren.filter(n => n.type === "instance")[0];
+                let modName = instance.namedChildren[0].text;
 
                 // Add substituted definitions into current module.
                 console.log("Parsing module from INSTANCE definition:", modName);
@@ -1758,7 +1767,14 @@ class TLASpec {
                     // N.B. Notes on module semantics: https://lamport.azurewebsites.net/tla/newmodule.html
                     // IF we are evaluating an expression from a named module instantation (e.g. M!Expr), 
                     // then this expression should be able to refer to definitions that appear in the original module M.
-                    op_defs[substOpName] = { "name": opName, "args": origOpDef.args, "node": origOpDef.node, "name_prefix": prefix, "module_name": modName }
+                    // We may also need to deal with substitutions made by this module instantiation.
+                    op_defs[substOpName] = { 
+                        "name": opName, 
+                        "args": origOpDef.args, 
+                        "node": origOpDef.node, 
+                        "name_prefix": prefix, 
+                        "module_name": modName
+                    };
                 }   
                 
                 let substs = nodes[2].namedChildren.filter(n => n.type === "substitution");
@@ -2335,7 +2351,11 @@ function evalUnchanged(node, ctx) {
     }
     evalLog("eval prefix op: UNCHANGED val", unchangedVal, unchangedVal.text);
 
-    if (unchangedVal.type === "tuple_literal") {
+    if (unchangedVal.type === "tuple_literal" || unchangedVal.type === "parentheses") {
+        // De-parenthesize.
+        if(unchangedVal.type  === "parentheses"){
+            unchangedVal = unchangedVal.namedChildren[0];
+        }
         // Handle case where tuple consists of identifier_refs.
         let tupleElems = unchangedVal.namedChildren
             .filter(c => c.type === "identifier_ref");
@@ -2704,12 +2724,28 @@ function evalEnabled(node, ctx) {
 }
 
 // M!Op
+// Evaluation of an expression from a named module instantiation.
 function evalPrefixedOp(node, ctx) {
     let lhs = node.children[0];
     let rhs = node.children[1];
 
+    console.log(lhs);
+    console.log(lhs.namedChildren[0].namedChildren[0].namedChildren);
+
     // See if there is an (imported) definition that exists for this operator given
     // this module prefixing.
+
+    //
+    // When evaluating a named module instantiation expresison like M!Op, we
+    // should be allowed to have access to any definitions that are accessible
+    // from within the original module M. For example, if M defines
+    // 
+    // e1 == 5
+    // e2 == e1 + 1
+    //
+    // And we have an instance of M locally and try to evaluate M!e2, then during evaluation
+    // of M!e2, we should have access to the definitions e1 from the original module M.
+    //
     let prefixedOpName = lhs.text + rhs.text;
     if (ctx.hasOperatorBound(prefixedOpName)) {
         opDef = ctx.getBoundOperator(prefixedOpName);
