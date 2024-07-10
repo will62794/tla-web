@@ -2351,11 +2351,12 @@ function evalUnchanged(node, ctx) {
     }
     evalLog("eval prefix op: UNCHANGED val", unchangedVal, unchangedVal.text);
 
-    if (unchangedVal.type === "tuple_literal" || unchangedVal.type === "parentheses") {
-        // De-parenthesize.
-        if(unchangedVal.type  === "parentheses"){
-            unchangedVal = unchangedVal.namedChildren[0];
-        }
+    // De-parenthesize if needed.
+    while(unchangedVal.type === "parentheses"){
+        unchangedVal = unchangedVal.namedChildren[0];
+    }
+
+    if (unchangedVal.type === "tuple_literal") {
         // Handle case where tuple consists of identifier_refs.
         let tupleElems = unchangedVal.namedChildren
             .filter(c => c.type === "identifier_ref");
