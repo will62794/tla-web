@@ -3,11 +3,14 @@ EXTENDS Sequences, Naturals
 
 M(a, b) == INSTANCE simple_extends_M4 WITH Val <- a, ValB <- b * 5
 
-VARIABLES x
+VARIABLES x, y
+
+E1 == 45
 
 Init == 
-    \/ x = M(11, 12)!ExprM4 + M(21, 6)!ExprM4_B + 3
+    /\ x = M(11, 12)!ExprM4 + M(21, E1 + 1)!ExprM4_B + 3
+    /\ y = 12
 
-Next == x' = x
+Next == x' = x /\ y' = y
 
 ====
