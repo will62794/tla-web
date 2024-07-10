@@ -15,9 +15,11 @@ The first, `EXTENDS`, is straightforward, in that it dumps all definitions, decl
 
 The second, `INSTANCE` is a bit different, and also allows for "substitution". 
 
-If you have a statement like `INSTANCE N`, then this dumps all definitions that appear in `N` into the scope of module `M`, but it does not dump the `VARIABLE` or `CONSTANT` declarations from `N`. But, if you use a definition from `N` from within `M`, it must be able to access any symbol that could be accessed within `N`, which include variable or constants declarations in `N`. So, you have to ensure that those same symbols are accessible in `M` as well. 
+Specifically, the statement `INSTANCE N` dumps all definitions that appear in `N` into the scope of module `M`. Note that is does *not* dump the `VARIABLE` or `CONSTANT` declarations from `N`. 
 
-If symbols with the same nameas those in `N` already appear in `M`, then this is already handled. If not, though, you have to provide explicit substitutions for the symbols that appear in `N` but not in `M`. For example, if `N` declares `VARIABLE y`, but there is no `VARIABLE y` declaration in `M`, then you must provide a substitution for `y` in the `INSTANCE N` statement. For example, if `M` has declared `VARIABLE x`, then you could write 
+If you want to use a definition from `N` from within `M` after this definition dump, though, the definition expression must be able to access any symbol that could be accessed within `N`, which may include `VARIABLE`/`CONSTANT` declarations in `N`. So, you have to ensure that those symbols are accessible in `M` as well. 
+
+If symbols with the same name as those in `N` already appear in `M`, then this is already handled. If not, though, you have to provide explicit substitutions for the symbols that appear in `N` but not in `M`. For example, if `N` declares `VARIABLE y`, but there is no `VARIABLE y` declaration in `M`, then you must provide a substitution for `y` in the `INSTANCE N` statement. For example, if `M` has declared `VARIABLE x`, then you could write 
 ```tla
 INSTANCE N WITH y <- x
 ```
