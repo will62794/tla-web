@@ -8,4 +8,4 @@ May be able to use eval graph as structure for compiling to lower level represen
 
 ## 2024-07-10
 
-[Github search](https://github.com/search?q=%3D%3D+INSTANCE+language%3ATLA&type=code&ref=advsearch&p=2) of uses of `INSTANCE` across TLA+ code. Parameterized insantiation seems quite rare.
+[Github search](https://github.com/search?q=%3D%3D+INSTANCE+language%3ATLA&type=code&ref=advsearch&p=2) of uses of `INSTANCE` across TLA+ code. Parameterized insantiation seems quite rare. [This search](https://github.com/search?q=%22%29+%3D%3D+INSTANCE%22+language%3ATLA&type=code&ref=advsearch) is somewhat more accurate.
