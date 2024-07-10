@@ -1,4 +1,4 @@
----- MODULE simple_extends_instance_with_subst ----
+---- MODULE simple_extends_instance_with_const_subst ----
 EXTENDS Sequences, Naturals
 
 INSTANCE simple_extends_M4 WITH Val <- 33, ValB <- 66
