@@ -1703,11 +1703,16 @@ class TLASpec {
                 console.log("EXTENDS", extends_modules);
             }
 
-            // E.g.
-            // 
-            // INSTANCE M
-            // INSTANCE M WITH A <- 5, B <- 6
-            // 
+            //
+            // INSTANCE N INSTANCE M WITH A <- 5, B <- 6
+            //
+            // An INSTANCE N statement inside a module M dumps all definitions
+            // from module N into module M. Note that it does not include any
+            // VARIABLE or CONSTANT declarations from N into M. This also means,
+            // though, that substitutions may be required in the INSTANCE
+            // statement for either VARIABLE or CONSTANT symbol declarations
+            // that appear in N but not in M.
+            //
             if (node.type === "instance") {
                 let instanceNodes = cursor.currentNode().namedChildren;
                 let modName = instanceNodes[0].text;
@@ -1715,15 +1720,16 @@ class TLASpec {
                 console.log("INSTANCE modname:", instanceNodes);
                 console.log("INSTANCE LIST:", modName);
                 console.log("INSTANCE subs:", substs);
-                for(const subst of substs){
-                    let substKey = subst.namedChildren[0];
-                    let substVal = subst.namedChildren[2];
-                    console.log("INSTANCE subst:", substKey.text, substVal.text);
-                    // Add these substitutions as defintions in the current module.
-                    // These substitutions should only be for VARIABLE or CONSTANT declarations.
-                    // TODO: Handle VARIABLE substitutions correctly.
-                    op_defs[substKey.text] = { "name": substKey.text, "args": [], "node": substVal };
-                }   
+                // for(const subst of substs){
+                // let substKey = subst.namedChildren[0]; let substVal =
+                // subst.namedChildren[2]; console.log("INSTANCE subst:",
+                // substKey.text, substVal.text); Add these substitutions as
+                // defintions in the current module. These substitutions
+                // should only be for VARIABLE or CONSTANT declarations.
+                // TODO: Handle VARIABLE substitutions correctly.
+                // op_defs[substKey.text] = { "name": substKey.text, "args":
+                // [], "node": substVal };
+                // }   
 
                 console.log("Parsing INSTANCE module:", modName);
                 let parsedObj = self.parseSpecModule(self.moduleTable[modName]);
@@ -1731,8 +1737,21 @@ class TLASpec {
                     self.moduleTableParsed[modName] = parsedObj;
                 }
 
-                // Go ahead and add all definitions from this module to the current module (?)
-                // TODO: Check for substitutions.
+                //
+                // Go ahead and add all definitions from this module to the
+                // current module.
+                //
+                // Definitions imported via module instantiation are treated a
+                // bit specially to account for substitutions. Alongside the
+                // definition, we to store the substitutions that go with it so
+                // that it can be evaluated correctly.
+                // 
+                for (const opName in parsedObj["op_defs"]) {
+                    let substPairs = substs.map(s => [s.namedChildren[0].text, s.namedChildren[2]]);
+                    console.log(substPairs);
+                    parsedObj["op_defs"][opName]["substitutions"] = _.fromPairs(substPairs);
+                }
+
                 op_defs = _.merge(op_defs, parsedObj["op_defs"]);
                 console.log("op defs:", parsedObj["op_defs"])
             }
@@ -1975,7 +1994,7 @@ class TLASpec {
  * initial/next state generation.
  */
 class Context {
-    constructor(val, state, defns, quant_bound, constants, prev_func_val, operators_bound, module_table, eval_node) {
+    constructor(val, state, defns, quant_bound, constants, prev_func_val, operators_bound, module_table, eval_node, substitutionsNew) {
 
         // @type: TLAValue
         // The result value of a TLA expression, or 'null' if no result has been
@@ -2020,6 +2039,8 @@ class Context {
         this.module_table = module_table || {};
 
         this.eval_node = eval_node || null;
+
+        this.substitutions = substitutionsNew;
     }
 
     cloneDeepVal(){
@@ -2054,7 +2075,8 @@ class Context {
         let module_tableNew = this.module_table; // should never be modified
         let prev_func_val = _.cloneDeep(this.prev_func_val);
         let eval_node = _.cloneDeep(this.eval_node);
-        return new Context(valNew, stateNew, defnsNew, quant_boundNew, constants, prev_func_val, operators_boundNew, module_tableNew, eval_node);
+        let substitutionsNew = _.cloneDeep(this.substitutions);
+        return new Context(valNew, stateNew, defnsNew, quant_boundNew, constants, prev_func_val, operators_boundNew, module_tableNew, eval_node, substitutionsNew);
     }
 
     /**
@@ -2150,6 +2172,10 @@ class Context {
 
     hasOperatorBound(defName) {
         return this["defns"].hasOwnProperty(defName) || this["operators_bound"].hasOwnProperty(defName);
+    }
+
+    hasSubstitutionFor(identName){
+        return this["substitutions"] !== undefined && this["substitutions"].hasOwnProperty(identName);
     }
 
     getBoundOperator(defName) {
@@ -2270,6 +2296,14 @@ function evalEq(lhs, rhs, ctx) {
 
     // Deal with equality of variable on left hand side.
     let identName = lhs.text;
+
+    // Check for substitution that may define this identifier.
+    if (ctx.hasSubstitutionFor(identName)) {
+        let subNode = ctx["substitutions"][identName];
+        evalLog("Substituted node:", identName, subNode);
+        lhs = subNode;
+        identName = subNode.text;
+    }
 
     // let isUnprimedVar = ctx["state"].hasOwnProperty(identName) && !isPrimedVar(lhs);
     let isUnprimedVar = ctx.state.hasVar(identName) && !isPrimedVar(lhs, ctx);
@@ -2924,6 +2958,13 @@ function evalIdentifierRef(node, ctx) {
     let ident_name = node.text;
     evalLog(`evalIdentifierRef, '${node.text}' context:`, ctx, "ident_name:", ident_name);
 
+    // If this identifier ref has any substitutions, then we
+    // consider those in the context during evaluation.
+    if (ctx.hasOwnProperty("defns") && ctx["defns"].hasOwnProperty(ident_name) && ctx["defns"][ident_name].hasOwnProperty("substitutions")) {
+        ctx["substitutions"] = ctx["defns"][ident_name]["substitutions"];
+    }
+
+
     // Are we in a "primed" evaluation context.
     let isPrimed = ctx.isPrimed();
 
@@ -2969,11 +3010,12 @@ function evalIdentifierRef(node, ctx) {
         return evalExpr(defNode, ctx);
     }
 
-    // Check for definition bound in an imported/instantiated module.
-    // let boundDefn = ctx.getDefnBoundInModule(ident_name);
-    // if (boundDefn !== null) {
-    //     return evalExpr(boundDefn.node, ctx);
-    // }
+    // Check for substitutions (via module instantiations) that may re-define this identifier.
+    if (ctx.hasSubstitutionFor(ident_name)) {
+        let subNode = ctx["substitutions"][ident_name];
+        evalLog("Substituted node:", ident_name, subNode);
+        return evalExpr(subNode, ctx.clone());
+    }
 
     // See if this identifier is a definition from an imported/instantiated module.
     if (ctx.hasOwnProperty("defns") && ctx["defns"].hasOwnProperty(ident_name)) {
