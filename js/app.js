@@ -51,6 +51,7 @@ let model = {
     nextStatePreview: null,
     replMode: false,
     replResult: null,
+    replError : false,
     constantsPaneHidden: false,
     selectedTab: Tab.SpecEditor,
     selectedTraceTab: TraceTab.Trace,
@@ -1230,6 +1231,7 @@ function onSpecParse(newText, parsedSpecTree){
 
     model.currTrace = [];
     model.currNextStates = [];
+    model.replInput = "";
 
     let hasInit = model.specTreeObjs["op_defs"].hasOwnProperty("Init");
     let hasNext = model.specTreeObjs["op_defs"].hasOwnProperty("Next");
@@ -1411,7 +1413,7 @@ function stateSelectionPane(hidden){
         // chooseConstantsPane(),
         // m("h5", { id: "poss-next-states-title", class: "" }, (model.currTrace.length > 0) ? "Choose Next Action" : "Choose Initial State"),
         m("div", { id: "initial-states", class: "tlc-state" }, [
-            model.currTrace.length === 0 && model.nextStatePred !== null ? m("div", {style: "padding:20px;"}, "Choose Initial State") : m("span"),
+            model.currTrace.length === 0 && model.nextStatePred !== null ? m("div", {style: "padding:10px;"}, "Choose Initial State") : m("span"),
             model.nextStatePred === null ? m("div", {style: "padding:20px;"}, "No transition relation found. Spec can be explored in the REPL.") : m("span"),
             componentNextStateChoices()
         ]),
@@ -1615,7 +1617,7 @@ function tracePane() {
 }
 
 function replResult(){
-    if(model.replResult !== null){
+    if(model.replResult !== null && model.replError === false){
         return model.replResult.toString();
     } else{
         return "";
@@ -1623,6 +1625,7 @@ function replResult(){
 }
 
 function replPane(hidden) {
+    let replErrColor = (!model.replError || model.replInput === "" ? "" : "#FF9494");
     return m("div", {hidden: hidden}, [
         // m("h4", { id: "repl-title", class: "panje-title" }, "REPL Input"),
         m("div", { id: "repl-container" }, [
@@ -1630,8 +1633,10 @@ function replPane(hidden) {
                 class: "replf-input form-control",
                 id: `repl-input`,
                 size: 50,
+                style:{"background-color": replErrColor},
                 oninput: (e) => {
                     model.replInput = e.target.value
+                    model.replError = false;
                     let ctx = new Context(null, new TLAState({}), model.specDefs, {}, model.specConstVals);
                     try {
                         let res = evalExprStrInContext(ctx, model.replInput);
@@ -1639,13 +1644,14 @@ function replPane(hidden) {
                         model.replResult = res;
                     } catch (error) {
                         // swallow parse errors here.
+                        model.replError = true;
                         console.log("swallowing parse errors during repl evaluation.")
                     }
                 },
                 value: model.replInput,
                 placeholder: "Enter TLA+ expression."
             }),
-            m("h5", { id: "repl-tifftle", class: "panje-title", style:"margin-top:10px" }, "Result"),
+            m("h5", { id: "repl-tifftle", class: "panje-title", style:"margin-top:20px" }, "Result"),
             m("div", { id: "repl-result" }, replResult())
         ])
     ]);
