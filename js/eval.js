@@ -2643,6 +2643,16 @@ function evalBoundInfix(node, ctx) {
         return [ctx.withVal(new BoolValue(!a.getVal() || b.getVal()))];
     }
 
+    // <=>
+    if (symbol.type === "iff") {
+        // (a <=> b) <=> ((a => b) /\ (b => a))
+        let a = evalExpr(lhs, ctx)[0]["val"];
+        let b = evalExpr(rhs, ctx)[0]["val"];
+        assert(a instanceof BoolValue);
+        assert(b instanceof BoolValue);
+        return [ctx.withVal(new BoolValue(a.getVal() === b.getVal()))];
+    }
+
     // Equality.
     if (symbol.type === "eq") {
         // console.log("bound_infix_op, symbol 'eq', ctx:", JSON.stringify(ctx));

@@ -13,6 +13,9 @@ Init ==
     \/ x = (("a" \in DOMAIN R1) => R1["a"] = 4)
     \/ x = (("a" \in DOMAIN R2) => R2["a"] = 4)
     \/ x = (\E r \in {R1, R2} : "a" \in DOMAIN r => r["a"] = 4)
+    \* Test bi-directional implication (iff)
+    \/ x = (3 > 2 <=> 2 < 3)
+    \/ x = (3 > 2 <=> 4 > 2)
 
 Next == x' = x 
 ====================
