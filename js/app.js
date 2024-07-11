@@ -1228,6 +1228,9 @@ function onSpecParse(newText, parsedSpecTree){
     model.errorObj = null;
     model.actions = parsedSpecTree.actions;
 
+    model.currTrace = [];
+    model.currNextStates = [];
+
     let hasInit = model.specTreeObjs["op_defs"].hasOwnProperty("Init");
     let hasNext = model.specTreeObjs["op_defs"].hasOwnProperty("Next");
 
@@ -1332,6 +1335,9 @@ async function handleCodeChange(editor, changes) {
         console.log("SPEC WAS PARSED.", spec);
         onSpecParse(newText, spec.spec_obj);
         m.redraw(); //explicitly re-draw on promise resolution.
+    }).catch(function(e){
+        console.log("Error parsing spec promise.", e);
+        model.errorObj = {parseError: true, obj: e, message: "Error parsing spec."};
     });
 }
 
@@ -1419,7 +1425,9 @@ function loadSpecBox(hidden){
             return m("li", {}, m("a",{onclick: () => {
                 clearRouteParams();
                 model.specPath = exampleSpecs[k].specpath;
-                model.currTrace = []
+                model.currTrace = [];
+                model.currNextStates = [];
+                model.allInitStates = [];
                 model.traceExprs = [];
                 model.rootModName = "";
                 loadSpecFromPath(model.specPath);
@@ -1792,6 +1800,7 @@ function loadSpecText(text, specPath) {
 
 // Fetch spec from given path (e.g. URL) and reload it in the editor pane and UI.
 function loadSpecFromPath(specPath){
+    model.errorObj = null;
     // Download the specified spec and load it in the editor pane.
     m.request(specPath, { responseType: "text" }).then(function (specText) {
         loadSpecText(specText, specPath);
@@ -1851,7 +1860,13 @@ async function loadApp() {
             // m.route.set("/home", newParams);
         },
         view: function () {
-            let spinner = model.rootModName.length === 0 && !model.loadSpecFailed ? m("div", {class:"spinner-border spinner-border-sm"}) : m("span");
+            let fetchingInProgress = model.rootModName.length === 0 && !model.loadSpecFailed;
+            let isParseErr = model.errorObj != null && model.errorObj.hasOwnProperty("parseError");
+
+            let spinner = fetchingInProgress ? m("div", {class:"spinner-border spinner-border-sm"}) : m("span");
+            let fetchingText = fetchingInProgress ? "Fetching spec... " : "";
+            let parseError = isParseErr ? m("span", {class:"bi-exclamation-triangle", style:{"color":"red", "margin-left":"5px"}}, " Parse error.") : m("span");
+
             return [
                 // Header.
                 m("nav", { class: "navbar bg-body-tertiary border-bottom mb-2" }, [
@@ -1860,9 +1875,11 @@ async function loadApp() {
                         m("span", {class:"navbar-text", href: "https://github.com/will62794/tla-web"}, 
                             [
                                 m("span", {}, [
-                                    m("span", {style:"font-weight:bold"}, "Root module: "),
+                                    m("span", {style:"font-weight:bold"}, "Root module:  "),
                                     m("span", model.rootModName + (model.rootModName.length > 0 ? ".tla" : "")),
-                                    spinner
+                                    m("span", {style:{opacity:0.5}}, fetchingText),
+                                    spinner,
+                                    parseError
                                 ]
                                 )
                             ]

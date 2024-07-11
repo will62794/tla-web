@@ -1832,7 +1832,7 @@ class TLASpec {
 
 
                     let substPairs = substs.map(s => [s.namedChildren[0].text, s.namedChildren[2]]);
-                    console.log(substPairs);
+                    // console.log(substPairs);
                     let currentSubs = parsedObj["op_defs"][opName]["substitutions"];
                     // Add any new substitutions to already existing set of substitutions for this definition.
                     let newSubs = _.merge(currentSubs, _.fromPairs(substPairs));
