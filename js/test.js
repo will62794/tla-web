@@ -270,6 +270,7 @@ async function testStateGraphEquiv(testId, stateGraph, parsedSpec, specPath, con
         { "spec": "simple_extends_instance_def_with_subst", "constvals": undefined },
         { "spec": "simple_extends_instance_def_with_var_subst", "constvals": undefined },
         { "spec": "simple_extends_instance_def_parameterized", "constvals": undefined },
+        { "spec": "simple_extends_instance_def_user_infix_op", "constvals": undefined },
         { "spec": "simple_operator", "constvals": undefined },
         { "spec": "simple_lambda", "constvals": undefined },
         { "spec": "simple_nested_lambda", "constvals": undefined },

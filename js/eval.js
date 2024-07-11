@@ -2844,12 +2844,27 @@ function evalBoundInfix(node, ctx) {
         return [ctx.withVal(newTupVal)];
     }
 
+    // If this infix op is being evaluated inside an expression from a
+    // namespaced module instantiation, then we can try to look up the
+    // definition based on the module namespace prefix.
+    let symbolText = symbol.text;
+    if (!ctx.hasOperatorBound(symbolText) && ctx.hasOwnProperty("module_eval_namespace_prefix")) {
+        let modEvalPrefix = ctx["module_eval_namespace_prefix"];
+        console.log("modEvalPrefix:", modEvalPrefix);
+        let prefixedSymbolName = modEvalPrefix + symbolText;
+        // console.log("prefixedIdentName:", prefixedEvalIdentName);
+        // console.log(ctx["defns"]);
+        if(ctx.hasOwnProperty("defns") && ctx["defns"].hasOwnProperty(prefixedSymbolName)){
+            symbolText = prefixedSymbolName;
+        }
+    }
+
     // Check for user-defined infix operators.
-    if (ctx.hasOperatorBound(symbol.text)) {
-        console.log("OPBOUND:", symbol.text);
-        let opDef = ctx["defns"][symbol.text];
-        console.log(opDef);
-        console.log(node);
+    if (ctx.hasOperatorBound(symbolText)) {
+        // console.log("OPBOUND:", symbolText);
+        let opDef = ctx["defns"][symbolText];
+        // console.log(opDef);
+        // console.log(node);
         return evalUserBoundOp(node, opDef.node, opDef.args, ctx)
     }
 
