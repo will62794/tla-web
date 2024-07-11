@@ -346,7 +346,7 @@ class TupleValue extends TLAValue {
 
     head() {
         if (this.elems.length === 0) {
-            throw new Exception("Tried to get head of empty list");
+            throw new Error("Tried to get head of empty list");
         }
         return this.elems[0];
     }
