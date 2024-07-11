@@ -1751,14 +1751,14 @@ class TLASpec {
                     let substPairs = substs.map(s => [s.namedChildren[0].text, s.namedChildren[2]]);
                     console.log(substPairs);
                     let currentSubs = parsedObj["op_defs"][opName]["substitutions"];
-                    console.log("current subs:", currentSubs);
+                    // console.log("current subs:", currentSubs);
                     // Add any new substitutions to already existing set of substitutions for this definition.
                     parsedObj["op_defs"][opName]["substitutions"] = _.merge(currentSubs, _.fromPairs(substPairs));
-                    console.log("new subs:", parsedObj["op_defs"][opName]["substitutions"]);
+                    // console.log("new subs:", parsedObj["op_defs"][opName]["substitutions"]);
                 }
 
                 op_defs = _.merge(op_defs, parsedObj["op_defs"]);
-                console.log("op defs:", parsedObj["op_defs"])
+                // console.log("op defs:", parsedObj["op_defs"])
             }
 
             //
