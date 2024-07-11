@@ -263,9 +263,10 @@ async function testStateGraphEquiv(testId, stateGraph, parsedSpec, specPath, con
         { "spec": "simple_extends_instance_with_var_and_const_subst", "constvals": undefined },
         { "spec": "simple_extends_instance_with_var_and_const_subst_transitive", "constvals": undefined },
         { "spec": "simple_extends_instance_def", "constvals": undefined },
-        // { "spec": "simple_extends_instance_def_parameterized", "constvals": undefined },
         { "spec": "simple_extends_instance_def_transitive", "constvals": undefined },
         { "spec": "simple_extends_instance_def_with_subst", "constvals": undefined },
+        { "spec": "simple_extends_instance_def_with_var_subst", "constvals": undefined },
+        // { "spec": "simple_extends_instance_def_parameterized", "constvals": undefined },
         { "spec": "simple_operator", "constvals": undefined },
         { "spec": "simple_lambda", "constvals": undefined },
         { "spec": "simple_nested_lambda", "constvals": undefined },
@@ -315,7 +316,18 @@ async function testStateGraphEquiv(testId, stateGraph, parsedSpec, specPath, con
                 "Server": new SetValue([new StringValue("s1"), new StringValue("s2")]),
                 "Client": new SetValue([new StringValue("c1"), new StringValue("c2")])
             }
-        }
+        },
+        {
+            "spec": "ShardTxn",
+            "constvals": {
+                "Keys": new SetValue([new StringValue("k1")]),
+                "Values": new SetValue([new StringValue("t1")]),
+                "RC": new StringValue("linearizable"),
+                "WC": new StringValue("majority"),
+                "NoValue": new StringValue("NoValue"),
+                "STMTS": new IntValue(1),
+            }
+        },
         // {
         //     "spec": "DieHarder", 
         //     "constvals": {

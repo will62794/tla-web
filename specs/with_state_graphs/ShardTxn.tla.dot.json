@@ -98,99 +98,99 @@
     },
     {
       "_gvid": 8,
-      "name": "-505555173866900318",
-      "label": "\/\\\\ lsn = (t1 :> 0)\\n\/\\\\ rtxn = (t1 :> 0)\\n\/\\\\ epoch = 1\\n\/\\\\ updated = (t1 :> {})\\n\/\\\\ snapshotStore = (t1 :> (k1 :> \"NoValue\"))\\n\/\\\\ pc = (t1 :> \"TXN\" @@ \"Router\" :> \"ROUTER\")\\n\/\\\\ ops = (t1 :> <<>>)\\n\/\\\\ overlap = (t1 :> {})\\n\/\\\\ rlog = (t1 :> <<>>)\\n\/\\\\ commitIndex = 0\\n\/\\\\ tx = {}\\n\/\\\\ log = <<>>\\n\/\\\\ aborted = (t1 :> FALSE)",
+      "name": "4137000358209998203",
+      "label": "\/\\\\ lsn = [t1 |-> 0]\\n\/\\\\ rtxn = [t1 |-> 0]\\n\/\\\\ epoch = 1\\n\/\\\\ updated = [t1 |-> {}]\\n\/\\\\ snapshotStore = [t1 |-> [k1 |-> \"NoValue\"]]\\n\/\\\\ pc = [t1 |-> \"TXN\", Router |-> \"ROUTER\"]\\n\/\\\\ ops = [t1 |-> <<>>]\\n\/\\\\ overlap = [t1 |-> {}]\\n\/\\\\ rlog = [t1 |-> <<>>]\\n\/\\\\ commitIndex = 0\\n\/\\\\ tx = {}\\n\/\\\\ log = <<>>\\n\/\\\\ aborted = [t1 |-> FALSE]",
       "style": "filled"
     },
     {
       "_gvid": 9,
-      "name": "2992866612566858506",
-      "label": "\/\\\\ lsn = (t1 :> 0)\\n\/\\\\ rtxn = (t1 :> 1)\\n\/\\\\ epoch = 1\\n\/\\\\ updated = (t1 :> {})\\n\/\\\\ snapshotStore = (t1 :> (k1 :> \"NoValue\"))\\n\/\\\\ pc = (t1 :> \"TXN\" @@ \"Router\" :> \"ROUTER\")\\n\/\\\\ ops = (t1 :> <<>>)\\n\/\\\\ overlap = (t1 :> {})\\n\/\\\\ rlog = (t1 :> <<[k |-> k1, op |-> \"read\"]>>)\\n\/\\\\ commitIndex = 0\\n\/\\\\ tx = {}\\n\/\\\\ log = <<>>\\n\/\\\\ aborted = (t1 :> FALSE)"
+      "name": "-7528721687862344690",
+      "label": "\/\\\\ lsn = [t1 |-> 0]\\n\/\\\\ rtxn = [t1 |-> 1]\\n\/\\\\ epoch = 1\\n\/\\\\ updated = [t1 |-> {}]\\n\/\\\\ snapshotStore = [t1 |-> [k1 |-> \"NoValue\"]]\\n\/\\\\ pc = [t1 |-> \"TXN\", Router |-> \"ROUTER\"]\\n\/\\\\ ops = [t1 |-> <<>>]\\n\/\\\\ overlap = [t1 |-> {}]\\n\/\\\\ rlog = [t1 |-> <<[k |-> \"k1\", op |-> \"read\"]>>]\\n\/\\\\ commitIndex = 0\\n\/\\\\ tx = {}\\n\/\\\\ log = <<>>\\n\/\\\\ aborted = [t1 |-> FALSE]"
     },
     {
       "_gvid": 10,
-      "name": "7847831955468835296",
-      "label": "\/\\\\ lsn = (t1 :> 0)\\n\/\\\\ rtxn = (t1 :> 1)\\n\/\\\\ epoch = 1\\n\/\\\\ updated = (t1 :> {})\\n\/\\\\ snapshotStore = (t1 :> (k1 :> \"NoValue\"))\\n\/\\\\ pc = (t1 :> \"TXN\" @@ \"Router\" :> \"ROUTER\")\\n\/\\\\ ops = (t1 :> <<>>)\\n\/\\\\ overlap = (t1 :> {})\\n\/\\\\ rlog = (t1 :> <<[k |-> k1, op |-> \"write\"]>>)\\n\/\\\\ commitIndex = 0\\n\/\\\\ tx = {}\\n\/\\\\ log = <<>>\\n\/\\\\ aborted = (t1 :> FALSE)"
+      "name": "6581333495467715927",
+      "label": "\/\\\\ lsn = [t1 |-> 0]\\n\/\\\\ rtxn = [t1 |-> 1]\\n\/\\\\ epoch = 1\\n\/\\\\ updated = [t1 |-> {}]\\n\/\\\\ snapshotStore = [t1 |-> [k1 |-> \"NoValue\"]]\\n\/\\\\ pc = [t1 |-> \"TXN\", Router |-> \"ROUTER\"]\\n\/\\\\ ops = [t1 |-> <<>>]\\n\/\\\\ overlap = [t1 |-> {}]\\n\/\\\\ rlog = [t1 |-> <<[k |-> \"k1\", op |-> \"write\"]>>]\\n\/\\\\ commitIndex = 0\\n\/\\\\ tx = {}\\n\/\\\\ log = <<>>\\n\/\\\\ aborted = [t1 |-> FALSE]"
     },
     {
       "_gvid": 11,
-      "name": "507768310209712217",
-      "label": "\/\\\\ lsn = (t1 :> 0)\\n\/\\\\ rtxn = (t1 :> 1)\\n\/\\\\ epoch = 1\\n\/\\\\ updated = (t1 :> {})\\n\/\\\\ snapshotStore = (t1 :> (k1 :> \"NoValue\"))\\n\/\\\\ pc = (t1 :> \"TXN\" @@ \"Router\" :> \"Done\")\\n\/\\\\ ops = (t1 :> <<>>)\\n\/\\\\ overlap = (t1 :> {})\\n\/\\\\ rlog = (t1 :> <<[k |-> k1, op |-> \"read\"]>>)\\n\/\\\\ commitIndex = 0\\n\/\\\\ tx = {}\\n\/\\\\ log = <<>>\\n\/\\\\ aborted = (t1 :> FALSE)"
+      "name": "-8497849349850637177",
+      "label": "\/\\\\ lsn = [t1 |-> 0]\\n\/\\\\ rtxn = [t1 |-> 1]\\n\/\\\\ epoch = 1\\n\/\\\\ updated = [t1 |-> {}]\\n\/\\\\ snapshotStore = [t1 |-> [k1 |-> \"NoValue\"]]\\n\/\\\\ pc = [t1 |-> \"TXN\", Router |-> \"Done\"]\\n\/\\\\ ops = [t1 |-> <<>>]\\n\/\\\\ overlap = [t1 |-> {}]\\n\/\\\\ rlog = [t1 |-> <<[k |-> \"k1\", op |-> \"read\"]>>]\\n\/\\\\ commitIndex = 0\\n\/\\\\ tx = {}\\n\/\\\\ log = <<>>\\n\/\\\\ aborted = [t1 |-> FALSE]"
     },
     {
       "_gvid": 12,
-      "name": "371184827436645122",
-      "label": "\/\\\\ lsn = (t1 :> 1)\\n\/\\\\ rtxn = (t1 :> 1)\\n\/\\\\ epoch = 1\\n\/\\\\ updated = (t1 :> {})\\n\/\\\\ snapshotStore = (t1 :> (k1 :> \"NoValue\"))\\n\/\\\\ pc = (t1 :> \"READ\" @@ \"Router\" :> \"ROUTER\")\\n\/\\\\ ops = (t1 :> <<>>)\\n\/\\\\ overlap = (t1 :> {t1})\\n\/\\\\ rlog = (t1 :> <<[k |-> k1, op |-> \"read\"]>>)\\n\/\\\\ commitIndex = 0\\n\/\\\\ tx = {t1}\\n\/\\\\ log = <<>>\\n\/\\\\ aborted = (t1 :> FALSE)"
+      "name": "8133682999221988113",
+      "label": "\/\\\\ lsn = [t1 |-> 1]\\n\/\\\\ rtxn = [t1 |-> 1]\\n\/\\\\ epoch = 1\\n\/\\\\ updated = [t1 |-> {}]\\n\/\\\\ snapshotStore = [t1 |-> [k1 |-> \"NoValue\"]]\\n\/\\\\ pc = [t1 |-> \"READ\", Router |-> \"ROUTER\"]\\n\/\\\\ ops = [t1 |-> <<>>]\\n\/\\\\ overlap = [t1 |-> {\"t1\"}]\\n\/\\\\ rlog = [t1 |-> <<[k |-> \"k1\", op |-> \"read\"]>>]\\n\/\\\\ commitIndex = 0\\n\/\\\\ tx = {\"t1\"}\\n\/\\\\ log = <<>>\\n\/\\\\ aborted = [t1 |-> FALSE]"
     },
     {
       "_gvid": 13,
-      "name": "-7621360623640286081",
-      "label": "\/\\\\ lsn = (t1 :> 0)\\n\/\\\\ rtxn = (t1 :> 1)\\n\/\\\\ epoch = 1\\n\/\\\\ updated = (t1 :> {})\\n\/\\\\ snapshotStore = (t1 :> (k1 :> \"NoValue\"))\\n\/\\\\ pc = (t1 :> \"TXN\" @@ \"Router\" :> \"Done\")\\n\/\\\\ ops = (t1 :> <<>>)\\n\/\\\\ overlap = (t1 :> {})\\n\/\\\\ rlog = (t1 :> <<[k |-> k1, op |-> \"write\"]>>)\\n\/\\\\ commitIndex = 0\\n\/\\\\ tx = {}\\n\/\\\\ log = <<>>\\n\/\\\\ aborted = (t1 :> FALSE)"
+      "name": "-4980481363059234230",
+      "label": "\/\\\\ lsn = [t1 |-> 0]\\n\/\\\\ rtxn = [t1 |-> 1]\\n\/\\\\ epoch = 1\\n\/\\\\ updated = [t1 |-> {}]\\n\/\\\\ snapshotStore = [t1 |-> [k1 |-> \"NoValue\"]]\\n\/\\\\ pc = [t1 |-> \"TXN\", Router |-> \"Done\"]\\n\/\\\\ ops = [t1 |-> <<>>]\\n\/\\\\ overlap = [t1 |-> {}]\\n\/\\\\ rlog = [t1 |-> <<[k |-> \"k1\", op |-> \"write\"]>>]\\n\/\\\\ commitIndex = 0\\n\/\\\\ tx = {}\\n\/\\\\ log = <<>>\\n\/\\\\ aborted = [t1 |-> FALSE]"
     },
     {
       "_gvid": 14,
-      "name": "-8265065625338270576",
-      "label": "\/\\\\ lsn = (t1 :> 1)\\n\/\\\\ rtxn = (t1 :> 1)\\n\/\\\\ epoch = 1\\n\/\\\\ updated = (t1 :> {})\\n\/\\\\ snapshotStore = (t1 :> (k1 :> \"NoValue\"))\\n\/\\\\ pc = (t1 :> \"READ\" @@ \"Router\" :> \"ROUTER\")\\n\/\\\\ ops = (t1 :> <<>>)\\n\/\\\\ overlap = (t1 :> {t1})\\n\/\\\\ rlog = (t1 :> <<[k |-> k1, op |-> \"write\"]>>)\\n\/\\\\ commitIndex = 0\\n\/\\\\ tx = {t1}\\n\/\\\\ log = <<>>\\n\/\\\\ aborted = (t1 :> FALSE)"
+      "name": "-8872815623456764897",
+      "label": "\/\\\\ lsn = [t1 |-> 1]\\n\/\\\\ rtxn = [t1 |-> 1]\\n\/\\\\ epoch = 1\\n\/\\\\ updated = [t1 |-> {}]\\n\/\\\\ snapshotStore = [t1 |-> [k1 |-> \"NoValue\"]]\\n\/\\\\ pc = [t1 |-> \"READ\", Router |-> \"ROUTER\"]\\n\/\\\\ ops = [t1 |-> <<>>]\\n\/\\\\ overlap = [t1 |-> {\"t1\"}]\\n\/\\\\ rlog = [t1 |-> <<[k |-> \"k1\", op |-> \"write\"]>>]\\n\/\\\\ commitIndex = 0\\n\/\\\\ tx = {\"t1\"}\\n\/\\\\ log = <<>>\\n\/\\\\ aborted = [t1 |-> FALSE]"
     },
     {
       "_gvid": 15,
-      "name": "5482917767269195964",
-      "label": "\/\\\\ lsn = (t1 :> 1)\\n\/\\\\ rtxn = (t1 :> 1)\\n\/\\\\ epoch = 1\\n\/\\\\ updated = (t1 :> {})\\n\/\\\\ snapshotStore = (t1 :> (k1 :> \"NoValue\"))\\n\/\\\\ pc = (t1 :> \"READ\" @@ \"Router\" :> \"Done\")\\n\/\\\\ ops = (t1 :> <<>>)\\n\/\\\\ overlap = (t1 :> {t1})\\n\/\\\\ rlog = (t1 :> <<[k |-> k1, op |-> \"read\"]>>)\\n\/\\\\ commitIndex = 0\\n\/\\\\ tx = {t1}\\n\/\\\\ log = <<>>\\n\/\\\\ aborted = (t1 :> FALSE)"
+      "name": "-2289913797931337829",
+      "label": "\/\\\\ lsn = [t1 |-> 1]\\n\/\\\\ rtxn = [t1 |-> 1]\\n\/\\\\ epoch = 1\\n\/\\\\ updated = [t1 |-> {}]\\n\/\\\\ snapshotStore = [t1 |-> [k1 |-> \"NoValue\"]]\\n\/\\\\ pc = [t1 |-> \"READ\", Router |-> \"Done\"]\\n\/\\\\ ops = [t1 |-> <<>>]\\n\/\\\\ overlap = [t1 |-> {\"t1\"}]\\n\/\\\\ rlog = [t1 |-> <<[k |-> \"k1\", op |-> \"read\"]>>]\\n\/\\\\ commitIndex = 0\\n\/\\\\ tx = {\"t1\"}\\n\/\\\\ log = <<>>\\n\/\\\\ aborted = [t1 |-> FALSE]"
     },
     {
       "_gvid": 16,
-      "name": "-6202629864455073531",
-      "label": "\/\\\\ lsn = (t1 :> 1)\\n\/\\\\ rtxn = (t1 :> 1)\\n\/\\\\ epoch = 1\\n\/\\\\ updated = (t1 :> {})\\n\/\\\\ snapshotStore = (t1 :> (k1 :> \"NoValue\"))\\n\/\\\\ pc = (t1 :> \"TXN\" @@ \"Router\" :> \"ROUTER\")\\n\/\\\\ ops = (t1 :> <<[op |-> \"read\", value |-> \"NoValue\", key |-> k1]>>)\\n\/\\\\ overlap = (t1 :> {t1})\\n\/\\\\ rlog = (t1 :> <<[k |-> k1, op |-> \"read\"]>>)\\n\/\\\\ commitIndex = 0\\n\/\\\\ tx = {t1}\\n\/\\\\ log = <<>>\\n\/\\\\ aborted = (t1 :> FALSE)"
+      "name": "8465164606524588735",
+      "label": "\/\\\\ lsn = [t1 |-> 1]\\n\/\\\\ rtxn = [t1 |-> 1]\\n\/\\\\ epoch = 1\\n\/\\\\ updated = [t1 |-> {}]\\n\/\\\\ snapshotStore = [t1 |-> [k1 |-> \"NoValue\"]]\\n\/\\\\ pc = [t1 |-> \"TXN\", Router |-> \"ROUTER\"]\\n\/\\\\ ops = [t1 |-> <<[op |-> \"read\", value |-> \"NoValue\", key |-> \"k1\"]>>]\\n\/\\\\ overlap = [t1 |-> {\"t1\"}]\\n\/\\\\ rlog = [t1 |-> <<[k |-> \"k1\", op |-> \"read\"]>>]\\n\/\\\\ commitIndex = 0\\n\/\\\\ tx = {\"t1\"}\\n\/\\\\ log = <<>>\\n\/\\\\ aborted = [t1 |-> FALSE]"
     },
     {
       "_gvid": 17,
-      "name": "8814617913516654711",
-      "label": "\/\\\\ lsn = (t1 :> 1)\\n\/\\\\ rtxn = (t1 :> 1)\\n\/\\\\ epoch = 1\\n\/\\\\ updated = (t1 :> {})\\n\/\\\\ snapshotStore = (t1 :> (k1 :> \"NoValue\"))\\n\/\\\\ pc = (t1 :> \"READ\" @@ \"Router\" :> \"Done\")\\n\/\\\\ ops = (t1 :> <<>>)\\n\/\\\\ overlap = (t1 :> {t1})\\n\/\\\\ rlog = (t1 :> <<[k |-> k1, op |-> \"write\"]>>)\\n\/\\\\ commitIndex = 0\\n\/\\\\ tx = {t1}\\n\/\\\\ log = <<>>\\n\/\\\\ aborted = (t1 :> FALSE)"
+      "name": "-463879162850172865",
+      "label": "\/\\\\ lsn = [t1 |-> 1]\\n\/\\\\ rtxn = [t1 |-> 1]\\n\/\\\\ epoch = 1\\n\/\\\\ updated = [t1 |-> {}]\\n\/\\\\ snapshotStore = [t1 |-> [k1 |-> \"NoValue\"]]\\n\/\\\\ pc = [t1 |-> \"READ\", Router |-> \"Done\"]\\n\/\\\\ ops = [t1 |-> <<>>]\\n\/\\\\ overlap = [t1 |-> {\"t1\"}]\\n\/\\\\ rlog = [t1 |-> <<[k |-> \"k1\", op |-> \"write\"]>>]\\n\/\\\\ commitIndex = 0\\n\/\\\\ tx = {\"t1\"}\\n\/\\\\ log = <<>>\\n\/\\\\ aborted = [t1 |-> FALSE]"
     },
     {
       "_gvid": 18,
-      "name": "-5286365806740764387",
-      "label": "\/\\\\ lsn = (t1 :> 1)\\n\/\\\\ rtxn = (t1 :> 1)\\n\/\\\\ epoch = 1\\n\/\\\\ updated = (t1 :> {})\\n\/\\\\ snapshotStore = (t1 :> (k1 :> \"NoValue\"))\\n\/\\\\ pc = (t1 :> \"WRITE\" @@ \"Router\" :> \"ROUTER\")\\n\/\\\\ ops = (t1 :> <<>>)\\n\/\\\\ overlap = (t1 :> {t1})\\n\/\\\\ rlog = (t1 :> <<[k |-> k1, op |-> \"write\"]>>)\\n\/\\\\ commitIndex = 0\\n\/\\\\ tx = {t1}\\n\/\\\\ log = <<>>\\n\/\\\\ aborted = (t1 :> FALSE)"
+      "name": "-5463026398570005197",
+      "label": "\/\\\\ lsn = [t1 |-> 1]\\n\/\\\\ rtxn = [t1 |-> 1]\\n\/\\\\ epoch = 1\\n\/\\\\ updated = [t1 |-> {}]\\n\/\\\\ snapshotStore = [t1 |-> [k1 |-> \"NoValue\"]]\\n\/\\\\ pc = [t1 |-> \"WRITE\", Router |-> \"ROUTER\"]\\n\/\\\\ ops = [t1 |-> <<>>]\\n\/\\\\ overlap = [t1 |-> {\"t1\"}]\\n\/\\\\ rlog = [t1 |-> <<[k |-> \"k1\", op |-> \"write\"]>>]\\n\/\\\\ commitIndex = 0\\n\/\\\\ tx = {\"t1\"}\\n\/\\\\ log = <<>>\\n\/\\\\ aborted = [t1 |-> FALSE]"
     },
     {
       "_gvid": 19,
-      "name": "-7149854902105753046",
-      "label": "\/\\\\ lsn = (t1 :> 1)\\n\/\\\\ rtxn = (t1 :> 1)\\n\/\\\\ epoch = 1\\n\/\\\\ updated = (t1 :> {})\\n\/\\\\ snapshotStore = (t1 :> (k1 :> \"NoValue\"))\\n\/\\\\ pc = (t1 :> \"TXN\" @@ \"Router\" :> \"Done\")\\n\/\\\\ ops = (t1 :> <<[op |-> \"read\", value |-> \"NoValue\", key |-> k1]>>)\\n\/\\\\ overlap = (t1 :> {t1})\\n\/\\\\ rlog = (t1 :> <<[k |-> k1, op |-> \"read\"]>>)\\n\/\\\\ commitIndex = 0\\n\/\\\\ tx = {t1}\\n\/\\\\ log = <<>>\\n\/\\\\ aborted = (t1 :> FALSE)"
+      "name": "-2828094264266137396",
+      "label": "\/\\\\ lsn = [t1 |-> 1]\\n\/\\\\ rtxn = [t1 |-> 1]\\n\/\\\\ epoch = 1\\n\/\\\\ updated = [t1 |-> {}]\\n\/\\\\ snapshotStore = [t1 |-> [k1 |-> \"NoValue\"]]\\n\/\\\\ pc = [t1 |-> \"TXN\", Router |-> \"Done\"]\\n\/\\\\ ops = [t1 |-> <<[op |-> \"read\", value |-> \"NoValue\", key |-> \"k1\"]>>]\\n\/\\\\ overlap = [t1 |-> {\"t1\"}]\\n\/\\\\ rlog = [t1 |-> <<[k |-> \"k1\", op |-> \"read\"]>>]\\n\/\\\\ commitIndex = 0\\n\/\\\\ tx = {\"t1\"}\\n\/\\\\ log = <<>>\\n\/\\\\ aborted = [t1 |-> FALSE]"
     },
     {
       "_gvid": 20,
-      "name": "6810630193160815470",
-      "label": "\/\\\\ lsn = (t1 :> 1)\\n\/\\\\ rtxn = (t1 :> 1)\\n\/\\\\ epoch = 1\\n\/\\\\ updated = (t1 :> {})\\n\/\\\\ snapshotStore = (t1 :> (k1 :> \"NoValue\"))\\n\/\\\\ pc = (t1 :> \"Done\" @@ \"Router\" :> \"ROUTER\")\\n\/\\\\ ops = (t1 :> <<[op |-> \"read\", value |-> \"NoValue\", key |-> k1]>>)\\n\/\\\\ overlap = (t1 :> {t1})\\n\/\\\\ rlog = (t1 :> <<[k |-> k1, op |-> \"read\"]>>)\\n\/\\\\ commitIndex = 0\\n\/\\\\ tx = {t1}\\n\/\\\\ log = <<>>\\n\/\\\\ aborted = (t1 :> FALSE)"
+      "name": "-5619211117899177159",
+      "label": "\/\\\\ lsn = [t1 |-> 1]\\n\/\\\\ rtxn = [t1 |-> 1]\\n\/\\\\ epoch = 1\\n\/\\\\ updated = [t1 |-> {}]\\n\/\\\\ snapshotStore = [t1 |-> [k1 |-> \"NoValue\"]]\\n\/\\\\ pc = [t1 |-> \"Done\", Router |-> \"ROUTER\"]\\n\/\\\\ ops = [t1 |-> <<[op |-> \"read\", value |-> \"NoValue\", key |-> \"k1\"]>>]\\n\/\\\\ overlap = [t1 |-> {\"t1\"}]\\n\/\\\\ rlog = [t1 |-> <<[k |-> \"k1\", op |-> \"read\"]>>]\\n\/\\\\ commitIndex = 0\\n\/\\\\ tx = {\"t1\"}\\n\/\\\\ log = <<>>\\n\/\\\\ aborted = [t1 |-> FALSE]"
     },
     {
       "_gvid": 21,
-      "name": "-4897488116662090790",
-      "label": "\/\\\\ lsn = (t1 :> 1)\\n\/\\\\ rtxn = (t1 :> 1)\\n\/\\\\ epoch = 1\\n\/\\\\ updated = (t1 :> {})\\n\/\\\\ snapshotStore = (t1 :> (k1 :> \"NoValue\"))\\n\/\\\\ pc = (t1 :> \"WRITE\" @@ \"Router\" :> \"Done\")\\n\/\\\\ ops = (t1 :> <<>>)\\n\/\\\\ overlap = (t1 :> {t1})\\n\/\\\\ rlog = (t1 :> <<[k |-> k1, op |-> \"write\"]>>)\\n\/\\\\ commitIndex = 0\\n\/\\\\ tx = {t1}\\n\/\\\\ log = <<>>\\n\/\\\\ aborted = (t1 :> FALSE)"
+      "name": "8297393612148739353",
+      "label": "\/\\\\ lsn = [t1 |-> 1]\\n\/\\\\ rtxn = [t1 |-> 1]\\n\/\\\\ epoch = 1\\n\/\\\\ updated = [t1 |-> {}]\\n\/\\\\ snapshotStore = [t1 |-> [k1 |-> \"NoValue\"]]\\n\/\\\\ pc = [t1 |-> \"WRITE\", Router |-> \"Done\"]\\n\/\\\\ ops = [t1 |-> <<>>]\\n\/\\\\ overlap = [t1 |-> {\"t1\"}]\\n\/\\\\ rlog = [t1 |-> <<[k |-> \"k1\", op |-> \"write\"]>>]\\n\/\\\\ commitIndex = 0\\n\/\\\\ tx = {\"t1\"}\\n\/\\\\ log = <<>>\\n\/\\\\ aborted = [t1 |-> FALSE]"
     },
     {
       "_gvid": 22,
-      "name": "-5972704206473815927",
-      "label": "\/\\\\ lsn = (t1 :> 1)\\n\/\\\\ rtxn = (t1 :> 1)\\n\/\\\\ epoch = 1\\n\/\\\\ updated = (t1 :> {k1})\\n\/\\\\ snapshotStore = (t1 :> (k1 :> t1))\\n\/\\\\ pc = (t1 :> \"TXN\" @@ \"Router\" :> \"ROUTER\")\\n\/\\\\ ops = (t1 :> <<[op |-> \"write\", value |-> t1, key |-> k1]>>)\\n\/\\\\ overlap = (t1 :> {t1})\\n\/\\\\ rlog = (t1 :> <<[k |-> k1, op |-> \"write\"]>>)\\n\/\\\\ commitIndex = 1\\n\/\\\\ tx = {}\\n\/\\\\ log = <<[value |-> t1, key |-> k1]>>\\n\/\\\\ aborted = (t1 :> FALSE)"
+      "name": "-8065001041021016937",
+      "label": "\/\\\\ lsn = [t1 |-> 1]\\n\/\\\\ rtxn = [t1 |-> 1]\\n\/\\\\ epoch = 1\\n\/\\\\ updated = [t1 |-> {\"k1\"}]\\n\/\\\\ snapshotStore = [t1 |-> [k1 |-> \"t1\"]]\\n\/\\\\ pc = [t1 |-> \"TXN\", Router |-> \"ROUTER\"]\\n\/\\\\ ops = [t1 |-> <<[op |-> \"write\", value |-> \"t1\", key |-> \"k1\"]>>]\\n\/\\\\ overlap = [t1 |-> {\"t1\"}]\\n\/\\\\ rlog = [t1 |-> <<[k |-> \"k1\", op |-> \"write\"]>>]\\n\/\\\\ commitIndex = 1\\n\/\\\\ tx = {}\\n\/\\\\ log = <<[value |-> \"t1\", key |-> \"k1\"]>>\\n\/\\\\ aborted = [t1 |-> FALSE]"
     },
     {
       "_gvid": 23,
-      "name": "-674640703198554627",
-      "label": "\/\\\\ lsn = (t1 :> 1)\\n\/\\\\ rtxn = (t1 :> 1)\\n\/\\\\ epoch = 1\\n\/\\\\ updated = (t1 :> {})\\n\/\\\\ snapshotStore = (t1 :> (k1 :> \"NoValue\"))\\n\/\\\\ pc = (t1 :> \"Done\" @@ \"Router\" :> \"Done\")\\n\/\\\\ ops = (t1 :> <<[op |-> \"read\", value |-> \"NoValue\", key |-> k1]>>)\\n\/\\\\ overlap = (t1 :> {t1})\\n\/\\\\ rlog = (t1 :> <<[k |-> k1, op |-> \"read\"]>>)\\n\/\\\\ commitIndex = 0\\n\/\\\\ tx = {t1}\\n\/\\\\ log = <<>>\\n\/\\\\ aborted = (t1 :> FALSE)"
+      "name": "5505568227286351162",
+      "label": "\/\\\\ lsn = [t1 |-> 1]\\n\/\\\\ rtxn = [t1 |-> 1]\\n\/\\\\ epoch = 1\\n\/\\\\ updated = [t1 |-> {}]\\n\/\\\\ snapshotStore = [t1 |-> [k1 |-> \"NoValue\"]]\\n\/\\\\ pc = [t1 |-> \"Done\", Router |-> \"Done\"]\\n\/\\\\ ops = [t1 |-> <<[op |-> \"read\", value |-> \"NoValue\", key |-> \"k1\"]>>]\\n\/\\\\ overlap = [t1 |-> {\"t1\"}]\\n\/\\\\ rlog = [t1 |-> <<[k |-> \"k1\", op |-> \"read\"]>>]\\n\/\\\\ commitIndex = 0\\n\/\\\\ tx = {\"t1\"}\\n\/\\\\ log = <<>>\\n\/\\\\ aborted = [t1 |-> FALSE]"
     },
     {
       "_gvid": 24,
-      "name": "-532010948047454415",
-      "label": "\/\\\\ lsn = (t1 :> 1)\\n\/\\\\ rtxn = (t1 :> 1)\\n\/\\\\ epoch = 1\\n\/\\\\ updated = (t1 :> {k1})\\n\/\\\\ snapshotStore = (t1 :> (k1 :> t1))\\n\/\\\\ pc = (t1 :> \"TXN\" @@ \"Router\" :> \"Done\")\\n\/\\\\ ops = (t1 :> <<[op |-> \"write\", value |-> t1, key |-> k1]>>)\\n\/\\\\ overlap = (t1 :> {t1})\\n\/\\\\ rlog = (t1 :> <<[k |-> k1, op |-> \"write\"]>>)\\n\/\\\\ commitIndex = 1\\n\/\\\\ tx = {}\\n\/\\\\ log = <<[value |-> t1, key |-> k1]>>\\n\/\\\\ aborted = (t1 :> FALSE)"
+      "name": "-1232929276263149739",
+      "label": "\/\\\\ lsn = [t1 |-> 1]\\n\/\\\\ rtxn = [t1 |-> 1]\\n\/\\\\ epoch = 1\\n\/\\\\ updated = [t1 |-> {\"k1\"}]\\n\/\\\\ snapshotStore = [t1 |-> [k1 |-> \"t1\"]]\\n\/\\\\ pc = [t1 |-> \"TXN\", Router |-> \"Done\"]\\n\/\\\\ ops = [t1 |-> <<[op |-> \"write\", value |-> \"t1\", key |-> \"k1\"]>>]\\n\/\\\\ overlap = [t1 |-> {\"t1\"}]\\n\/\\\\ rlog = [t1 |-> <<[k |-> \"k1\", op |-> \"write\"]>>]\\n\/\\\\ commitIndex = 1\\n\/\\\\ tx = {}\\n\/\\\\ log = <<[value |-> \"t1\", key |-> \"k1\"]>>\\n\/\\\\ aborted = [t1 |-> FALSE]"
     },
     {
       "_gvid": 25,
-      "name": "-4227583027760327304",
-      "label": "\/\\\\ lsn = (t1 :> 1)\\n\/\\\\ rtxn = (t1 :> 1)\\n\/\\\\ epoch = 1\\n\/\\\\ updated = (t1 :> {k1})\\n\/\\\\ snapshotStore = (t1 :> (k1 :> t1))\\n\/\\\\ pc = (t1 :> \"Done\" @@ \"Router\" :> \"ROUTER\")\\n\/\\\\ ops = (t1 :> <<[op |-> \"write\", value |-> t1, key |-> k1]>>)\\n\/\\\\ overlap = (t1 :> {t1})\\n\/\\\\ rlog = (t1 :> <<[k |-> k1, op |-> \"write\"]>>)\\n\/\\\\ commitIndex = 1\\n\/\\\\ tx = {}\\n\/\\\\ log = <<[value |-> t1, key |-> k1]>>\\n\/\\\\ aborted = (t1 :> FALSE)"
+      "name": "1552298889133788473",
+      "label": "\/\\\\ lsn = [t1 |-> 1]\\n\/\\\\ rtxn = [t1 |-> 1]\\n\/\\\\ epoch = 1\\n\/\\\\ updated = [t1 |-> {\"k1\"}]\\n\/\\\\ snapshotStore = [t1 |-> [k1 |-> \"t1\"]]\\n\/\\\\ pc = [t1 |-> \"Done\", Router |-> \"ROUTER\"]\\n\/\\\\ ops = [t1 |-> <<[op |-> \"write\", value |-> \"t1\", key |-> \"k1\"]>>]\\n\/\\\\ overlap = [t1 |-> {\"t1\"}]\\n\/\\\\ rlog = [t1 |-> <<[k |-> \"k1\", op |-> \"write\"]>>]\\n\/\\\\ commitIndex = 1\\n\/\\\\ tx = {}\\n\/\\\\ log = <<[value |-> \"t1\", key |-> \"k1\"]>>\\n\/\\\\ aborted = [t1 |-> FALSE]"
     },
     {
       "_gvid": 26,
-      "name": "4941142702209052912",
-      "label": "\/\\\\ lsn = (t1 :> 1)\\n\/\\\\ rtxn = (t1 :> 1)\\n\/\\\\ epoch = 1\\n\/\\\\ updated = (t1 :> {k1})\\n\/\\\\ snapshotStore = (t1 :> (k1 :> t1))\\n\/\\\\ pc = (t1 :> \"Done\" @@ \"Router\" :> \"Done\")\\n\/\\\\ ops = (t1 :> <<[op |-> \"write\", value |-> t1, key |-> k1]>>)\\n\/\\\\ overlap = (t1 :> {t1})\\n\/\\\\ rlog = (t1 :> <<[k |-> k1, op |-> \"write\"]>>)\\n\/\\\\ commitIndex = 1\\n\/\\\\ tx = {}\\n\/\\\\ log = <<[value |-> t1, key |-> k1]>>\\n\/\\\\ aborted = (t1 :> FALSE)"
+      "name": "1440496955416017187",
+      "label": "\/\\\\ lsn = [t1 |-> 1]\\n\/\\\\ rtxn = [t1 |-> 1]\\n\/\\\\ epoch = 1\\n\/\\\\ updated = [t1 |-> {\"k1\"}]\\n\/\\\\ snapshotStore = [t1 |-> [k1 |-> \"t1\"]]\\n\/\\\\ pc = [t1 |-> \"Done\", Router |-> \"Done\"]\\n\/\\\\ ops = [t1 |-> <<[op |-> \"write\", value |-> \"t1\", key |-> \"k1\"]>>]\\n\/\\\\ overlap = [t1 |-> {\"t1\"}]\\n\/\\\\ rlog = [t1 |-> <<[k |-> \"k1\", op |-> \"write\"]>>]\\n\/\\\\ commitIndex = 1\\n\/\\\\ tx = {}\\n\/\\\\ log = <<[value |-> \"t1\", key |-> \"k1\"]>>\\n\/\\\\ aborted = [t1 |-> FALSE]"
     }
   ],
   "edges": [

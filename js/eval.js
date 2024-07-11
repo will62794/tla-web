@@ -1760,11 +1760,14 @@ class TLASpec {
                 console.log("op defs:", parsedObj["op_defs"])
             }
 
-            // Foo == INSTANCE Bar [ WITH A <- 5, B <- 6 ]
+            //
+            // Foo == INSTANCE Bar WITH A <- 5, B <- 6, ...
+            //
             if (node.type === "module_definition") {
                 let nodes = cursor.currentNode().namedChildren;
 
-                let defName = nodes[0].text;
+                // Get the 'Foo' from 'Foo == INSTANCE Bar...'.
+                let moduleDefName = nodes[0].text;
                 let params = cursor.currentNode().namedChildren.filter(n => n.type === "identifier").slice(1);
 
 
@@ -1774,8 +1777,7 @@ class TLASpec {
                 let modName = instance.namedChildren[0].text;
 
                 // Add substituted definitions into current module.
-                console.log("Parsing module from INSTANCE definition:", modName);
-                console.log("NODES: ", nodes);
+                console.log("Parsing module from namespaced INSTANCE definition:", moduleDefName, "== INSTANCE", modName);
 
                 let parsedObj = self.parseSpecModule(self.moduleTable[modName]);
 
@@ -1783,33 +1785,63 @@ class TLASpec {
                     self.moduleTableParsed[modName] = parsedObj;
                 }
 
+                // Extract substitutions from the module instantiation statement.
+                let substs = nodes[2].namedChildren.filter(n => n.type === "substitution");
+
+                // Definitions imported via module instantiation are treated a
+                // bit specially to account for substitutions. Alongside the
+                // definition, we to store the substitutions that go with it so
+                // that it can be evaluated correctly.
+                // 
+                for (const opName in parsedObj["op_defs"]) {
+                    console.log("opname:", opName);
+                    let substPairs = substs.map(s => [s.namedChildren[0].text, s.namedChildren[2]]);
+                    console.log(substPairs);
+                    let currentSubs = parsedObj["op_defs"][opName]["substitutions"];
+                    console.log("current subs:", currentSubs);
+                    // Add any new substitutions to already existing set of substitutions for this definition.
+                    parsedObj["op_defs"][opName]["substitutions"] = _.merge(currentSubs, _.fromPairs(substPairs));
+                    console.log("new subs:", parsedObj["op_defs"][opName]["substitutions"]);
+                }
+
+                //
+                // Go ahead and add all definitions from this module to the
+                // current module. 
+                //
+                // For namespaced instantiations, these are prefixed with the
+                // name of the instance definition.
+                //
                 for(const opName in parsedObj["op_defs"]){
-                    let prefix = defName + "!";
+                    // console.log("opname:", opName);
+                    let prefix = moduleDefName + "!";
                     let substOpName = prefix + opName;
                     let origOpDef = parsedObj["op_defs"][opName];
+
+
+                    let substPairs = substs.map(s => [s.namedChildren[0].text, s.namedChildren[2]]);
+                    console.log(substPairs);
+                    let currentSubs = parsedObj["op_defs"][opName]["substitutions"];
+                    // Add any new substitutions to already existing set of substitutions for this definition.
+                    let newSubs = _.merge(currentSubs, _.fromPairs(substPairs));
+                    console.log("new subs:", parsedObj["op_defs"][opName]["substitutions"]);
+
                     // N.B. Notes on module semantics: https://lamport.azurewebsites.net/tla/newmodule.html
                     // IF we are evaluating an expression from a named module instantation (e.g. M!Expr), 
                     // then this expression should be able to refer to definitions that appear in the original module M.
-                    // We may also need to deal with substitutions made by this module instantiation.
+                    
+                    // Any definitions that are available in the scope of this instantiated module
+                    // should also be accessible to expressions that are evaluated in the namespaced
+                    // context of this module.
                     op_defs[substOpName] = { 
                         "name": opName, 
                         "args": origOpDef.args, 
                         "node": origOpDef.node, 
                         "name_prefix": prefix, 
-                        "module_name": modName
+                        "module_name": modName,
+                        "substitutions": newSubs,
+                        "module_defs": parsedObj["op_defs"]
                     };
-                }   
-                
-                let substs = nodes[2].namedChildren.filter(n => n.type === "substitution");
-                for(const subst of substs){
-                    let substKey = subst.namedChildren[0];
-                    let substVal = subst.namedChildren[2];
-                    console.log("INSTANCE subst:", substKey.text, substVal.text);
-                    // Add these substitutions as defintions in the current module.
-                    // These substitutions should only be for VARIABLE or CONSTANT declarations.
-                    // TODO: Handle VARIABLE substitutions correctly.
-                    op_defs[substKey.text] = { "name": substKey.text, "args": [], "node": substVal };
-                }   
+                }                
                 console.log("op defs:", op_defs)
             }
 
@@ -1998,7 +2030,7 @@ class TLASpec {
  * initial/next state generation.
  */
 class Context {
-    constructor(val, state, defns, quant_bound, constants, prev_func_val, operators_bound, module_table, eval_node, substitutionsNew) {
+    constructor(val, state, defns, quant_bound, constants, prev_func_val, operators_bound, module_table, eval_node, substitutionsNew, module_eval_namespace_prefix) {
 
         // @type: TLAValue
         // The result value of a TLA expression, or 'null' if no result has been
@@ -2045,6 +2077,8 @@ class Context {
         this.eval_node = eval_node || null;
 
         this.substitutions = substitutionsNew;
+
+        this.module_eval_namespace_prefix = module_eval_namespace_prefix;
     }
 
     cloneDeepVal(){
@@ -2080,7 +2114,8 @@ class Context {
         let prev_func_val = _.cloneDeep(this.prev_func_val);
         let eval_node = _.cloneDeep(this.eval_node);
         let substitutionsNew = _.cloneDeep(this.substitutions);
-        return new Context(valNew, stateNew, defnsNew, quant_boundNew, constants, prev_func_val, operators_boundNew, module_tableNew, eval_node, substitutionsNew);
+        let module_eval_namespace_prefix_new = _.cloneDeep(this.module_eval_namespace_prefix);
+        return new Context(valNew, stateNew, defnsNew, quant_boundNew, constants, prev_func_val, operators_boundNew, module_tableNew, eval_node, substitutionsNew, module_eval_namespace_prefix_new);
     }
 
     /**
@@ -2288,7 +2323,7 @@ function isPrimedVar(treeNode, ctx) {
     let lhs = treeNode.children[0];
     let symbol = treeNode.children[1];
     evalLog("lhs text:", lhs.text);
-    evalLog("lhs text:", ctx.state);
+    evalLog("ctx state:", ctx.state);
     return (treeNode.type === "bound_postfix_op" &&
         lhs.type === "identifier_ref" &&
         symbol.type === "prime" &&
@@ -2767,10 +2802,26 @@ function evalEnabled(node, ctx) {
 // M!Op
 // Evaluation of an expression from a named module instantiation.
 function evalPrefixedOp(node, ctx) {
+
     let lhs = node.children[0];
     let rhs = node.children[1];
+    let modPrefix = lhs.text;
 
-    console.log(lhs);
+    // console.log("prefixed op lhs:", lhs.text);
+    // console.log("prefixed op rhs:", rhs);
+    // console.log("prefixed op rhs:", rhs.text);
+
+    // Extract op name depending on operator with no arguments or multi-arg operator.
+    // e.g. M!Op vs. M!Op(1,2)
+    let opName = "";
+    let opArgs = [];
+    if (rhs.namedChildren.length > 0) {
+        opName = rhs.namedChildren[0].text
+        opArgs = rhs.namedChildren.slice(1);
+    } else {
+        opName = rhs.text
+    }
+    console.log("opName, opArgs:", opName, opArgs);
 
     // 
     // If there are parameterized module arguments, then we evaluate this expression in the context of module
@@ -2784,7 +2835,7 @@ function evalPrefixedOp(node, ctx) {
     // For an expression like M(11,12)!Op, this extracts the module arguments (11,12).
     let moduleNode = lhs.namedChildren[0].namedChildren[0].namedChildren;
     let paramArgVals = [];
-    if(moduleNode.length > 1){
+    if (moduleNode.length > 1) {
         let paramModuleArgs = lhs.namedChildren[0].namedChildren[0].namedChildren.slice(1);
         console.log("paramModuleArgs:", paramModuleArgs);
         paramArgVals = paramModuleArgs.map(a => evalExpr(a, ctx)[0]["val"]);
@@ -2805,21 +2856,35 @@ function evalPrefixedOp(node, ctx) {
     // And we have an instance of M locally and try to evaluate M!e2, then during evaluation
     // of M!e2, we should have access to the definitions e1 from the original module M.
     //
-    let prefixedOpName = lhs.text + rhs.text;
-    if (ctx.hasOperatorBound(prefixedOpName)) {
-        opDef = ctx.getBoundOperator(prefixedOpName);
-        // console.log("PREFIXED OP DEFINITION:", prefixedOpName);
-        // console.log("PREFIXED OP DEFINITION:", opDef);
 
-        // console.log("mod table:", ctx.module_table);
+    let prefixedOpName = modPrefix + opName;
+    if (ctx.hasOperatorBound(prefixedOpName)) {
+        console.log("found prefixed op name:", prefixedOpName);
+        opDef = ctx.getBoundOperator(prefixedOpName);
+        console.log(opDef);
+
         let moduleDefs = ctx.module_table[opDef.module_name]["op_defs"];
         console.log("module defs:", moduleDefs);
 
+        // If this identifier ref has any substitutions, then we
+        // consider those in the context during evaluation.
+        if (opDef.hasOwnProperty("substitutions")) {
+            ctx["substitutions"] = opDef["substitutions"];
+        }
+
         // Evaluate this expression with access to definitions inside the original module.
         // TODO: Re-consider this as an approach to evaluating named module instantation definitions?
+        // 
+        // Note that all definitions from M should be imported locally with prefixed op name, so we should be able
+        // to look up them in current context if we just prepend the proper prefix.
+        // 
         let newCtx = ctx.clone();
-        for(const k in moduleDefs){
-            newCtx = newCtx.withBoundDefn(k, moduleDefs[k]);
+        newCtx["module_eval_namespace_prefix"] = lhs.text;
+        
+        // If this is an operator with arguments, then we evaluate it accordingly.
+        // e.g. M!Op(1,2)
+        if (opArgs.length > 0) {
+            return evalUserBoundOp(rhs, opDef.node, opDef.args, newCtx);
         }
         return evalExpr(opDef.node, newCtx);
     }
@@ -3023,6 +3088,21 @@ function evalIdentifierRef(node, ctx) {
         return evalExpr(subNode, ctx.clone());
     }
 
+    // If this identifier is being evaluated inside an expression from a namespaced module instantiation,
+    // then we can try to look up the definition based on the module namespace prefix.
+    if (ctx.hasOwnProperty("module_eval_namespace_prefix")) {
+        let modPrefix = ctx["module_eval_namespace_prefix"];
+        console.log("modPrefix:", modPrefix);
+        let prefixedIdentName = modPrefix + ident_name;
+        console.log("prefixedIdentName:", prefixedIdentName);
+        console.log(ctx["defns"]);
+        if(ctx.hasOwnProperty("defns") && ctx["defns"].hasOwnProperty(prefixedIdentName)){
+            let modDefn = ctx["defns"][prefixedIdentName];
+            return evalExpr(modDefn.node, ctx.clone());
+        }
+
+    }
+
     // See if this identifier is a definition from an imported/instantiated module.
     if (ctx.hasOwnProperty("defns") && ctx["defns"].hasOwnProperty(ident_name)) {
         // Evaluate the definition in the current context.
@@ -3132,6 +3212,96 @@ function evalBoundedQuantification(node, ctx) {
 
     assert(quantifier.type === "exists");
     return processDisjunctiveContexts(ctx, retCtxs, currAssignedVars);
+}
+
+// Evaluate a user defined n-ary operator application.
+function evalUserBoundOp(node, opDefNode, opArgs, ctx){
+    evalLog("evalUserBoundOp:", node, opDefNode, opArgs, ctx);
+    // n-ary operator.
+    // Evaluate each operator argument.
+    let opArgsEvald = node.namedChildren.slice(1).map(arg => {
+        // Handle possible LAMBDA arguments which are supported for higher order operator
+        // definitions.
+        if (arg.type === "lambda") {
+            // Don't evaluate LAMBA expressions, but record their nodes.
+            return arg;
+        }
+
+        if (arg.type === "identifier_ref") {
+            // Also possible that a reference to a pre-defined operator is passed as an argument
+            // e.g.
+            //
+            // Plus(a,b) == a + b
+            // Op(F(_,_)) == F(2,3)
+            // val == Op(Plus)
+            //
+
+            // Check if this identifier is bound to an operator definition in the current
+            // context i.e. check if it is an >= 1 arity operator.
+            if (ctx.hasOperatorBound(arg.text) && ctx.getBoundOperator(arg.text)["args"].length > 0) {
+                return arg;
+            }
+        }
+
+        return evalExpr(arg, ctx)
+    });
+    let opArgVals = _.flatten(opArgsEvald);
+    evalLog("opArgVals:", opArgVals);
+
+    // Then, evaluate the operator defininition with these argument values bound
+    // to the appropriate names.
+    let opEvalContext = ctx.clone();
+    if (!opEvalContext.hasOwnProperty("quant_bound")) {
+        opEvalContext["quant_bound"] = {};
+    }
+
+    evalLog("opDefNode", opDefNode);
+    for (var i = 0; i < opArgs.length; i++) {
+        // The parameter name in the operator definition.
+        let paramName = opArgs[i].text;
+        // console.log("paramName:", paramName);
+        // console.log("paramName:", opArgs[i]);
+
+        let anonOpArgName;
+        let placeholders;
+        if (opArgVals[i].type === "lambda" || opArgVals[i].type === "identifier_ref") {
+            // Get the name of anonymous operator arg e.g. would be 'F' in the following definition.
+            // Op1(F(_), v) == ....
+            anonOpArgName = opArgs[i].namedChildren[0].text;
+
+            // The underscores (_) that act as anonymous placeholders for operator arguments.
+            placeholders = opArgs[i].namedChildren.filter(c => c.type === "placeholder");
+        }
+
+        if (opArgVals[i].type === "identifier_ref") {
+            // Pre-defined operator that is used as an argument to a higher order operator definition.
+            // So, we just use the existing operator definition (assuming it exists) and bind it with a new name.
+            // let opDef = opArgVals[i];
+            let opDefName = opArgVals[i].text;
+
+            let opDef = ctx.getBoundOperator(opDefName);
+            console.log("OP DEF ARG:", opDef);
+
+            let op = { "name": anonOpArgName, "args": opDef["args"], "node": opDef["node"] };
+            opEvalContext["operators_bound"][anonOpArgName] = op;
+        } else if (opArgVals[i].type === "lambda") {
+            // For LAMBDA arguments, we need to bind their op definitions.
+            let lambdaOp = opArgVals[i];
+            let lambdaArgs = lambdaOp.namedChildren.filter(c => c.type === "identifier");
+            let lambdaBody = lambdaOp.namedChildren[lambdaOp.namedChildren.length - 1];
+
+            assert(placeholders.length === lambdaArgs.length,
+                `LAMBDA argument count of ${lambdaArgs.length} must match anonymous operator arg count of ${placeholders.length}.`)
+
+            let op = { "name": anonOpArgName, "args": lambdaArgs, "node": lambdaBody };
+            opEvalContext["operators_bound"][anonOpArgName] = op;
+        } else {
+            opEvalContext["quant_bound"][paramName] = opArgVals[i]["val"];
+        }
+
+    }
+    evalLog("opEvalContext:", opEvalContext);
+    return evalExpr(opDefNode, opEvalContext);
 }
 
 // <op>(<arg1>,...,<argn>)
@@ -3326,6 +3496,8 @@ function evalBoundOp(node, ctx) {
     let opArgs = opDefObj["args"];
     evalLog("defns", node);
     evalLog("opDefObj", opDefObj);
+
+    // return evalUserBoundOp(node, opDefNode, opArgs, ctx);
 
     // n-ary operator.
     if (opArgs.length >= 1) {
