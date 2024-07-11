@@ -1807,14 +1807,14 @@ class TLASpec {
                 // that it can be evaluated correctly.
                 // 
                 for (const opName in parsedObj["op_defs"]) {
-                    console.log("opname:", opName);
+                    // console.log("opname:", opName);
                     let substPairs = substs.map(s => [s.namedChildren[0].text, s.namedChildren[2]]);
-                    console.log(substPairs);
+                    // console.log(substPairs);
                     let currentSubs = parsedObj["op_defs"][opName]["substitutions"];
-                    console.log("current subs:", currentSubs);
+                    // console.log("current subs:", currentSubs);
                     // Add any new substitutions to already existing set of substitutions for this definition.
                     parsedObj["op_defs"][opName]["substitutions"] = _.merge(currentSubs, _.fromPairs(substPairs));
-                    console.log("new subs:", parsedObj["op_defs"][opName]["substitutions"]);
+                    // console.log("new subs:", parsedObj["op_defs"][opName]["substitutions"]);
                 }
 
                 //
