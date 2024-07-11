@@ -4033,7 +4033,7 @@ function evalExpr(node, ctx) {
         // true, so we now check for an OTHER arm. If none exists, throw an
         // error.
         if (otherArms.length === 0) {
-            throw new Exception("No CASE condition was TRUE.")
+            throw new Error("No CASE condition was TRUE.")
         } else {
             let out = otherArms[0].namedChildren[1];
             evalLog("Evaluating OTHER case arm.", out);
