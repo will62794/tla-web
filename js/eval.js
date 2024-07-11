@@ -2393,7 +2393,6 @@ function evalEq(lhs, rhs, ctx) {
         identName = subNode.text;
     }
 
-    // let isUnprimedVar = ctx["state"].hasOwnProperty(identName) && !isPrimedVar(lhs);
     let isUnprimedVar = ctx.state.hasVar(identName) && !isPrimedVar(lhs, ctx);
 
     if (isPrimedVar(lhs, ctx) || (isUnprimedVar && !ASSIGN_PRIMED)) {
@@ -2993,7 +2992,14 @@ function evalPrefixedOp(node, ctx) {
         // to look up them in current context if we just prepend the proper prefix.
         // 
         let newCtx = ctx.clone();
-        newCtx["module_eval_namespace_prefix"] = lhs.text;
+        let modNsPrefix = lhs.text;
+
+        // If this is a parameterized module prefixed op, like M!Op(1,2), 
+        // then we extract the def name itself without the parameters.
+        if(lhs.children[0].children[0].type === "bound_op"){
+            modNsPrefix = lhs.children[0].children[0].children[0].text + "!";
+        }
+        newCtx["module_eval_namespace_prefix"] = modNsPrefix;
         
         // If this is an operator with arguments, then we evaluate it accordingly.
         // e.g. M!Op(1,2)
@@ -3153,6 +3159,14 @@ function evalIdentifierRef(node, ctx) {
     // Are we in a "primed" evaluation context.
     let isPrimed = ctx.isPrimed();
 
+    // Check for substitutions (via module instantiations) that may re-define this identifier.
+    if (ctx.hasOwnProperty("module_eval_namespace_prefix") && ctx.hasSubstitutionFor(ident_name)) {
+        let subNode = ctx["substitutions"][ident_name];
+        evalLog("Substituted node:", subNode.text, "for", ident_name);
+        // TODO: Recursive substitution loop that occurs if variable name clashes exist between root module and extended module?
+        return evalExpr(subNode, ctx.clone());
+    }
+
     // If this identifier refers to a variable, return the value bound
     // to that variable in the current context.
     if (ctx.state.hasVar(ident_name) && !isPrimed) {
@@ -3193,13 +3207,6 @@ function evalIdentifierRef(node, ctx) {
 
         }
         return evalExpr(defNode, ctx);
-    }
-
-    // Check for substitutions (via module instantiations) that may re-define this identifier.
-    if (ctx.hasSubstitutionFor(ident_name)) {
-        let subNode = ctx["substitutions"][ident_name];
-        evalLog("Substituted node:", subNode.text, "for", ident_name);
-        return evalExpr(subNode, ctx.clone());
     }
 
     // If this identifier is being evaluated inside an expression from a namespaced module instantiation,
