@@ -1253,8 +1253,11 @@ function onSpecParse(newText, parsedSpecTree){
     model.rootModName = model.specTreeObjs["root_mod_name"];
     model.specConsts = model.specTreeObjs["const_decls"];
     model.specDefs = model.specTreeObjs["op_defs"];
-    model.nextStatePred = model.specTreeObjs["op_defs"]["Next"]["node"];
     model.specAlias = model.specTreeObjs["op_defs"]["Alias"];
+
+    if(hasNext){
+        model.nextStatePred = model.specTreeObjs["op_defs"]["Next"]["node"];
+    }
 
      // Load constants if given.
      let constantParams = m.route.param("constants");
@@ -1408,7 +1411,8 @@ function stateSelectionPane(hidden){
         // chooseConstantsPane(),
         // m("h5", { id: "poss-next-states-title", class: "" }, (model.currTrace.length > 0) ? "Choose Next Action" : "Choose Initial State"),
         m("div", { id: "initial-states", class: "tlc-state" }, [
-            model.currTrace.length === 0 ? m("div", {style: "padding:6px;"}, "Choose Initial State") : m("span"),
+            model.currTrace.length === 0 && model.nextStatePred !== null ? m("div", {style: "padding:20px;"}, "Choose Initial State") : m("span"),
+            model.nextStatePred === null ? m("div", {style: "padding:20px;"}, "No transition relation found. Spec can be explored in the REPL.") : m("span"),
             componentNextStateChoices()
         ]),
     ]);    
