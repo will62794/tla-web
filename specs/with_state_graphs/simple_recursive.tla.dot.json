@@ -14,20 +14,20 @@
         1
       ],
       "nodes": [
-        2,3
+        2,3,4
       ],
       "edges": [
-        0,1
+        0,1,2
       ]
     },
     {
-      "name": "%7",
+      "name": "%9",
       "color": "white",
       "nodesep": "0.35",
       "rank": "same",
       "_gvid": 1,
       "nodes": [
-        2,3
+        2,3,4
       ]
     },
     {
@@ -40,6 +40,12 @@
       "_gvid": 3,
       "name": "6682211621639950074",
       "label": "x = 19",
+      "style": "filled"
+    },
+    {
+      "_gvid": 4,
+      "name": "1734297726554602644",
+      "label": "x = 77",
       "style": "filled"
     }
   ],
@@ -56,6 +62,14 @@
       "_gvid": 1,
       "tail": 3,
       "head": 3,
+      "color": "black",
+      "fontcolor": "black",
+      "label": ""
+    },
+    {
+      "_gvid": 2,
+      "tail": 4,
+      "head": 4,
       "color": "black",
       "fontcolor": "black",
       "label": ""
