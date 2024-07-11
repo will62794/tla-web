@@ -1836,7 +1836,7 @@ class TLASpec {
                     let currentSubs = parsedObj["op_defs"][opName]["substitutions"];
                     // Add any new substitutions to already existing set of substitutions for this definition.
                     let newSubs = _.merge(currentSubs, _.fromPairs(substPairs));
-                    console.log("new subs:", parsedObj["op_defs"][opName]["substitutions"]);
+                    // console.log("new subs:", parsedObj["op_defs"][opName]["substitutions"]);
 
                     // N.B. Notes on module semantics: https://lamport.azurewebsites.net/tla/newmodule.html
                     // IF we are evaluating an expression from a named module instantation (e.g. M!Expr), 
