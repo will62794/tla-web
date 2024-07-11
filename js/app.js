@@ -844,6 +844,16 @@ function reloadSpec() {
     //     return;
     // }
 
+    let hasInit = model.specTreeObjs["op_defs"].hasOwnProperty("Init");
+    let hasNext = model.specTreeObjs["op_defs"].hasOwnProperty("Next");
+
+    // Init or Next is missing, we allow the spec to be loaded but just stop here before trying
+    // to generate any initial states.
+    if (!hasInit || !hasNext) {
+        console.log("Warning: 'Init' or 'Next' predicate not found. Still loading spec without generating states.");
+        return;
+    }
+
     console.log("Generating initial states.");
     let interp = new TlaInterpreter();
     // let allInitStates;
@@ -1221,18 +1231,21 @@ function onSpecParse(newText, parsedSpecTree){
     let hasInit = model.specTreeObjs["op_defs"].hasOwnProperty("Init");
     let hasNext = model.specTreeObjs["op_defs"].hasOwnProperty("Next");
 
-    // Halt and display appropriate error if Init or Next is missing.
-    if (!hasInit || !hasNext) {
-        console.log("Warning: 'Init' or 'Next' predicate not found.");
-        let errMsg = "";
-        if (!hasInit) {
-            errMsg = "Initial state predicate missing. Please define one as 'Init'."
-        } else if (!hasNext) {
-            errMsg = "Next state predicate missing. Please define one as 'Next'."
-        }
-        model.errorObj = { message: "ERROR: " + errMsg, errorPos: null };
-        return;
-    }
+    // 
+    // Now we allow specs without an Init or Next explicitly defined 
+    // e.g. if people want to play around as a calculator/scratchpad.
+    // 
+    // if (!hasInit || !hasNext) {
+        // console.log("Warning: 'Init' or 'Next' predicate not found.");
+        // let errMsg = "";
+        // if (!hasInit) {
+        //     errMsg = "Initial state predicate missing. Please define one as 'Init'."
+        // } else if (!hasNext) {
+        //     errMsg = "Next state predicate missing. Please define one as 'Next'."
+        // }
+        // model.errorObj = { message: "ERROR: " + errMsg, errorPos: null };
+        // return;
+    // }
 
     model.rootModName = model.specTreeObjs["root_mod_name"];
     model.specConsts = model.specTreeObjs["const_decls"];
