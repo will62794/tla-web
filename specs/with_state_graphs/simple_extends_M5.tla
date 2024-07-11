@@ -3,6 +3,8 @@ EXTENDS Sequences
 
 VARIABLE m
 
-MVarInitZero == m = 0
+E5 == 45
+
+MVarInitZero == m = E5
 
 ====
