@@ -1696,6 +1696,7 @@ class TLASpec {
                     }
 
                     // Go ahead and add all definitions from this module to the current module (?)
+                    // TODO: Should not include LOCAL
                     op_defs = _.merge(op_defs, parsedObj["op_defs"]);
                 })
 
@@ -1859,18 +1860,30 @@ class TLASpec {
                 }
             }
 
-            if (node.type === "operator_definition") {
-                // TODO: Consider iterating through 'named' children only?
+            // E.g.
+            // Expr == 5
+            // LOCAL Expr == 6
+            if (node.type === "operator_definition" || 
+                (node.type === "local_definition" && node.children[0].type === "operator_definition")) {
+                
                 cursor.gotoFirstChild();
+
+                // Drill down to the actual definition node for a LOCAL definition.
+                let isLocalDef = (node.type === "local_definition");
+                if(node.type === "local_definition"){
+                    cursor.gotoNextSibling();
+                    cursor.gotoFirstChild();
+                }
 
                 // The definition identifier name.
                 node = cursor.currentNode()
+
                 console.log(node.text, node)
                 // console.log(cursor.currentFieldName());
                 assert(node.type === "identifier");
                 let opName = node.text;
 
-                op_defs[opName] = { "name": opName, "args": [], "node": null };
+                op_defs[opName] = { "name": opName, "args": [], "node": null, "local": isLocalDef };
 
                 // Skip the 'def_eq' symbol ("==").
                 cursor.gotoNextSibling();
@@ -1916,6 +1929,10 @@ class TLASpec {
                 // console.log(cursor.currentNode());
                 // let var_ident = cursor.currentNode();
                 cursor.gotoParent();
+                if(isLocalDef){
+                    // Go up one extra level for LOCAL defs.
+                    cursor.gotoParent();
+                }
                 // Save the variable declaration.
                 // var_decls[var_ident.text] = {"id": node.id}; 
                 op_defs[opName]["node"] = def;
