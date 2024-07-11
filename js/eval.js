@@ -2952,10 +2952,10 @@ function evalPrefixedOp(node, ctx) {
     // 
     if (!ctx.hasOperatorBound(prefixedOpName) && ctx.hasOwnProperty("module_eval_namespace_prefix")) {
         let modEvalPrefix = ctx["module_eval_namespace_prefix"];
-        console.log("modEvalPrefix:", modEvalPrefix);
+        // console.log("modEvalPrefix:", modEvalPrefix);
         let prefixedEvalIdentName = modEvalPrefix + prefixedOpName;
-        console.log("prefixedIdentName:", prefixedEvalIdentName);
-        console.log(ctx["defns"]);
+        // console.log("prefixedIdentName:", prefixedEvalIdentName);
+        // console.log(ctx["defns"]);
         if(ctx.hasOwnProperty("defns") && ctx["defns"].hasOwnProperty(prefixedEvalIdentName)){
             prefixedOpName = prefixedEvalIdentName;
         }
@@ -2977,7 +2977,7 @@ function evalPrefixedOp(node, ctx) {
         }
 
         let moduleDefs = ctx.module_table[opDef.module_name]["op_defs"];
-        console.log("module defs:", moduleDefs);
+        // console.log("module defs:", moduleDefs);
 
         // If this identifier ref has any substitutions, then we
         // consider those in the context during evaluation.
@@ -3201,8 +3201,8 @@ function evalIdentifierRef(node, ctx) {
         if (defNode.type === "function_definition") {
             let quant_bounds = defNode.namedChildren.filter(n => n.type === "quantifier_bound");
             let fexpr = _.last(defNode.namedChildren);
-            console.log("EVAL function literal inner.")
-            console.log("EVAL FCN LIT");
+            // console.log("EVAL function literal inner.")
+            // console.log("EVAL FCN LIT");
             return evalFunctionLiteralInner(ctx, quant_bounds, fexpr);
 
         }
@@ -3213,10 +3213,10 @@ function evalIdentifierRef(node, ctx) {
     // then we can try to look up the definition based on the module namespace prefix.
     if (ctx.hasOwnProperty("module_eval_namespace_prefix")) {
         let modPrefix = ctx["module_eval_namespace_prefix"];
-        console.log("modPrefix:", modPrefix);
+        // console.log("modPrefix:", modPrefix);
         let prefixedIdentName = modPrefix + ident_name;
-        console.log("prefixedIdentName:", prefixedIdentName);
-        console.log(ctx["defns"]);
+        // console.log("prefixedIdentName:", prefixedIdentName);
+        // console.log(ctx["defns"]);
         if(ctx.hasOwnProperty("defns") && ctx["defns"].hasOwnProperty(prefixedIdentName)){
             let modDefn = ctx["defns"][prefixedIdentName];
             return evalExpr(modDefn.node, ctx.clone());
@@ -3408,7 +3408,7 @@ function evalUserBoundOp(node, opDefNode, opArgs, ctx){
             let opDefName = opArgVals[i].text;
 
             let opDef = ctx.getBoundOperator(opDefName);
-            console.log("OP DEF ARG:", opDef);
+            // console.log("OP DEF ARG:", opDef);
 
             let op = { "name": anonOpArgName, "args": opDef["args"], "node": opDef["node"] };
             opEvalContext["operators_bound"][anonOpArgName] = op;
