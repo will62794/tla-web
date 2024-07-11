@@ -1645,7 +1645,7 @@ function replPane(hidden) {
                     } catch (error) {
                         // swallow parse errors here.
                         model.replError = true;
-                        console.log("swallowing parse errors during repl evaluation.")
+                        console.log("swallowing parse errors during repl evaluation.", error);
                     }
                 },
                 value: model.replInput,

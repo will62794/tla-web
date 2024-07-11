@@ -1293,7 +1293,7 @@ class TLASpec {
 
     // TODO: Extend this to parse fetched modules during spec parsing.
     fetchModules(moduleNames, urlPath) {
-        console.log("Fetching EXTENDS modules for spec:", urlPath);
+        console.log("Fetching modules", moduleNames, "for spec at root path:", urlPath);
         // console.log("module names:", moduleNames);
         // console.log(decodeURIComponent(urlPath));
         const segments = decodeURIComponent(urlPath).split("/");
