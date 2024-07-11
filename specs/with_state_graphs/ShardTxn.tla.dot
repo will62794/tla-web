@@ -1,0 +1,59 @@
+strict digraph DiskGraph {
+nodesep=0.35;
+subgraph cluster_graph {
+color="white";
+-505555173866900318 [label="/\\ lsn = (t1 :> 0)\n/\\ rtxn = (t1 :> 0)\n/\\ epoch = 1\n/\\ updated = (t1 :> {})\n/\\ snapshotStore = (t1 :> (k1 :> \"NoValue\"))\n/\\ pc = (t1 :> \"TXN\" @@ \"Router\" :> \"ROUTER\")\n/\\ ops = (t1 :> <<>>)\n/\\ overlap = (t1 :> {})\n/\\ rlog = (t1 :> <<>>)\n/\\ commitIndex = 0\n/\\ tx = {}\n/\\ log = <<>>\n/\\ aborted = (t1 :> FALSE)",style = filled]
+-505555173866900318 -> 2992866612566858506 [label="",color="black",fontcolor="black"];
+2992866612566858506 [label="/\\ lsn = (t1 :> 0)\n/\\ rtxn = (t1 :> 1)\n/\\ epoch = 1\n/\\ updated = (t1 :> {})\n/\\ snapshotStore = (t1 :> (k1 :> \"NoValue\"))\n/\\ pc = (t1 :> \"TXN\" @@ \"Router\" :> \"ROUTER\")\n/\\ ops = (t1 :> <<>>)\n/\\ overlap = (t1 :> {})\n/\\ rlog = (t1 :> <<[k |-> k1, op |-> \"read\"]>>)\n/\\ commitIndex = 0\n/\\ tx = {}\n/\\ log = <<>>\n/\\ aborted = (t1 :> FALSE)"];
+-505555173866900318 -> 7847831955468835296 [label="",color="black",fontcolor="black"];
+7847831955468835296 [label="/\\ lsn = (t1 :> 0)\n/\\ rtxn = (t1 :> 1)\n/\\ epoch = 1\n/\\ updated = (t1 :> {})\n/\\ snapshotStore = (t1 :> (k1 :> \"NoValue\"))\n/\\ pc = (t1 :> \"TXN\" @@ \"Router\" :> \"ROUTER\")\n/\\ ops = (t1 :> <<>>)\n/\\ overlap = (t1 :> {})\n/\\ rlog = (t1 :> <<[k |-> k1, op |-> \"write\"]>>)\n/\\ commitIndex = 0\n/\\ tx = {}\n/\\ log = <<>>\n/\\ aborted = (t1 :> FALSE)"];
+2992866612566858506 -> 507768310209712217 [label="",color="black",fontcolor="black"];
+507768310209712217 [label="/\\ lsn = (t1 :> 0)\n/\\ rtxn = (t1 :> 1)\n/\\ epoch = 1\n/\\ updated = (t1 :> {})\n/\\ snapshotStore = (t1 :> (k1 :> \"NoValue\"))\n/\\ pc = (t1 :> \"TXN\" @@ \"Router\" :> \"Done\")\n/\\ ops = (t1 :> <<>>)\n/\\ overlap = (t1 :> {})\n/\\ rlog = (t1 :> <<[k |-> k1, op |-> \"read\"]>>)\n/\\ commitIndex = 0\n/\\ tx = {}\n/\\ log = <<>>\n/\\ aborted = (t1 :> FALSE)"];
+2992866612566858506 -> 371184827436645122 [label="",color="black",fontcolor="black"];
+371184827436645122 [label="/\\ lsn = (t1 :> 1)\n/\\ rtxn = (t1 :> 1)\n/\\ epoch = 1\n/\\ updated = (t1 :> {})\n/\\ snapshotStore = (t1 :> (k1 :> \"NoValue\"))\n/\\ pc = (t1 :> \"READ\" @@ \"Router\" :> \"ROUTER\")\n/\\ ops = (t1 :> <<>>)\n/\\ overlap = (t1 :> {t1})\n/\\ rlog = (t1 :> <<[k |-> k1, op |-> \"read\"]>>)\n/\\ commitIndex = 0\n/\\ tx = {t1}\n/\\ log = <<>>\n/\\ aborted = (t1 :> FALSE)"];
+7847831955468835296 -> -7621360623640286081 [label="",color="black",fontcolor="black"];
+-7621360623640286081 [label="/\\ lsn = (t1 :> 0)\n/\\ rtxn = (t1 :> 1)\n/\\ epoch = 1\n/\\ updated = (t1 :> {})\n/\\ snapshotStore = (t1 :> (k1 :> \"NoValue\"))\n/\\ pc = (t1 :> \"TXN\" @@ \"Router\" :> \"Done\")\n/\\ ops = (t1 :> <<>>)\n/\\ overlap = (t1 :> {})\n/\\ rlog = (t1 :> <<[k |-> k1, op |-> \"write\"]>>)\n/\\ commitIndex = 0\n/\\ tx = {}\n/\\ log = <<>>\n/\\ aborted = (t1 :> FALSE)"];
+7847831955468835296 -> -8265065625338270576 [label="",color="black",fontcolor="black"];
+-8265065625338270576 [label="/\\ lsn = (t1 :> 1)\n/\\ rtxn = (t1 :> 1)\n/\\ epoch = 1\n/\\ updated = (t1 :> {})\n/\\ snapshotStore = (t1 :> (k1 :> \"NoValue\"))\n/\\ pc = (t1 :> \"READ\" @@ \"Router\" :> \"ROUTER\")\n/\\ ops = (t1 :> <<>>)\n/\\ overlap = (t1 :> {t1})\n/\\ rlog = (t1 :> <<[k |-> k1, op |-> \"write\"]>>)\n/\\ commitIndex = 0\n/\\ tx = {t1}\n/\\ log = <<>>\n/\\ aborted = (t1 :> FALSE)"];
+507768310209712217 -> 5482917767269195964 [label="",color="black",fontcolor="black"];
+5482917767269195964 [label="/\\ lsn = (t1 :> 1)\n/\\ rtxn = (t1 :> 1)\n/\\ epoch = 1\n/\\ updated = (t1 :> {})\n/\\ snapshotStore = (t1 :> (k1 :> \"NoValue\"))\n/\\ pc = (t1 :> \"READ\" @@ \"Router\" :> \"Done\")\n/\\ ops = (t1 :> <<>>)\n/\\ overlap = (t1 :> {t1})\n/\\ rlog = (t1 :> <<[k |-> k1, op |-> \"read\"]>>)\n/\\ commitIndex = 0\n/\\ tx = {t1}\n/\\ log = <<>>\n/\\ aborted = (t1 :> FALSE)"];
+371184827436645122 -> 5482917767269195964 [label="",color="black",fontcolor="black"];
+371184827436645122 -> -6202629864455073531 [label="",color="black",fontcolor="black"];
+-6202629864455073531 [label="/\\ lsn = (t1 :> 1)\n/\\ rtxn = (t1 :> 1)\n/\\ epoch = 1\n/\\ updated = (t1 :> {})\n/\\ snapshotStore = (t1 :> (k1 :> \"NoValue\"))\n/\\ pc = (t1 :> \"TXN\" @@ \"Router\" :> \"ROUTER\")\n/\\ ops = (t1 :> <<[op |-> \"read\", value |-> \"NoValue\", key |-> k1]>>)\n/\\ overlap = (t1 :> {t1})\n/\\ rlog = (t1 :> <<[k |-> k1, op |-> \"read\"]>>)\n/\\ commitIndex = 0\n/\\ tx = {t1}\n/\\ log = <<>>\n/\\ aborted = (t1 :> FALSE)"];
+-7621360623640286081 -> 8814617913516654711 [label="",color="black",fontcolor="black"];
+8814617913516654711 [label="/\\ lsn = (t1 :> 1)\n/\\ rtxn = (t1 :> 1)\n/\\ epoch = 1\n/\\ updated = (t1 :> {})\n/\\ snapshotStore = (t1 :> (k1 :> \"NoValue\"))\n/\\ pc = (t1 :> \"READ\" @@ \"Router\" :> \"Done\")\n/\\ ops = (t1 :> <<>>)\n/\\ overlap = (t1 :> {t1})\n/\\ rlog = (t1 :> <<[k |-> k1, op |-> \"write\"]>>)\n/\\ commitIndex = 0\n/\\ tx = {t1}\n/\\ log = <<>>\n/\\ aborted = (t1 :> FALSE)"];
+-8265065625338270576 -> 8814617913516654711 [label="",color="black",fontcolor="black"];
+-8265065625338270576 -> -5286365806740764387 [label="",color="black",fontcolor="black"];
+-5286365806740764387 [label="/\\ lsn = (t1 :> 1)\n/\\ rtxn = (t1 :> 1)\n/\\ epoch = 1\n/\\ updated = (t1 :> {})\n/\\ snapshotStore = (t1 :> (k1 :> \"NoValue\"))\n/\\ pc = (t1 :> \"WRITE\" @@ \"Router\" :> \"ROUTER\")\n/\\ ops = (t1 :> <<>>)\n/\\ overlap = (t1 :> {t1})\n/\\ rlog = (t1 :> <<[k |-> k1, op |-> \"write\"]>>)\n/\\ commitIndex = 0\n/\\ tx = {t1}\n/\\ log = <<>>\n/\\ aborted = (t1 :> FALSE)"];
+5482917767269195964 -> -7149854902105753046 [label="",color="black",fontcolor="black"];
+-7149854902105753046 [label="/\\ lsn = (t1 :> 1)\n/\\ rtxn = (t1 :> 1)\n/\\ epoch = 1\n/\\ updated = (t1 :> {})\n/\\ snapshotStore = (t1 :> (k1 :> \"NoValue\"))\n/\\ pc = (t1 :> \"TXN\" @@ \"Router\" :> \"Done\")\n/\\ ops = (t1 :> <<[op |-> \"read\", value |-> \"NoValue\", key |-> k1]>>)\n/\\ overlap = (t1 :> {t1})\n/\\ rlog = (t1 :> <<[k |-> k1, op |-> \"read\"]>>)\n/\\ commitIndex = 0\n/\\ tx = {t1}\n/\\ log = <<>>\n/\\ aborted = (t1 :> FALSE)"];
+-6202629864455073531 -> -7149854902105753046 [label="",color="black",fontcolor="black"];
+-6202629864455073531 -> 6810630193160815470 [label="",color="black",fontcolor="black"];
+6810630193160815470 [label="/\\ lsn = (t1 :> 1)\n/\\ rtxn = (t1 :> 1)\n/\\ epoch = 1\n/\\ updated = (t1 :> {})\n/\\ snapshotStore = (t1 :> (k1 :> \"NoValue\"))\n/\\ pc = (t1 :> \"Done\" @@ \"Router\" :> \"ROUTER\")\n/\\ ops = (t1 :> <<[op |-> \"read\", value |-> \"NoValue\", key |-> k1]>>)\n/\\ overlap = (t1 :> {t1})\n/\\ rlog = (t1 :> <<[k |-> k1, op |-> \"read\"]>>)\n/\\ commitIndex = 0\n/\\ tx = {t1}\n/\\ log = <<>>\n/\\ aborted = (t1 :> FALSE)"];
+8814617913516654711 -> -4897488116662090790 [label="",color="black",fontcolor="black"];
+-4897488116662090790 [label="/\\ lsn = (t1 :> 1)\n/\\ rtxn = (t1 :> 1)\n/\\ epoch = 1\n/\\ updated = (t1 :> {})\n/\\ snapshotStore = (t1 :> (k1 :> \"NoValue\"))\n/\\ pc = (t1 :> \"WRITE\" @@ \"Router\" :> \"Done\")\n/\\ ops = (t1 :> <<>>)\n/\\ overlap = (t1 :> {t1})\n/\\ rlog = (t1 :> <<[k |-> k1, op |-> \"write\"]>>)\n/\\ commitIndex = 0\n/\\ tx = {t1}\n/\\ log = <<>>\n/\\ aborted = (t1 :> FALSE)"];
+-5286365806740764387 -> -4897488116662090790 [label="",color="black",fontcolor="black"];
+-5286365806740764387 -> -5972704206473815927 [label="",color="black",fontcolor="black"];
+-5972704206473815927 [label="/\\ lsn = (t1 :> 1)\n/\\ rtxn = (t1 :> 1)\n/\\ epoch = 1\n/\\ updated = (t1 :> {k1})\n/\\ snapshotStore = (t1 :> (k1 :> t1))\n/\\ pc = (t1 :> \"TXN\" @@ \"Router\" :> \"ROUTER\")\n/\\ ops = (t1 :> <<[op |-> \"write\", value |-> t1, key |-> k1]>>)\n/\\ overlap = (t1 :> {t1})\n/\\ rlog = (t1 :> <<[k |-> k1, op |-> \"write\"]>>)\n/\\ commitIndex = 1\n/\\ tx = {}\n/\\ log = <<[value |-> t1, key |-> k1]>>\n/\\ aborted = (t1 :> FALSE)"];
+-7149854902105753046 -> -674640703198554627 [label="",color="black",fontcolor="black"];
+-674640703198554627 [label="/\\ lsn = (t1 :> 1)\n/\\ rtxn = (t1 :> 1)\n/\\ epoch = 1\n/\\ updated = (t1 :> {})\n/\\ snapshotStore = (t1 :> (k1 :> \"NoValue\"))\n/\\ pc = (t1 :> \"Done\" @@ \"Router\" :> \"Done\")\n/\\ ops = (t1 :> <<[op |-> \"read\", value |-> \"NoValue\", key |-> k1]>>)\n/\\ overlap = (t1 :> {t1})\n/\\ rlog = (t1 :> <<[k |-> k1, op |-> \"read\"]>>)\n/\\ commitIndex = 0\n/\\ tx = {t1}\n/\\ log = <<>>\n/\\ aborted = (t1 :> FALSE)"];
+6810630193160815470 -> -674640703198554627 [label="",color="black",fontcolor="black"];
+-4897488116662090790 -> -532010948047454415 [label="",color="black",fontcolor="black"];
+-532010948047454415 [label="/\\ lsn = (t1 :> 1)\n/\\ rtxn = (t1 :> 1)\n/\\ epoch = 1\n/\\ updated = (t1 :> {k1})\n/\\ snapshotStore = (t1 :> (k1 :> t1))\n/\\ pc = (t1 :> \"TXN\" @@ \"Router\" :> \"Done\")\n/\\ ops = (t1 :> <<[op |-> \"write\", value |-> t1, key |-> k1]>>)\n/\\ overlap = (t1 :> {t1})\n/\\ rlog = (t1 :> <<[k |-> k1, op |-> \"write\"]>>)\n/\\ commitIndex = 1\n/\\ tx = {}\n/\\ log = <<[value |-> t1, key |-> k1]>>\n/\\ aborted = (t1 :> FALSE)"];
+-5972704206473815927 -> -532010948047454415 [label="",color="black",fontcolor="black"];
+-5972704206473815927 -> -4227583027760327304 [label="",color="black",fontcolor="black"];
+-4227583027760327304 [label="/\\ lsn = (t1 :> 1)\n/\\ rtxn = (t1 :> 1)\n/\\ epoch = 1\n/\\ updated = (t1 :> {k1})\n/\\ snapshotStore = (t1 :> (k1 :> t1))\n/\\ pc = (t1 :> \"Done\" @@ \"Router\" :> \"ROUTER\")\n/\\ ops = (t1 :> <<[op |-> \"write\", value |-> t1, key |-> k1]>>)\n/\\ overlap = (t1 :> {t1})\n/\\ rlog = (t1 :> <<[k |-> k1, op |-> \"write\"]>>)\n/\\ commitIndex = 1\n/\\ tx = {}\n/\\ log = <<[value |-> t1, key |-> k1]>>\n/\\ aborted = (t1 :> FALSE)"];
+-674640703198554627 -> -674640703198554627 [label="",color="black",fontcolor="black"];
+-532010948047454415 -> 4941142702209052912 [label="",color="black",fontcolor="black"];
+4941142702209052912 [label="/\\ lsn = (t1 :> 1)\n/\\ rtxn = (t1 :> 1)\n/\\ epoch = 1\n/\\ updated = (t1 :> {k1})\n/\\ snapshotStore = (t1 :> (k1 :> t1))\n/\\ pc = (t1 :> \"Done\" @@ \"Router\" :> \"Done\")\n/\\ ops = (t1 :> <<[op |-> \"write\", value |-> t1, key |-> k1]>>)\n/\\ overlap = (t1 :> {t1})\n/\\ rlog = (t1 :> <<[k |-> k1, op |-> \"write\"]>>)\n/\\ commitIndex = 1\n/\\ tx = {}\n/\\ log = <<[value |-> t1, key |-> k1]>>\n/\\ aborted = (t1 :> FALSE)"];
+-4227583027760327304 -> 4941142702209052912 [label="",color="black",fontcolor="black"];
+4941142702209052912 -> 4941142702209052912 [label="",color="black",fontcolor="black"];
+{rank = same; -505555173866900318;}
+{rank = same; 7847831955468835296;2992866612566858506;}
+{rank = same; 507768310209712217;-7621360623640286081;371184827436645122;-8265065625338270576;}
+{rank = same; 5482917767269195964;-5286365806740764387;-6202629864455073531;8814617913516654711;}
+{rank = same; -7149854902105753046;-4897488116662090790;-5972704206473815927;6810630193160815470;}
+{rank = same; -674640703198554627;-532010948047454415;-4227583027760327304;}
+{rank = same; 4941142702209052912;}
+}
+}

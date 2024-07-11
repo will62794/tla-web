@@ -1,0 +1,414 @@
+{
+  "name": "DiskGraph",
+  "directed": true,
+  "strict": true,
+  "nodesep": "0.35",
+  "_subgraph_cnt": 8,
+  "objects": [
+    {
+      "name": "cluster_graph",
+      "color": "white",
+      "nodesep": "0.35",
+      "_gvid": 0,
+      "subgraphs": [
+        1,
+2,
+3,
+4,
+5,
+6,
+7
+      ],
+      "nodes": [
+        8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26
+      ],
+      "edges": [
+        0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,19,20,21,22,23,24,25,26
+      ]
+    },
+    {
+      "name": "%57",
+      "color": "white",
+      "nodesep": "0.35",
+      "rank": "same",
+      "_gvid": 1,
+      "nodes": [
+        8
+      ]
+    },
+    {
+      "name": "%59",
+      "color": "white",
+      "nodesep": "0.35",
+      "rank": "same",
+      "_gvid": 2,
+      "nodes": [
+        9,10
+      ]
+    },
+    {
+      "name": "%61",
+      "color": "white",
+      "nodesep": "0.35",
+      "rank": "same",
+      "_gvid": 3,
+      "nodes": [
+        11,12,13,14
+      ]
+    },
+    {
+      "name": "%63",
+      "color": "white",
+      "nodesep": "0.35",
+      "rank": "same",
+      "_gvid": 4,
+      "nodes": [
+        15,16,17,18
+      ]
+    },
+    {
+      "name": "%65",
+      "color": "white",
+      "nodesep": "0.35",
+      "rank": "same",
+      "_gvid": 5,
+      "nodes": [
+        19,20,21,22
+      ]
+    },
+    {
+      "name": "%67",
+      "color": "white",
+      "nodesep": "0.35",
+      "rank": "same",
+      "_gvid": 6,
+      "nodes": [
+        23,24,25
+      ]
+    },
+    {
+      "name": "%69",
+      "color": "white",
+      "nodesep": "0.35",
+      "rank": "same",
+      "_gvid": 7,
+      "nodes": [
+        26
+      ]
+    },
+    {
+      "_gvid": 8,
+      "name": "-505555173866900318",
+      "label": "\/\\\\ lsn = (t1 :> 0)\\n\/\\\\ rtxn = (t1 :> 0)\\n\/\\\\ epoch = 1\\n\/\\\\ updated = (t1 :> {})\\n\/\\\\ snapshotStore = (t1 :> (k1 :> \"NoValue\"))\\n\/\\\\ pc = (t1 :> \"TXN\" @@ \"Router\" :> \"ROUTER\")\\n\/\\\\ ops = (t1 :> <<>>)\\n\/\\\\ overlap = (t1 :> {})\\n\/\\\\ rlog = (t1 :> <<>>)\\n\/\\\\ commitIndex = 0\\n\/\\\\ tx = {}\\n\/\\\\ log = <<>>\\n\/\\\\ aborted = (t1 :> FALSE)",
+      "style": "filled"
+    },
+    {
+      "_gvid": 9,
+      "name": "2992866612566858506",
+      "label": "\/\\\\ lsn = (t1 :> 0)\\n\/\\\\ rtxn = (t1 :> 1)\\n\/\\\\ epoch = 1\\n\/\\\\ updated = (t1 :> {})\\n\/\\\\ snapshotStore = (t1 :> (k1 :> \"NoValue\"))\\n\/\\\\ pc = (t1 :> \"TXN\" @@ \"Router\" :> \"ROUTER\")\\n\/\\\\ ops = (t1 :> <<>>)\\n\/\\\\ overlap = (t1 :> {})\\n\/\\\\ rlog = (t1 :> <<[k |-> k1, op |-> \"read\"]>>)\\n\/\\\\ commitIndex = 0\\n\/\\\\ tx = {}\\n\/\\\\ log = <<>>\\n\/\\\\ aborted = (t1 :> FALSE)"
+    },
+    {
+      "_gvid": 10,
+      "name": "7847831955468835296",
+      "label": "\/\\\\ lsn = (t1 :> 0)\\n\/\\\\ rtxn = (t1 :> 1)\\n\/\\\\ epoch = 1\\n\/\\\\ updated = (t1 :> {})\\n\/\\\\ snapshotStore = (t1 :> (k1 :> \"NoValue\"))\\n\/\\\\ pc = (t1 :> \"TXN\" @@ \"Router\" :> \"ROUTER\")\\n\/\\\\ ops = (t1 :> <<>>)\\n\/\\\\ overlap = (t1 :> {})\\n\/\\\\ rlog = (t1 :> <<[k |-> k1, op |-> \"write\"]>>)\\n\/\\\\ commitIndex = 0\\n\/\\\\ tx = {}\\n\/\\\\ log = <<>>\\n\/\\\\ aborted = (t1 :> FALSE)"
+    },
+    {
+      "_gvid": 11,
+      "name": "507768310209712217",
+      "label": "\/\\\\ lsn = (t1 :> 0)\\n\/\\\\ rtxn = (t1 :> 1)\\n\/\\\\ epoch = 1\\n\/\\\\ updated = (t1 :> {})\\n\/\\\\ snapshotStore = (t1 :> (k1 :> \"NoValue\"))\\n\/\\\\ pc = (t1 :> \"TXN\" @@ \"Router\" :> \"Done\")\\n\/\\\\ ops = (t1 :> <<>>)\\n\/\\\\ overlap = (t1 :> {})\\n\/\\\\ rlog = (t1 :> <<[k |-> k1, op |-> \"read\"]>>)\\n\/\\\\ commitIndex = 0\\n\/\\\\ tx = {}\\n\/\\\\ log = <<>>\\n\/\\\\ aborted = (t1 :> FALSE)"
+    },
+    {
+      "_gvid": 12,
+      "name": "371184827436645122",
+      "label": "\/\\\\ lsn = (t1 :> 1)\\n\/\\\\ rtxn = (t1 :> 1)\\n\/\\\\ epoch = 1\\n\/\\\\ updated = (t1 :> {})\\n\/\\\\ snapshotStore = (t1 :> (k1 :> \"NoValue\"))\\n\/\\\\ pc = (t1 :> \"READ\" @@ \"Router\" :> \"ROUTER\")\\n\/\\\\ ops = (t1 :> <<>>)\\n\/\\\\ overlap = (t1 :> {t1})\\n\/\\\\ rlog = (t1 :> <<[k |-> k1, op |-> \"read\"]>>)\\n\/\\\\ commitIndex = 0\\n\/\\\\ tx = {t1}\\n\/\\\\ log = <<>>\\n\/\\\\ aborted = (t1 :> FALSE)"
+    },
+    {
+      "_gvid": 13,
+      "name": "-7621360623640286081",
+      "label": "\/\\\\ lsn = (t1 :> 0)\\n\/\\\\ rtxn = (t1 :> 1)\\n\/\\\\ epoch = 1\\n\/\\\\ updated = (t1 :> {})\\n\/\\\\ snapshotStore = (t1 :> (k1 :> \"NoValue\"))\\n\/\\\\ pc = (t1 :> \"TXN\" @@ \"Router\" :> \"Done\")\\n\/\\\\ ops = (t1 :> <<>>)\\n\/\\\\ overlap = (t1 :> {})\\n\/\\\\ rlog = (t1 :> <<[k |-> k1, op |-> \"write\"]>>)\\n\/\\\\ commitIndex = 0\\n\/\\\\ tx = {}\\n\/\\\\ log = <<>>\\n\/\\\\ aborted = (t1 :> FALSE)"
+    },
+    {
+      "_gvid": 14,
+      "name": "-8265065625338270576",
+      "label": "\/\\\\ lsn = (t1 :> 1)\\n\/\\\\ rtxn = (t1 :> 1)\\n\/\\\\ epoch = 1\\n\/\\\\ updated = (t1 :> {})\\n\/\\\\ snapshotStore = (t1 :> (k1 :> \"NoValue\"))\\n\/\\\\ pc = (t1 :> \"READ\" @@ \"Router\" :> \"ROUTER\")\\n\/\\\\ ops = (t1 :> <<>>)\\n\/\\\\ overlap = (t1 :> {t1})\\n\/\\\\ rlog = (t1 :> <<[k |-> k1, op |-> \"write\"]>>)\\n\/\\\\ commitIndex = 0\\n\/\\\\ tx = {t1}\\n\/\\\\ log = <<>>\\n\/\\\\ aborted = (t1 :> FALSE)"
+    },
+    {
+      "_gvid": 15,
+      "name": "5482917767269195964",
+      "label": "\/\\\\ lsn = (t1 :> 1)\\n\/\\\\ rtxn = (t1 :> 1)\\n\/\\\\ epoch = 1\\n\/\\\\ updated = (t1 :> {})\\n\/\\\\ snapshotStore = (t1 :> (k1 :> \"NoValue\"))\\n\/\\\\ pc = (t1 :> \"READ\" @@ \"Router\" :> \"Done\")\\n\/\\\\ ops = (t1 :> <<>>)\\n\/\\\\ overlap = (t1 :> {t1})\\n\/\\\\ rlog = (t1 :> <<[k |-> k1, op |-> \"read\"]>>)\\n\/\\\\ commitIndex = 0\\n\/\\\\ tx = {t1}\\n\/\\\\ log = <<>>\\n\/\\\\ aborted = (t1 :> FALSE)"
+    },
+    {
+      "_gvid": 16,
+      "name": "-6202629864455073531",
+      "label": "\/\\\\ lsn = (t1 :> 1)\\n\/\\\\ rtxn = (t1 :> 1)\\n\/\\\\ epoch = 1\\n\/\\\\ updated = (t1 :> {})\\n\/\\\\ snapshotStore = (t1 :> (k1 :> \"NoValue\"))\\n\/\\\\ pc = (t1 :> \"TXN\" @@ \"Router\" :> \"ROUTER\")\\n\/\\\\ ops = (t1 :> <<[op |-> \"read\", value |-> \"NoValue\", key |-> k1]>>)\\n\/\\\\ overlap = (t1 :> {t1})\\n\/\\\\ rlog = (t1 :> <<[k |-> k1, op |-> \"read\"]>>)\\n\/\\\\ commitIndex = 0\\n\/\\\\ tx = {t1}\\n\/\\\\ log = <<>>\\n\/\\\\ aborted = (t1 :> FALSE)"
+    },
+    {
+      "_gvid": 17,
+      "name": "8814617913516654711",
+      "label": "\/\\\\ lsn = (t1 :> 1)\\n\/\\\\ rtxn = (t1 :> 1)\\n\/\\\\ epoch = 1\\n\/\\\\ updated = (t1 :> {})\\n\/\\\\ snapshotStore = (t1 :> (k1 :> \"NoValue\"))\\n\/\\\\ pc = (t1 :> \"READ\" @@ \"Router\" :> \"Done\")\\n\/\\\\ ops = (t1 :> <<>>)\\n\/\\\\ overlap = (t1 :> {t1})\\n\/\\\\ rlog = (t1 :> <<[k |-> k1, op |-> \"write\"]>>)\\n\/\\\\ commitIndex = 0\\n\/\\\\ tx = {t1}\\n\/\\\\ log = <<>>\\n\/\\\\ aborted = (t1 :> FALSE)"
+    },
+    {
+      "_gvid": 18,
+      "name": "-5286365806740764387",
+      "label": "\/\\\\ lsn = (t1 :> 1)\\n\/\\\\ rtxn = (t1 :> 1)\\n\/\\\\ epoch = 1\\n\/\\\\ updated = (t1 :> {})\\n\/\\\\ snapshotStore = (t1 :> (k1 :> \"NoValue\"))\\n\/\\\\ pc = (t1 :> \"WRITE\" @@ \"Router\" :> \"ROUTER\")\\n\/\\\\ ops = (t1 :> <<>>)\\n\/\\\\ overlap = (t1 :> {t1})\\n\/\\\\ rlog = (t1 :> <<[k |-> k1, op |-> \"write\"]>>)\\n\/\\\\ commitIndex = 0\\n\/\\\\ tx = {t1}\\n\/\\\\ log = <<>>\\n\/\\\\ aborted = (t1 :> FALSE)"
+    },
+    {
+      "_gvid": 19,
+      "name": "-7149854902105753046",
+      "label": "\/\\\\ lsn = (t1 :> 1)\\n\/\\\\ rtxn = (t1 :> 1)\\n\/\\\\ epoch = 1\\n\/\\\\ updated = (t1 :> {})\\n\/\\\\ snapshotStore = (t1 :> (k1 :> \"NoValue\"))\\n\/\\\\ pc = (t1 :> \"TXN\" @@ \"Router\" :> \"Done\")\\n\/\\\\ ops = (t1 :> <<[op |-> \"read\", value |-> \"NoValue\", key |-> k1]>>)\\n\/\\\\ overlap = (t1 :> {t1})\\n\/\\\\ rlog = (t1 :> <<[k |-> k1, op |-> \"read\"]>>)\\n\/\\\\ commitIndex = 0\\n\/\\\\ tx = {t1}\\n\/\\\\ log = <<>>\\n\/\\\\ aborted = (t1 :> FALSE)"
+    },
+    {
+      "_gvid": 20,
+      "name": "6810630193160815470",
+      "label": "\/\\\\ lsn = (t1 :> 1)\\n\/\\\\ rtxn = (t1 :> 1)\\n\/\\\\ epoch = 1\\n\/\\\\ updated = (t1 :> {})\\n\/\\\\ snapshotStore = (t1 :> (k1 :> \"NoValue\"))\\n\/\\\\ pc = (t1 :> \"Done\" @@ \"Router\" :> \"ROUTER\")\\n\/\\\\ ops = (t1 :> <<[op |-> \"read\", value |-> \"NoValue\", key |-> k1]>>)\\n\/\\\\ overlap = (t1 :> {t1})\\n\/\\\\ rlog = (t1 :> <<[k |-> k1, op |-> \"read\"]>>)\\n\/\\\\ commitIndex = 0\\n\/\\\\ tx = {t1}\\n\/\\\\ log = <<>>\\n\/\\\\ aborted = (t1 :> FALSE)"
+    },
+    {
+      "_gvid": 21,
+      "name": "-4897488116662090790",
+      "label": "\/\\\\ lsn = (t1 :> 1)\\n\/\\\\ rtxn = (t1 :> 1)\\n\/\\\\ epoch = 1\\n\/\\\\ updated = (t1 :> {})\\n\/\\\\ snapshotStore = (t1 :> (k1 :> \"NoValue\"))\\n\/\\\\ pc = (t1 :> \"WRITE\" @@ \"Router\" :> \"Done\")\\n\/\\\\ ops = (t1 :> <<>>)\\n\/\\\\ overlap = (t1 :> {t1})\\n\/\\\\ rlog = (t1 :> <<[k |-> k1, op |-> \"write\"]>>)\\n\/\\\\ commitIndex = 0\\n\/\\\\ tx = {t1}\\n\/\\\\ log = <<>>\\n\/\\\\ aborted = (t1 :> FALSE)"
+    },
+    {
+      "_gvid": 22,
+      "name": "-5972704206473815927",
+      "label": "\/\\\\ lsn = (t1 :> 1)\\n\/\\\\ rtxn = (t1 :> 1)\\n\/\\\\ epoch = 1\\n\/\\\\ updated = (t1 :> {k1})\\n\/\\\\ snapshotStore = (t1 :> (k1 :> t1))\\n\/\\\\ pc = (t1 :> \"TXN\" @@ \"Router\" :> \"ROUTER\")\\n\/\\\\ ops = (t1 :> <<[op |-> \"write\", value |-> t1, key |-> k1]>>)\\n\/\\\\ overlap = (t1 :> {t1})\\n\/\\\\ rlog = (t1 :> <<[k |-> k1, op |-> \"write\"]>>)\\n\/\\\\ commitIndex = 1\\n\/\\\\ tx = {}\\n\/\\\\ log = <<[value |-> t1, key |-> k1]>>\\n\/\\\\ aborted = (t1 :> FALSE)"
+    },
+    {
+      "_gvid": 23,
+      "name": "-674640703198554627",
+      "label": "\/\\\\ lsn = (t1 :> 1)\\n\/\\\\ rtxn = (t1 :> 1)\\n\/\\\\ epoch = 1\\n\/\\\\ updated = (t1 :> {})\\n\/\\\\ snapshotStore = (t1 :> (k1 :> \"NoValue\"))\\n\/\\\\ pc = (t1 :> \"Done\" @@ \"Router\" :> \"Done\")\\n\/\\\\ ops = (t1 :> <<[op |-> \"read\", value |-> \"NoValue\", key |-> k1]>>)\\n\/\\\\ overlap = (t1 :> {t1})\\n\/\\\\ rlog = (t1 :> <<[k |-> k1, op |-> \"read\"]>>)\\n\/\\\\ commitIndex = 0\\n\/\\\\ tx = {t1}\\n\/\\\\ log = <<>>\\n\/\\\\ aborted = (t1 :> FALSE)"
+    },
+    {
+      "_gvid": 24,
+      "name": "-532010948047454415",
+      "label": "\/\\\\ lsn = (t1 :> 1)\\n\/\\\\ rtxn = (t1 :> 1)\\n\/\\\\ epoch = 1\\n\/\\\\ updated = (t1 :> {k1})\\n\/\\\\ snapshotStore = (t1 :> (k1 :> t1))\\n\/\\\\ pc = (t1 :> \"TXN\" @@ \"Router\" :> \"Done\")\\n\/\\\\ ops = (t1 :> <<[op |-> \"write\", value |-> t1, key |-> k1]>>)\\n\/\\\\ overlap = (t1 :> {t1})\\n\/\\\\ rlog = (t1 :> <<[k |-> k1, op |-> \"write\"]>>)\\n\/\\\\ commitIndex = 1\\n\/\\\\ tx = {}\\n\/\\\\ log = <<[value |-> t1, key |-> k1]>>\\n\/\\\\ aborted = (t1 :> FALSE)"
+    },
+    {
+      "_gvid": 25,
+      "name": "-4227583027760327304",
+      "label": "\/\\\\ lsn = (t1 :> 1)\\n\/\\\\ rtxn = (t1 :> 1)\\n\/\\\\ epoch = 1\\n\/\\\\ updated = (t1 :> {k1})\\n\/\\\\ snapshotStore = (t1 :> (k1 :> t1))\\n\/\\\\ pc = (t1 :> \"Done\" @@ \"Router\" :> \"ROUTER\")\\n\/\\\\ ops = (t1 :> <<[op |-> \"write\", value |-> t1, key |-> k1]>>)\\n\/\\\\ overlap = (t1 :> {t1})\\n\/\\\\ rlog = (t1 :> <<[k |-> k1, op |-> \"write\"]>>)\\n\/\\\\ commitIndex = 1\\n\/\\\\ tx = {}\\n\/\\\\ log = <<[value |-> t1, key |-> k1]>>\\n\/\\\\ aborted = (t1 :> FALSE)"
+    },
+    {
+      "_gvid": 26,
+      "name": "4941142702209052912",
+      "label": "\/\\\\ lsn = (t1 :> 1)\\n\/\\\\ rtxn = (t1 :> 1)\\n\/\\\\ epoch = 1\\n\/\\\\ updated = (t1 :> {k1})\\n\/\\\\ snapshotStore = (t1 :> (k1 :> t1))\\n\/\\\\ pc = (t1 :> \"Done\" @@ \"Router\" :> \"Done\")\\n\/\\\\ ops = (t1 :> <<[op |-> \"write\", value |-> t1, key |-> k1]>>)\\n\/\\\\ overlap = (t1 :> {t1})\\n\/\\\\ rlog = (t1 :> <<[k |-> k1, op |-> \"write\"]>>)\\n\/\\\\ commitIndex = 1\\n\/\\\\ tx = {}\\n\/\\\\ log = <<[value |-> t1, key |-> k1]>>\\n\/\\\\ aborted = (t1 :> FALSE)"
+    }
+  ],
+  "edges": [
+    {
+      "_gvid": 0,
+      "tail": 8,
+      "head": 9,
+      "color": "black",
+      "fontcolor": "black",
+      "label": ""
+    },
+    {
+      "_gvid": 1,
+      "tail": 8,
+      "head": 10,
+      "color": "black",
+      "fontcolor": "black",
+      "label": ""
+    },
+    {
+      "_gvid": 2,
+      "tail": 9,
+      "head": 11,
+      "color": "black",
+      "fontcolor": "black",
+      "label": ""
+    },
+    {
+      "_gvid": 3,
+      "tail": 9,
+      "head": 12,
+      "color": "black",
+      "fontcolor": "black",
+      "label": ""
+    },
+    {
+      "_gvid": 4,
+      "tail": 10,
+      "head": 13,
+      "color": "black",
+      "fontcolor": "black",
+      "label": ""
+    },
+    {
+      "_gvid": 5,
+      "tail": 10,
+      "head": 14,
+      "color": "black",
+      "fontcolor": "black",
+      "label": ""
+    },
+    {
+      "_gvid": 6,
+      "tail": 11,
+      "head": 15,
+      "color": "black",
+      "fontcolor": "black",
+      "label": ""
+    },
+    {
+      "_gvid": 7,
+      "tail": 12,
+      "head": 15,
+      "color": "black",
+      "fontcolor": "black",
+      "label": ""
+    },
+    {
+      "_gvid": 8,
+      "tail": 12,
+      "head": 16,
+      "color": "black",
+      "fontcolor": "black",
+      "label": ""
+    },
+    {
+      "_gvid": 9,
+      "tail": 13,
+      "head": 17,
+      "color": "black",
+      "fontcolor": "black",
+      "label": ""
+    },
+    {
+      "_gvid": 10,
+      "tail": 14,
+      "head": 17,
+      "color": "black",
+      "fontcolor": "black",
+      "label": ""
+    },
+    {
+      "_gvid": 11,
+      "tail": 14,
+      "head": 18,
+      "color": "black",
+      "fontcolor": "black",
+      "label": ""
+    },
+    {
+      "_gvid": 12,
+      "tail": 15,
+      "head": 19,
+      "color": "black",
+      "fontcolor": "black",
+      "label": ""
+    },
+    {
+      "_gvid": 13,
+      "tail": 16,
+      "head": 19,
+      "color": "black",
+      "fontcolor": "black",
+      "label": ""
+    },
+    {
+      "_gvid": 14,
+      "tail": 16,
+      "head": 20,
+      "color": "black",
+      "fontcolor": "black",
+      "label": ""
+    },
+    {
+      "_gvid": 15,
+      "tail": 17,
+      "head": 21,
+      "color": "black",
+      "fontcolor": "black",
+      "label": ""
+    },
+    {
+      "_gvid": 16,
+      "tail": 18,
+      "head": 21,
+      "color": "black",
+      "fontcolor": "black",
+      "label": ""
+    },
+    {
+      "_gvid": 17,
+      "tail": 18,
+      "head": 22,
+      "color": "black",
+      "fontcolor": "black",
+      "label": ""
+    },
+    {
+      "_gvid": 18,
+      "tail": 19,
+      "head": 23,
+      "color": "black",
+      "fontcolor": "black",
+      "label": ""
+    },
+    {
+      "_gvid": 19,
+      "tail": 20,
+      "head": 23,
+      "color": "black",
+      "fontcolor": "black",
+      "label": ""
+    },
+    {
+      "_gvid": 20,
+      "tail": 21,
+      "head": 24,
+      "color": "black",
+      "fontcolor": "black",
+      "label": ""
+    },
+    {
+      "_gvid": 21,
+      "tail": 22,
+      "head": 24,
+      "color": "black",
+      "fontcolor": "black",
+      "label": ""
+    },
+    {
+      "_gvid": 22,
+      "tail": 22,
+      "head": 25,
+      "color": "black",
+      "fontcolor": "black",
+      "label": ""
+    },
+    {
+      "_gvid": 23,
+      "tail": 23,
+      "head": 23,
+      "color": "black",
+      "fontcolor": "black",
+      "label": ""
+    },
+    {
+      "_gvid": 24,
+      "tail": 24,
+      "head": 26,
+      "color": "black",
+      "fontcolor": "black",
+      "label": ""
+    },
+    {
+      "_gvid": 25,
+      "tail": 25,
+      "head": 26,
+      "color": "black",
+      "fontcolor": "black",
+      "label": ""
+    },
+    {
+      "_gvid": 26,
+      "tail": 26,
+      "head": 26,
+      "color": "black",
+      "fontcolor": "black",
+      "label": ""
+    }
+  ]
+}
