@@ -254,6 +254,7 @@ async function testStateGraphEquiv(testId, stateGraph, parsedSpec, specPath, con
         { "spec": "simple_unchanged_nested_def", "constvals": undefined },
         { "spec": "simple_unchanged", "constvals": undefined },
         { "spec": "simple_quant_multi", "constvals": undefined },
+        // { "spec": "simple_quant_tuple", "constvals": undefined },
         { "spec": "simple_multiline", "constvals": undefined },
         { "spec": "simple_letin", "constvals": undefined },
         { "spec": "simple_extends", "constvals": undefined },
@@ -334,6 +335,7 @@ async function testStateGraphEquiv(testId, stateGraph, parsedSpec, specPath, con
                 "STMTS": new IntValue(1),
             }
         },
+        // { "spec": "TestLinQueue", "constvals": undefined },
         // {
         //     "spec": "DieHarder", 
         //     "constvals": {
