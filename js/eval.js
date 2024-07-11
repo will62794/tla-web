@@ -1888,6 +1888,14 @@ class TLASpec {
                     cursor.gotoFirstChild();
                 }
 
+                console.log(node);
+                let infixOpSymbol = null;
+                if(node.children[1].type === "infix_op_symbol"){
+                    console.log("INFIX OP SYMBOL");
+                    infixOpSymbol = node.children[1].text;
+                    console.log(infixOpSymbol);
+                }
+
                 // The definition identifier name.
                 node = cursor.currentNode()
 
@@ -1896,18 +1904,24 @@ class TLASpec {
                 assert(node.type === "identifier");
                 let opName = node.text;
 
-                op_defs[opName] = { "name": opName, "args": [], "node": null, "local": isLocalDef };
+                if(infixOpSymbol !== null){
+                    opName = infixOpSymbol;
+                }
+
+                op_defs[opName] = { "name": opName, "args": [], "node": null, "local": isLocalDef, "isInfix": infixOpSymbol !== null  };
 
                 // Skip the 'def_eq' symbol ("==").
-                cursor.gotoNextSibling();
-                if (!cursor.currentNode().isNamed()) {
+                if(infixOpSymbol === null){
                     cursor.gotoNextSibling();
+                    if (!cursor.currentNode().isNamed()) {
+                        cursor.gotoNextSibling();
+                    }
                 }
 
                 // n-ary operator. save all parameters.
                 while (cursor.currentFieldName() === "parameter") {
                     let currNode = cursor.currentNode();
-                    // console.log("PARAMETER: ", currNode.text)
+                    console.log("PARAMETER: ", currNode.text)
                     // console.log("PARAMETER: ", currNode.namedChildren[0])
 
                     //
@@ -1920,6 +1934,9 @@ class TLASpec {
 
                     cursor.gotoNextSibling();
                     if (!cursor.currentNode().isNamed()) {
+                        cursor.gotoNextSibling();
+                    }
+                    if(infixOpSymbol !== null && cursor.currentFieldName() === "name"){
                         cursor.gotoNextSibling();
                     }
                 }
@@ -2827,6 +2844,15 @@ function evalBoundInfix(node, ctx) {
         return [ctx.withVal(newTupVal)];
     }
 
+    // Check for user-defined infix operators.
+    if (ctx.hasOperatorBound(symbol.text)) {
+        console.log("OPBOUND:", symbol.text);
+        let opDef = ctx["defns"][symbol.text];
+        console.log(opDef);
+        console.log(node);
+        return evalUserBoundOp(node, opDef.node, opDef.args, ctx)
+    }
+
     throw new Error("unsupported infix symbol: '" + symbol.text + "'");
 
 }
@@ -3290,9 +3316,16 @@ function evalBoundedQuantification(node, ctx) {
 // Evaluate a user defined n-ary operator application.
 function evalUserBoundOp(node, opDefNode, opArgs, ctx){
     evalLog("evalUserBoundOp:", node, opDefNode, opArgs, ctx);
+
+    let opArgNodes = node.namedChildren.slice(1);
+
+    if(node.type === "bound_infix_op"){
+        opArgNodes = [node.namedChildren[0], node.namedChildren[2]];
+    }
+
     // n-ary operator.
     // Evaluate each operator argument.
-    let opArgsEvald = node.namedChildren.slice(1).map(arg => {
+    let opArgsEvald = opArgNodes.map(arg => {
         // Handle possible LAMBDA arguments which are supported for higher order operator
         // definitions.
         if (arg.type === "lambda") {
