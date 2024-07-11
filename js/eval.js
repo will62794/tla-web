@@ -1769,8 +1769,15 @@ class TLASpec {
 
                 // Get the 'Foo' from 'Foo == INSTANCE Bar...'.
                 let moduleDefName = nodes[0].text;
-                let params = cursor.currentNode().namedChildren.filter(n => n.type === "identifier").slice(1);
 
+                //
+                // Arguments for parameterized module instantiation definition, if they exist.
+                // 
+                // e.g. M(x,y) == INSTANCE Module1 WITH A <- x + y
+                // 
+                let paramModArgs = cursor.currentNode().namedChildren.filter(n => n.type === "identifier").slice(1);
+                let numModuleParams = paramModArgs.length
+                evalLog("module_def params:", paramModArgs.map(n => n.text))
 
                 // Extract the name of the module being instantiated.
                 // e.g. INSTANCE Module1 WITH A <- 5
@@ -1778,7 +1785,13 @@ class TLASpec {
                 let modName = instance.namedChildren[0].text;
 
                 // Add substituted definitions into current module.
-                console.log("Parsing module from namespaced INSTANCE definition:", moduleDefName, "== INSTANCE", modName);
+                evalLog("Parsing module from namespaced INSTANCE definition:", moduleDefName, "== INSTANCE", modName);
+
+                // Extract substitutions from the module instantiation statement.
+                // console.log(instance);
+                // console.log(nodes);
+                let substs = instance.namedChildren.filter(n => n.type === "substitution");
+                evalLog(`Found ${substs.length} substitutions for module instantiation.`, substs.map(s => s.text));
 
                 let parsedObj = self.parseSpecModule(self.moduleTable[modName]);
 
@@ -1786,8 +1799,7 @@ class TLASpec {
                     self.moduleTableParsed[modName] = parsedObj;
                 }
 
-                // Extract substitutions from the module instantiation statement.
-                let substs = nodes[2].namedChildren.filter(n => n.type === "substitution");
+                
 
                 // Definitions imported via module instantiation are treated a
                 // bit specially to account for substitutions. Alongside the
@@ -1840,7 +1852,8 @@ class TLASpec {
                         "name_prefix": prefix, 
                         "module_name": modName,
                         "substitutions": newSubs,
-                        "module_defs": parsedObj["op_defs"]
+                        "module_defs": parsedObj["op_defs"],
+                        "module_param_args": paramModArgs
                     };
                 }                
                 console.log("op defs:", op_defs)
@@ -2854,10 +2867,16 @@ function evalPrefixedOp(node, ctx) {
     let paramArgVals = [];
     if (moduleNode.length > 1) {
         let paramModuleArgs = lhs.namedChildren[0].namedChildren[0].namedChildren.slice(1);
-        console.log("paramModuleArgs:", paramModuleArgs);
+        console.log("module paramModuleArgs:", paramModuleArgs);
         paramArgVals = paramModuleArgs.map(a => evalExpr(a, ctx)[0]["val"]);
     }
-    console.log("paramArgVals:", paramArgVals);
+    console.log("module paramArgVals:", paramArgVals);
+
+    // If this is a parameterized module prefixed op, like M!Op(1,2), then we look up the 
+    // definition just using M!Op, and deal with the parameter arguments separately.
+    if(paramArgVals.length > 0){
+        modPrefix = lhs.namedChildren[0].namedChildren[0].namedChildren[0].text + "!";
+    }
 
     // See if there is an (imported) definition that exists for this operator given
     // this module prefixing.
@@ -2892,12 +2911,20 @@ function evalPrefixedOp(node, ctx) {
         }
     }
 
-
-
     if (ctx.hasOperatorBound(prefixedOpName)) {
-        console.log("found prefixed op name:", prefixedOpName);
+        // console.log("found prefixed op name:", prefixedOpName);
         opDef = ctx.getBoundOperator(prefixedOpName);
-        console.log(opDef);
+        // console.log(opDef);
+        // console.log("module_param_args", opDef["module_param_args"])
+
+        // Bind the given module arguments to the module parameters during evaluation of the prefixed op
+        // expression.
+        let moduleParamArgNames = opDef["module_param_args"].map(a => a.text);
+
+        assert(moduleParamArgNames.length === paramArgVals.length, "Mismatch in number of module arguments and parameters.");
+        for(let i = 0; i < moduleParamArgNames.length; i++){
+            ctx = ctx.withBoundVar(moduleParamArgNames[i], paramArgVals[i]);
+        }
 
         let moduleDefs = ctx.module_table[opDef.module_name]["op_defs"];
         console.log("module defs:", moduleDefs);
