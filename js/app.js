@@ -852,6 +852,10 @@ function reloadSpec() {
     // to generate any initial states.
     if (!hasInit || !hasNext) {
         console.log("Warning: 'Init' or 'Next' predicate not found. Still loading spec without generating states.");
+
+        // Switch to spec pane and REPL pane.
+        model.selectedTab = Tab.SpecEditor;
+        model.selectedTraceTab = TraceTab.REPL;
         return;
     }
 
