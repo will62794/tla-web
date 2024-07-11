@@ -2858,6 +2858,25 @@ function evalPrefixedOp(node, ctx) {
     //
 
     let prefixedOpName = modPrefix + opName;
+
+    // Even if it this a prefixed op, this may still be being evaluated inside an expression from 
+    // a namespaced module instantiation e.g. M2!M3!Expr.
+    // 
+    // So, we can try to look up the definition based on the module namespace prefix.
+    // 
+    if (!ctx.hasOperatorBound(prefixedOpName) && ctx.hasOwnProperty("module_eval_namespace_prefix")) {
+        let modEvalPrefix = ctx["module_eval_namespace_prefix"];
+        console.log("modEvalPrefix:", modEvalPrefix);
+        let prefixedEvalIdentName = modEvalPrefix + prefixedOpName;
+        console.log("prefixedIdentName:", prefixedEvalIdentName);
+        console.log(ctx["defns"]);
+        if(ctx.hasOwnProperty("defns") && ctx["defns"].hasOwnProperty(prefixedEvalIdentName)){
+            prefixedOpName = prefixedEvalIdentName;
+        }
+    }
+
+
+
     if (ctx.hasOperatorBound(prefixedOpName)) {
         console.log("found prefixed op name:", prefixedOpName);
         opDef = ctx.getBoundOperator(prefixedOpName);
