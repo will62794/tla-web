@@ -1336,7 +1336,7 @@ async function handleCodeChange(editor, changes) {
         onSpecParse(newText, spec.spec_obj);
         m.redraw(); //explicitly re-draw on promise resolution.
     }).catch(function(e){
-        console.log("Error parsing spec promise.", e);
+        console.log("Error parsing and loading spec.", e);
         model.errorObj = {parseError: true, obj: e, message: "Error parsing spec."};
     });
 }
