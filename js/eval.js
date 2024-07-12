@@ -2141,7 +2141,7 @@ class Context {
     }
 
     cloneDeepQuantBound(){
-        return _.cloneDeep(this.quant_bound);
+        return _.clone(this.quant_bound);
     }
 
     cloneDeepOperatorsBound(){
