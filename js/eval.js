@@ -8,7 +8,7 @@
 
 // For debugging.
 let depth = 0;
-
+let cloneTime = 0.0;
 const TLA_STANDARD_MODULES = [
     "TLC",
     "FiniteSets",
@@ -2129,11 +2129,15 @@ class Context {
     }
 
     cloneDeepVal(){
-        return _.cloneDeep(this.val);
+        // Worked on optimizing these clones.
+        return _.clone(this.val);
+        // return _.cloneDeep(this.val);
     }
 
     cloneDeepState(){
-        return _.cloneDeep(this.state);
+        // Worked on optimizing these clones.
+        return _.clone(this.state);
+        // return _.cloneDeep(this.state);
     }
 
     cloneDeepQuantBound(){
@@ -2151,17 +2155,26 @@ class Context {
      * definitions that never change.
      */
     clone() {
-        let valNew = this.cloneDeepVal();
+        // For diagnostics.
+        let start = performance.now();
+
         let stateNew = this.cloneDeepState();
+        let valNew = this.cloneDeepVal();
         let defnsNew = this.defns // don't copy this field.
         let quant_boundNew = this.cloneDeepQuantBound();
         let operators_boundNew = this.cloneDeepOperatorsBound();
-        let constants = _.cloneDeep(this.constants);
+        let constants = _.clone(this.constants);
         let module_tableNew = this.module_table; // should never be modified
         let prev_func_val = _.cloneDeep(this.prev_func_val);
         let eval_node = _.cloneDeep(this.eval_node);
+
         let substitutionsNew = _.cloneDeep(this.substitutions);
         let module_eval_namespace_prefix_new = _.cloneDeep(this.module_eval_namespace_prefix);
+
+        // For diagnostics to measure clone time and its impact on eval performance.
+        const duration = (performance.now() - start);
+        cloneTime = cloneTime + duration;
+
         return new Context(valNew, stateNew, defnsNew, quant_boundNew, constants, prev_func_val, operators_boundNew, module_tableNew, eval_node, substitutionsNew, module_eval_namespace_prefix_new);
     }
 

@@ -595,6 +595,7 @@ function recomputeNextStates(fromState) {
             assert(action instanceof TLAAction);
             // console.log("FROM:", fromState)
             const start = performance.now();
+            cloneTime = 0;
 
             let nextStatesForAction = interp.computeNextStates(model.specTreeObjs, model.specConstVals, [fromState], action.node)
             // console.log("nextStatesForAction", nextStatesForAction); 
@@ -606,7 +607,9 @@ function recomputeNextStates(fromState) {
             nextStatesByAction[action.id] = nextStatesForAction;
 
             const duration = (performance.now() - start).toFixed(1);
-            console.log(`Generating next states for action '${action.name}' took ${duration}ms`)
+
+            console.log(`Generating next states for action '${action.name}' took ${duration}ms, clone time: ${cloneTime}ms`)
+            cloneTime = 0;
     
         }
         nextStates = nextStatesByAction;
