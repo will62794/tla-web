@@ -399,12 +399,12 @@ function componentNextStateChoiceElementForAction(ind, actionLabel, nextStatesFo
             class: classList.join(" "), 
             // colspan: 2,
             onclick: () => chooseNextState(hash, hashQuantBounds(quantBounds)),
-            onmouseover: () => {
-                model.nextStatePreview = st["state"];
-            },
-            onmouseout: () => {
-                model.nextStatePreview = null;
-            }
+            // onmouseover: () => {
+            //     model.nextStatePreview = st["state"];
+            // },
+            // onmouseout: () => {
+            //     model.nextStatePreview = null;
+            // }
         }, 
         actionLabelText.params);
     });
@@ -505,12 +505,12 @@ function componentNextStateChoiceElement(stateObj, ind, actionLabel) {
         class: "init-state next-state-choice-full",
         style: `opacity: ${opac}%`,
         onclick: () => chooseNextState(hash),
-        onmouseover: () => {
-            model.nextStatePreview = state;
-        },
-        onmouseout: () => {
-            model.nextStatePreview = null;
-        }
+        // onmouseover: () => {
+        //     model.nextStatePreview = state;
+        // },
+        // onmouseout: () => {
+        //     model.nextStatePreview = null;
+        // }
     }, m("table", { class: "trace-select-table" }, allElems));
     return nextStateElem;
 }
