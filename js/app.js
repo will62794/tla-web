@@ -61,7 +61,8 @@ let model = {
     loadSpecFailed: false,
     specUrlInputText: "",
     specEditorChanges: [],
-    enableAnimationView: false
+    enableAnimationView: false,
+    explodedStateVarExpr: null
 }
 
 const exampleSpecs = {
@@ -1029,6 +1030,7 @@ function componentTraceViewerState(stateCtx, ind, isLastState, actionId) {
 
     let state = stateCtx["state"];
     let stateQuantBounds = stateCtx["quant_bound"];
+    let allVarNames = _.keys(state.getStateObj());
     let varNames = _.keys(state.getStateObj());
 
     // console.log("statectx:", stateCtx);
@@ -1057,37 +1059,44 @@ function componentTraceViewerState(stateCtx, ind, isLastState, actionId) {
         vizSvg = m("div", { id: "anim-div" }, m("svg", { width: "100%", height: "100%" }, [viewSvgObj]));
     }
 
-    varNames = _.difference(varNames, model.hiddenStateVars);
-    let varRows = varNames.map((varname, idx) => {
-        let varnameCol = "black";
-        let varDiff = null;
-        if (Object.keys(model.currNextStates).length > 0 && model.nextStatePreview !== null) {
-            let selectedNextState = model.nextStatePreview;
-            // console.log(selectedNextState);
-            let currState = model.currTrace[model.currTrace.length - 1]["state"];
-            varDiff = selectedNextState.varDiff(currState);
-            // console.log(varDiff);
-        }
-        // Show modified variables in blue.
-        if (varDiff !== null && varDiff.includes(varname) && ind === model.currTrace.length - 1) {
-            varnameCol = "blue";
-        }
-        let cols = [
-            m("td", {
-                class: "th-state-varname",
-                style: "color:" + varnameCol,
-                onclick: (e) => {
-                    model.hiddenStateVars.push(varname);
-                    // We also store hidden vars in route url params.
-                    updateTraceRouteParams();
-                }
-            }, varname),
-            m("td", [tlaValView(state.getVarVal(varname))]),
-            m("td", { style: "width:15px" }, ""), // placeholder row.
-        ]
+    function makeVarRows(varNames, param) { 
+        return varNames.map((varname, idx) => {
+            let varnameCol = "black";
+            let varDiff = null;
+            if (Object.keys(model.currNextStates).length > 0 && model.nextStatePreview !== null) {
+                let selectedNextState = model.nextStatePreview;
+                // console.log(selectedNextState);
+                let currState = model.currTrace[model.currTrace.length - 1]["state"];
+                varDiff = selectedNextState.varDiff(currState);
+                // console.log(varDiff);
+            }
+            // Show modified variables in blue.
+            if (varDiff !== null && varDiff.includes(varname) && ind === model.currTrace.length - 1) {
+                varnameCol = "blue";
+            }
+            let varVal = state.getVarVal(varname);
+            if(param !== undefined){
+                varVal = varVal.applyArg(param);
+            }
+            let cols = [
+                m("td", {
+                    class: "th-state-varname",
+                    style: "color:" + varnameCol,
+                    onclick: (e) => {
+                        model.hiddenStateVars.push(varname);
+                        // We also store hidden vars in route url params.
+                        updateTraceRouteParams();
+                    }
+                }, varname),
+                m("td", [tlaValView(varVal)]),
+                m("td", { style: "width:15px" }, ""), // placeholder row.
+            ]
 
-        return m("tr", { style: "border-bottom: solid" }, cols);
-    });
+            return m("tr", { style: "border-bottom: solid" }, cols);
+        });
+    }
+
+
 
     // Trace expression values, if any are present.
     let traceExprRows = model.traceExprs.map((expr, ind) => {
@@ -1156,6 +1165,43 @@ function componentTraceViewerState(stateCtx, ind, isLastState, actionId) {
         ]),
         m("th", { colspan: "2" }, "") // filler.
     ])];
+
+    // Filter out hidden variables.
+    varNamesToShow = _.difference(varNames, model.hiddenStateVars);
+    let varRows = makeVarRows(varNamesToShow);
+
+    let explodedVars = [];
+
+    // TODO: Make this user configurable.
+    // model.explodedStateVarExpr = new SetValue([new StringValue("rm1"), new StringValue("rm2")])
+    // model.explodedStateVarExpr = new SetValue([new ModelValue("s1"), new ModelValue("s2"), new ModelValue("s3")])
+    // model.explodedStateVarExpr = new SetValue([new ModelValue("s1"), new ModelValue("s2")]);
+
+    if (model.explodedStateVarExpr !== null) {
+        // 
+        // Explode all state vars whose DOMAIN is equal to the exploded state var value.
+        // e.g. Exploded var might be set of servers/nodes {s1,s2,s3}.
+        // 
+        explodedVars = varNamesToShow.filter(vname => {
+            let varVal = state.getVarVal(vname);
+            // console.log(varVal);
+            return (varVal instanceof FcnRcdValue) && new SetValue(varVal.getDomain()).fingerprint() === model.explodedStateVarExpr.fingerprint();
+        });
+
+        console.log("Explode vars:", explodedVars);
+        varRows = m("tr", [
+            // Unexploded vars.
+            makeVarRows(varNamesToShow.filter(n => !explodedVars.includes(n))),
+            // Exploded vars.
+            model.explodedStateVarExpr.getElems().map((param) => {
+                return m("td", m("table", { style: "border:solid 1px" }, [
+                    m("span", param.toString()),
+                    makeVarRows(explodedVars, param)
+                ]))
+            }),
+        ])
+    }
+
     let rows = headerRow.concat(varRows).concat(traceExprRows);
 
     let rowElemsTable = m("table", { class: "trace-state-table" }, rows);
