@@ -34,3 +34,7 @@ Next == x' = x
 ====
 ```
 where `simple_extends_M3` contains a definition for `ExprM3`.
+
+## 2024-07-12
+
+TODO: Reconsider clone calls throughout in expression evaluation, in cases where copies may not be strictly necessary.
