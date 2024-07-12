@@ -691,6 +691,15 @@ function updateTraceRouteParams() {
     }
     let traceParamObj = traceHashed.length > 0 ? { trace: traceHashed.join(",") } : {}
     let newParams = Object.assign(oldParams, traceParamObj);
+
+    // Save set of hidden vars in the route as well.
+    if(model.hiddenStateVars.length > 0){
+        let hiddenVarsStr = model.hiddenStateVars.join(",");
+        newParams["hiddenVars"] = hiddenVarsStr;
+    } else{
+        delete newParams.hiddenVars;
+    }
+
     m.route.set("/home", newParams);
 }
 
@@ -841,6 +850,7 @@ function reloadSpec() {
     model.lassoTo = null;
     model.errorObj = null;
     model.traceExprs = [];
+    model.hiddenStateVars = [];
 
     // if(model.showRewritten){
     //     const $codeEditor = document.querySelector('.CodeMirror');
@@ -1068,6 +1078,8 @@ function componentTraceViewerState(stateCtx, ind, isLastState, actionId) {
                 style: "color:" + varnameCol,
                 onclick: (e) => {
                     model.hiddenStateVars.push(varname);
+                    // We also store hidden vars in route url params.
+                    updateTraceRouteParams();
                 }
             }, varname),
             m("td", [tlaValView(state.getVarVal(varname))]),
@@ -1402,10 +1414,21 @@ function componentHiddenStateVars(hidden) {
         return m("span", {
             class: "hidden-state-var",
             style: "padding-left:3px;",
-            onclick: () => _.remove(model.hiddenStateVars, (x) => x === vname)
+            onclick: function () {
+                _.remove(model.hiddenStateVars, (x) => x === vname);
+                updateTraceRouteParams();
+            },
         }, vname)
     })
-    return m("div", { id: "hidden-state-vars", hidden: hidden }, [titleElem].concat(hiddenStateVarElems))
+
+    // Button to unhide all hidden state vars at once.
+    let unhideAllElem = m("span", {
+        class: "",
+        style: "padding-left:3px;cursor:pointer;",
+        onclick: function () { model.hiddenStateVars = []; updateTraceRouteParams(); }
+    }, "(Unhide All)");
+
+    return m("div", { id: "hidden-state-vars", hidden: hidden }, [titleElem].concat(hiddenStateVarElems).concat([unhideAllElem]))
 }
 
 // function chooseConstantsPane() {
@@ -1747,6 +1770,39 @@ function addTraceExpr(newTraceExpr) {
 //     }
 // }
 
+// Load any state encoded in route parameters after parsing/loading a spec.
+function loadRouteParamsState() {
+    // Load trace expression if given.
+    let traceExpressions = m.route.param("traceExprs")
+    if (traceExpressions) {
+        model.traceExprs = traceExpressions;
+    }
+
+    // Load hidden state vars if given.
+    let hiddenVarsStr = m.route.param("hiddenVars");
+    if (hiddenVarsStr) {
+        model.hiddenStateVars = hiddenVarsStr.split(",");
+    }
+
+    // Load trace if given.
+    let traceParamStr = m.route.param("trace")
+    if (traceParamStr) {
+        traceParams = traceParamStr.split(",");
+        for (const stateHash of traceParams) {
+            // Check each state for possible quant bounds hash,
+            // if it has one.
+            let stateAndQuantBounds = stateHash.split("_");
+            if (stateAndQuantBounds.length > 1) {
+                let justStateHash = stateAndQuantBounds[0];
+                let quantBoundHash = stateAndQuantBounds[1];
+                chooseNextState(justStateHash, quantBoundHash);
+            } else {
+                chooseNextState(stateHash);
+            }
+        }
+    }
+}
+
 //
 // Load spec from given spec text and reload it in the editor pane and UI.
 // Given 'specPath' may be null if spec is loaded from a file directly.
@@ -1777,30 +1833,7 @@ function loadSpecText(text, specPath) {
             // CodeMirror listeners are not known to Mithril, so trigger an explicit redraw after
             // processing the code change.
             handleCodeChange().then(function () {
-
-                // Load trace expression if given.
-                let traceExpressions = m.route.param("traceExprs")
-                if (traceExpressions) {
-                    model.traceExprs = traceExpressions;
-                }
-
-                // Load trace if given.
-                let traceParamStr = m.route.param("trace")
-                if (traceParamStr) {
-                    traceParams = traceParamStr.split(",");
-                    for (const stateHash of traceParams) {
-                        // Check each state for possible quant bounds hash,
-                        // if it has one.
-                        let stateAndQuantBounds = stateHash.split("_");
-                        if (stateAndQuantBounds.length > 1) {
-                            let justStateHash = stateAndQuantBounds[0];
-                            let quantBoundHash = stateAndQuantBounds[1];
-                            chooseNextState(justStateHash, quantBoundHash);
-                        } else {
-                            chooseNextState(stateHash);
-                        }
-                    }
-                }
+                loadRouteParamsState();
                 m.redraw();
 
             })
