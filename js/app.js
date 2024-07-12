@@ -1225,6 +1225,13 @@ function componentTraceViewer(hidden) {
     // ]);
 }
 
+// TODO: Think about more fully fledged worker execution framework.
+function startWebWorker(){
+    const myWorker = new Worker("js/worker.js");
+    myWorker.postMessage([{a:1,b:2}, {c:4,d:5, spec: model.specTreeObjs}]);
+    console.log("Message posted to worker");
+}
+
 // Called when an updated spec is finished being re-parsed.
 function onSpecParse(newText, parsedSpecTree){
 
