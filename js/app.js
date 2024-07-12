@@ -1157,13 +1157,19 @@ function componentTraceViewerState(stateCtx, ind, isLastState, actionId) {
     if (actionId !== null) {
         stateHeaderText += "   " + actionLabelText;
     }
+
+    let headerColSpanCount = 2;
+    if(model.explodedStateVarExpr !== null){
+        headerColSpanCount += model.explodedStateVarExpr.getElems().length;
+    }
+
     let headerRow = [m("tr", { style: `background-color: ${stateColorBg};border-bottom:solid 2px gray;`, class: "trace-state-header" }, [
-        m("th", { colspan: "2", }, [
+        m("th", { colspan: headerColSpanCount, }, [
             m("span", { style: "color:black;padding-right:16px;border-right:solid 0px gray;font-size:14px;" }, stateIndLabel),
             // m("span", { style: "color:black;padding-right:8px;border-right:solid 0px gray;font-size:14px;" }, stateIndLabel),
             m("span", { style: "color:black;padding-bottom:2px;font-family:monospace;font-size:12px;" }, stateHeaderText)
         ]),
-        m("th", { colspan: "2" }, "") // filler.
+        m("th", { colspan: 2 }, "") // filler.
     ])];
 
     // Filter out hidden variables.
@@ -1195,7 +1201,10 @@ function componentTraceViewerState(stateCtx, ind, isLastState, actionId) {
             // Exploded vars.
             model.explodedStateVarExpr.getElems().map((param) => {
                 return m("td", m("table", { style: "border:solid 1px" }, [
-                    m("span", param.toString()),
+                    m("td", {
+                        "style": "border-bottom:solid black 1px;color:gray;padding-bottom:3px;padding-top:3px;", 
+                        colspan:2
+                    }, param.toString()),
                     makeVarRows(explodedVars, param)
                 ]))
             }),
@@ -1428,12 +1437,46 @@ function copyTraceLinkToClipboard() {
     navigator.clipboard.writeText(link);
 }
 
+function explodeButtonDropdown(){
+    // Just limit to trace explosion on SetValues for now.
+    let explodableConsts = Object.keys(model.specConstVals).filter(k => model.specConstVals[k] instanceof SetValue);
+
+    if(explodableConsts.length === 0){
+        return ""
+    }
+
+    return m("div", {class:"dropdown"}, [
+        m("button", { 
+            class: "btn btn-sm btn-outline-primary " + (model.explodedStateVarExpr === null ? " dropdown-toggle" : ""), 
+            "data-bs-toggle": "dropdown",
+            "aria-expanded": false,
+            onclick: function(){
+                // Unexplode.
+                if(model.explodedStateVarExpr !== null){
+                    model.explodedStateVarExpr = null;
+                }
+            }
+        }, model.explodedStateVarExpr === null ? "Explode" : "Unexplode"),
+        m("ul", {"class": "dropdown-menu", hidden: model.explodedStateVarExpr !== null}, explodableConsts.map(k => {
+            return m("span", {
+                style:"cursor:pointer;",
+                onclick: function(){
+                    model.explodedStateVarExpr = model.specConstVals[k];
+                }
+            }, [m("li", {class: "dropdown-item"}, k)])
+        }))
+    ])
+}
+
 function componentButtonsContainer() {
+
     return [m("div", { id: "trace-buttons", class:"input-group mb-3" }, [
         m("button", { class: "btn btn-sm btn-outline-primary button-bagse", id: "trace-bacfk-button", onclick: traceStepBack }, "Back"),
         m("button", { class: "btn btn-sm btn-outline-primary button-bagse", id: "trace-refset-button", onclick: resetTrace }, "Reset"),
         m("button", { class: "btn btn-sm btn-outline-primary button-bagse", id: "trace-refset-button", onclick: copyTraceLinkToClipboard }, "Copy trace link"),
-        
+        // Explode dropdown.
+        explodeButtonDropdown(),
+        // Add trace expression.
         m("button", { 
             class: "btn btn-sm btn-outline-primary", 
             disabled: model.traceExprInputText.length === 0,
@@ -1449,6 +1492,7 @@ function componentButtonsContainer() {
             value: model.traceExprInputText,
             oninput: e => { model.traceExprInputText = e.target.value }
         }),
+
         // m("br"),
         // m("div", {}, model.hiddenStateVars.map(v => m("div", v)))
     ])];
