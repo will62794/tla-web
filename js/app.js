@@ -609,7 +609,7 @@ function recomputeNextStates(fromState) {
 
             const duration = (performance.now() - start).toFixed(1);
 
-            console.log(`Generating next states for action '${action.name}' took ${duration}ms, clone time: ${cloneTime}ms`)
+            console.log(`Generating next states for action '${action.name}' took ${duration}ms, (${nextStatesForAction.length} distinct states generated, clone time: ${cloneTime.toFixed(2)}ms)`)
             cloneTime = 0;
     
         }
