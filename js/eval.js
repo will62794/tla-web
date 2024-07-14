@@ -4518,6 +4518,9 @@ function getNextStates(nextDef, currStateVars, defns, constvals, moduleTable) {
     // Filter out disabled transitions.
     ret = ret.filter(c => c["val"].getVal() === true);
 
+    // Filter to set of distinct generated states.
+    ret = _.uniqBy(ret, c => c.state.fingerprint());
+
     evalLog("getNextStates without disabled transitions:", ret);
 
     // Filter out transitions that do not modify the state.
