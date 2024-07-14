@@ -4497,17 +4497,19 @@ function getNextStates(nextDef, currStateVars, defns, constvals, moduleTable) {
     // Filter out disabled transitions.
     ret = ret.filter(c => c["val"].getVal() === true);
 
-    evalLog("getNextStates filtered:", ret);
-
-    // Only keep states where all primed variables were assigned.
-    ret = ret.filter(c => _.every(origVars, v => c.state.getVarVal(v + "'") !== null));
+    evalLog("getNextStates without disabled transitions:", ret);
 
     // Filter out transitions that do not modify the state.
     // let all_next_states = ret.filter(c => {
     //     return !_.every(origVars, (v) => c.state.getVarVal(v).fingerprint() === c.state.getVarVal(v+"'").fingerprint());
     // });
 
-    let all_next_states = ret;
+    // Only keep states where all primed variables were assigned.
+    // TODO: Consider if we eventually want to this throw an explicit error.
+    let all_next_states = ret.filter(c => _.every(origVars, v => c.state.getVarVal(v + "'") !== null));
+    if(all_next_states.length !== ret.length){
+        console.warn(`${ret.length - all_next_states.length} generated next states were filtered out due to unassigned variables.`);
+    }
 
     // TODO: Check if we are correctly keeping only unique states.
     // all_next_states = _.uniqBy(all_next_states, c => c.state.fingerprint());
