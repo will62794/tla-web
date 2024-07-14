@@ -5,6 +5,25 @@ color="white";
 -7752689597064675857 [label="/\\ syncSource = [n1 |-> \"Nil\"]\n/\\ globalCurrentTerm = 0\n/\\ log = [n1 |-> <<>>]\n/\\ state = [n1 |-> \"Follower\"]\n/\\ commitPoint = [n1 |-> [index |-> 0, term |-> 0]]",style = filled]
 -7752689597064675857 -> -1680890162016123054 [label="",color="black",fontcolor="black"];
 -1680890162016123054 [label="/\\ syncSource = [n1 |-> \"Nil\"]\n/\\ globalCurrentTerm = 1\n/\\ log = [n1 |-> <<>>]\n/\\ state = [n1 |-> \"Leader\"]\n/\\ commitPoint = [n1 |-> [index |-> 0, term |-> 0]]"];
+-1680890162016123054 -> -8215454818431995761 [label="",color="black",fontcolor="black"];
+-8215454818431995761 [label="/\\ syncSource = [n1 |-> \"Nil\"]\n/\\ globalCurrentTerm = 2\n/\\ log = [n1 |-> <<>>]\n/\\ state = [n1 |-> \"Leader\"]\n/\\ commitPoint = [n1 |-> [index |-> 0, term |-> 0]]"];
+-1680890162016123054 -> 8874152486327724846 [label="",color="black",fontcolor="black"];
+8874152486327724846 [label="/\\ syncSource = [n1 |-> \"Nil\"]\n/\\ globalCurrentTerm = 1\n/\\ log = [n1 |-> <<[term |-> 1]>>]\n/\\ state = [n1 |-> \"Leader\"]\n/\\ commitPoint = [n1 |-> [index |-> 0, term |-> 0]]"];
+-8215454818431995761 -> -3720094429653499720 [label="",color="black",fontcolor="black"];
+-3720094429653499720 [label="/\\ syncSource = [n1 |-> \"Nil\"]\n/\\ globalCurrentTerm = 2\n/\\ log = [n1 |-> <<[term |-> 2]>>]\n/\\ state = [n1 |-> \"Leader\"]\n/\\ commitPoint = [n1 |-> [index |-> 0, term |-> 0]]"];
+8874152486327724846 -> -2766523918206895231 [label="",color="black",fontcolor="black"];
+-2766523918206895231 [label="/\\ syncSource = [n1 |-> \"Nil\"]\n/\\ globalCurrentTerm = 2\n/\\ log = [n1 |-> <<[term |-> 1]>>]\n/\\ state = [n1 |-> \"Leader\"]\n/\\ commitPoint = [n1 |-> [index |-> 0, term |-> 0]]"];
+8874152486327724846 -> -7349576994223211699 [label="",color="black",fontcolor="black"];
+-7349576994223211699 [label="/\\ syncSource = [n1 |-> \"Nil\"]\n/\\ globalCurrentTerm = 1\n/\\ log = [n1 |-> <<[term |-> 1], [term |-> 1]>>]\n/\\ state = [n1 |-> \"Leader\"]\n/\\ commitPoint = [n1 |-> [index |-> 0, term |-> 0]]"];
+-3720094429653499720 -> -3310423448266487048 [label="",color="black",fontcolor="black"];
+-3310423448266487048 [label="/\\ syncSource = [n1 |-> \"Nil\"]\n/\\ globalCurrentTerm = 2\n/\\ log = [n1 |-> <<[term |-> 2], [term |-> 2]>>]\n/\\ state = [n1 |-> \"Leader\"]\n/\\ commitPoint = [n1 |-> [index |-> 0, term |-> 0]]"];
+-2766523918206895231 -> -799324750591649109 [label="",color="black",fontcolor="black"];
+-799324750591649109 [label="/\\ syncSource = [n1 |-> \"Nil\"]\n/\\ globalCurrentTerm = 2\n/\\ log = [n1 |-> <<[term |-> 1], [term |-> 2]>>]\n/\\ state = [n1 |-> \"Leader\"]\n/\\ commitPoint = [n1 |-> [index |-> 0, term |-> 0]]"];
+-7349576994223211699 -> -2221120502151159406 [label="",color="black",fontcolor="black"];
+-2221120502151159406 [label="/\\ syncSource = [n1 |-> \"Nil\"]\n/\\ globalCurrentTerm = 2\n/\\ log = [n1 |-> <<[term |-> 1], [term |-> 1]>>]\n/\\ state = [n1 |-> \"Leader\"]\n/\\ commitPoint = [n1 |-> [index |-> 0, term |-> 0]]"];
 {rank = same; -7752689597064675857;}
+{rank = same; -1680890162016123054;}
+{rank = same; 8874152486327724846;-8215454818431995761;}
+{rank = same; -7349576994223211699;-2766523918206895231;-3720094429653499720;}
 }
 }

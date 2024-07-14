@@ -142,8 +142,8 @@ BecomePrimaryByMagic(i) ==
                /\ Len(log[me]) >= Len(log[j])
         ayeVoters(me) ==
             { index \in Server : notBehind(me, index) }
-    IN \*/\ ayeVoters(i) \in Quorum
-       /\ globalCurrentTerm < 1
+    IN /\ ayeVoters(i) \in Quorum
+       /\ globalCurrentTerm < 2
        /\ state' = [index \in Server |-> IF index = i THEN Leader ELSE Follower]
        /\ globalCurrentTerm' = globalCurrentTerm + 1
        /\ syncSource' = [syncSource EXCEPT ![i] = Nil] \* clear sync source.
@@ -153,6 +153,7 @@ BecomePrimaryByMagic(i) ==
 \* Leader i receives a client request to add v to the log.
 ClientWrite(i) ==
     /\ state[i] = Leader
+    /\ Len(log[i]) < 2
     /\ LET entry == [term  |-> globalCurrentTerm]
            newLog == Append(log[i], entry)
        IN  log' = [log EXCEPT ![i] = newLog]
@@ -281,12 +282,10 @@ StateConstraint ==
 \* Defines how the variables may transition.
 Next ==
     \* --- Replication protocol
-    \/ AppendOplogAction
+    \* \/ AppendOplogAction
     \* \/ RollbackOplogAction
-    \* \/ BecomePrimaryByMagicAction /\ globalCurrentTerm < 1
     \/ \E i \in Server : BecomePrimaryByMagic(i)
-    \* \/ \E i \in Server : BecomePrimaryByMagic(i)
-    \* \/ ClientWriteAction
+    \/ ClientWriteAction
     \*
     \* --- Commit point learning protocol
     \* \/ AdvanceCommitPoint
