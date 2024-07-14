@@ -1,0 +1,10 @@
+strict digraph DiskGraph {
+nodesep=0.35;
+subgraph cluster_graph {
+color="white";
+-7752689597064675857 [label="/\\ syncSource = [n1 |-> \"Nil\"]\n/\\ globalCurrentTerm = 0\n/\\ log = [n1 |-> <<>>]\n/\\ state = [n1 |-> \"Follower\"]\n/\\ commitPoint = [n1 |-> [index |-> 0, term |-> 0]]",style = filled]
+-7752689597064675857 -> -1680890162016123054 [label="",color="black",fontcolor="black"];
+-1680890162016123054 [label="/\\ syncSource = [n1 |-> \"Nil\"]\n/\\ globalCurrentTerm = 1\n/\\ log = [n1 |-> <<>>]\n/\\ state = [n1 |-> \"Leader\"]\n/\\ commitPoint = [n1 |-> [index |-> 0, term |-> 0]]"];
+{rank = same; -7752689597064675857;}
+}
+}

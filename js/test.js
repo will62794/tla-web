@@ -252,6 +252,7 @@ async function testStateGraphEquiv(testId, stateGraph, parsedSpec, specPath, con
         { "spec": "simple_disjunction_init", "constvals": undefined },
         { "spec": "simple_unchanged_no_tuple", "constvals": undefined },
         { "spec": "simple_unchanged_nested_def", "constvals": undefined },
+        { "spec": "simple_unchanged_nested_tuple_def", "constvals": undefined },
         { "spec": "simple_unchanged", "constvals": undefined },
         { "spec": "simple_quant_multi", "constvals": undefined },
         // { "spec": "simple_quant_tuple", "constvals": undefined },
@@ -333,6 +334,16 @@ async function testStateGraphEquiv(testId, stateGraph, parsedSpec, specPath, con
                 "WC": new StringValue("majority"),
                 "NoValue": new StringValue("NoValue"),
                 "STMTS": new IntValue(1),
+            }
+        },
+        {
+            "spec": "RaftMongo",
+            "constvals": {
+                "Server": new SetValue([new StringValue("n1")]),
+                "Follower": new StringValue("Follower"),
+                "Leader": new StringValue("Leader"),
+                "Candidate": new StringValue("Candidate"),
+                "Nil": new StringValue("Nil"),
             }
         },
         // { "spec": "TestLinQueue", "constvals": undefined },

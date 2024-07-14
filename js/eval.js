@@ -2470,55 +2470,76 @@ function evalEq(lhs, rhs, ctx) {
     }
 }
 
-function evalUnchanged(node, ctx) {
-    evalLog("eval UNCHANGED:", node);
+// 
+// Given a node E that could be the right hand side of an unchanged expression 
+// UNCHANGED <E>, extract the set of variables identifier that E refers to.
+// 
+// This could, for example, be a simple variable name like:
+//  
+// VARIABLE v1
+// 
+// or a tuple of variables like:
+// 
+// UNCHANGED <<v1, v2, v3>>.
+// 
+// Or also be a tuple that contains definition references e.g.
+// 
+// def1 == v1
+// def2 == <<v2>>
+// UNCHANGED <<def1, v2>>
+// 
+// This function handles the (recursive) extraction of variables from such an expression.
+// 
+function extractUnchangedVarSet(ctx, unchangedVal) {
+    evalLog("extracting vars from UNCHANGED node:", unchangedVal);
 
-    let unchangedVal = node.namedChildren[1];
-
-    // If we encounter an UNCHANGED expression where the right hand side is a
-    // non-variable identifier, then we try to recursively perform all possible
-    // substitutions based on definitions in current context. 
-    while (unchangedVal.type === "identifier_ref" && ctx.defns.hasOwnProperty(unchangedVal.text)) {
-        let defnVal = ctx.defns[unchangedVal.text];
-        evalLog("unchanged defn: ", defnVal);
-        unchangedVal = defnVal.node;
-    }
-    evalLog("eval prefix op: UNCHANGED val", unchangedVal, unchangedVal.text);
-
-    // De-parenthesize if needed.
-    while(unchangedVal.type === "parentheses"){
-        unchangedVal = unchangedVal.namedChildren[0];
+    // Recursively de-parenthesize if needed.
+    if (unchangedVal.type === "parentheses") {
+        return extractUnchangedVarSet(ctx, unchangedVal.namedChildren[0]);
     }
 
     if (unchangedVal.type === "tuple_literal") {
         // Handle case where tuple consists of identifier_refs.
         let tupleElems = unchangedVal.namedChildren
-            .filter(c => c.type === "identifier_ref");
-        for (const elem of tupleElems) {
-            evalLog("elem:", elem);
-
-            // Assign the primed version of this variable identifer to the same
-            // value as the unprimed version.
-            let unprimedVarVal = evalExpr(elem, ctx)[0]["val"];
-            evalLog("unprimed Val: ", unprimedVarVal);
-
-            // Update the primed variable.
-            let primedVarName = elem.text + "'";
-            ctx.state = ctx.state.withVarVal(primedVarName, unprimedVarVal);
-            // evalLog(ctx.state);
-        }
-        return [ctx.withVal(new BoolValue(true))];
+            .filter(c => !c.type.includes("angle_bracket"));
+        let tupUnchangedVars = _.flatten(tupleElems.map(c => extractUnchangedVarSet(ctx, c)));
+        return tupUnchangedVars;
 
     } else {
         // Assume identifier_ref node.
         assert(unchangedVal.type === "identifier_ref");
-        let unprimedVarVal = evalExpr(unchangedVal, ctx)[0]["val"];
-        // Update the primed variable.
-        let primedVarName = unchangedVal.text + "'";
-        ctx.state = ctx.state.withVarVal(primedVarName, unprimedVarVal);
-        // evalLog(ctx.state);
-        return [ctx.withVal(new BoolValue(true))];
+
+        // If this identifier is a definition in the current context, then 
+        // look up the definition node, and recurse on it.
+        if (ctx.defns.hasOwnProperty(unchangedVal.text)) {
+            let defnVal = ctx.defns[unchangedVal.text];
+            evalLog("unchanged defn: ", defnVal);
+            // unchangedVal = defnVal.node;
+            return extractUnchangedVarSet(ctx, defnVal.node);
+        }
+
+        return [unchangedVal];
     }
+}
+
+function evalUnchanged(node, ctx) {
+    evalLog("eval UNCHANGED:", node);
+
+    // Extract set of unchanged variables, and then update state in current context accordingly.
+    let unchangedVal = node.namedChildren[1];
+    let unchangedVars = extractUnchangedVarSet(ctx, unchangedVal);
+    evalLog("Extracted set of UNCHANGED vars: ", unchangedVars);
+
+    for (const elem of unchangedVars) {
+        // Assign the primed version of this variable identifer to the same
+        // value as the unprimed version.
+        let unprimedVarVal = evalExpr(elem, ctx)[0]["val"];
+        evalLog("unprimed Val: ", unprimedVarVal);
+        let primedVarName = elem.text + "'";
+        ctx.state = ctx.state.withVarVal(primedVarName, unprimedVarVal);
+    }
+
+    return [ctx.withVal(new BoolValue(true))];
 }
 
 function evalBoundInfix_plus(node, lhs, rhs, ctx){

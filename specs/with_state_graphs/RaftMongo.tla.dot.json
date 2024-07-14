@@ -1,0 +1,55 @@
+{
+  "name": "DiskGraph",
+  "directed": true,
+  "strict": true,
+  "nodesep": "0.35",
+  "_subgraph_cnt": 2,
+  "objects": [
+    {
+      "name": "cluster_graph",
+      "color": "white",
+      "nodesep": "0.35",
+      "_gvid": 0,
+      "subgraphs": [
+        1
+      ],
+      "nodes": [
+        2,3
+      ],
+      "edges": [
+        0
+      ]
+    },
+    {
+      "name": "%5",
+      "color": "white",
+      "nodesep": "0.35",
+      "rank": "same",
+      "_gvid": 1,
+      "nodes": [
+        2
+      ]
+    },
+    {
+      "_gvid": 2,
+      "name": "-7752689597064675857",
+      "label": "\/\\\\ syncSource = [n1 |-> \"Nil\"]\\n\/\\\\ globalCurrentTerm = 0\\n\/\\\\ log = [n1 |-> <<>>]\\n\/\\\\ state = [n1 |-> \"Follower\"]\\n\/\\\\ commitPoint = [n1 |-> [index |-> 0, term |-> 0]]",
+      "style": "filled"
+    },
+    {
+      "_gvid": 3,
+      "name": "-1680890162016123054",
+      "label": "\/\\\\ syncSource = [n1 |-> \"Nil\"]\\n\/\\\\ globalCurrentTerm = 1\\n\/\\\\ log = [n1 |-> <<>>]\\n\/\\\\ state = [n1 |-> \"Leader\"]\\n\/\\\\ commitPoint = [n1 |-> [index |-> 0, term |-> 0]]"
+    }
+  ],
+  "edges": [
+    {
+      "_gvid": 0,
+      "tail": 2,
+      "head": 3,
+      "color": "black",
+      "fontcolor": "black",
+      "label": ""
+    }
+  ]
+}
