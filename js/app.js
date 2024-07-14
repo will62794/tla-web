@@ -1194,7 +1194,7 @@ function componentTraceViewerState(stateCtx, ind, isLastState, actionId) {
             return (varVal instanceof FcnRcdValue) && new SetValue(varVal.getDomain()).fingerprint() === model.explodedStateVarExpr.fingerprint();
         });
 
-        console.log("Explode vars:", explodedVars);
+        // console.log("Explode vars:", explodedVars);
         varRows = m("tr", [
             // Unexploded vars.
             makeVarRows(varNamesToShow.filter(n => !explodedVars.includes(n))),
