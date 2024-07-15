@@ -4,9 +4,9 @@
 (***************************************************************************)
 EXTENDS Integers, FiniteSets
 
-\* Hard-coded constants for now.
-Acceptor == {"a1", "a2"}
-Quorum == {{"a1", "a2"}}
+\* Some hard-coded constants for now.
+CONSTANT Acceptor
+CONSTANT Quorum
 Proposer == {"p1", "p2"}
 Value == {"v1", "v2"}
 Ballot == {0,1,2,3}   
