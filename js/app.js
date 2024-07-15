@@ -89,7 +89,15 @@ const exampleSpecs = {
         }
     },
     "Paxos": {
-        specpath: "./specs/Paxos.tla"
+        specpath: "./specs/Paxos.tla",
+        constant_vals: {
+            "Acceptor": "{a1,a2,a3}",
+            "Quorum": "{{a1,a2},{a2,a3},{a1,a3},{a1,a2,a3}}",
+            "Proposer": "{p1,p2}",
+            "Value": "{v1,v2}",
+            "Ballot": "{0,1,2,3}",
+            "None": "None"
+        }
     },
     "Raft": {
         specpath: "./specs/AbstractRaft.tla",

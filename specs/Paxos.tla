@@ -7,10 +7,10 @@ EXTENDS Integers, FiniteSets
 \* Some hard-coded constants for now.
 CONSTANT Acceptor
 CONSTANT Quorum
-Proposer == {"p1", "p2"}
-Value == {"v1", "v2"}
-Ballot == {0,1,2,3}   
-None == "None"  
+CONSTANT Proposer
+CONSTANT Value
+CONSTANT Ballot
+CONSTANT None
 
 ASSUME QuorumAssumption == /\ \A Q \in Quorum : Q \subseteq Acceptor
                            /\ \A Q1, Q2 \in Quorum : Q1 \cap Q2 # {} 
@@ -120,14 +120,13 @@ Q1bv(ms) == {m \in ms : m.mbal \geq 0}
 (* can vote for v in ballot b, unless it has already set maxBal[a]         *)
 (* greater than b (thereby promising not to vote in ballot b).             *)
 (***************************************************************************)
-Phase2a(b, v, p) ==
+Phase2a(b, v, p, Q) ==
   /\ ~ \E m \in msgs : m.type = "2a" /\ m.bal = b /\ m.proposer = p
-  /\ \E Q \in Quorum :
-        /\ \A a \in Q : \E m \in Q1b(b,p,Q) : m.acc = a 
-        /\ \/ Q1bv(Q1b(b,p,Q)) = {}
-           \/ \E m \in Q1bv(Q1b(b,p,Q)) : 
-                /\ m.mval = v
-                /\ \A mm \in Q1bv(Q1b(b,p,Q)) : m.mbal \geq mm.mbal 
+  /\ /\ \A a \in Q : \E m \in Q1b(b,p,Q) : m.acc = a 
+     /\ \/ Q1bv(Q1b(b,p,Q)) = {}
+        \/ \E m \in Q1bv(Q1b(b,p,Q)) : 
+            /\ m.mval = v
+            /\ \A mm \in Q1bv(Q1b(b,p,Q)) : m.mbal \geq mm.mbal 
   /\ msgs' = msgs \cup {[type |-> "2a", bal |-> b, val |-> v, proposer |-> p]}
   /\ maxBal' = maxBal
   /\ maxVBal' = maxVBal
@@ -163,7 +162,7 @@ Phase2b(a) == \E m \in msgs : /\ m.type = "2a"
 Next == 
     \/ \E b \in Ballot : \E p \in Proposer : Phase1a(b, p) 
     \/ \E a \in Acceptor : \E p \in Proposer : Phase1b(a, p) 
-    \/ \E b \in Ballot : \E p \in Proposer : \E v \in Value : Phase2a(b, v, p)
+    \/ \E b \in Ballot : \E p \in Proposer : \E v \in Value : \E Q \in Quorum : Phase2a(b, v, p, Q)
     \/ \E a \in Acceptor : \E p \in Proposer : Phase2b(a)
 
 Spec == Init /\ [][Next]_vars
