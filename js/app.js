@@ -408,12 +408,13 @@ function componentNextStateChoiceElementForAction(ind, actionLabel, nextStatesFo
             class: classList.join(" "), 
             // colspan: 2,
             onclick: () => chooseNextState(hash, hashQuantBounds(quantBounds)),
-            // onmouseover: () => {
-            //     model.nextStatePreview = st["state"];
-            // },
-            // onmouseout: () => {
-            //     model.nextStatePreview = null;
-            // }
+            onmouseover: () => {
+                // Enable if UI performance lag isn't too noticeable.
+                // model.nextStatePreview = st["state"];
+            },
+            onmouseout: () => {
+                // model.nextStatePreview = null;
+            }
         }, 
         actionLabelText.params);
     });
@@ -1076,7 +1077,7 @@ function componentTraceViewerState(stateCtx, ind, isLastState, actionId) {
 
     function makeVarRows(varNames, param) { 
         return varNames.map((varname, idx) => {
-            let varnameCol = "black";
+            let varnameCol = "none";
             let varDiff = null;
             if (Object.keys(model.currNextStates).length > 0 && model.nextStatePreview !== null) {
                 let selectedNextState = model.nextStatePreview;
@@ -1087,7 +1088,7 @@ function componentTraceViewerState(stateCtx, ind, isLastState, actionId) {
             }
             // Show modified variables in blue.
             if (varDiff !== null && varDiff.includes(varname) && ind === model.currTrace.length - 1) {
-                varnameCol = "blue";
+                varnameCol = "lightblue";
             }
             let varVal = state.getVarVal(varname);
             if(param !== undefined){
@@ -1096,7 +1097,7 @@ function componentTraceViewerState(stateCtx, ind, isLastState, actionId) {
             let cols = [
                 m("td", {
                     class: "th-state-varname",
-                    style: "color:" + varnameCol,
+                    style: "background-color:" + varnameCol,
                     onclick: (e) => {
                         model.hiddenStateVars.push(varname);
                         // We also store hidden vars in route url params.
