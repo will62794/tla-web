@@ -1203,10 +1203,9 @@ function checkModelValSet(exprNode){
 /**
  * Evaluate a TLA+ expression, given as a string, in the given context.
  */
-function evalExprStrInContext(evalCtx, exprStr, checkForModelVal) {
+function evalExprStrInContext(evalCtx, exprStr) {
     let nullTree;
     let start = performance.now();
-    let checkModelVals = checkForModelVal || false;
 
     // Create a dummy spec to parse/evaluate the expression.
     let dummySpec = "---- MODULE dummy_eval_spec ----\n";
@@ -1222,15 +1221,6 @@ function evalExprStrInContext(evalCtx, exprStr, checkForModelVal) {
     console.log(opDefs);
     console.log(exprNode);
 
-    // Try to check for set of model values.
-    if(checkModelVals){
-        modelValSet = checkModelValSet(exprNode);
-        if(modelValSet !== null){
-            return modelValSet;
-        }
-    }
-
-    
     let exprVal = evalExpr(exprNode, evalCtx)[0]["val"];
 
     const duration = (performance.now() - start).toFixed(1);
@@ -3281,6 +3271,12 @@ function evalIdentifierRef(node, ctx) {
     }
 
     // TODO: Consider case of being undefined.
+
+    // If this is an unknown identifer and we are in a context where we are evaluating model
+    // values, we treat this a new model value.
+    if (ctx.hasOwnProperty("evalModelVals") && ctx["evalModelVals"]) {
+        return [ctx.withVal(new ModelValue(ident_name))];
+    }
 }
 
 function evalBoundedQuantification(node, ctx) {

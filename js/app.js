@@ -697,8 +697,15 @@ function updateTraceRouteParams() {
     if(model.hiddenStateVars.length > 0){
         let hiddenVarsStr = model.hiddenStateVars.join(",");
         newParams["hiddenVars"] = hiddenVarsStr;
-    } else{
+    } else {
         delete newParams.hiddenVars;
+    }
+
+    // Update CONSTANT params.
+    if (Object.keys(model.specConstInputVals).length !== 0) {
+        Object.assign(newParams, { constants: model.specConstInputVals });
+    } else {
+        delete newParams["constants"];
     }
 
     m.route.set("/home", newParams);
@@ -795,10 +802,10 @@ function setConstantValues() {
         console.log("constDecl:", constDecl, constValText);
         constVals[constDecl] = constValText;
 
-        // TODO: Evaluate these in context of the current spec.
         let ctx = new Context(null, new TLAState({}), model.specDefs, {}, model.specConstVals);
-        let checkForModelVal = true
-        let cVal = evalExprStrInContext(ctx, constValText, checkForModelVal);
+        // Flag so that we treat unknown identifiers as model values during evaluation.
+        ctx.evalModelVals = true;
+        let cVal = evalExprStrInContext(ctx, constValText);
         console.log("cval:", cVal);
         constTlaVals[constDecl] = cVal;
     }
@@ -1564,7 +1571,7 @@ function loadSpecBox(hidden){
                 model.traceExprs = [];
                 model.rootModName = "";
                 updateTraceRouteParams();
-                loadSpecFromPath(model.specPath);
+                loadSpecFromPath(model.specPath)
                 if(exampleSpecs[k].constant_vals !== undefined){
                     for(const constDecl in exampleSpecs[k].constant_vals){
                         model.specConstInputVals[constDecl] = exampleSpecs[k].constant_vals[constDecl];
@@ -1591,6 +1598,7 @@ function loadSpecBox(hidden){
                         model.showLoadFileBox = !model.showLoadFileBox;
                         // Clear the current trace.
                         model.currTrace = [];
+                        model.specConstInputVals = {};
                         updateTraceRouteParams();
                     };
                     reader.readAsText(file);
@@ -1605,6 +1613,8 @@ function loadSpecBox(hidden){
                 onclick: () => {
                     model.rootModName = "";
                     model.specPath = model.specUrlInputText;
+                    model.specConstInputVals = {};
+                    updateTraceRouteParams();
                     loadSpecFromPath(model.specPath);
                     // reloadSpec();
                     model.showLoadFileBox = !model.showLoadFileBox;
@@ -1926,7 +1936,6 @@ function loadSpecText(text, specPath) {
             handleCodeChange().then(function () {
                 loadRouteParamsState();
                 m.redraw();
-
             })
         });
         $codeEditor.CodeMirror.setValue(spec);
@@ -1950,7 +1959,7 @@ function loadSpecText(text, specPath) {
 function loadSpecFromPath(specPath){
     model.errorObj = null;
     // Download the specified spec and load it in the editor pane.
-    m.request(specPath, { responseType: "text" }).then(function (specText) {
+    return m.request(specPath, { responseType: "text" }).then(function (specText) {
         loadSpecText(specText, specPath);
     }).catch(function(e) {
         console.log("Error loading file ", specPath, e);
