@@ -1563,6 +1563,7 @@ function loadSpecBox(hidden){
                 model.allInitStates = [];
                 model.traceExprs = [];
                 model.rootModName = "";
+                updateTraceRouteParams();
                 loadSpecFromPath(model.specPath);
                 if(exampleSpecs[k].constant_vals !== undefined){
                     for(const constDecl in exampleSpecs[k].constant_vals){
