@@ -2025,6 +2025,8 @@ class TLASpec {
             // \/ ...
             // \/ ActionN
             //
+
+            // TODO: Do recursively.    
             console.log("NEXTNODE:", nextNode);
             console.log("NEXT_CHILDR:", nextNode.namedChildren);
             if (nextNode.type === "disj_list") {
