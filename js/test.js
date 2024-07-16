@@ -239,6 +239,7 @@ async function testStateGraphEquiv(testId, stateGraph, parsedSpec, specPath, con
         { "spec": "simple6", "constvals": undefined },
         { "spec": "simple7", "constvals": undefined },
         { "spec": "simple8", "constvals": undefined },
+        // { "spec": "simple_constant_operator", "constvals": {"Op": "Op1"} },
         { "spec": "simple_infix_def", "constvals": undefined },
         { "spec": "simple_enabled", "constvals": undefined },
         { "spec": "simple_fcn", "constvals": undefined },
@@ -346,6 +347,18 @@ async function testStateGraphEquiv(testId, stateGraph, parsedSpec, specPath, con
                 "Nil": new StringValue("Nil"),
             }
         },
+        // {
+        //     "spec": "show521677",
+        //     "constvals": {
+        //         "StrongConsistency" : "StrongConsistency",
+        //         "BoundedStaleness" : "BoundedStaleness",
+        //         "SessionConsistency" : "SessionConsistency",
+        //         "ConsistentPrefix" : "ConsistentPrefix",
+        //         "EventualConsistency" : "EventualConsistency",
+        //         "StalenessBound": 1,
+        //         "VersionBound": 3
+        //     }
+        // },
         // { "spec": "TestLinQueue", "constvals": undefined },
         // {
         //     "spec": "DieHarder", 
