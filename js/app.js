@@ -62,7 +62,7 @@ let model = {
     specUrlInputText: "",
     specEditorChanges: [],
     enableAnimationView: false,
-    explodedStateVarExpr: null
+    explodedConstantExpr: null
 }
 
 const exampleSpecs = {
@@ -710,6 +710,12 @@ function updateTraceRouteParams() {
         delete newParams.hiddenVars;
     }
 
+    if(model.explodedConstantExpr !== null){ 
+        newParams["explodedConstantExpr"] = model.explodedConstantExpr;
+    } else {
+        delete newParams.explodedConstantExpr;
+    }
+
     // Update CONSTANT params.
     if (Object.keys(model.specConstInputVals).length !== 0) {
         Object.assign(newParams, { constants: model.specConstInputVals });
@@ -1174,9 +1180,14 @@ function componentTraceViewerState(stateCtx, ind, isLastState, actionId) {
         stateHeaderText += "   " + actionLabelText;
     }
 
+
+    let explodedConstantVal = null;
+    if(model.explodedConstantExpr !== null){
+        explodedConstantVal = model.specConstVals[model.explodedConstantExpr];
+    }
     let headerColSpanCount = 2;
-    if(model.explodedStateVarExpr !== null){
-        headerColSpanCount += model.explodedStateVarExpr.getElems().length;
+    if(model.explodedConstantExpr !== null){
+        headerColSpanCount += explodedConstantVal.getElems().length;
     }
 
     let headerRow = [m("tr", { style: `background-color: ${stateColorBg};border-bottom:solid 2px gray;`, class: "trace-state-header" }, [
@@ -1194,12 +1205,7 @@ function componentTraceViewerState(stateCtx, ind, isLastState, actionId) {
 
     let explodedVars = [];
 
-    // TODO: Make this user configurable.
-    // model.explodedStateVarExpr = new SetValue([new StringValue("rm1"), new StringValue("rm2")])
-    // model.explodedStateVarExpr = new SetValue([new ModelValue("s1"), new ModelValue("s2"), new ModelValue("s3")])
-    // model.explodedStateVarExpr = new SetValue([new ModelValue("s1"), new ModelValue("s2")]);
-
-    if (model.explodedStateVarExpr !== null) {
+    if (explodedConstantVal !== null) {
         // 
         // Explode all state vars whose DOMAIN is equal to the exploded state var value.
         // e.g. Exploded var might be set of servers/nodes {s1,s2,s3}.
@@ -1207,7 +1213,7 @@ function componentTraceViewerState(stateCtx, ind, isLastState, actionId) {
         explodedVars = varNamesToShow.filter(vname => {
             let varVal = state.getVarVal(vname);
             // console.log(varVal);
-            return (varVal instanceof FcnRcdValue) && new SetValue(varVal.getDomain()).fingerprint() === model.explodedStateVarExpr.fingerprint();
+            return (varVal instanceof FcnRcdValue) && new SetValue(varVal.getDomain()).fingerprint() === explodedConstantVal.fingerprint();
         });
 
         // console.log("Explode vars:", explodedVars);
@@ -1215,7 +1221,7 @@ function componentTraceViewerState(stateCtx, ind, isLastState, actionId) {
             // Unexploded vars.
             makeVarRows(varNamesToShow.filter(n => !explodedVars.includes(n))),
             // Exploded vars.
-            model.explodedStateVarExpr.getElems().map((param) => {
+            explodedConstantVal.getElems().map((param) => {
                 return m("td", m("table", { style: "border:solid 1px" }, [
                     m("td", {
                         "style": "border-bottom:solid black 1px;color:gray;padding-bottom:3px;padding-top:3px;", 
@@ -1463,21 +1469,24 @@ function explodeButtonDropdown(){
 
     return m("div", {class:"dropdown"}, [
         m("button", { 
-            class: "btn btn-sm btn-outline-primary " + (model.explodedStateVarExpr === null ? " dropdown-toggle" : ""), 
+            class: "btn btn-sm btn-outline-primary " + (model.explodedConstantExpr === null ? " dropdown-toggle" : ""), 
             "data-bs-toggle": "dropdown",
             "aria-expanded": false,
             onclick: function(){
                 // Unexplode.
-                if(model.explodedStateVarExpr !== null){
-                    model.explodedStateVarExpr = null;
+                if(model.explodedConstantExpr !== null){
+                    model.explodedConstantExpr = null;
+                    updateTraceRouteParams();
                 }
             }
-        }, model.explodedStateVarExpr === null ? "Explode" : "Unexplode"),
-        m("ul", {"class": "dropdown-menu", hidden: model.explodedStateVarExpr !== null}, explodableConsts.map(k => {
+        }, model.explodedConstantExpr === null ? "Explode" : "Unexplode"),
+        m("ul", {"class": "dropdown-menu", hidden: model.explodedConstantExpr !== null}, explodableConsts.map(k => {
             return m("span", {
                 style:"cursor:pointer;",
                 onclick: function(){
-                    model.explodedStateVarExpr = model.specConstVals[k];
+                    model.explodedConstantExpr = k;
+                    updateTraceRouteParams();
+
                 }
             }, [m("li", {class: "dropdown-item"}, k)])
         }))
@@ -1892,6 +1901,14 @@ function loadRouteParamsState() {
     let hiddenVarsStr = m.route.param("hiddenVars");
     if (hiddenVarsStr) {
         model.hiddenStateVars = hiddenVarsStr.split(",");
+    }
+
+    // Load hidden state vars if given.
+    let explodedConstantExprStr = m.route.param("explodedConstantExpr");
+    if (explodedConstantExprStr) {
+        model.explodedConstantExpr = explodedConstantExprStr;
+        // TODO: Should check if the loaded constant actual exists in current model.
+        // assert(model.specConstVals.hasOwnProperty(model.explodedConstantExpr));
     }
 
     // Load trace if given.
