@@ -1588,6 +1588,7 @@ function loadSpecBox(hidden){
                 model.allInitStates = [];
                 model.traceExprs = [];
                 model.rootModName = "";
+                model.explodedConstantExpr = null;
                 updateTraceRouteParams();
                 loadSpecFromPath(model.specPath)
                 if(exampleSpecs[k].constant_vals !== undefined){
