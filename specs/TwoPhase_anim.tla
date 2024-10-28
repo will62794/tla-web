@@ -181,18 +181,18 @@ AbortColor == "red"
 
 \* Establish a fixed mapping to assign an ordering to elements in these sets.
 \* ServerId == CHOOSE f \in [Server -> 1..Cardinality(Person)] : Injective(f)
-RMId == CHOOSE f \in [1..2 -> RM] : Injective(f)
+RMId == CHOOSE f \in [1..Cardinality(RM) -> RM] : Injective(f)
 
 \* Animation view definition.
 c1 == Circle(10, 10, 3, [fill |-> "red"])
 c2 == Circle(20, 10, 3, [fill |-> "red"])
 \* ServerIdDomain == 1..Cardinality(Server)
-RMIdDomain == 1..2
+RMIdDomain == 1..Cardinality(RM)
 
 TMElem == Circle(50, 85, 10, [fill |-> IF tmState = "committed" THEN CommitColor ELSE IF tmState = "init" THEN "gray" ELSE AbortColor])
 RMTextElems == 
     [i \in RMIdDomain |->
-        Text(30 * i, 10, RMId[i], ("fill" :> "black" @@ "text-anchor" :> "middle"))
+        Text(40 * i, 10, RMId[i], ("fill" :> "black" @@ "text-anchor" :> "middle"))
     ]
     \* <<Text(10, 10, "RM1", [fill |-> "black"]), Text(20, 10, "RM2", [fill |-> "black"]), Text(40, 50, "TM", [fill |-> "black"])>>
 TMTextElems == <<
@@ -201,10 +201,10 @@ TMTextElems == <<
 >>
 TextElems == RMTextElems \o TMTextElems
 \* RM elements node circles with corresponding colors.
-RMElems == [i \in RMIdDomain |-> Circle(30 * i, 25, 10, 
+RMElems == [i \in RMIdDomain |-> Circle(40 * i, 25, 10, 
         [fill |-> 
             IF rmState[RMId[i]] = "prepared" 
-                THEN "blue" 
+                THEN "steelblue" 
             ELSE IF rmState[RMId[i]] = "committed" THEN CommitColor 
             ELSE IF rmState[RMId[i]] = "aborted" THEN AbortColor ELSE "gray"])]
 

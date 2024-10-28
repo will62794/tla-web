@@ -429,7 +429,7 @@ FloorSeparator(floor) == Rect(5, FloorYPos(floor), 350, 1, [fill |-> "lightgray"
 FloorSeparators == {FloorSeparator(f) : f \in Floor}
 
 \* FloorLabel(floor) == Text(10, FloorYPos(floor)+15, ToStr(floor), <<>>)
-FloorLabel(floor) == Text(10, FloorYPos(floor)+15, ToStr(floor), <<>>)
+FloorLabel(floor) == Text(10, FloorYPos(floor)+15, ToString(floor), <<>>)
 FloorLabels == {FloorLabel(f) : f \in Floor}
 
 AllElems == SetToSeq(ElevatorElems) \o
@@ -442,8 +442,7 @@ AllElems == SetToSeq(ElevatorElems) \o
             <<>>
 
 \* Overall animation view.
-\* View == Group(AllElems, ("color" :> "black"))
-View == Group(AllElems, ("color" :> "black"))
+AnimView == Group(AllElems, ("color" :> "black"))
 
 Maximum(S) == CHOOSE x \in S : \A y \in S : x >= y
 

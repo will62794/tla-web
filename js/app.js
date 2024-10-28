@@ -22,6 +22,7 @@ let Tab = {
 let TraceTab = {
     Trace: 1,
     REPL: 2,
+    Animation: 3,
 }
 
 let model = {
@@ -62,7 +63,9 @@ let model = {
     specUrlInputText: "",
     specEditorChanges: [],
     enableAnimationView: false,
-    explodedConstantExpr: null
+    explodedConstantExpr: null,
+    // Special definition that will enable animation feature.
+    animViewDefName: "AnimView"
 }
 
 const exampleSpecs = {
@@ -1044,6 +1047,15 @@ function getActionLabelText(actionLabel, quantBounds) {
     return actionLabelText
 }
 
+function animationViewForTraceState(state){
+    let viewNode = model.specTreeObjs["op_defs"][model.animViewDefName].node;
+    let initCtx = new Context(null, state, model.specDefs, {}, model.specConstVals);
+    let ret = evalExpr(viewNode, initCtx);
+    viewVal = ret[0]["val"];
+    let viewSvgObj = makeSvgAnimObj(viewVal);
+    return viewSvgObj;
+}
+
 function componentTraceViewerState(stateCtx, ind, isLastState, actionId) {
 
     //
@@ -1062,22 +1074,11 @@ function componentTraceViewerState(stateCtx, ind, isLastState, actionId) {
     let actionLabelObj = getActionLabelText(actionLabel, stateQuantBounds);
     let actionLabelText = actionLabelObj.name + actionLabelObj.params;
 
-    // Special definition that will enable animation feature.
-    let animViewDefName = "AnimView";
-
-    model.animationExists = model.specDefs.hasOwnProperty(animViewDefName);
+    model.animationExists = model.specDefs.hasOwnProperty(model.animViewDefName);
     let vizSvg = m("svg", { width: 0, height: 0 }, []);
 
     if (model.animationExists && model.enableAnimationView) {
-        let viewNode = model.specTreeObjs["op_defs"][animViewDefName].node;
-        let initCtx = new Context(null, state, model.specDefs, {}, model.specConstVals);
-        // console.log("view node:", viewNode);
-        let ret = evalExpr(viewNode, initCtx);
-        // console.log("ret", ret);
-        viewVal = ret[0]["val"];
-        // console.log("view:", viewVal);
-
-        let viewSvgObj = makeSvgAnimObj(viewVal);
+        let viewSvgObj = animationViewForTraceState(state);
         vizSvg = m("div", { id: "anim-div" }, m("svg", { width: "100%", height: "100%" }, [viewSvgObj]));
     }
 
@@ -1742,8 +1743,20 @@ function tracePane() {
         m("li", {
             class: "nav-item",
             onclick: () => model.selectedTraceTab = TraceTab.REPL,
-        }, m("a", {class: model.selectedTraceTab === TraceTab.REPL ? "nav-link active" : "nav-link"}, "REPL"))
+        }, m("a", {class: model.selectedTraceTab === TraceTab.REPL ? "nav-link active" : "nav-link"}, "REPL")),
+       
     ]
+
+    if (model.animationExists) {
+        let animTab = m("li", {
+            class: "nav-item",
+            onclick: function () {
+                model.selectedTraceTab = TraceTab.Animation;
+                model.enableAnimationView = true;
+            },
+        }, m("a", { class: model.selectedTraceTab === TraceTab.Animation ? "nav-link active" : "nav-link" }, "Animation"));
+        tabs.push(animTab);
+    }
 
     // tabs = tabs.concat(specName);
     
@@ -1761,16 +1774,24 @@ function tracePane() {
     // m("span", [
         // m("div", { id: "poss-next-states-title", class: "pane-title" }, (model.currTrace.length > 0) ? "Choose Next State" : "Choose Initial State"),
         // m("div", { id: "initial-states", class: "tlc-state" }, componentNextStateChoices()),
+    
+    let otherTabs = [
+        componentTraceViewer(model.selectedTraceTab !== TraceTab.Trace),
+        replPane(model.selectedTraceTab !== TraceTab.REPL),
+    ]
+
+    if(model.animationExists){
+        otherTabs.push(animationPane(model.selectedTraceTab !== TraceTab.Animation));   
+    }
+
     return m("div", { 
-                id: "trace-container", 
-                // hidden: model.tracePaneHidden,
-                style: {width: model.tracePaneHidden ? "10%" : "50%"}
-            }, [
-            tabs,
-            componentTraceViewer(model.selectedTraceTab !== TraceTab.Trace),
-            replPane(model.selectedTraceTab !== TraceTab.REPL)
-        ]);
-    // ]);
+            id: "trace-container", 
+            // hidden: model.tracePaneHidden,
+            style: {width: model.tracePaneHidden ? "10%" : "50%"}
+        }, [
+        tabs,
+        otherTabs
+    ]);
 }
 
 function replResult(){
@@ -1780,6 +1801,19 @@ function replResult(){
         return "";
     }
 }
+
+function animationPane(hidden) {
+    if (model.animationExists && model.enableAnimationView && model.currTrace.length > 0) {
+        // Last state in trace.
+        let state = model.currTrace[model.currTrace.length - 1]["state"];
+        let viewSvgObj = animationViewForTraceState(state);
+        return m("div", { hidden: hidden }, [
+            componentButtonsContainer(),
+            m("div", { id: "anim-div" }, m("svg", { width: "100%", height: "100%", viewBox: "0 -20 200 200" }, [viewSvgObj]))
+        ]);
+    }
+}
+
 
 function replPane(hidden) {
     let replErrColor = (!model.replError || model.replInput === "" ? "" : "#FF9494");
