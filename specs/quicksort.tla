@@ -54,31 +54,32 @@ Partition(s, p) ==
 
 
 \* Partition interval given by <<lo,hi>> with pivot index p.
+\* We non-deterministically pre-choose the pivots for each interval upfront. 
 PartitionInterval(lo, hi, p) == 
     \E f \in Permutations(lo..hi) : 
+    \E newLeftP \in lo..(p-1) :
+    \E newRightP \in (p+1)..hi :
         /\ f[p] = p \* the pivot doesn't move.
         /\ \A i \in lo..hi :
             /\ f[i] < p => (seq[i] <= seq[p])
-            /\ f[i] > p => (seq[i] > seq[p])
+            /\ f[i] > p => (seq[i] >= seq[p])
         /\ seq' = [j \in 1..Len(seq) |-> 
                     IF j \in lo..hi 
                     THEN seq[f[j]] 
                     ELSE seq[j]]
         \* Remove the original interval and add its sub intervals.
         \* Don't add any new intervals if the interval is empty i.e. lo = hi.
-        /\ LET newIntervals == IF lo = hi THEN {} ELSE {<<lo,(p-1)>>, <<p,hi>>} IN
-               intervals' = (intervals \ {<<lo,hi>>}) \cup newIntervals
-            
+        /\ LET newLeftIntervals == IF (lo >= (p-1)) THEN {} ELSE {<<lo,(p-1),newLeftP>>}
+               newRightIntervals == IF (p+1) >= hi THEN {} ELSE {<<p+1,hi,newRightP>>} IN
+            intervals' = (intervals \ {<<lo,hi>>}) \cup newLeftIntervals \cup newRightIntervals
+
 Init == 
     \* Assume non-empty sequences.
-    \*/\ seq \in Seq(Nat) /\ seq # <<>>
-    /\ seq = <<1,8,3,1,4,15,6,4>>
-    /\ intervals = {<<1,Len(seq)>>}
+    \* /\ seq \in BoundedSeq(Nat) /\ seq # <<>>
+    /\ seq = <<1,8,3,1,4,15>>
+    /\ \E initP \in 1..Len(seq) : intervals = {<<1,Len(seq),initP>>}
 
-Next == 
-    \E <<lo,hi>> \in intervals:
-    \E p \in lo..hi :
-        \/ PartitionInterval(lo, hi, p)
+Next == \E <<lo,hi,p>> \in intervals : PartitionInterval(lo, hi, p)
 
 Liveness == WF_vars(Next)
     
