@@ -54,7 +54,7 @@ Partition(s, p) ==
 
 
 \* Partition interval given by <<lo,hi>> with pivot index p.
-\* We non-deterministically pre-choose the pivots for each interval upfront. 
+\* We non-deterministically pre-choose the pivots for each interval upfront, 
 PartitionInterval(lo, hi, p) == 
     \E f \in Permutations(lo..hi) : 
     \E newLeftP \in lo..(p-1) :
