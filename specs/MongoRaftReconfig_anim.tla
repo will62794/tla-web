@@ -360,6 +360,14 @@ Group(children, attrs) == SVGElem("g", attrs, children, "")
 
 Injective(f) == \A x, y \in DOMAIN f : f[x] = f[y] => x = y
 
+\* Rectangle element. 'x', 'y', 'w', and 'h' should be given as integers.
+Rect(x, y, w, h, attrs) == 
+    LET svgAttrs == [x      |-> x, 
+                     y      |-> y, 
+                     width  |-> w, 
+                     height |-> h] IN
+    SVGElem("rect", Merge(svgAttrs, attrs), <<>>, "")
+
 \* Establish a fixed mapping to assign an ordering to elements in these sets.
 \* ServerId == CHOOSE f \in [Server -> 1..Cardinality(Person)] : Injective(f)
 RMId == CHOOSE f \in [1..Cardinality(Server) -> Server] : Injective(f)
@@ -369,8 +377,12 @@ c1 == Circle(10, 10, 5, [fill |-> "red"])
 c2 == Circle(20, 10, 5, [fill |-> "red"])
 \* ServerIdDomain == 1..Cardinality(Server)
 RMIdDomain == 1..Cardinality(Server)
-Spacing == 100
-XBase == -10
+Spacing == 40
+XBase == -20
+logEntry(i, ybase, ind) == Group(<<Rect(18 * ind + 190, ybase, 16, 16, [fill |-> "lightgray", stroke |-> "black"]), 
+                                   Text(18 * ind + 190, ybase + 15, ToString(log[i][ind]), ("text-anchor" :>  "start"))>>, [h \in {} |-> {}])
+logElem(i, ybase) == Group([ind \in DOMAIN log[i] |-> logEntry(i, ybase, ind)], [h \in {} |-> {}])
+logElems == [i \in RMIdDomain |-> logElem(RMId[i], i * Spacing - 5)]
 cs == [i \in RMIdDomain |-> Circle(XBase + 20, i * Spacing, 10, 
         [fill |-> 
             IF state[RMId[i]] = Primary 
@@ -378,12 +390,12 @@ cs == [i \in RMIdDomain |-> Circle(XBase + 20, i * Spacing, 10,
             ELSE IF state[RMId[i]] = Secondary THEN "gray" 
             ELSE IF state[RMId[i]] = Secondary THEN "red" ELSE "gray"])]
 labels == [i \in RMIdDomain |-> Text(XBase + 40, i * Spacing + 5, 
-        RMId[i] \o ", t=" \o ToString(currentTerm[RMId[i]]) \o ", " \o ToString(config[RMId[i]]), 
+        ToString(RMId[i]) \o ", t=" \o ToString(currentTerm[RMId[i]]) \o ", (" \o ToString(configVersion[RMId[i]]) \o "," \o ToString(configVersion[RMId[i]]) \o "), " \o ToString(config[RMId[i]]), 
         [fill |-> 
             IF state[RMId[i]] = Primary 
                 THEN "green" 
             ELSE IF state[RMId[i]] = Secondary THEN "gray" 
             ELSE IF state[RMId[i]] = Secondary THEN "red" ELSE "gray"])]
-AnimView == Group(cs \o labels, [i \in {} |-> {}])
+AnimView == Group(cs \o labels \o logElems, [i \in {} |-> {}])
 
 =============================================================================
