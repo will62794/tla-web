@@ -258,12 +258,12 @@ c1 == Circle(10, 10, 5, [fill |-> "red"])
 c2 == Circle(20, 10, 5, [fill |-> "red"])
 \* ServerIdDomain == 1..Cardinality(Server)
 RMIdDomain == 1..Cardinality(Server)
-Spacing == 60
+Spacing == 40
 XBase == -10
-logEntry(i, ybase, ind) == Group(<<Rect(20 * ind, ybase, 15, 15, [fill |-> "gray", stroke |-> "black"]), 
-                                   Text(20 * ind, ybase, ToString(log[i][ind]), <<>>)>>, [h \in {} |-> {}])
+logEntry(i, ybase, ind) == Group(<<Rect(18 * ind + 100, ybase, 16, 16, [fill |-> "lightgray", stroke |-> "black"]), 
+                                   Text(18 * ind + 100, ybase + 15, ToString(log[i][ind]), ("text-anchor" :>  "start"))>>, [h \in {} |-> {}])
 logElem(i, ybase) == Group([ind \in DOMAIN log[i] |-> logEntry(i, ybase, ind)], [h \in {} |-> {}])
-logElems == [i \in RMIdDomain |-> logElem(RMId[i], 20 * i)]
+logElems == [i \in RMIdDomain |-> logElem(RMId[i], i * Spacing - 5)]
 cs == [i \in RMIdDomain |-> Circle(XBase + 20, i * Spacing, 10, 
         [fill |-> 
             IF state[RMId[i]] = Primary 
@@ -271,7 +271,7 @@ cs == [i \in RMIdDomain |-> Circle(XBase + 20, i * Spacing, 10,
             ELSE IF state[RMId[i]] = Secondary THEN "gray" 
             ELSE IF state[RMId[i]] = Secondary THEN "red" ELSE "gray"])]
 labels == [i \in RMIdDomain |-> Text(XBase + 40, i * Spacing + 5, 
-        RMId[i] \o ", t=" \o ToString(currentTerm[RMId[i]]) \o ", " \o ToString(log[RMId[i]]), 
+        ToString(RMId[i]) \o ", t=" \o ToString(currentTerm[RMId[i]]), \*\o ", " \o ToString(log[RMId[i]]), 
         [fill |-> 
             IF state[RMId[i]] = Primary 
                 THEN "green" 
