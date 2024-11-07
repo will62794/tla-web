@@ -1081,8 +1081,9 @@ function componentTraceViewerState(stateCtx, ind, isLastState, actionId) {
     let vizSvg = m("svg", { width: 0, height: 0 }, []);
 
     if (model.animationExists && model.enableAnimationView) {
-        let viewSvgObj = animationViewForTraceState(state);
-        vizSvg = m("div", { id: "anim-div" }, m("svg", { width: "100%", height: "100%" }, [viewSvgObj]));
+        // let viewSvgObj = animationViewForTraceState(state);
+        // vizSvg = m("div", { id: "anim-div" }, m("svg", { width: "100%", height: "100%" }, [viewSvgObj]));
+        vizSvg = m("div", { id: "anim-div" }, m("svg", { width: "100%", height: "100%" }, []));
     }
 
     function makeVarRows(varNames, param) { 
@@ -1247,7 +1248,7 @@ function componentTraceViewerState(stateCtx, ind, isLastState, actionId) {
 
     let traceStateElemChildren = [stateVarElems];
     if (model.animationExists && model.enableAnimationView) {
-        traceStateElemChildren.push(vizSvg);
+        // traceStateElemChildren.push(vizSvg);
     }
     let traceStateElem = m("div", { "class": "trace-state tlc-state" }, traceStateElemChildren);
     return traceStateElem;
@@ -1306,7 +1307,7 @@ function componentTraceViewer(hidden) {
                 role: "switch"
             }, "Show animation")
         ]);
-        children.push(animSwitch);
+        // children.push(animSwitch);
     }
 
     return m("div", { hidden: hidden }, [
