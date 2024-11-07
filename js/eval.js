@@ -2560,6 +2560,18 @@ function evalUnchanged(node, ctx) {
     return [ctx.withVal(new BoolValue(true))];
 }
 
+function evalBoundInfix_mul(node, lhs, rhs, ctx){
+    evalLog("mul lhs:", lhs, lhs.text);
+    let mulLhsVal = evalExpr(lhs, ctx);
+    evalLog("mul lhs val:", mulLhsVal);
+    let lhsVal = mulLhsVal[0]["val"];
+    let rhsVal = evalExpr(rhs, ctx)[0]["val"];
+    let outVal = lhsVal.getVal() * rhsVal.getVal();
+    // console.log("mul overall val:", outVal);
+    ctx.eval_node = {"children": [mulLhsVal.eval_node]}
+    return [ctx.withVal(new IntValue(outVal))];
+}
+
 function evalBoundInfix_plus(node, lhs, rhs, ctx){
     evalLog("plus lhs:", lhs, lhs.text);
     let plusLhsVal = evalExpr(lhs, ctx);
@@ -2594,15 +2606,7 @@ function evalBoundInfix(node, ctx) {
 
     // Multiplication
     if (symbol.type === "mul") {
-        evalLog("mul lhs:", lhs, lhs.text);
-        let mulLhsVal = evalExpr(lhs, ctx);
-        evalLog("mul lhs val:", mulLhsVal);
-        let lhsVal = mulLhsVal[0]["val"];
-        let rhsVal = evalExpr(rhs, ctx)[0]["val"];
-        let outVal = lhsVal.getVal() * rhsVal.getVal();
-        // console.log("mul overall val:", outVal);
-        ctx.eval_node = {"children": [mulLhsVal.eval_node]}
-        return [ctx.withVal(new IntValue(outVal))];
+        return evalBoundInfix_mul(node, lhs, rhs, ctx);
     }
 
     // Plus.
