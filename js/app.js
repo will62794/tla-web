@@ -1050,7 +1050,10 @@ function getActionLabelText(actionLabel, quantBounds) {
 function animationViewForTraceState(state){
     let viewNode = model.specTreeObjs["op_defs"][model.animViewDefName].node;
     let initCtx = new Context(null, state, model.specDefs, {}, model.specConstVals);
+    let start = performance.now();
     let ret = evalExpr(viewNode, initCtx);
+    const duration = (performance.now() - start).toFixed(1);
+    console.log(`Animation view computed in ${duration}ms.`);
     viewVal = ret[0]["val"];
     let viewSvgObj = makeSvgAnimObj(viewVal);
     return viewSvgObj;
