@@ -2,7 +2,7 @@
 
 This is an interactive, web-based environment for exploring and sharing TLA+ specifications. The motivation is to have a better way to quickly interact with a TLA+ spec and easily share results. For example, having a way to share counterexample traces in a convenient, portable, and repeatable manner. 
 
-A live version of the tool is currently hosted [here](https://will62794.github.io/tla-web/#!/home), and here are some example specs to try out:
+A live version of the tool is currently hosted [here](https://will62794.github.io/tla-web/#!/home), and below are some example specs to try out:
 
 - [Lock server](https://will62794.github.io/tla-web/#!/home?specpath=.%2Fspecs%2Flockserver.tla&constants%5BServer%5D=%7B%22s1%22%2C%20%22s2%22%7D&constants%5BClient%5D=%7B%22c1%22%2C%20%22c2%22%7D)
 - [Two phase commit](https://will62794.github.io/tla-web/#!/home?specpath=.%2Fspecs%2FTwoPhase_anim.tla&constants%5BRM%5D=%7Brm1%2Crm2%7D) (animated)
