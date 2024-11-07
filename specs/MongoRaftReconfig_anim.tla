@@ -397,7 +397,7 @@ labels == [i \in RMIdDomain |-> Text(XBase + 40, i * Spacing + 5,
             IF state[RMId[i]] = Primary 
                 THEN "black" 
             ELSE IF state[RMId[i]] = Secondary THEN "black" 
-            ELSE IF state[RMId[i]] = Secondary THEN "red" ELSE "gray"])]
+            ELSE IF state[RMId[i]] = Secondary THEN "red" ELSE "gray"] @@ ("font-family" :> "monospace"))] 
 AnimView == Group(cs \o labels \o logElems, [i \in {} |-> {}])
 
 =============================================================================
