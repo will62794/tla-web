@@ -410,14 +410,7 @@ function componentNextStateChoiceElementForAction(ind, actionLabel, nextStatesFo
         { 
             class: classList.join(" "), 
             // colspan: 2,
-            onclick: () => chooseNextState(hash, hashQuantBounds(quantBounds)),
-            onmouseover: () => {
-                // Enable if UI performance lag isn't too noticeable.
-                // model.nextStatePreview = st["state"];
-            },
-            onmouseout: () => {
-                // model.nextStatePreview = null;
-            }
+            onclick: () => chooseNextState(hash, hashQuantBounds(quantBounds))
         }, 
         actionLabelText.params);
     });
