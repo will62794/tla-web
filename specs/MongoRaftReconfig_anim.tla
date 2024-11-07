@@ -379,22 +379,24 @@ c2 == Circle(20, 10, 5, [fill |-> "red"])
 RMIdDomain == 1..Cardinality(Server)
 Spacing == 40
 XBase == -20
-logEntry(i, ybase, ind) == Group(<<Rect(18 * ind + 190, ybase, 16, 16, [fill |-> "lightgray", stroke |-> "black"]), 
-                                   Text(18 * ind + 190, ybase + 15, ToString(log[i][ind]), ("text-anchor" :>  "start"))>>, [h \in {} |-> {}])
+logEntryStroke(i,ind) == IF \E c \in immediatelyCommitted : c[1] = ind /\ c[2] = log[i][ind] THEN "orange" ELSE "black"
+logEntry(i, ybase, ind) == Group(<<Rect(20 * ind + 160, ybase, 18, 18, [fill |-> "lightgray", stroke |-> logEntryStroke(i,ind)]), 
+                                   Text(20 * ind + 165, ybase + 15, ToString(log[i][ind]), ("text-anchor" :>  "start"))>>, [h \in {} |-> {}])
 logElem(i, ybase) == Group([ind \in DOMAIN log[i] |-> logEntry(i, ybase, ind)], [h \in {} |-> {}])
-logElems == [i \in RMIdDomain |-> logElem(RMId[i], i * Spacing - 5)]
+logElems ==  [i \in RMIdDomain |-> logElem(RMId[i], i * Spacing - 5)]
 cs == [i \in RMIdDomain |-> Circle(XBase + 20, i * Spacing, 10, 
-        [fill |-> 
+        [stroke |-> "black", fill |-> 
             IF state[RMId[i]] = Primary 
                 THEN "green" 
             ELSE IF state[RMId[i]] = Secondary THEN "gray" 
             ELSE IF state[RMId[i]] = Secondary THEN "red" ELSE "gray"])]
+configStr(i) ==  " (" \o ToString(configVersion[RMId[i]]) \o "," \o ToString(configTerm[RMId[i]]) \o ") " \o ToString(config[RMId[i]])
 labels == [i \in RMIdDomain |-> Text(XBase + 40, i * Spacing + 5, 
-        ToString(RMId[i]) \o ", t=" \o ToString(currentTerm[RMId[i]]) \o ", (" \o ToString(configVersion[RMId[i]]) \o "," \o ToString(configVersion[RMId[i]]) \o "), " \o ToString(config[RMId[i]]), 
+        ToString(RMId[i]) \o ", t=" \o ToString(currentTerm[RMId[i]]) \o ",  " \o configStr(i), 
         [fill |-> 
             IF state[RMId[i]] = Primary 
-                THEN "green" 
-            ELSE IF state[RMId[i]] = Secondary THEN "gray" 
+                THEN "black" 
+            ELSE IF state[RMId[i]] = Secondary THEN "black" 
             ELSE IF state[RMId[i]] = Secondary THEN "red" ELSE "gray"])]
 AnimView == Group(cs \o labels \o logElems, [i \in {} |-> {}])
 
