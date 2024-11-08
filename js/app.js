@@ -2106,8 +2106,10 @@ async function loadApp() {
                                 )
                             ]
                         ),                        
-                        m("a", {class:"navbar-brand mb-0 h1", href: "https://github.com/will62794/tla-web"}, [
-                            "TLA+ Web Explorer"
+                        m("a", {class:"navbar-brand mb-0 h1", href: "https://github.com/will62794/tla-web", style:{"font-size":"22px"}}, [
+                            "TLA",
+                            m("sup", "+"),
+                            " Web Explorer"
                         ]) ,
                     ]),
                     
