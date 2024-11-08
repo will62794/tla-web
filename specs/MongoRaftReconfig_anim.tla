@@ -378,12 +378,12 @@ c2 == Circle(20, 10, 5, [fill |-> "red"])
 \* ServerIdDomain == 1..Cardinality(Server)
 RMIdDomain == 1..Cardinality(Server)
 Spacing == 40
-XBase == -20
+XBase == -50
 logEntryStroke(i,ind) == IF \E c \in immediatelyCommitted : c[1] = ind /\ c[2] = log[i][ind] THEN "orange" ELSE "black"
-logEntry(i, ybase, ind) == Group(<<Rect(20 * ind + 160, ybase, 18, 18, [fill |-> "lightgray", stroke |-> logEntryStroke(i,ind)]), 
-                                   Text(20 * ind + 165, ybase + 15, ToString(log[i][ind]), ("text-anchor" :>  "start"))>>, [h \in {} |-> {}])
+logEntry(i, ybase, ind) == Group(<<Rect(20 * ind + 150, ybase, 16, 16, [fill |-> "lightgray", stroke |-> logEntryStroke(i,ind)]), 
+                                   Text(20 * ind + 155, ybase + 14, ToString(log[i][ind]), ("text-anchor" :>  "start" @@ "font-size" :> "12px"))>>, [h \in {} |-> {}])
 logElem(i, ybase) == Group([ind \in DOMAIN log[i] |-> logEntry(i, ybase, ind)], [h \in {} |-> {}])
-logElems ==  [i \in RMIdDomain |-> logElem(RMId[i], i * Spacing - 5)]
+logElems ==  [i \in RMIdDomain |-> logElem(RMId[i], i * Spacing - 10)]
 cs == [i \in RMIdDomain |-> Circle(XBase + 20, i * Spacing, 10, 
         [stroke |-> "black", fill |-> 
             IF state[RMId[i]] = Primary 
@@ -397,7 +397,7 @@ labels == [i \in RMIdDomain |-> Text(XBase + 40, i * Spacing + 5,
             IF state[RMId[i]] = Primary 
                 THEN "black" 
             ELSE IF state[RMId[i]] = Secondary THEN "black" 
-            ELSE IF state[RMId[i]] = Secondary THEN "red" ELSE "gray"] @@ ("font-family" :> "monospace"))] 
+            ELSE IF state[RMId[i]] = Secondary THEN "red" ELSE "gray"] @@ ("font-family" :> "monospace" @@ "font-size" :> "11px"))] 
 AnimView == Group(cs \o labels \o logElems, [i \in {} |-> {}])
 
 =============================================================================
