@@ -970,6 +970,14 @@ function tlaValView(tlaVal) {
         }
         let borderStyle = { style: "border:solid 0.5px gray" };
 
+        // If all elements are short, just display the set as a string.
+        let elemLengths = tlaVal.getElems().map((v, idx) => v.toString().length)
+        let maxLength = _.max(elemLengths);
+        let SHORT_SET_ELEM_DISPLAY_LEN = 4;
+        if (maxLength <= SHORT_SET_ELEM_DISPLAY_LEN) {
+            return m("span", tlaVal.toString());
+        }
+
         let setElems = tlaVal.getElems().map((v, idx) => {
             pre = idx === 0 ? "{ " : "&nbsp;&nbsp;";
             suff = idx === (tlaVal.getElems().length - 1) ? " }" : ",";
