@@ -3654,7 +3654,8 @@ function evalBoundOp(node, ctx) {
         return [ctx.withVal(new TupleValue(subSeqElems))];
     }
 
-    if (opName == "SetToSomeSeq") {
+    // Override this always to make it more efficient.
+    if (opName == "SetToSeq") {
         // Custom operator.
         // Convert a set to some arbitrary but consistently chosen sequence of its elements.
         let argExpr = node.namedChildren[1];
@@ -3663,6 +3664,7 @@ function evalBoundOp(node, ctx) {
         assert(argExprVal.getElems().length > 0, "Cannot compute 'Max' of an empty set.");
 
         // TODO: Do we want/need to ensure a consistent ordering?
+        // TODO: Sort elements by their hash, or string repr?
         return [ctx.withVal(new TupleValue(argExprVal.getElems()))];
     }
 

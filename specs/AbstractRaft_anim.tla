@@ -251,8 +251,10 @@ Injective(f) == \A x, y \in DOMAIN f : f[x] = f[y] => x = y
 
 \* Establish a fixed mapping to assign an ordering to elements in these sets.
 \* ServerId == CHOOSE f \in [Server -> 1..Cardinality(Person)] : Injective(f)
-SetToSomeSeq(S) == CHOOSE f \in [1..Cardinality(S) -> S] : Injective(f)
-RMId == CHOOSE f \in [1..Cardinality(Server) -> Server] : Injective(f)
+\* RMId == CHOOSE f \in [1..Cardinality(Server) -> Server] : Injective(f)
+SetToSeq(S) == CHOOSE f \in [1..Cardinality(S) -> S] : Injective(f)
+RMId == SetToSeq(Server)
+\* CHOOSE f \in [1..Cardinality(Server) -> Server] : Injective(f)
 
 
 

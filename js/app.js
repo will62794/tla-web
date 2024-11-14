@@ -200,7 +200,10 @@ function displayStateGraph() {
 }
 
 
-function displayEvalGraph() {
+function displayEvalGraph(nodeGraph) {
+    if(nodeGraph === undefined){
+        nodeGraph = evalNodeGraph;
+    }
     // return;
     console.log("#displayEvalGraph");
     let stategraphDiv = document.getElementById('eval-graph-pane');
@@ -244,7 +247,7 @@ function displayEvalGraph() {
         ]
     });
 
-    let nodes = _.uniq(_.flatten(evalNodeGraph.map(d => d[0])))
+    let nodes = _.uniq(_.flatten(nodeGraph.map(d => d[0])))
     for (const node of nodes) {
         cy.add({
             group: 'nodes',
@@ -254,7 +257,7 @@ function displayEvalGraph() {
     }
 
     let eind = 0;
-    for (const edgeData of evalNodeGraph) {
+    for (const edgeData of nodeGraph) {
         let edge = edgeData[0];
         let retVal = edgeData[1];
         let edgeOrder = edgeData[2];
@@ -1061,9 +1064,12 @@ function animationViewForTraceState(state){
     let viewNode = model.specTreeObjs["op_defs"][model.animViewDefName].node;
     let initCtx = new Context(null, state, model.specDefs, {}, model.specConstVals);
     let start = performance.now();
+    // evalNodeGraph = [];
     let ret = evalExpr(viewNode, initCtx);
+    console.log("evalNodeGraph:", evalNodeGraph.length);
     const duration = (performance.now() - start).toFixed(1);
     console.log(`Animation view computed in ${duration}ms.`);
+    // displayEvalGraph(evalNodeGraph);
     viewVal = ret[0]["val"];
     let viewSvgObj = makeSvgAnimObj(viewVal);
     return viewSvgObj;
