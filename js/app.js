@@ -112,6 +112,16 @@ const exampleSpecs = {
             "InitTerm": 0
         }
     },
+    "Raft (animated)": {
+        specpath: "./specs/AbstractRaft_anim.tla",
+        constant_vals: {
+            "Server": "{s1,s2,s3}",
+            "Primary": "\"Primary\"",
+            "Secondary": "\"Secondary\"",
+            "Nil": "\"Nil\"",
+            "InitTerm": 0
+        }
+    },
     "EWD998 (animated)": {
         specpath: "./specs/EWD998.tla",
         constant_vals: {
