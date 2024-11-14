@@ -370,7 +370,8 @@ Rect(x, y, w, h, attrs) ==
 
 \* Establish a fixed mapping to assign an ordering to elements in these sets.
 \* ServerId == CHOOSE f \in [Server -> 1..Cardinality(Person)] : Injective(f)
-RMId == CHOOSE f \in [1..Cardinality(Server) -> Server] : Injective(f)
+SetToSeq(S) == CHOOSE f \in [1..Cardinality(S) -> S] : Injective(f)
+RMId == SetToSeq(Server)
 
 \* Animation view definition.
 c1 == Circle(10, 10, 5, [fill |-> "red"])
