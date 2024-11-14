@@ -381,8 +381,8 @@ RMIdDomain == 1..Cardinality(Server)
 Spacing == 40
 XBase == -50
 logEntryStroke(i,ind) == IF \E c \in immediatelyCommitted : c[1] = ind /\ c[2] = log[i][ind] THEN "orange" ELSE "black"
-logEntry(i, ybase, ind) == Group(<<Rect(20 * ind + 150, ybase, 16, 16, [fill |-> "lightgray", stroke |-> logEntryStroke(i,ind)]), 
-                                   Text(20 * ind + 155, ybase + 14, ToString(log[i][ind]), ("text-anchor" :>  "start" @@ "font-size" :> "12px"))>>, [h \in {} |-> {}])
+logEntry(i, ybase, ind) == Group(<<Rect(20 * ind + 160, ybase, 16, 16, [fill |-> "lightgray", stroke |-> logEntryStroke(i,ind)]), 
+                                   Text(20 * ind + 165, ybase + 14, ToString(log[i][ind]), ("text-anchor" :>  "start" @@ "font-size" :> "12px"))>>, [h \in {} |-> {}])
 logElem(i, ybase) == Group([ind \in DOMAIN log[i] |-> logEntry(i, ybase, ind)], [h \in {} |-> {}])
 logElems ==  [i \in RMIdDomain |-> logElem(RMId[i], i * Spacing - 10)]
 cs == [i \in RMIdDomain |-> Circle(XBase + 20, i * Spacing, 10, 
