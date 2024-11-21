@@ -979,11 +979,12 @@ function tlaValView(tlaVal) {
         }
 
         let setElems = tlaVal.getElems().map((v, idx) => {
-            pre = idx === 0 ? "{ " : "&nbsp;&nbsp;";
+            pre = idx === 0 ? "{ " : "";
             suff = idx === (tlaVal.getElems().length - 1) ? " }" : ",";
             return m("tr", [
                 // TODO: Recursively apply value view function?
-                m("td", m.trust(pre + v.toString() + suff)),
+                // m("td", m.trust(pre + v.toString() + suff)),
+                m("td", pre + v.toString() + suff),
             ]);
         });
 
