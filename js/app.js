@@ -992,6 +992,8 @@ function tlaValView(tlaVal) {
 
     // Display tuples as lists of their items.
     if (tlaVal instanceof TupleValue) {
+        const SHORT_TUPLE_ELEM_DISPLAY_LEN = 30;
+
         if (tlaVal.getElems().length === 0) {
             return m("span", "<<>>"); // empty set.
         }
@@ -1006,9 +1008,11 @@ function tlaValView(tlaVal) {
             ]);
         });
 
-        // return m("table", tupleElems);
+        // If tuple is short enough, we will just display it as a string.
+        if(tlaVal.toString().length > SHORT_TUPLE_ELEM_DISPLAY_LEN){
+            return m("table", tupleElems);
+        }
 
-        // TODO: Deal with cases where tuple is too long to show.
         return m("table", [m("tr", m("td", tlaVal.toString()))]);
     }
 
