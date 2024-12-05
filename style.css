@@ -433,10 +433,11 @@ body {
     background-color: lightgreen;
   }
 
-  .trace-state-table .th-state-traceexpr{
+  .trace-state-table .th-state-traceexpr,.td-state-traceexpr{
     border-right: 1px solid gray;
+    /* color:red */
     /* font-weight: bold; */
-    /* background-color: #eee; */
+    background-color: rgba(173, 216, 230, 0.45);
   }
 
   .trace-state-table .tr-state-traceexpr-currinput{
@@ -548,6 +549,7 @@ body {
     /* font-weight:bold; */
     color:gray;
     text-align:center;
+    vertical-align: middle;
   }
 
   .trace-expr-delete:hover{
@@ -559,11 +561,19 @@ body {
     vertical-align: top;
   }
 
-  .trace-state-table th, td{
+  .trace-state-table th, td {
     padding: 3px;
     padding-left:5px;
     padding-right:10px;
     font-size:12px;
+  }
+
+  .trace-state-table > tr {
+    padding: 3px;
+    padding-left:5px;
+    padding-right:10px;
+    font-size:12px;
+    border-bottom: solid 1px gray;
   }
 
   .init-state {

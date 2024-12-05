@@ -1148,7 +1148,7 @@ function componentTraceViewerState(stateCtx, ind, isLastState, actionId) {
                 m("td", { style: "width:15px" }, ""), // placeholder row.
             ]
 
-            return m("tr", { style: "border-bottom: solid" }, cols);
+            return m("tr", { }, cols);
         });
     }
 
@@ -1168,14 +1168,14 @@ function componentTraceViewerState(stateCtx, ind, isLastState, actionId) {
             m("td", {
                 class: "trace-expr-delete",
                 onclick: (e) => { _.remove(model.traceExprs, v => (v === expr)) }
-            }, m("span", "Remove")), // placeholder row.
+            }, m("span", "Delete")), // placeholder row.
         ]
 
         // Demarcate trace expressions.
         if (ind === 0) {
-            return m("tr", { class: "tr-state-traceexpr", style: "border-top: solid 2px;" }, cols);
+            return m("tr", { class: "tr-state-traceexpr" }, cols);
         }
-        return m("tr", { class: "tr-state-traceexpr", style: "border-bottom: solid" }, cols);
+        return m("tr", { class: "tr-state-traceexpr"}, cols);
     });
 
     // Evaluate the current input trace expression to dynamically display its value.
@@ -1200,7 +1200,7 @@ function componentTraceViewerState(stateCtx, ind, isLastState, actionId) {
             m("td", ""), // placeholder row.
         ]
 
-        let currTraceExprRow = m("tr", { class: "tr-state-traceexpr-currinput" + addClass, style: "border-bottom: solid" }, cols);
+        let currTraceExprRow = m("tr", { class: "tr-state-traceexpr-currinput" + addClass }, cols);
         traceExprRows = traceExprRows.concat([currTraceExprRow]);
     }
 
