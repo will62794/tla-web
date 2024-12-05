@@ -1845,7 +1845,7 @@ function tracePane() {
     return m("div", { 
             id: "trace-container", 
             // hidden: model.tracePaneHidden,
-            style: {width: model.tracePaneHidden ? "10%" : "50%"}
+            // style: {width: model.tracePaneHidden ? "10%" : "50%"}
         }, [
         tabs,
         otherTabs
@@ -1922,6 +1922,26 @@ function componentPaneSelector() {
             ])
         ])
     ])
+}
+
+function resizeGutter() {
+    return m("div", { 
+        class: "resize-gutter",
+    }, m("img", {
+        class: "resize-gutter-handle",
+        style: {
+            position: "absolute", 
+            top: "50%", 
+            transform: "translateY(-50%)", 
+            "text-align": "center",
+            "opacity": 0.8
+        },
+        "src": "assets/drag-handle-svgrepo-com.svg",
+        onmousedown: (e) => {
+            resizer(e)
+        },
+        ondragstart : function() { return false; }
+    }, "O"))
 }
 
 function componentExplorerPane() {
@@ -2184,6 +2204,7 @@ async function loadApp() {
                     // m("div", { id: "spec-name-fheader", style:"font-size:14px;margin-bottom:10px;width:100%;" }, "Root spec: " + model.rootModName + ".tla"),
                     // Display pane.
                     midPane(),
+                    resizeGutter(),
                     tracePane()
                     // componentExplorerPane(),
                 ])];

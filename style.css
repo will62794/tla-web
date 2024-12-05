@@ -17,14 +17,26 @@ body {
     font-family: "Roboto", sans-serif;
   } 
 
-  #mid-pane{
-    /* background-color: red; */
-    height:90%;
-    /* overflow-y: scroll; */
-    width:49%;
-    float:left;
-  }
+  #mid-pane {
+      /* background-color: red; */
+      height: 90%;
+      /* overflow-y: scroll; */
+      width: 49%;
+      float: left;
+      min-width: 280px;
 
+      /* Hide scrollbar. */
+      overflow-y: scroll;
+      scrollbar-width: none;
+      /* Firefox */
+      -ms-overflow-style: none;
+
+      /* IE and Edge */
+      &::-webkit-scrollbar {
+          display: none;
+          /* Chrome, Safari and Opera */
+      }
+  }
   .const-input{
       margin:3px;
       width:180px;
@@ -317,6 +329,14 @@ body {
     height:100%;
     overflow-y: scroll;
     /* border-bottom:solid 1px lightgray; */
+
+    /* Hide scrollbar. */
+    overflow-y: scroll;
+    scrollbar-width: none; /* Firefox */
+    -ms-overflow-style: none; /* IE and Edge */
+    &::-webkit-scrollbar {
+      display: none; /* Chrome, Safari and Opera */
+    }
   }
 
   .tlc-state{
@@ -354,6 +374,7 @@ body {
   .trace-state-table{
     border:solid 1px gray;
     font-size:12px;
+    width:100%;
   }
 
   .trace-state-table-div{
@@ -596,7 +617,7 @@ body {
     /* bottom: 0; */
     /* width:100%; */
     /* right: 30%; */
-    padding-left:8px;
+    padding-left:18px;
     /* overflow: auto; */
     /* overflow: hidden; */
     /* border-right:solid 0.5px lightgray; */
@@ -604,8 +625,33 @@ body {
 
     /* background-color: orange; */
     height:70%;
+    /* width:100%; */
     /* float:left; */
-    border-left:solid 2px lightgray;
+    /* border-left:solid 2px lightgray; */
+
+    flex-grow: 1; /* default 0 */
+    position: relative;
+    min-width: 30%;
+    /* border:solid 1px red; */
+  }
+
+  .resize-gutter {
+    width: 8px;
+    /* height: 100%; */
+    background: #eee;
+    position: relative;
+    min-width: 8px;
+    /* margin-right:100px; */
+    /* top: 0; */
+    /* left: 0; */
+    /* cursor: col-resize; */
+  }
+
+  .resize-gutter-handle {
+    cursor: col-resize;
+    text-align: center;
+    width: 7px;
+    height:35px;
   }
 
   #repl-container {
