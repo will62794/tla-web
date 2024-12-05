@@ -1977,6 +1977,10 @@ class TLASpec {
                     //
                     // Regardless, we save the whole parameter node.
                     //
+                    if(currNode.type === "identifier" && var_decls.hasOwnProperty(currNode.text)){
+                        // Ignore variables.
+                        throw new Error("Operator parameter symbol '" + currNode.text + "' conflicts with previous VARIABLE declaration.");
+                    }
                     op_defs[opName]["args"].push(currNode);
 
                     cursor.gotoNextSibling();
