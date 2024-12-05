@@ -2167,8 +2167,12 @@ async function loadApp() {
                 // Header.
                 m("nav", { class: "navbar bg-body-tertiary border-bottom mb-2" }, [
                     m("div", {class:"container-fluid"}, [
-                        
-                        m("span", {class:"navbar-text", href: "https://github.com/will62794/tla-web"}, 
+                        m("a", {class:"navbar-brand mb-0 h1", href: "https://github.com/will62794/tla-web", style:{"font-size":"16px"}}, [
+                            "TLA",
+                            m("sup", "+"),
+                            " Web Explorer"
+                        ]) ,
+                        m("span", {class:"navbar-text", href: "https://github.com/will62794/tla-web", style: "padding-right:15px"}, 
                             [
                                 m("span", {}, [
                                     m("span", {style:"font-weight:bold"}, "Root module:  "),
@@ -2180,11 +2184,7 @@ async function loadApp() {
                                 )
                             ]
                         ),                        
-                        m("a", {class:"navbar-brand mb-0 h1", href: "https://github.com/will62794/tla-web", style:{"font-size":"22px"}}, [
-                            "TLA",
-                            m("sup", "+"),
-                            " Web Explorer"
-                        ]) ,
+                       
                     ]),
                     
                 ]),
