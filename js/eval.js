@@ -1898,6 +1898,7 @@ class TLASpec {
                 console.log("op defs:", op_defs)
             }
 
+            // CONSTANT c1, c2, c3
             if (node.type === "constant_declaration") {
                 let constDecls = cursor.currentNode().namedChildren.filter(c => c.type !== "comment");
                 for (const declNode of constDecls) {
@@ -1905,6 +1906,7 @@ class TLASpec {
                 }
             }
 
+            // VARIABLE x, y, z
             if (node.type === "variable_declaration") {
                 let varDecls = cursor.currentNode().namedChildren.filter(c => c.type !== "comment");
                 for (const declNode of varDecls) {
