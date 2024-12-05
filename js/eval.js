@@ -3661,7 +3661,7 @@ function evalBoundOp(node, ctx) {
         let argExpr = node.namedChildren[1];
         let argExprVal = evalExpr(argExpr, ctx)[0]["val"];
         assert(argExprVal instanceof SetValue);
-        assert(argExprVal.getElems().length > 0, "Cannot compute 'Max' of an empty set.");
+        // assert(argExprVal.getElems().length > 0, "Cannot compute 'Max' of an empty set.");
 
         // TODO: Do we want/need to ensure a consistent ordering?
         // TODO: Sort elements by their hash, or string repr?
