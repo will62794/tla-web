@@ -645,6 +645,7 @@ body {
     /* top: 0; */
     /* left: 0; */
     /* cursor: col-resize; */
+    border-radius: 3px;
   }
 
   .resize-gutter-handle {
