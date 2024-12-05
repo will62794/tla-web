@@ -631,7 +631,7 @@ body {
 
     flex-grow: 1; /* default 0 */
     position: relative;
-    min-width: 30%;
+    min-width: 45%;
     /* border:solid 1px red; */
   }
 
