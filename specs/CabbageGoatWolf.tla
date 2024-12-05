@@ -1,5 +1,5 @@
 ------------------------- MODULE CabbageGoatWolf -----------------------------
-EXTENDS Naturals, FiniteSets, TLC
+EXTENDS Naturals, FiniteSets, TLC, Sequences
 \* Solving the https://en.wikipedia.org/wiki/Wolf,_goat_and_cabbage_problem
 \* Modified from https://github.com/muratdem/PlusCal-examples/blob/master/Puzzles/CabbageGoatWolf_Pluscal.tla
     
@@ -155,6 +155,7 @@ ActorIcon == (
 )
 BoatIcon == "https://www.svgrepo.com/download/487088/boat.svg"
 RiverIcon == "https://www.svgrepo.com/download/493924/river.svg"
+DangerIcon == "assets/danger-svgrepo-com.svg"
 
 Actors == {C,G,W,F}
 ActorsOnSide(side) == {a \in Actors : a \in banks[side]}
@@ -165,11 +166,15 @@ ActorElem(side, actor, order) ==
     IF side = "boat" 
     THEN Image(80, order*35,actorWidth,actorWidth, ActorIcon[actor], <<>>)
     ELSE Image((side-1)*140, order*35,actorWidth,actorWidth, ActorIcon[actor], <<>>)
+
+\* Display danger icon if animals are left alone in unsafe configuration.
+DangerElem(side) == Image((side-1)*140, 0, 30, 30, DangerIcon, [hidden |-> IF Allowed(banks[side]) THEN "hidden" ELSE "visible"])
+
 SideElem(side) == 
     Group(SetToSeq({ 
         LET order == CHOOSE f \in [ActorsOnSide(side) -> 1..Cardinality(ActorsOnSide(side))] : Injective(f) IN 
             ActorElem(side, a, order[a]) : a \in ActorsOnSide(side)
-        }), [i \in {} |-> {}])
+        }) \o <<DangerElem(side)>>, [i \in {} |-> {}])
 
 BoatActorElems == 
     Group(SetToSeq({
