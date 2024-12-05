@@ -156,6 +156,7 @@ ActorIcon == (
 BoatIcon == "https://www.svgrepo.com/download/487088/boat.svg"
 RiverIcon == "https://www.svgrepo.com/download/493924/river.svg"
 DangerIcon == "assets/danger-svgrepo-com.svg"
+SuccessIcon == "https://www.svgrepo.com/download/404946/check-mark-button.svg"
 
 Actors == {C,G,W,F}
 ActorsOnSide(side) == {a \in Actors : a \in banks[side]}
@@ -169,6 +170,7 @@ ActorElem(side, actor, order) ==
 
 \* Display danger icon if animals are left alone in unsafe configuration.
 DangerElem(side) == Image((side-1)*140, 0, 30, 30, DangerIcon, [hidden |-> IF Allowed(banks[side]) THEN "hidden" ELSE "visible"])
+SuccessElem(side) == Image((side-1)*145, 0, 13, 13, SuccessIcon, IF NotSolved THEN [hidden |-> "true"] ELSE <<>>)
 
 SideElem(side) == 
     Group(SetToSeq({ 
@@ -188,7 +190,7 @@ BoatElem ==
         BoatActorElems>>, [i \in {} |-> {}])
 RiverElem == Image(55, 5, 80, 80, RiverIcon, [style |-> "opacity:0.3;transform:scale(1,1.75); /* W3C */"])
 
-AnimView == Group(<<SideElem(1), SideElem(2), RiverElem, BoatElem>>, [i \in {} |-> {}])
+AnimView == Group(<<SideElem(1), SideElem(2), SuccessElem(2), RiverElem, BoatElem>>, [i \in {} |-> {}])
 
 
 
