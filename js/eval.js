@@ -1949,7 +1949,13 @@ class TLASpec {
                     opName = infixOpSymbol;
                 }
 
-                op_defs[opName] = { "name": opName, "args": [], "node": null, "local": isLocalDef, "isInfix": infixOpSymbol !== null  };
+                op_defs[opName] = { 
+                    "name": opName, 
+                    "args": [], 
+                    "node": null, 
+                    "local": isLocalDef, 
+                    "isInfix": infixOpSymbol !== null 
+                };
 
                 // Skip the 'def_eq' symbol ("==").
                 if(infixOpSymbol === null){
