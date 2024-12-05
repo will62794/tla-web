@@ -108,44 +108,7 @@ Group(children, attrs) == SVGElem("g", attrs, children, "")
 
 Injective(f) == \A x, y \in DOMAIN f : f[x] = f[y] => x = y
 
-\* Establish a fixed mapping to assign an ordering to elements in these sets.
-\* ServerId == CHOOSE f \in [Server -> 1..Cardinality(Person)] : Injective(f)
-\* RMId == CHOOSE f \in [1..Cardinality(Server) -> Server] : Injective(f)
 SetToSeq(S) == CHOOSE f \in [1..Cardinality(S) -> S] : Injective(f)
-\* RMId == SetToSeq(Server)
-\* CHOOSE f \in [1..Cardinality(Server) -> Server] : Injective(f)
-
-
-
-\* Animation view definition.
-\* c1 == Circle(10, 10, 5, [fill |-> "red"])
-\* c2 == Circle(20, 10, 5, [fill |-> "red"])
-\* \* ServerIdDomain == 1..Cardinality(Server)
-\* RMIdDomain == 1..Cardinality(Server)
-\* Spacing == 40
-\* XBase == -10
-\* logEntryStroke(i,ind) == IF \E c \in committed : c[1] = ind /\ c[2] = log[i][ind] THEN "orange" ELSE "black"
-\* logEntry(i, ybase, ind) == Group(<<Rect(20 * ind + 100, ybase, 18, 18, [fill |-> "lightgray", stroke |-> logEntryStroke(i,ind)]), 
-\*                                    Text(20 * ind + 105, ybase + 15, ToString(log[i][ind]), ("text-anchor" :>  "start"))>>, [h \in {} |-> {}])
-\* logElem(i, ybase) == Group([ind \in DOMAIN log[i] |-> logEntry(i, ybase, ind)], [h \in {} |-> {}])
-\* logElems ==  [i \in RMIdDomain |-> logElem(RMId[i], i * Spacing - 5)]
-\* cs == [i \in RMIdDomain |-> 
-\*         LET rmid == ToString(RMId[i]) IN
-\*         Circle(XBase + 20, i * Spacing, 10, 
-\*         [stroke |-> "black", fill |-> 
-\*             IF state[rmid] = Primary 
-\*                 THEN "lightgreen" 
-\*             ELSE IF state[rmid] = Secondary THEN "gray" 
-\*             ELSE IF state[rmid] = Secondary THEN "red" ELSE "gray"])]
-\* labels == [i \in RMIdDomain |-> 
-\*         LET rmid == RMId[i] IN 
-\*             Text(XBase + 40, i * Spacing + 5, 
-\*             ToString(rmid) \o ", t=" \o ToString(currentTerm[rmid]), \*\o ", " \o ToString(log[rmid]), 
-\*             [fill |-> 
-\*             IF state[rmid] = Primary 
-\*                 THEN "black" 
-\*             ELSE IF state[RMId[i]] = Secondary THEN "black" 
-\*             ELSE IF state[RMId[i]] = Secondary THEN "red" ELSE "gray"])]
 
 ActorIcon == (
     W :> "https://www.svgrepo.com/download/484119/wolf.svg" @@
