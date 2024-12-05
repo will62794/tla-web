@@ -318,6 +318,8 @@ async function testStateGraphEquiv(testId, stateGraph, parsedSpec, specPath, con
         { "spec": "TwoPhase_RMPrepare", "constvals": undefined },
         { "spec": "LogExample_bounded", "constvals": undefined },
         { "spec": "Elevator", "constvals": undefined },
+        { "spec": "operator_param_clash_before_var_def", "constvals": undefined },
+        { "spec": "operator_param_clash_before_var_def_inter", "constvals": undefined },
         // {"spec": "DieHard", "constvals": undefined},
         {
             "spec": "lockserver_constant_comment",

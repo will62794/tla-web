@@ -1,0 +1,122 @@
+{
+  "name": "DiskGraph",
+  "directed": true,
+  "strict": true,
+  "nodesep": "0.35",
+  "_subgraph_cnt": 5,
+  "objects": [
+    {
+      "name": "cluster_graph",
+      "color": "white",
+      "nodesep": "0.35",
+      "_gvid": 0,
+      "subgraphs": [
+        1,
+2,
+3,
+4
+      ],
+      "nodes": [
+        5,6,7,8
+      ],
+      "edges": [
+        0,1,2,3
+      ]
+    },
+    {
+      "name": "%9",
+      "color": "white",
+      "nodesep": "0.35",
+      "rank": "same",
+      "_gvid": 1,
+      "nodes": [
+        5
+      ]
+    },
+    {
+      "name": "%11",
+      "color": "white",
+      "nodesep": "0.35",
+      "rank": "same",
+      "_gvid": 2,
+      "nodes": [
+        6
+      ]
+    },
+    {
+      "name": "%13",
+      "color": "white",
+      "nodesep": "0.35",
+      "rank": "same",
+      "_gvid": 3,
+      "nodes": [
+        7
+      ]
+    },
+    {
+      "name": "%15",
+      "color": "white",
+      "nodesep": "0.35",
+      "rank": "same",
+      "_gvid": 4,
+      "nodes": [
+        8
+      ]
+    },
+    {
+      "_gvid": 5,
+      "name": "2150071842124822597",
+      "label": "\/\\\\ v = 0\\n\/\\\\ x = 0\\n\/\\\\ y = 0",
+      "style": "filled"
+    },
+    {
+      "_gvid": 6,
+      "name": "-1374906384375569838",
+      "label": "\/\\\\ v = 2\\n\/\\\\ x = 0\\n\/\\\\ y = 1"
+    },
+    {
+      "_gvid": 7,
+      "name": "-40872125885703205",
+      "label": "\/\\\\ v = 2\\n\/\\\\ x = 0\\n\/\\\\ y = 2"
+    },
+    {
+      "_gvid": 8,
+      "name": "3872106381418467816",
+      "label": "\/\\\\ v = 2\\n\/\\\\ x = 0\\n\/\\\\ y = 0"
+    }
+  ],
+  "edges": [
+    {
+      "_gvid": 0,
+      "tail": 5,
+      "head": 6,
+      "color": "black",
+      "fontcolor": "black",
+      "label": ""
+    },
+    {
+      "_gvid": 1,
+      "tail": 6,
+      "head": 7,
+      "color": "black",
+      "fontcolor": "black",
+      "label": ""
+    },
+    {
+      "_gvid": 2,
+      "tail": 7,
+      "head": 8,
+      "color": "black",
+      "fontcolor": "black",
+      "label": ""
+    },
+    {
+      "_gvid": 3,
+      "tail": 8,
+      "head": 6,
+      "color": "black",
+      "fontcolor": "black",
+      "label": ""
+    }
+  ]
+}

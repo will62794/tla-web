@@ -1954,7 +1954,8 @@ class TLASpec {
                     "args": [], 
                     "node": null, 
                     "local": isLocalDef, 
-                    "isInfix": infixOpSymbol !== null 
+                    "isInfix": infixOpSymbol !== null,
+                    "var_decls_context": _.clone(var_decls)
                 };
 
                 // Skip the 'def_eq' symbol ("==").
@@ -2107,7 +2108,7 @@ class TLASpec {
  * initial/next state generation.
  */
 class Context {
-    constructor(val, state, defns, quant_bound, constants, prev_func_val, operators_bound, module_table, eval_node, substitutionsNew, module_eval_namespace_prefix) {
+    constructor(val, state, defns, quant_bound, constants, prev_func_val, operators_bound, module_table, eval_node, substitutionsNew, module_eval_namespace_prefix, var_decls_context) {
 
         // @type: TLAValue
         // The result value of a TLA expression, or 'null' if no result has been
@@ -2156,6 +2157,9 @@ class Context {
         this.substitutions = substitutionsNew;
 
         this.module_eval_namespace_prefix = module_eval_namespace_prefix;
+
+        // Stores whether some variables were declared at the time of definition the original context of an expression.
+        this.var_decls_context = var_decls_context;
     }
 
     cloneDeepVal(){
@@ -2200,12 +2204,17 @@ class Context {
 
         let substitutionsNew = _.cloneDeep(this.substitutions);
         let module_eval_namespace_prefix_new = _.cloneDeep(this.module_eval_namespace_prefix);
+        let var_decls_context_new = _.cloneDeep(this.var_decls_context);
 
         // For diagnostics to measure clone time and its impact on eval performance.
         const duration = (performance.now() - start);
         cloneTime = cloneTime + duration;
 
-        return new Context(valNew, stateNew, defnsNew, quant_boundNew, constants, prev_func_val, operators_boundNew, module_tableNew, eval_node, substitutionsNew, module_eval_namespace_prefix_new);
+        return new Context(
+            valNew, stateNew, defnsNew, quant_boundNew, constants, prev_func_val,
+            operators_boundNew, module_tableNew,
+            eval_node, substitutionsNew,
+            module_eval_namespace_prefix_new, var_decls_context_new);
     }
 
     /**
@@ -3243,8 +3252,12 @@ function evalIdentifierRef(node, ctx) {
     // was not yet declared, then we don't try to evaluate this a variable
     // reference e.g. it could simply be an operator parameter argument.
     // 
-    let var_undefined_in_context = ctx.hasOwnProperty("var_decls_context") && (ctx["var_decls_context"] === undefined || ctx["var_decls_context"] == {});
-    if (ctx.state.hasVar(ident_name)) {
+    let var_undefined_in_context =
+        ctx.hasOwnProperty("var_decls_context") &&
+        ctx["var_decls_context"] !== undefined &&
+        !_.has(ctx["var_decls_context"], ident_name);
+        
+    if (ctx.state.hasVar(ident_name) && !var_undefined_in_context) {
 
         // Unprimed variable.
         if (!isPrimed) {
@@ -3429,7 +3442,7 @@ function evalBoundedQuantification(node, ctx) {
 }
 
 // Evaluate a user defined n-ary operator application.
-function evalUserBoundOp(node, opDefNode, opArgs, ctx){
+function evalUserBoundOp(node, opDefNode, opArgs, ctx, var_decls_context){
     evalLog("evalUserBoundOp:", node, opDefNode, opArgs, ctx);
 
     let opArgNodes = node.namedChildren.slice(1);
@@ -3474,6 +3487,14 @@ function evalUserBoundOp(node, opDefNode, opArgs, ctx){
     let opEvalContext = ctx.clone();
     if (!opEvalContext.hasOwnProperty("quant_bound")) {
         opEvalContext["quant_bound"] = {};
+    }
+
+    // If the operator definition has a context of variable declarations, then we need to
+    // propagate this to the evaluation context so that we can correctly identify undefined
+    // variables in the operator definition.
+    if(var_decls_context !== undefined){
+        opEvalContext["var_decls_context"] = var_decls_context;
+        evalLog("opEvalContext with var_decls_context:", opEvalContext);
     }
 
     evalLog("opDefNode", opDefNode);
@@ -3731,8 +3752,7 @@ function evalBoundOp(node, ctx) {
     let opArgs = opDefObj["args"];
     evalLog("defns", node);
     evalLog("opDefObj", opDefObj);
-
-    return evalUserBoundOp(node, opDefNode, opArgs, ctx);
+    return evalUserBoundOp(node, opDefNode, opArgs, ctx, opDefObj["var_decls_context"]);
 
     // Unknown operator.
     throw new Error("Error: unknown operator '" + opName + "'.");
