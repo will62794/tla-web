@@ -3231,13 +3231,32 @@ function evalIdentifierRef(node, ctx) {
         return evalExpr(subNode, ctx.clone());
     }
 
-    // If this identifier refers to a variable, return the value bound
-    // to that variable in the current context.
-    if (ctx.state.hasVar(ident_name) && !isPrimed) {
-        evalLog("variable identifier: ", ident_name);
-        let var_val = ctx.state.getVarVal(ident_name);
-        evalLog("var ident context:", ctx["state"], var_val);
-        return [ctx.withVal(var_val)];
+    // 
+    // If this identifier refers to a variable, return the value bound to that
+    // variable in the current context.
+    //
+    // Note: if this is a reference to a variable inside a context where the variable
+    // was not yet declared, then we don't try to evaluate this a variable
+    // reference e.g. it could simply be an operator parameter argument.
+    // 
+    let var_undefined_in_context = ctx.hasOwnProperty("var_decls_context") && (ctx["var_decls_context"] === undefined || ctx["var_decls_context"] == {});
+    if (ctx.state.hasVar(ident_name)) {
+
+        // Unprimed variable.
+        if (!isPrimed) {
+            evalLog("variable identifier: ", ident_name);
+            let var_val = ctx.state.getVarVal(ident_name);
+            evalLog("var ident context:", ctx["state"], var_val);
+            return [ctx.withVal(var_val)];
+        }
+
+        // Primed variable.
+        if (isPrimed) {
+            evalLog("variable identifier (primed): ", ident_name + "'");
+            let var_val = ctx.state.getVarVal(ident_name + "'");
+            evalLog("var ident context:", ctx["state"], var_val);
+            return [ctx.withVal(var_val)];
+        }
     }
 
     // Evaluate identifier for primed context version.
