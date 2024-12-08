@@ -17,6 +17,15 @@ body {
     font-family: "Roboto", sans-serif;
   } 
 
+  #tla-web-explorer-title{
+    text-decoration: none;
+  }
+
+  #tla-web-explorer-title:hover{
+    cursor: pointer;
+    color:gray;
+  }
+
   #mid-pane {
       /* background-color: red; */
       height: 90%;
