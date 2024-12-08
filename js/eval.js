@@ -3543,7 +3543,15 @@ function evalUserBoundOp(node, opDefNode, opArgs, ctx, var_decls_context){
 
     }
     evalLog("opEvalContext:", opEvalContext);
-    return evalExpr(opDefNode, opEvalContext);
+    ret = evalExpr(opDefNode, opEvalContext);
+
+    // Don't retain these var decl context values in the context upon return. We
+    // only need to evaluate specificially this user bound op with the
+    // appropriate variable declaration context and we don't want this to
+    // propagate through to other evaluation contexts upon return.
+    ret.map(c => c.var_decls_context = undefined);
+    
+    return ret;
 }
 
 // <op>(<arg1>,...,<argn>)
@@ -4887,3 +4895,4 @@ evalConjList = function (...args) {
     depth -= 1;
     return ret;
 }
+    

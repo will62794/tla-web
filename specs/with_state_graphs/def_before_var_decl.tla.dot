@@ -1,0 +1,61 @@
+strict digraph DiskGraph {
+nodesep=0.35;
+subgraph cluster_graph {
+color="white";
+-2093017254992813200 [label="/\\ glob = (0 :> <<0, 0>>)\n/\\ lleq = <<<<TRUE, FALSE>>, <<FALSE, TRUE>>>>\n/\\ nrec = <<0, 0>>",style = filled]
+493783256026500623 [label="/\\ glob = (0 :> <<0, 1>>)\n/\\ lleq = <<<<TRUE, FALSE>>, <<FALSE, TRUE>>>>\n/\\ nrec = <<0, 1>>",style = filled]
+5968494593657754825 [label="/\\ glob = (0 :> <<0, 2>>)\n/\\ lleq = <<<<TRUE, FALSE>>, <<FALSE, TRUE>>>>\n/\\ nrec = <<0, 2>>",style = filled]
+-7964152189314983093 [label="/\\ glob = (0 :> <<1, 0>>)\n/\\ lleq = <<<<TRUE, FALSE>>, <<FALSE, TRUE>>>>\n/\\ nrec = <<1, 0>>",style = filled]
+8455503230693422644 [label="/\\ glob = (0 :> <<1, 1>>)\n/\\ lleq = <<<<TRUE, FALSE>>, <<FALSE, TRUE>>>>\n/\\ nrec = <<1, 1>>",style = filled]
+2403202664404331762 [label="/\\ glob = (0 :> <<1, 2>>)\n/\\ lleq = <<<<TRUE, FALSE>>, <<FALSE, TRUE>>>>\n/\\ nrec = <<1, 2>>",style = filled]
+427674429952234246 [label="/\\ glob = (0 :> <<2, 0>>)\n/\\ lleq = <<<<TRUE, FALSE>>, <<FALSE, TRUE>>>>\n/\\ nrec = <<2, 0>>",style = filled]
+-2179398051958931847 [label="/\\ glob = (0 :> <<2, 1>>)\n/\\ lleq = <<<<TRUE, FALSE>>, <<FALSE, TRUE>>>>\n/\\ nrec = <<2, 1>>",style = filled]
+-5346011968148953921 [label="/\\ glob = (0 :> <<2, 2>>)\n/\\ lleq = <<<<TRUE, FALSE>>, <<FALSE, TRUE>>>>\n/\\ nrec = <<2, 2>>",style = filled]
+6466166132990174531 [label="/\\ glob = (0 :> <<0, 0>>)\n/\\ lleq = <<<<TRUE, FALSE>>, <<TRUE, TRUE>>>>\n/\\ nrec = <<0, 0>>",style = filled]
+-4786709085232347076 [label="/\\ glob = (0 :> <<0, 1>>)\n/\\ lleq = <<<<TRUE, FALSE>>, <<TRUE, TRUE>>>>\n/\\ nrec = <<0, 1>>",style = filled]
+-1613363963164699910 [label="/\\ glob = (0 :> <<0, 2>>)\n/\\ lleq = <<<<TRUE, FALSE>>, <<TRUE, TRUE>>>>\n/\\ nrec = <<0, 2>>",style = filled]
+3040442071406255480 [label="/\\ glob = (0 :> <<1, 0>>)\n/\\ lleq = <<<<TRUE, FALSE>>, <<TRUE, TRUE>>>>\n/\\ nrec = <<1, 0>>",style = filled]
+-3593996401739059193 [label="/\\ glob = (0 :> <<1, 1>>)\n/\\ lleq = <<<<TRUE, FALSE>>, <<TRUE, TRUE>>>>\n/\\ nrec = <<1, 1>>",style = filled]
+-7344931029481805119 [label="/\\ glob = (0 :> <<1, 2>>)\n/\\ lleq = <<<<TRUE, FALSE>>, <<TRUE, TRUE>>>>\n/\\ nrec = <<1, 2>>",style = filled]
+-4708773362569341643 [label="/\\ glob = (0 :> <<2, 0>>)\n/\\ lleq = <<<<TRUE, FALSE>>, <<TRUE, TRUE>>>>\n/\\ nrec = <<2, 0>>",style = filled]
+6523830434515040330 [label="/\\ glob = (0 :> <<2, 1>>)\n/\\ lleq = <<<<TRUE, FALSE>>, <<TRUE, TRUE>>>>\n/\\ nrec = <<2, 1>>",style = filled]
+1046895888680034956 [label="/\\ glob = (0 :> <<2, 2>>)\n/\\ lleq = <<<<TRUE, FALSE>>, <<TRUE, TRUE>>>>\n/\\ nrec = <<2, 2>>",style = filled]
+2782425670265951749 [label="/\\ glob = (0 :> <<0, 0>>)\n/\\ lleq = <<<<TRUE, TRUE>>, <<FALSE, TRUE>>>>\n/\\ nrec = <<0, 0>>",style = filled]
+-4417055126926361734 [label="/\\ glob = (0 :> <<0, 1>>)\n/\\ lleq = <<<<TRUE, TRUE>>, <<FALSE, TRUE>>>>\n/\\ nrec = <<0, 1>>",style = filled]
+-7584791061972786756 [label="/\\ glob = (0 :> <<0, 2>>)\n/\\ lleq = <<<<TRUE, TRUE>>, <<FALSE, TRUE>>>>\n/\\ nrec = <<0, 2>>",style = filled]
+6129565417472634430 [label="/\\ glob = (0 :> <<1, 0>>)\n/\\ lleq = <<<<TRUE, TRUE>>, <<FALSE, TRUE>>>>\n/\\ nrec = <<1, 0>>",style = filled]
+-5674876510291066047 [label="/\\ glob = (0 :> <<1, 1>>)\n/\\ lleq = <<<<TRUE, TRUE>>, <<FALSE, TRUE>>>>\n/\\ nrec = <<1, 1>>",style = filled]
+-1931808301443114617 [label="/\\ glob = (0 :> <<1, 2>>)\n/\\ lleq = <<<<TRUE, TRUE>>, <<FALSE, TRUE>>>>\n/\\ nrec = <<1, 2>>",style = filled]
+-4501817172429855117 [label="/\\ glob = (0 :> <<2, 0>>)\n/\\ lleq = <<<<TRUE, TRUE>>, <<FALSE, TRUE>>>>\n/\\ nrec = <<2, 0>>",style = filled]
+2713431446274280204 [label="/\\ glob = (0 :> <<2, 1>>)\n/\\ lleq = <<<<TRUE, TRUE>>, <<FALSE, TRUE>>>>\n/\\ nrec = <<2, 1>>",style = filled]
+8189256004521431498 [label="/\\ glob = (0 :> <<2, 2>>)\n/\\ lleq = <<<<TRUE, TRUE>>, <<FALSE, TRUE>>>>\n/\\ nrec = <<2, 2>>",style = filled]
+-2093017254992813200 -> -2093017254992813200 [label="",color="black",fontcolor="black"];
+493783256026500623 -> 493783256026500623 [label="",color="black",fontcolor="black"];
+5968494593657754825 -> 5968494593657754825 [label="",color="black",fontcolor="black"];
+-7964152189314983093 -> -7964152189314983093 [label="",color="black",fontcolor="black"];
+8455503230693422644 -> 8455503230693422644 [label="",color="black",fontcolor="black"];
+2403202664404331762 -> 2403202664404331762 [label="",color="black",fontcolor="black"];
+427674429952234246 -> 427674429952234246 [label="",color="black",fontcolor="black"];
+-2179398051958931847 -> -2179398051958931847 [label="",color="black",fontcolor="black"];
+-5346011968148953921 -> -5346011968148953921 [label="",color="black",fontcolor="black"];
+6466166132990174531 -> 6466166132990174531 [label="",color="black",fontcolor="black"];
+-4786709085232347076 -> -4786709085232347076 [label="",color="black",fontcolor="black"];
+-1613363963164699910 -> -1613363963164699910 [label="",color="black",fontcolor="black"];
+3040442071406255480 -> 3040442071406255480 [label="",color="black",fontcolor="black"];
+-3593996401739059193 -> -3593996401739059193 [label="",color="black",fontcolor="black"];
+-7344931029481805119 -> -7344931029481805119 [label="",color="black",fontcolor="black"];
+-4708773362569341643 -> -4708773362569341643 [label="",color="black",fontcolor="black"];
+6523830434515040330 -> 6523830434515040330 [label="",color="black",fontcolor="black"];
+1046895888680034956 -> 1046895888680034956 [label="",color="black",fontcolor="black"];
+2782425670265951749 -> 2782425670265951749 [label="",color="black",fontcolor="black"];
+-4417055126926361734 -> -4417055126926361734 [label="",color="black",fontcolor="black"];
+-7584791061972786756 -> -7584791061972786756 [label="",color="black",fontcolor="black"];
+6129565417472634430 -> 6129565417472634430 [label="",color="black",fontcolor="black"];
+-5674876510291066047 -> -5674876510291066047 [label="",color="black",fontcolor="black"];
+-1931808301443114617 -> -1931808301443114617 [label="",color="black",fontcolor="black"];
+-4501817172429855117 -> -4501817172429855117 [label="",color="black",fontcolor="black"];
+2713431446274280204 -> 2713431446274280204 [label="",color="black",fontcolor="black"];
+8189256004521431498 -> 8189256004521431498 [label="",color="black",fontcolor="black"];
+{rank = same; -2093017254992813200;-1613363963164699910;-3593996401739059193;-4501817172429855117;-7344931029481805119;-4786709085232347076;-7964152189314983093;6523830434515040330;6129565417472634430;427674429952234246;2782425670265951749;1046895888680034956;8189256004521431498;6466166132990174531;8455503230693422644;5968494593657754825;493783256026500623;2403202664404331762;3040442071406255480;2713431446274280204;-2179398051958931847;-4417055126926361734;-1931808301443114617;-4708773362569341643;-5674876510291066047;-7584791061972786756;-5346011968148953921;}
+}
+}
