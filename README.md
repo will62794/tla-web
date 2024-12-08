@@ -1,4 +1,4 @@
-# TLA+ Web Explorer
+# TLA<sup>+</sup> Web Explorer
 
 This is an interactive, web-based environment for exploring and sharing TLA+ specifications. The motivation is to have a better way to quickly interact with a TLA+ spec and easily share results. For example, having a way to share counterexample traces in a convenient, portable, and repeatable manner. 
 
