@@ -323,6 +323,13 @@ async function testStateGraphEquiv(testId, stateGraph, parsedSpec, specPath, con
         { "spec": "def_before_var_decl", "constvals": undefined },
         // {"spec": "DieHard", "constvals": undefined},
         {
+            "spec": "Prisoners",
+            "constvals": {
+                "Prisoner": new SetValue([new StringValue("p1"), new StringValue("p2"), new StringValue("p3")]),
+                "Counter": new StringValue("p1")
+            }
+        },
+        {
             "spec": "lockserver_constant_comment",
             "constvals": {
                 "Server": new SetValue([new StringValue("s1"), new StringValue("s2")]),
