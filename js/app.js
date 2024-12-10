@@ -240,7 +240,7 @@ function displayEvalGraph(nodeGraph) {
                     "border-width": "1",
                     "border-color": "white",
                     "font-family": "monospace",
-                    "font-size": "12px",
+                    "font-size": "8px",
                     "shape": "rectangle"
                 }
             },
@@ -251,7 +251,10 @@ function displayEvalGraph(nodeGraph) {
     for (const node of nodes) {
         cy.add({
             group: 'nodes',
-            data: { id: hashSum(node), expr_text: node },
+            data: { 
+                id: hashSum(node), 
+                expr_text: node 
+            },
             position: { x: 200, y: 200 }
         });
     }
@@ -267,7 +270,7 @@ function displayEvalGraph(nodeGraph) {
                 id: 'e' + eind,
                 source: hashSum(edge[0]),
                 target: hashSum(edge[1]),
-                label: retVal[0]["val"].toString() + "_" + edgeOrder + "(" + retVal.length + ") [" + evalDur + "ms]"
+                label: retVal[0]["val"].toString() + " " + edgeOrder + "(" + retVal.length + ") [" + evalDur + "ms]"
             }
         });
         eind++;
@@ -1527,6 +1530,16 @@ function explodeButtonDropdown(){
     ])
 }
 
+function toggleTracePaneButton(){
+    return m("button", {
+        class: "btn btn-sm btn-outline-primary", 
+        hidden: (model.debug === 0),
+        onclick: () => {
+            model.tracePaneHidden = !model.tracePaneHidden;
+        }
+    }, "Toggle Pane")
+}
+
 function componentButtonsContainer() {
 
     return [m("div", { id: "trace-buttons", class:"input-group mb-3" }, [
@@ -1551,6 +1564,7 @@ function componentButtonsContainer() {
             value: model.traceExprInputText,
             oninput: e => { model.traceExprInputText = e.target.value }
         }),
+        toggleTracePaneButton(),
 
         // m("br"),
         // m("div", {}, model.hiddenStateVars.map(v => m("div", v)))
@@ -1840,6 +1854,10 @@ function tracePane() {
 
     if(model.animationExists){
         otherTabs.push(animationPane(model.selectedTraceTab !== TraceTab.Animation));   
+    }
+
+    if(model.tracePaneHidden){
+        return toggleTracePaneButton();
     }
 
     return m("div", { 
