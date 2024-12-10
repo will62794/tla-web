@@ -1536,7 +1536,7 @@ function explodeButtonDropdown(){
 function toggleTracePaneButton(){
     return m("button", {
         class: "btn btn-sm btn-outline-primary", 
-        hidden: (model.debug === 0),
+        hidden: (model.debug !== 1),
         onclick: () => {
             model.tracePaneHidden = !model.tracePaneHidden;
         }
@@ -2276,8 +2276,10 @@ async function loadApp() {
     let debug = parseInt(m.route.param("debug"));
     let showRewritten = parseInt(m.route.param("show_rewritten"));
     model.showRewritten = showRewritten;
-    enableEvalTracing = debug === 1;
-    model.debug = debug;
+    if(debug === 1){
+        enableEvalTracing = debug === 1;
+        model.debug = debug;
+    }
 
     // Check for given spec in URL args.
     specPathArg = m.route.param("specpath");
