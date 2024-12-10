@@ -2160,8 +2160,6 @@ async function loadApp() {
                     // TODO: Work out tlaplus mode functionality for syntax highlighting.
                     // mode:"tlaplus"
                 });
-    
-                codeEditor.on('changes', handleCodeChange);
             }
         },
         onupdate: function () {
