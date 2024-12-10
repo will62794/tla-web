@@ -64,6 +64,7 @@ let model = {
     specEditorChanges: [],
     enableAnimationView: false,
     explodedConstantExpr: null,
+    generatingInitStates: false,
     // Special definition that will enable animation feature.
     animViewDefName: "AnimView"
 }
@@ -921,6 +922,12 @@ function reloadSpec() {
     let interp = new TlaInterpreter();
     const start = performance.now();
 
+    // TODO: Can work on this more to consider web workers for off-thread state generation.
+    // console.log("Starting web worker for state generation.");
+    // model.generatingInitStates = true;
+    // startWebWorker();   
+    // return;
+
     // let allInitStates;
     let initStates;
     try {
@@ -1363,8 +1370,20 @@ function componentTraceViewer(hidden) {
 // TODO: Think about more fully fledged worker execution framework.
 function startWebWorker(){
     const myWorker = new Worker("js/worker.js");
-    myWorker.postMessage([{a:1,b:2}, {c:4,d:5, spec: model.specTreeObjs}]);
+    myWorker.postMessage({
+        newText: model.specText,
+        specPath: model.specPath,
+        constValInputs: model.specConstInputVals
+    });
     console.log("Message posted to worker");
+
+    myWorker.onmessage = function(e) {
+        console.log("Message received from worker");
+        let response = e.data;
+        console.log("Response from worker:", response);
+        model.generatingInitStates = false;
+        m.redraw();
+    };
 }
 
 // Called when an updated spec is finished being re-parsed.
@@ -2184,6 +2203,10 @@ async function loadApp() {
 
             let spinner = fetchingInProgress ? m("div", {class:"spinner-border spinner-border-sm"}) : m("span");
             let fetchingText = fetchingInProgress ? "Fetching spec... " : "";
+            if(model.generatingInitStates){
+                fetchingText = "(Generating initial states...) ";
+                spinner = m("div", {class:"spinner-border spinner-border-sm"});
+            }
             let parseError = isParseErr ? m("span", {class:"bi-exclamation-triangle", style:{"color":"red", "margin-left":"5px"}}, " Parse error.") : m("span");
 
             return [
