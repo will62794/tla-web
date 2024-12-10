@@ -1650,7 +1650,7 @@ class TLASpec {
         // For a disjunction list, recurse on each disjunct.
         if (node.type == "disj_list") {
             let disjActions = node.namedChildren.map((cnode, ind) => {
-                console.log(cnode);
+                // console.log(cnode);
                 return this.parseActionsFromNode(cnode.namedChildren[1], ind);
             });
             return _.flatten(disjActions);
@@ -1929,7 +1929,7 @@ class TLASpec {
                     cursor.gotoFirstChild();
                 }
 
-                console.log(node);
+                // console.log(node);
                 let infixOpSymbol = null;
                 if(node.children[1].type === "infix_op_symbol"){
                     console.log("INFIX OP SYMBOL");
@@ -1940,7 +1940,7 @@ class TLASpec {
                 // The definition identifier name.
                 node = cursor.currentNode()
 
-                console.log(node.text, node)
+                // console.log(node.text, node)
                 // console.log(cursor.currentFieldName());
                 assert(node.type === "identifier");
                 let opName = node.text;
