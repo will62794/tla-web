@@ -937,7 +937,7 @@ function reloadSpec() {
     }
 
     const duration = (performance.now() - start).toFixed(1);
-    console.log(`Computed ${model.allInitStates.length} initial states in ${duration}ms.`);
+    console.log(`Generating ${model.allInitStates.length} initial states took ${duration}ms.`);
 
     // Display states in HTML.
     // let initStatesDiv = document.getElementById("initial-states");
