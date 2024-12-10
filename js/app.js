@@ -822,7 +822,7 @@ function chooseNextState(statehash_short, quantBoundsHash) {
     }
 }
 
-function setConstantValues(reload = false) {
+function setConstantValues(reload = true) {
     console.log("#setConstantValues");
     let constVals = {};
     let nullTree;
