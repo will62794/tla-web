@@ -916,6 +916,8 @@ function reloadSpec() {
 
     console.log("Generating initial states.");
     let interp = new TlaInterpreter();
+    const start = performance.now();
+
     // let allInitStates;
     let initStates;
     try {
@@ -934,7 +936,8 @@ function reloadSpec() {
         return;
     }
 
-    console.log("Computed " + model.allInitStates.length + " initial states.");
+    const duration = (performance.now() - start).toFixed(1);
+    console.log(`Computed ${model.allInitStates.length} initial states in ${duration}ms.`);
 
     // Display states in HTML.
     // let initStatesDiv = document.getElementById("initial-states");
