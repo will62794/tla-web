@@ -821,7 +821,7 @@ function chooseNextState(statehash_short, quantBoundsHash) {
     }
 }
 
-function setConstantValues() {
+function setConstantValues(reload = false) {
     console.log("#setConstantValues");
     let constVals = {};
     let nullTree;
@@ -850,7 +850,10 @@ function setConstantValues() {
     let currParams = m.route.param();
     m.route.set("/home", Object.assign(currParams, { constants: model.specConstInputVals }));
 
-    reloadSpec();
+    if(reload){
+        console.log("Reloading spec from setConstantValues.");
+        reloadSpec();
+    }
 }
 
 // TODO: Simple reachability benchmark that can eventually be incorporated into 
@@ -1409,7 +1412,8 @@ function onSpecParse(newText, parsedSpecTree){
      if (constantParams) {
          console.log("CONSTNS:", constantParams);
          model.specConstInputVals = constantParams;
-         setConstantValues();
+         let reload = false;
+         setConstantValues(reload);
      }
 
     // console.log("constinputvals:", model.specConstInputVals);
