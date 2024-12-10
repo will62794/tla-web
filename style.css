@@ -892,9 +892,9 @@ body {
     font-size:12px;
   }
   #load-spec-box input {
-    padding:10px;
+    /* padding:10px; */
     /* border-radius:10px; */
-    width:380px;
+    /* width:380px; */
   }
 
   #load-spec-box a {
