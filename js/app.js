@@ -1676,9 +1676,12 @@ function loadSpecBox(hidden){
             }, k));
         })),
         m("h5", "From local file"),
-        m("div", {}, [
+        m("div", { class: "input-group mb-3" }, [
             m("input", {
-                id: "load-local-file", type: "file", text: "file upload",
+                id: "formFile", 
+                type: "file", 
+                text: "file upload",
+                class: "form-control form-control-sm",
                 onchange: e => {
                     file = e.target.files[0];
                     reader = new FileReader();
