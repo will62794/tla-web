@@ -319,6 +319,7 @@ async function testStateGraphEquiv(testId, stateGraph, parsedSpec, specPath, con
         { "spec": "LogExample_bounded", "constvals": undefined },
         { "spec": "Elevator", "constvals": undefined },
         { "spec": "operator_param_clash_before_var_def", "constvals": undefined },
+        { "spec": "operator_param_clash_before_const_def", "constvals": {"c": new IntValue(12)} },
         { "spec": "operator_param_clash_before_var_def_inter", "constvals": undefined },
         { "spec": "def_before_var_decl", "constvals": undefined },
         // {"spec": "DieHard", "constvals": undefined},

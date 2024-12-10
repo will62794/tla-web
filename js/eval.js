@@ -3340,6 +3340,11 @@ function evalIdentifierRef(node, ctx) {
     }
 
     // See if this identifier is an instantiated CONSTANT symbol.
+    //
+    // Note: checking this after we check for quant_bound values helps ensure we don't improperly
+    // look up a bound CONSTANT value that shares a name with an operator definition argument that was declared
+    // BEFORE the CONSTANT declaration. Related to 904cc93.
+    // 
     if (ctx["constants"] !== undefined && ctx["constants"].hasOwnProperty(ident_name)) {
         // Return the instantiated constant value.
         let constantVal = ctx["constants"][ident_name];
