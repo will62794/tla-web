@@ -1225,7 +1225,7 @@ function evalExprStrInContext(evalCtx, exprStr) {
 
     const duration = (performance.now() - start).toFixed(1);
     // console.log("return val:", exprVal);
-    console.log("compute duration val ms:", duration);
+    // console.log("compute duration val ms:", duration);
     return exprVal;
 }
 
