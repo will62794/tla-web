@@ -419,7 +419,7 @@ function componentNextStateChoiceElementForAction(ind, actionLabel, nextStatesFo
             classList.push("action-choice-disabled");
         }
 
-        // console.log("actionlabel:", actionLabelText, st, hash);
+        console.log("actionlabel:", actionLabelText, st, hash);
 
         // TODO: Disambiguate action labels when they have different quant bounds
         // but lead to the same state.
@@ -1077,15 +1077,26 @@ function getActionLabelText(actionLabel, quantBounds) {
         // No parameters to replace.
         return { name: actionLabelText, params: "" };
     }
+    // console.log("actionlabel pre:", actionLabelText);
     let pre = actionLabelText.slice(0, parenSplit);
-    let post = actionLabelText.slice(parenSplit);
-    if(quantBounds){
+    let post = actionLabelText.slice(parenSplit).replace("(", "").replace(")", "");
+    let post_param_args = post.split(",").map(v => v.trim());
+    // console.log("actionlabel post split:", post_param_args);
+    let post_param_arg_vals = post_param_args;
+
+    // Parse out bound quantifer values for display in parameterized action label.
+    if (quantBounds) {
         for (const [quant, bound] of Object.entries(quantBounds)) {
-            post = post.replace(quant, bound.toString())
+            // console.log(" actionlabel quant:", quant, "bound:", bound);
+            for (let i = 0; i < post_param_arg_vals.length; i++) {
+                if (post_param_arg_vals[i] === quant) {
+                    post_param_arg_vals[i] = bound.toString();
+                }
+            }
         }
     }
-    
-    actionLabelText = { name: pre, params: post };
+    // console.log("actionlabel post param arg vals:", post_param_arg_vals);
+    actionLabelText = { name: pre, params: "(" + post_param_arg_vals.join(",") + ")" };
     return actionLabelText
 }
 
