@@ -1181,9 +1181,16 @@ function componentTraceViewerState(stateCtx, ind, isLastState, actionId) {
                 varDiff = selectedNextState.varDiff(currState);
                 // console.log(varDiff);
             }
+
+            // TODO: Enable to show modified variables.
+            if(ind === model.currTrace.length - 1 && ind > 0){
+                varDiff = model.currTrace[ind]["state"].varDiff(model.currTrace[ind - 1]["state"]);
+            }
+
             // Show modified variables in blue.
             if (varDiff !== null && varDiff.includes(varname) && ind === model.currTrace.length - 1) {
-                varnameCol = "lightblue";
+                // varnameCol = "lightblue";
+                varnameCol = "none";
             }
             let varVal = state.getVarVal(varname);
             if(param !== undefined){
@@ -1192,7 +1199,7 @@ function componentTraceViewerState(stateCtx, ind, isLastState, actionId) {
             let cols = [
                 m("td", {
                     class: "th-state-varname",
-                    style: "background-color:" + varnameCol,
+                    style: {"background-color": varnameCol},
                     onclick: (e) => {
                         model.hiddenStateVars.push(varname);
                         // We also store hidden vars in route url params.
