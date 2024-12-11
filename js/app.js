@@ -66,7 +66,9 @@ let model = {
     explodedConstantExpr: null,
     generatingInitStates: false,
     // Special definition that will enable animation feature.
-    animViewDefName: "AnimView"
+    animViewDefName: "AnimView",
+    lockedTrace: null,
+    lockedTraceActions: null,
 }
 
 const exampleSpecs = {
@@ -679,6 +681,32 @@ function traceStepBack() {
         let nextStates = recomputeNextStates(lastState["state"]);
         model.currNextStates = _.cloneDeep(nextStates);
     }
+}
+
+function traceStepForward(){
+    if(model.lockedTrace === null){
+        return;
+    }
+    // model.currTrace = model.lockedTrace;
+    // model.currTraceActions = model.lockedTraceActions;
+    // updateTraceRouteParams();
+
+    model.currTrace = model.lockedTrace.slice(0, model.currTrace.length + 1);
+    model.currTraceActions = model.lockedTrace.slice(0, model.currTraceActions.length + 1);
+    updateTraceRouteParams();
+
+    // Back to initial states.
+    if (model.currTrace.length === 0) {
+        console.log("Back to initial states.")
+        reloadSpec();
+        return;
+    } else {
+        console.log("stepping back");
+        let lastState = model.currTrace[model.currTrace.length - 1];
+        let nextStates = recomputeNextStates(lastState["state"]);
+        model.currNextStates = _.cloneDeep(nextStates);
+    }
+
 }
 
 // Adds the given new params to the current route params and updates the route.
@@ -1533,6 +1561,16 @@ function copyTraceLinkToClipboard() {
     navigator.clipboard.writeText(link);
 }
 
+function lockTrace(){
+    model.lockedTrace = model.currTrace;
+    model.lockedTraceActions = model.currTraceActions;
+}
+
+function unlockTrace(){
+    model.lockedTrace = null;
+    model.lockedTraceActions = null;
+}
+
 function explodeButtonDropdown(){
     // Just limit to trace explosion on SetValues for now.
     let explodableConsts = Object.keys(model.specConstVals).filter(k => model.specConstVals[k] instanceof SetValue);
@@ -1581,7 +1619,23 @@ function componentButtonsContainer() {
 
     return [m("div", { id: "trace-buttons", class:"input-group mb-3" }, [
         m("button", { class: "btn btn-sm btn-outline-primary button-bagse", id: "trace-bacfk-button", onclick: traceStepBack }, "Back"),
+        // 
+        // TODO: Enable trace locking once clearing up all allowable state transitions.
+        //
+        // m("button", { 
+        //     class: "btn btn-sm btn-outline-primary button-bagse", 
+        //     id: "trace-bacfk-button", 
+        //     disabled: (model.lockedTrace !== null && model.currTrace.length === model.lockedTrace.length), 
+        //     hidden: (model.lockedTrace === null), 
+        //     onclick: traceStepForward 
+        // }, "Forward"),
         m("button", { class: "btn btn-sm btn-outline-primary button-bagse", id: "trace-refset-button", onclick: resetTrace }, "Reset"),
+        // m("button", { 
+        //     class: "btn btn-sm btn-outline-primary button-bagse", 
+        //     id: "trace-refset-button", 
+        //     onclick: model.lockedTrace === null ? lockTrace : unlockTrace, 
+        //     // hidden: (model.lockedTrace !== null) 
+        // }, model.lockedTrace === null ? "Lock trace" : "Unlock trace"),
         m("button", { class: "btn btn-sm btn-outline-primary button-bagse", id: "trace-refset-button", onclick: copyTraceLinkToClipboard }, "Copy trace link"),
         // Explode dropdown.
         explodeButtonDropdown(),
