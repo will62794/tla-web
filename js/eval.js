@@ -3255,7 +3255,12 @@ function evalIdentifierRef(node, ctx) {
     let var_undefined_in_context =
         ctx.hasOwnProperty("var_decls_context") &&
         ctx["var_decls_context"] !== undefined &&
-        !_.has(ctx["var_decls_context"], ident_name);
+        _.keys(ctx["var_decls_context"]).length === 0;
+
+        // TODO: Re-enable this more fine-grained check once we figure out to deal with
+        // module imports/renames appropriately.
+        // !_.has(ctx["var_decls_context"]
+            // , ident_name);
         
     if (ctx.state.hasVar(ident_name) && !var_undefined_in_context) {
 
