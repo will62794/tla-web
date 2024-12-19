@@ -421,7 +421,7 @@ function componentNextStateChoiceElementForAction(ind, actionLabel, nextStatesFo
             classList.push("action-choice-disabled");
         }
 
-        console.log("actionlabel:", actionLabelText, st, hash);
+        // console.log("actionlabel:", actionLabelText, st, hash);
 
         // TODO: Disambiguate action labels when they have different quant bounds
         // but lead to the same state.
