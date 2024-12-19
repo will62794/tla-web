@@ -4629,9 +4629,6 @@ function getNextStates(nextDef, currStateVars, defns, constvals, moduleTable) {
     // Filter out disabled transitions.
     ret = ret.filter(c => c["val"].getVal() === true);
 
-    // Filter to set of distinct generated states.
-    ret = _.uniqBy(ret, c => c.state.fingerprint());
-
     evalLog("getNextStates without disabled transitions:", ret);
 
     // Filter out transitions that do not modify the state.
@@ -4640,11 +4637,27 @@ function getNextStates(nextDef, currStateVars, defns, constvals, moduleTable) {
     // });
 
     // Only keep states where all primed variables were assigned.
-    // TODO: Consider if we eventually want to this throw an explicit error.
     let all_next_states = ret.filter(c => _.every(origVars, v => c.state.getVarVal(v + "'") !== null));
-    if(all_next_states.length !== ret.length){
-        console.warn(`${ret.length - all_next_states.length} generated next states were filtered out due to unassigned variables.`);
+    let next_states_with_unassigned = ret.filter(c => _.some(origVars, v => c.state.getVarVal(v + "'") === null));
+
+    // If there are some states with unassigned variables, throw an error and print out some info about which
+    // variables are unassigned.
+    if (next_states_with_unassigned.length !== 0) {
+        console.log("next_states_with_unassigned:", next_states_with_unassigned);
+        for (const state of next_states_with_unassigned) {
+            console.log("STATE:");
+            for (const v of origVars) {
+                if (state["state"].getVarVal(v + "'") === null) {
+                    console.log("state with unassigned variable:", v + "'");
+                }
+            }
+        }
+        throw new Error(`${next_states_with_unassigned.length} generated next states had unassigned variables`);
     }
+
+
+    // Filter to set of distinct generated states.
+    all_next_states = _.uniqBy(all_next_states, c => c.state.fingerprint());
 
     // TODO: Check if we are correctly keeping only unique states.
     // all_next_states = _.uniqBy(all_next_states, c => c.state.fingerprint());
