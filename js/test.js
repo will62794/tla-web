@@ -350,6 +350,17 @@ async function testStateGraphEquiv(testId, stateGraph, parsedSpec, specPath, con
             }
         },
         {
+            "spec": "TxnsMoveRange",
+            "constvals": {
+                "MIGRATIONS": new IntValue(1),
+                "TXN_STMTS": new IntValue(1),
+                "Txns": new SetValue([new StringValue("t1")]),
+                "NameSpaces": new SetValue([new StringValue("ns1")]),
+                "Shards": new SetValue([new StringValue("s1"), new StringValue("s2")]),
+                "Keys": new SetValue([new StringValue("k1"), new StringValue("k2")]),
+            }
+        },
+        {
             "spec": "RaftMongo",
             "constvals": {
                 "Server": new SetValue([new StringValue("n1")]),
