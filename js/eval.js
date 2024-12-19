@@ -4377,9 +4377,7 @@ function evalExpr(node, ctx) {
             evalLog("condVal: ", condVal);
             // Short-circuit on the first true condition out of the CASE branches.
             if (condVal.getVal()) {
-                let outVal = evalExpr(out, ctx)[0]["val"];
-                evalLog("outVal: ", outVal);
-                return [ctx.withVal(outVal)];
+                return evalExpr(out, ctx);
             }
         }
 
@@ -4391,8 +4389,7 @@ function evalExpr(node, ctx) {
         } else {
             let out = otherArms[0].namedChildren[1];
             evalLog("Evaluating OTHER case arm.", out);
-            let otherExprVal = evalExpr(out, ctx)[0]["val"];
-            return [ctx.withVal(otherExprVal)];
+            return evalExpr(out, ctx);
         }
     }
 

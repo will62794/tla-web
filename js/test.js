@@ -301,6 +301,7 @@ async function testStateGraphEquiv(testId, stateGraph, parsedSpec, specPath, con
         { "spec": "primed_tuple", "constvals": undefined },
         { "spec": "mldr_init_only", "constvals": undefined },
         { "spec": "tla_expr_eval", "constvals": undefined },
+        { "spec": "tla_case_with_state_assignment", "constvals": undefined },
         { "spec": "simple_mod3_counter", "constvals": undefined },
         { "spec": "EWD998_regression1", "constvals": undefined },
         { "spec": "EWD998_bounded1", "constvals": undefined },
