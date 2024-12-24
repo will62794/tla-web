@@ -38,3 +38,29 @@ where `simple_extends_M3` contains a definition for `ExprM3`.
 ## 2024-07-12
 
 TODO: Reconsider clone calls throughout in expression evaluation, in cases where copies may not be strictly necessary.
+
+## 2024-12-24
+
+Note that in general there may be more work needed to precisely handle evaluation of expressions with respect to definition context. For example, the JS interpreter seems to handle the following spec currently:
+
+```tla
+---- MODULE simple2 ----
+EXTENDS Naturals
+
+VARIABLE x
+
+A == B + 2
+
+B == 1
+
+Init == 
+    /\ x = [i \in {0,A} |-> {}]
+
+Next == 
+    \/ \E b \in {0,A}, c \in {88,99} : x' = [x EXCEPT ![b] = x[b] \cup {c}]
+
+====
+```
+but is rejected by TLC, because the definition of `B` is not in scope yet when `A` is defined. This could work in theory but TLC/TLA+ seems to define definitions in a way such that their evaluation is tied to the definitions that were in scope at the time they were defined. May need to thread a few changes through the interpreter to make this work in all cases and match TLC. 
+
+This may also help iron out the subtleties related to lazy evaluation, where we want to evaluate defined expressions in different contexts/scopes.
