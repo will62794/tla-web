@@ -3946,6 +3946,7 @@ function evalLetIn(node, ctx) {
 
     // Evaluate the expression with the bound definitions.
     let newBoundCtx = ctx;
+    let prevLetDefs = [];
     for (const def of opDefs) {
         let defVarName = def.childForFieldName("name").text;
 
@@ -3972,6 +3973,31 @@ function evalLetIn(node, ctx) {
             // previously bound definitions.
             let defVal = evalExpr(defBody, newBoundCtx)[0]["val"];
             newBoundCtx = newBoundCtx.withBoundVar(defVarName, defVal);
+
+
+
+            // (LAZY EVALUATION SKETCHES)
+
+            // 
+            // We want to bind each new definition from the LET-IN expression to
+            // its body, but we also need to ensure that each defined expression
+            // is evaluated in the context of only the previously defined
+            // definitions up to that point.
+            //
+            // LET A == 1 B == A + 2 IN A + B
+            //
+            // For example, B is evaluated in a context where A is defined, but
+            // A is evaluated in a context where no additional definitions are
+            // bound.
+            // 
+
+            // TODO: Do we want each definition to also be augmented with possible extra "local" definitions, that are defined
+            // only in the scope of this specific definition?
+            // let def = { "name": defVarName, "quant_bounds": {}, "node": defBody, "local_scope_defs": prevLetDefs  };
+            // newBoundCtx = newBoundCtx.withBoundDefn(defVarName, def);
+            // prevLetDefs.push(def);
+
+
         } else {
             // >= 1-arity operator. So we don't evaluate it, but need to bind it as an operator in the context.
             let op = { "name": defVarName, "args": parameters, "node": defBody };
