@@ -64,3 +64,12 @@ Next ==
 but is rejected by TLC, because the definition of `B` is not in scope yet when `A` is defined. This could work in theory but TLC/TLA+ seems to define definitions in a way such that their evaluation is tied to the definitions that were in scope at the time they were defined. May need to thread a few changes through the interpreter to make this work in all cases and match TLC. 
 
 This may also help iron out the subtleties related to lazy evaluation, where we want to evaluate defined expressions in different contexts/scopes.
+
+## 2024-12-30
+
+Note that in TLC configuration files, there are *assignments* (`=`) and *replacements* (`<-`), which are subtly different.
+
+For an **assignment** `c = v`, it is the case that `c` is a constant parameter *or* a defined symbol and `v` is a value. 
+
+For a **replacement** `c <- d`, though, it is the case that `d` is a defined symbol.
+
