@@ -73,3 +73,6 @@ For an **assignment** `c = v`, it is the case that `c` is a constant parameter *
 
 For a **replacement** `c <- d`, though, it is the case that `d` is a defined symbol.
 
+## 2024-12-31
+
+Still TODO: properly work out how to capture "current context" for current variables, declarations, definitions that appeared *at the time* a definition was defined, and how to properly make this available in the interpreter.
