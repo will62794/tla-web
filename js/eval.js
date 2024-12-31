@@ -1462,7 +1462,7 @@ class TLASpec {
         let extends_modules = [];
         let instance_modules = {};
 
-        console.log(">>> PARSING ROOT MODULE for DEFS:", root_mod_name);
+        console.log(">>> PARSING MODULE for DEFS:", root_mod_name);
 
         // Look for all variables and definitions defined in the module.
         let more = cursor.gotoFirstChild();
@@ -1662,6 +1662,10 @@ class TLASpec {
     parseSpecModule(specText) {
         var self = this;
 
+        // TODO: We may eventually need to move this back down to the parsing
+        // code below, since in general definitions are actually defined in the
+        // "current context" of the module being parsed (i.e. what definitions
+        // have already been defined previously in order of their appearance).
         let module_op_defs = self.extractModuleDefinitions(specText);
         // console.log("MOD OP DEFS:", module_op_defs);
 
@@ -1702,7 +1706,7 @@ class TLASpec {
         let extends_modules = [];
         let instance_modules = {};
 
-        console.log(">>> PARSING ROOT MODULE:", root_mod_name);
+        console.log(">>> PARSING MODULE:", root_mod_name);
 
         // Look for all variables and definitions defined in the module.
         let more = cursor.gotoFirstChild();
