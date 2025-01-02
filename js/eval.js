@@ -1813,7 +1813,7 @@ class TLASpec {
                     // point of this definition. We store this simply as a set
                     // of keys, since we can look up these in the global
                     // definition table if needed.
-                    "curr_defs_context": _.keys(op_defs)
+                    "curr_defs_context": _.keys(op_defs).concat(_.keys(fn_defs))
                 };
 
                 // As we go through parsing of any module, we retain a global
@@ -1903,10 +1903,26 @@ class TLASpec {
                 // assert(node.type === "identifier");
                 // let fnName = node.text;
 
-                fn_defs[fnName] = { "name": fnName, "quant_bounds": quant_bounds, "node": null };
+                fn_defs[fnName] = { 
+                    "name": fnName, 
+                    "quant_bounds": quant_bounds, 
+                    "node": null,
+                    // Store the current set of definitions that exist at the
+                    // point of this definition. We store this simply as a set
+                    // of keys, since we can look up these in the global
+                    // definition table if needed.
+                    "curr_defs_context": _.keys(op_defs) 
+                };
                 cursor.gotoParent();
                 // Save the function definition.
                 fn_defs[fnName]["node"] = fnDefNode;
+
+                // As we go through parsing of any module, we retain a global
+                // table of all definitions encountered in any module, to
+                // potentially be looked up later when evaluating definitions in
+                // their current "context" i.e. the set of definitions that
+                // existed at the time of their original definition.
+                self.globalDefTable[fnName] = fn_defs[fnName];
             }
 
         }
