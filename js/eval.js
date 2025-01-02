@@ -1482,7 +1482,7 @@ class TLASpec {
 
                 // The definition identifier name.
                 node = cursor.currentNode()
-                console.log(node.text, node)
+                console.log("Adding parsed operator definition:", node.text, node)
                 // console.log(cursor.currentFieldName());
                 assert(node.type === "identifier");
                 let opName = node.text;
@@ -3033,6 +3033,8 @@ function evalPrefixedOp(node, ctx) {
     //
 
     let prefixedOpName = modPrefix + opName;
+    console.log("prefixedOpName:", prefixedOpName);
+
 
     // Even if it this a prefixed op, this may still be being evaluated inside an expression from 
     // a namespaced module instantiation e.g. M2!M3!Expr.
