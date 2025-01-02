@@ -1825,7 +1825,9 @@ class TLASpec {
                 // 
                 let paramModArgs = cursor.currentNode().namedChildren.filter(n => n.type === "identifier").slice(1);
                 let numModuleParams = paramModArgs.length
-                evalLog("module_def params:", paramModArgs.map(n => n.text))
+                if (numModuleParams > 0) {
+                    evalLog("module_def params:", paramModArgs.map(n => n.text))
+                }
 
                 // Extract the name of the module being instantiated.
                 // e.g. INSTANCE Module1 WITH A <- 5
