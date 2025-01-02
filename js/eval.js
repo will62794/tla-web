@@ -2924,10 +2924,10 @@ function evalBoundInfix(node, ctx) {
     // Check for user-defined infix operators.
     if (ctx.hasOperatorBound(symbolText)) {
         // console.log("OPBOUND:", symbolText);
-        let opDef = ctx["defns"][symbolText];
+        let opDefObj = ctx["defns"][symbolText];
         // console.log(opDef);
         // console.log(node);
-        return evalUserBoundOp(node, opDef.node, opDef.args, ctx)
+        return evalUserBoundOp(node, opDefObj, ctx)
     }
 
     throw new Error("unsupported infix symbol: '" + symbol.text + "'");
@@ -3069,7 +3069,7 @@ function evalPrefixedOp(node, ctx) {
         // If this is an operator with arguments, then we evaluate it accordingly.
         // e.g. M!Op(1,2)
         if (opArgs.length > 0) {
-            return evalUserBoundOp(rhs, opDef.node, opDef.args, newCtx);
+            return evalUserBoundOp(rhs, opDef, newCtx);
         }
         return evalExpr(opDef.node, newCtx);
     }
@@ -3440,8 +3440,12 @@ function evalBoundedQuantification(node, ctx) {
 }
 
 // Evaluate a user defined n-ary operator application.
-function evalUserBoundOp(node, opDefNode, opArgs, ctx, var_decls_context){
-    evalLog("evalUserBoundOp:", node, opDefNode, opArgs, ctx);
+function evalUserBoundOp(node, opDefObj, ctx){
+    evalLog("evalUserBoundOp:", node, opDefObj);
+
+    let opDefNode = opDefObj["node"];   
+    let opArgs = opDefObj["args"];
+    let var_decls_context = opDefObj["var_decls_context"];
 
     let opArgNodes = node.namedChildren.slice(1);
 
@@ -3758,7 +3762,7 @@ function evalBoundOp(node, ctx) {
     let opArgs = opDefObj["args"];
     evalLog("defns", node);
     evalLog("opDefObj", opDefObj);
-    return evalUserBoundOp(node, opDefNode, opArgs, ctx, opDefObj["var_decls_context"]);
+    return evalUserBoundOp(node, opDefObj, ctx);
 
     // Unknown operator.
     throw new Error("Error: unknown operator '" + opName + "'.");
