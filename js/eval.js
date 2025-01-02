@@ -1835,7 +1835,7 @@ class TLASpec {
                 let modName = instance.namedChildren[0].text;
 
                 // Add substituted definitions into current module.
-                evalLog("Parsing module from namespaced INSTANCE definition:", moduleDefName, "== INSTANCE", modName);
+                evalLog(`Parsing module '${modName}' from namespaced INSTANCE definition: ${moduleDefName} == INSTANCE ${modName}`);
 
                 // Extract substitutions from the module instantiation statement.
                 // console.log(instance);
