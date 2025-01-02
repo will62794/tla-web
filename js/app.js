@@ -629,7 +629,7 @@ function recomputeNextStates(fromState) {
             const start = performance.now();
             cloneTime = 0;
 
-            let nextStatesForAction = interp.computeNextStates(model.specTreeObjs, model.specConstVals, [fromState], action.node)
+            let nextStatesForAction = interp.computeNextStates(model.specTreeObjs, model.specConstVals, [fromState], action.node, model.spec)
             // console.log("nextStatesForAction", nextStatesForAction); 
             nextStatesForAction = nextStatesForAction.map(c => {
                 let deprimed = c["state"].deprimeVars();
@@ -960,7 +960,7 @@ function reloadSpec() {
     let initStates;
     try {
         let includeFullCtx = true;
-        initStates = interp.computeInitStates(model.specTreeObjs, model.specConstVals, includeFullCtx);
+        initStates = interp.computeInitStates(model.specTreeObjs, model.specConstVals, includeFullCtx, model.spec);
         initStates = initStates.map(c => ({"state": c["state"], "quant_bound": c["quant_bound"]}))
         model.allInitStates = _.cloneDeep(initStates);
         console.log("Set initial states: ", model.allInitStates);
@@ -1433,8 +1433,9 @@ function startWebWorker(){
 }
 
 // Called when an updated spec is finished being re-parsed.
-function onSpecParse(newText, parsedSpecTree){
+function onSpecParse(newText, parsedSpecTree, spec){
 
+    model.spec = spec;
     model.specText = newText;
     model.specTreeObjs = parsedSpecTree;
     model.errorObj = null;
@@ -1550,7 +1551,7 @@ async function handleCodeChange(editor, changes) {
     let spec = new TLASpec(newText, model.specPath);
     return spec.parse().then(function(){
         console.log("SPEC WAS PARSED.", spec);
-        onSpecParse(newText, spec.spec_obj);
+        onSpecParse(newText, spec.spec_obj, spec);
         m.redraw(); //explicitly re-draw on promise resolution.
     }).catch(function(e){
         console.log("Error parsing and loading spec.", e);
