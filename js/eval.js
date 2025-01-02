@@ -1743,7 +1743,8 @@ class TLASpec {
                         "module_name": modName,
                         "substitutions": newSubs,
                         "module_defs": parsedObj["op_defs"],
-                        "module_param_args": paramModArgs
+                        "module_param_args": paramModArgs,
+                        "curr_defs_context": origOpDef["curr_defs_context"]
                     };
                     self.globalDefTable[substOpName] = op_defs[substOpName];
                 }                
@@ -1807,9 +1808,19 @@ class TLASpec {
                     "node": null, 
                     "local": isLocalDef, 
                     "isInfix": infixOpSymbol !== null,
-                    "var_decls_context": _.clone(var_decls)
+                    "var_decls_context": _.clone(var_decls),
+                    // Store the current set of definitions that exist at the
+                    // point of this definition. We store this simply as a set
+                    // of keys, since we can look up these in the global
+                    // definition table if needed.
+                    "curr_defs_context": _.keys(op_defs)
                 };
 
+                // As we go through parsing of any module, we retain a global
+                // table of all definitions encountered in any module, to
+                // potentially be looked up later when evaluating definitions in
+                // their current "context" i.e. the set of definitions that
+                // existed at the time of their original definition.
                 self.globalDefTable[opName] = op_defs[opName];
 
                 // Skip the 'def_eq' symbol ("==").
