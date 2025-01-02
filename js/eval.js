@@ -1276,6 +1276,9 @@ class TLASpec {
         this.moduleTable = {};
         this.moduleTableParsed = {};
 
+        // Stores global table of all definitions encountered during parsing of any module.
+        this.globalDefTable = {};
+
         this.specText = specText;
         this.specPath = specPath;
 
@@ -1579,6 +1582,7 @@ class TLASpec {
             // }
 
             // Now parse the root module, which will use the global module table as needed as it proceeds.
+            console.log("PARSING ROOT MODULE:", self.specPath);
             let parsedSpec = self.parseSpecModule(self.specText);
             self.spec_obj = parsedSpec;
             self.spec_obj["module_table"] = self.moduleTableParsed;
@@ -1587,6 +1591,7 @@ class TLASpec {
             // definitions/declarations that should be defined via import in the root module.
 
             console.log("PARSED MODULE TABLE:", self.moduleTableParsed);
+            console.log("GLOBAL DEF TABLE:", self.globalDefTable);
             return parsedSpec;
         });
     }
@@ -1706,7 +1711,7 @@ class TLASpec {
         let extends_modules = [];
         let instance_modules = {};
 
-        console.log(">>> PARSING MODULE:", root_mod_name);
+        console.log(`>>> Processing MODULE after extracting definitions: '${root_mod_name}'`);
 
         // Look for all variables and definitions defined in the module.
         let more = cursor.gotoFirstChild();
@@ -1729,7 +1734,7 @@ class TLASpec {
                 // For each module we extend, we should parse it and store it in 
                 // the global module lookup table.
                 extendsModuleNames.map(function (modName) {
-                    console.log("Parsing EXTENDS module:", modName);
+                    console.log("EXTENDS module:", modName);
                     let parsedObj = self.parseSpecModule(self.moduleTable[modName]);
                     if (!self.moduleTableParsed.hasOwnProperty(modName)) {
                         self.moduleTableParsed[modName] = parsedObj;
@@ -1738,10 +1743,11 @@ class TLASpec {
                     // Go ahead and add all definitions from this module to the current module (?)
                     // TODO: Should not include LOCAL
                     op_defs = _.merge(op_defs, parsedObj["op_defs"]);
+                    self.globalDefTable = _.merge(self.globalDefTable, parsedObj["op_defs"]);
                 })
 
                 extends_modules = extendsModuleNames;
-                console.log("EXTENDS", extends_modules);
+                console.log("  All EXTENDS modules:", extends_modules);
             }
 
             //
@@ -1798,6 +1804,8 @@ class TLASpec {
                 }
 
                 op_defs = _.merge(op_defs, parsedObj["op_defs"]);
+                self.globalDefTable = _.merge(self.globalDefTable, parsedObj["op_defs"]);
+                
                 // console.log("op defs:", parsedObj["op_defs"])
             }
 
@@ -1895,6 +1903,7 @@ class TLASpec {
                         "module_defs": parsedObj["op_defs"],
                         "module_param_args": paramModArgs
                     };
+                    self.globalDefTable[substOpName] = op_defs[substOpName];
                 }                
                 console.log("op defs:", op_defs)
             }
@@ -1958,6 +1967,8 @@ class TLASpec {
                     "isInfix": infixOpSymbol !== null,
                     "var_decls_context": _.clone(var_decls)
                 };
+
+                self.globalDefTable[opName] = op_defs[opName];
 
                 // Skip the 'def_eq' symbol ("==").
                 if(infixOpSymbol === null){
