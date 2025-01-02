@@ -1823,7 +1823,7 @@ class TLASpec {
                 // n-ary operator. save all parameters.
                 while (cursor.currentFieldName() === "parameter") {
                     let currNode = cursor.currentNode();
-                    console.log("PARAMETER: ", currNode.text)
+                    // console.log("PARAMETER: ", currNode.text)
                     // console.log("PARAMETER: ", currNode.namedChildren[0])
 
                     //
