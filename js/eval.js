@@ -715,12 +715,10 @@ class SyntaxRewriter {
     // Map from rewritten spec back to the original.
     // maps from (line_new, col_new) to (line_old, col_old)
 
-    constructor(origSpecText, parser, moduleDefs) {
+    constructor(origSpecText, parser) {
         this.origSpecText = origSpecText;
         this.parser = parser;
         this.sourceMapOffsets = [];
-        // User-defined definitions within this module.
-        this.moduleDefs = moduleDefs;
     }
 
     /**
@@ -1013,32 +1011,6 @@ class SyntaxRewriter {
                         sourceRewrites.push(rewrite);
                         return sourceRewrites;
                     }
-
-                    // Rewrite simple definitions by replacing them with underlying definition expression.
-                    // e.g. part of so-called "beta-reduction".
-                    if (node.type === "identifier_ref") {
-                        let identName = node.text;
-
-                        // Handle only plain definitions with no args i.e. A == 5
-                        // 
-                        // TODO: Consider how to re-enable this logic safely (given interaction of syntax and semantics i.e. indenting).
-                        // We may want to ultimately just leave this disabled.
-                        // 
-
-                        // if(this.moduleDefs.hasOwnProperty(identName) && this.moduleDefs[identName].args.length == 0){
-                        //     console.log("FOUND MODULE DEF:", this.moduleDefs[identName]);
-                        //     // Replace the reference with the definition's expression. 
-                        //     let rewrite = {
-                        //         startPosition: node.startPosition,
-                        //         endPosition: node.endPosition,
-                        //         newStr: "(" + this.moduleDefs[identName].node.text + ")"
-                        //     }
-                        //     sourceRewrites.push(rewrite);
-                        //     return sourceRewrites;
-                        // }
-
-                    }
-
 
                     // Bound infix ops.
                     if (node.type === "bound_infix_op") {
@@ -1675,7 +1647,7 @@ class TLASpec {
         // console.log("MOD OP DEFS:", module_op_defs);
 
         // Perform syntactic rewrites.
-        let rewriter = new SyntaxRewriter(specText, parser, module_op_defs);
+        let rewriter = new SyntaxRewriter(specText, parser);
         let specTextRewritten = rewriter.doRewrites();
         specText = specTextRewritten;
 
