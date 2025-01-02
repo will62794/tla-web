@@ -749,7 +749,7 @@ class SyntaxRewriter {
         }
         const duration = (performance.now() - start).toFixed(1);
         console.log(`Completed spec rewriting in ${duration}ms`)
-        console.log(specTextRewritten);
+        // console.log(specTextRewritten);
         return specTextRewritten;
     }
 
