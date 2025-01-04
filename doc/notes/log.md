@@ -76,3 +76,15 @@ For a **replacement** `c <- d`, though, it is the case that `d` is a defined sym
 ## 2024-12-31
 
 Still TODO: properly work out how to capture "current context" for current variables, declarations, definitions that appeared *at the time* a definition was defined, and how to properly make this available in the interpreter.
+
+## 2025-01-04
+
+Whenever we evaluate an identifier that refers to something else i.e. a definition, we can consider this as moving into a new "scope". That is, the definitions/declarations that we had access to in the original expression may no longer be "in scope" for the new definition that is being evaluated.
+
+For substitutions, that can be defined by module instantation, for example, this means that in the scope of evaluating a definition, we may also need to consider these naming substitutions. For any definition, it has a scope of "current definitions" but also a set of "substitutions". Note that for a substitution like
+
+```tla
+h == 2
+INSTANCE M WITH val <- h
+```
+the substitution expression `h` also has its *own* scope of "current definitions", which is defined by the point of the `INSTANCE` declaration.
