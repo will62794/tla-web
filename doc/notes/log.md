@@ -91,4 +91,8 @@ the substitution expression `h` also has its *own* scope of "current definitions
 
 Note that module substitutions can refer to either `CONSTANT` or `VARIABLE` declarations (note that *declarations* are different from *definitions*).
 
-In general, if we expanded all definitions fully (i.e. apply all reductions), what is the role of "scopes" or "contexts" in this world? Is this helpful when thinking about a more unified model of definitions and "scoping"?
+In general, if we expanded all definitions fully (i.e. apply all reductions), what is the role of "scopes" or "contexts" in this world? Is this helpful when thinking about a more unified model of definitions and "scoping"? 
+
+If we expand all definitions fully, then, as Lamport notes, a top-level formula should only refer to
+
+> variables, primed variables, model values, and built-in TLA+ operators and constants.
