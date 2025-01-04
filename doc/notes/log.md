@@ -88,3 +88,5 @@ h == 2
 INSTANCE M WITH val <- h
 ```
 the substitution expression `h` also has its *own* scope of "current definitions", which is defined by the point of the `INSTANCE` declaration.
+
+Note that module substitutions can refer to either `CONSTANT` or `VARIABLE` declarations (note that *declarations* are different from *definitions*).
