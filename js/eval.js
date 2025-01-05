@@ -1634,7 +1634,9 @@ class TLASpec {
                 // that it can be evaluated correctly.
                 // 
                 for (const opName in parsedObj["op_defs"]) {
-                    let substPairs = substs.map(s => [s.namedChildren[0].text, s.namedChildren[2]]);
+                    // let substPairs = substs.map(s => [s.namedChildren[0].text, s.namedChildren[2]]);
+                    let substPairs = substs.map(s => [s.namedChildren[0].text, {"node":s.namedChildren[2], "curr_defs_context": _.keys(op_defs).concat(_.keys(fn_defs))}]);
+
                     console.log(substPairs);
                     let currentSubs = parsedObj["op_defs"][opName]["substitutions"];
                     // console.log("current subs:", currentSubs);
@@ -1684,6 +1686,13 @@ class TLASpec {
                 evalLog(`Found ${substs.length} substitutions for module instantiation.`, substs.map(s => s.text));
 
                 let parsedObj = self.parseSpecModule(self.moduleTable[modName]);
+                // For any declarations that appear in the instantiated module
+                // witout explicit substitutions, we fill them in implicitly
+                // with the identity substitution.
+                let allNonSubDecls = _.union(_.keys(parsedObj.var_decls), _.keys(parsedObj.const_decls)).filter(d => !substs.some(s => s.namedChildren[0].text === d));
+                let identitySubPairs = allNonSubDecls.map(d => [d, d]);
+                // console.log("IDENTITY SUBS:", _.fromPairs(identitySubPairs));
+                // console.log(_.union(_.keys(parsedObj.var_decls), _.keys(parsedObj.const_decls)));
 
                 if (!self.moduleTableParsed.hasOwnProperty(modName)) {
                     self.moduleTableParsed[modName] = parsedObj;
@@ -1698,12 +1707,14 @@ class TLASpec {
                 // 
                 for (const opName in parsedObj["op_defs"]) {
                     // console.log("opname:", opName);
-                    let substPairs = substs.map(s => [s.namedChildren[0].text, s.namedChildren[2]]);
+                    let substPairs = substs.map(s => [s.namedChildren[0].text, {"node":s.namedChildren[2], "curr_defs_context": _.keys(op_defs).concat(_.keys(fn_defs))}]);
                     // console.log(substPairs);
                     let currentSubs = parsedObj["op_defs"][opName]["substitutions"];
                     // console.log("current subs:", currentSubs);
                     // Add any new substitutions to already existing set of substitutions for this definition.
                     parsedObj["op_defs"][opName]["substitutions"] = _.merge(currentSubs, _.fromPairs(substPairs));
+                    // parsedObj["op_defs"][opName]["substitutions"] = _.merge(currentSubs, _.fromPairs(substPairs), _.fromPairs(identitySubPairs));
+                    // parsedObj["op_defs"][opName]["curr_defs_context"] =  _.keys(op_defs).concat(_.keys(fn_defs));
                     // console.log("new subs:", parsedObj["op_defs"][opName]["substitutions"]);
                 }
 
@@ -1721,11 +1732,12 @@ class TLASpec {
                     let origOpDef = parsedObj["op_defs"][opName];
 
 
-                    let substPairs = substs.map(s => [s.namedChildren[0].text, s.namedChildren[2]]);
+                    let substPairs = substs.map(s => [s.namedChildren[0].text, {"node":s.namedChildren[2], "curr_defs_context": _.keys(op_defs).concat(_.keys(fn_defs))}]);
                     // console.log(substPairs);
                     let currentSubs = parsedObj["op_defs"][opName]["substitutions"];
                     // Add any new substitutions to already existing set of substitutions for this definition.
                     let newSubs = _.merge(currentSubs, _.fromPairs(substPairs));
+                    // let newSubs = _.merge(currentSubs, _.fromPairs(substPairs), _.fromPairs(identitySubPairs));
                     // console.log("new subs:", parsedObj["op_defs"][opName]["substitutions"]);
 
                     // N.B. Notes on module semantics: https://lamport.azurewebsites.net/tla/newmodule.html
@@ -1989,7 +2001,9 @@ class TLASpec {
  * initial/next state generation.
  */
 class Context {
-    constructor(val, state, defns, quant_bound, constants, prev_func_val, operators_bound, module_table, eval_node, substitutionsNew, module_eval_namespace_prefix, var_decls_context) {
+    constructor(val, state, defns, quant_bound, constants, prev_func_val, operators_bound, module_table, 
+                eval_node, substitutionsNew, module_eval_namespace_prefix, 
+                var_decls_context, defns_curr_context) {
 
         // @type: TLAValue
         // The result value of a TLA expression, or 'null' if no result has been
@@ -2001,6 +2015,9 @@ class Context {
         // in-progress expression evaluation i.e. simply a mapping from
         // variable names to TLA values.
         this.state = state;
+
+        // Stores a global definition table that can be used to look up definitions across modules.
+        this.global_def_table = null;
 
         // @type: Object
         // Global definitions that exist in the specification, stored as mapping
@@ -2041,6 +2058,14 @@ class Context {
 
         // Stores whether some variables were declared at the time of definition the original context of an expression.
         this.var_decls_context = var_decls_context;
+
+        // Used to store the current set of definitions that existed (i.e. were
+        // in scope) for a given definition.
+        this.defns_curr_context = defns_curr_context;
+    }
+
+    setGlobalDefTable(global_def_table){
+        this.global_def_table = global_def_table;
     }
 
     cloneDeepVal(){
@@ -2086,16 +2111,18 @@ class Context {
         let substitutionsNew = _.cloneDeep(this.substitutions);
         let module_eval_namespace_prefix_new = _.cloneDeep(this.module_eval_namespace_prefix);
         let var_decls_context_new = _.cloneDeep(this.var_decls_context);
-
+        let defns_curr_context_new = _.cloneDeep(this.defns_curr_context);
         // For diagnostics to measure clone time and its impact on eval performance.
         const duration = (performance.now() - start);
         cloneTime = cloneTime + duration;
 
-        return new Context(
+        let ctxNew = new Context(
             valNew, stateNew, defnsNew, quant_boundNew, constants, prev_func_val,
             operators_boundNew, module_tableNew,
             eval_node, substitutionsNew,
-            module_eval_namespace_prefix_new, var_decls_context_new);
+            module_eval_namespace_prefix_new, var_decls_context_new, defns_curr_context_new);
+        ctxNew.setGlobalDefTable(this["global_def_table"]);
+        return ctxNew;
     }
 
     /**
@@ -2319,8 +2346,8 @@ function evalEq(lhs, rhs, ctx) {
     // Check for substitutions that may re-define this identifier.
     // We recursively apply substitutions until we reach a fixpoint, 
     // to handle the case of transitive module imports.
-    while (ctx.hasSubstitutionFor(identName)) {
-        let subNode = ctx["substitutions"][identName];
+    while (ctx.hasSubstitutionFor(identName) && ctx["substitutions"][identName].node.text !== identName) {
+        let subNode = ctx["substitutions"][identName].node;
         evalLog("Substituted node:", subNode.text, "for", identName);
         lhs = subNode;
         identName = subNode.text;
@@ -2859,7 +2886,7 @@ function evalPrefixedOp(node, ctx) {
     } else {
         opName = rhs.text
     }
-    console.log("opName, opArgs:", opName, opArgs);
+    console.log("opName, opArgs:", opName, opArgs, ctx);
 
     // 
     // If there are parameterized module arguments, then we evaluate this expression in the context of module
@@ -2905,25 +2932,25 @@ function evalPrefixedOp(node, ctx) {
     console.log("prefixedOpName:", prefixedOpName);
 
 
-    // Even if it this a prefixed op, this may still be being evaluated inside an expression from 
-    // a namespaced module instantiation e.g. M2!M3!Expr.
-    // 
-    // So, we can try to look up the definition based on the module namespace prefix.
-    // 
-    if (!ctx.hasOperatorBound(prefixedOpName) && ctx.hasOwnProperty("module_eval_namespace_prefix")) {
-        let modEvalPrefix = ctx["module_eval_namespace_prefix"];
-        // console.log("modEvalPrefix:", modEvalPrefix);
-        let prefixedEvalIdentName = modEvalPrefix + prefixedOpName;
-        // console.log("prefixedIdentName:", prefixedEvalIdentName);
-        // console.log(ctx["defns"]);
-        if(ctx.hasOwnProperty("defns") && ctx["defns"].hasOwnProperty(prefixedEvalIdentName)){
-            prefixedOpName = prefixedEvalIdentName;
-        }
-    }
+    let opDef = null;
 
     if (ctx.hasOperatorBound(prefixedOpName)) {
         // console.log("found prefixed op name:", prefixedOpName);
         opDef = ctx.getBoundOperator(prefixedOpName);
+    }
+
+    // Definitions are defined with a "current context" i.e. the set of
+    // variables, definitions, declarations that existed at the point of
+    // original definition in a module. So, we see if this could be a module
+    // based definition that we need to look up.
+    if(ctx.defns_curr_context !== undefined && ctx.defns_curr_context.includes(prefixedOpName)){
+        // Look up the def in the global module table.
+        opDef = ctx.global_def_table[prefixedOpName];
+    }
+
+    if (opDef !== null) {
+        // console.log("found prefixed op name:", prefixedOpName);
+        // opDef = ctx.getBoundOperator(prefixedOpName);
         // console.log(opDef);
         // console.log("module_param_args", opDef["module_param_args"])
 
@@ -2966,6 +2993,17 @@ function evalPrefixedOp(node, ctx) {
         if (opArgs.length > 0) {
             return evalUserBoundOp(rhs, opDef, newCtx);
         }
+
+        // Definitions are defined with a "current context" i.e. the set of
+        // variables, definitions, declarations that existed at the point of
+        // original definition in a module. So, when we go to evaluate this
+        // definition, we need to include these definitions in the evaluation
+        // context.
+        evalLog("opDef:", opDef);
+        if(opDef.hasOwnProperty("curr_defs_context")){
+            newCtx["defns_curr_context"] = opDef["curr_defs_context"];
+        }
+
         return evalExpr(opDef.node, newCtx);
     }
 }
@@ -3119,12 +3157,14 @@ function evalIdentifierRef(node, ctx) {
     // Are we in a "primed" evaluation context.
     let isPrimed = ctx.isPrimed();
 
-    // Check for substitutions (via module instantiations) that may re-define this identifier.
-    if (ctx.hasOwnProperty("module_eval_namespace_prefix") && ctx.hasSubstitutionFor(ident_name)) {
-        let subNode = ctx["substitutions"][ident_name];
+    if (ctx.hasSubstitutionFor(ident_name)) {
+        let subNode = ctx["substitutions"][ident_name].node;
         evalLog("Substituted node:", subNode.text, "for", ident_name);
-        // TODO: Recursive substitution loop that occurs if variable name clashes exist between root module and extended module?
-        return evalExpr(subNode, ctx.clone());
+        let newCtx = ctx.clone();
+        if(ctx["substitutions"][ident_name].hasOwnProperty("curr_defs_context")){
+            newCtx["defns_curr_context"] = ctx["substitutions"][ident_name].curr_defs_context;
+        }
+        return evalExpr(subNode, newCtx);
     }
 
     // 
@@ -3180,49 +3220,22 @@ function evalIdentifierRef(node, ctx) {
         return [ctx.withVal(bound_val)];
     }
 
-    // See if this identifier is a definition in the spec.
-    if (ctx.hasOwnProperty("defns") && ctx["defns"].hasOwnProperty(ident_name)) {
-        // Evaluate the definition in the current context.
-        let defNode = ctx["defns"][ident_name]["node"];
+    // Definitions are always defined with a "current context" i.e. the set of
+    // variables, definitions, declarations that existed at the point of
+    // original definition in a module.
+    if (ctx["defns_curr_context"] !== undefined && ctx["defns_curr_context"].includes(ident_name)) {
+        evalLog("EVAL defns_curr_context:", ctx["defns_curr_context"]);
+
+        // Look up the def in the global module table.
+        let defNode = ctx.global_def_table[ident_name]["node"];
+        assert(defNode !== undefined, "Could not find definition for identifier: " + ident_name);
 
         // Handle function definition case.
         if (defNode.type === "function_definition") {
             let quant_bounds = defNode.namedChildren.filter(n => n.type === "quantifier_bound");
             let fexpr = _.last(defNode.namedChildren);
             // console.log("EVAL function literal inner.")
-            // console.log("EVAL FCN LIT");
             return evalFunctionLiteralInner(ctx, quant_bounds, fexpr);
-
-        }
-        return evalExpr(defNode, ctx);
-    }
-
-    // If this identifier is being evaluated inside an expression from a namespaced module instantiation,
-    // then we can try to look up the definition based on the module namespace prefix.
-    if (ctx.hasOwnProperty("module_eval_namespace_prefix")) {
-        let modPrefix = ctx["module_eval_namespace_prefix"];
-        // console.log("modPrefix:", modPrefix);
-        let prefixedIdentName = modPrefix + ident_name;
-        // console.log("prefixedIdentName:", prefixedIdentName);
-        // console.log(ctx["defns"]);
-        if(ctx.hasOwnProperty("defns") && ctx["defns"].hasOwnProperty(prefixedIdentName)){
-            let modDefn = ctx["defns"][prefixedIdentName];
-            return evalExpr(modDefn.node, ctx.clone());
-        }
-
-    }
-
-    // See if this identifier is a definition from an imported/instantiated module.
-    if (ctx.hasOwnProperty("defns") && ctx["defns"].hasOwnProperty(ident_name)) {
-        // Evaluate the definition in the current context.
-        let defNode = ctx["defns"][ident_name]["node"];
-
-        // Handle function definition case.
-        if (defNode.type === "function_definition") {
-            let quant_bounds = defNode.namedChildren.filter(n => n.type === "quantifier_bound");
-            let fexpr = _.last(defNode.namedChildren);
-            return evalFunctionLiteralInner(ctx, quant_bounds, fexpr);
-
         }
         return evalExpr(defNode, ctx);
     }
@@ -3439,6 +3452,12 @@ function evalUserBoundOp(node, opDefObj, ctx){
         }
 
     }
+
+    let origCurrDefns = opEvalContext["defns_curr_context"];
+    if(opDefObj !== undefined && opDefObj.hasOwnProperty("curr_defs_context")){
+        opEvalContext["defns_curr_context"] = opDefObj["curr_defs_context"];
+    }
+
     evalLog("opEvalContext:", opEvalContext);
     ret = evalExpr(opDefNode, opEvalContext);
 
@@ -3447,6 +3466,7 @@ function evalUserBoundOp(node, opDefObj, ctx){
     // appropriate variable declaration context and we don't want this to
     // propagate through to other evaluation contexts upon return.
     ret.map(c => c.var_decls_context = undefined);
+    ret.map(c => c.defns_curr_context = origCurrDefns);
     
     return ret;
 }
@@ -4491,7 +4511,7 @@ function evalExpr(node, ctx) {
  * initial state predicate and an object 'vars' which contains exactly the
  * specification's state variables as keys.
  */
-function getInitStates(initDef, vars, defns, constvals, moduleTable) {
+function getInitStates(initDef, vars, defns, constvals, moduleTable, globalDefTable) {
     // TODO: Pass this variable value as an argument to the evaluation functions.
     ASSIGN_PRIMED = false;
     depth = 0;
@@ -4507,6 +4527,8 @@ function getInitStates(initDef, vars, defns, constvals, moduleTable) {
     // branch, which contains a computed value along with a list of 
     // generated states.
     let initCtx = new Context(null, emptyInitState, defns, {}, constvals, null, null, moduleTable);
+    initCtx.setGlobalDefTable(globalDefTable);
+    initCtx["defns_curr_context"] = defns["Init"]["curr_defs_context"];
 
     let ret_ctxs = evalExpr(initDef, initCtx);
     if (ret_ctxs === undefined) {
@@ -4519,7 +4541,7 @@ function getInitStates(initDef, vars, defns, constvals, moduleTable) {
  * Generates all possible successor states from a given state and the syntax
  * tree node for the definition of the next state predicate.
  */
-function getNextStates(nextDef, currStateVars, defns, constvals, moduleTable) {
+function getNextStates(nextDef, currStateVars, defns, constvals, moduleTable, globalDefTable) {
     // TODO: Pass this variable value as an argument to the evaluation functions.
     ASSIGN_PRIMED = true;
     depth = 0;
@@ -4532,6 +4554,8 @@ function getNextStates(nextDef, currStateVars, defns, constvals, moduleTable) {
     evalLog("currStateVars:", currStateVars);
 
     let initCtx = new Context(null, currStateVars, defns, {}, constvals, null, null, moduleTable);
+    initCtx.setGlobalDefTable(globalDefTable);
+    initCtx["defns_curr_context"] = defns["Next"]["curr_defs_context"];
     // console.log("currStateVars:", currStateVars);
     let ret = evalExpr(nextDef, initCtx);
     evalLog("getNextStates eval ret:", ret);
@@ -4579,7 +4603,7 @@ function getNextStates(nextDef, currStateVars, defns, constvals, moduleTable) {
 
 class TlaInterpreter {
 
-    computeInitStates(treeObjs, constvals, includeFullCtx) {
+    computeInitStates(treeObjs, constvals, includeFullCtx, spec) {
         var includeFullCtx = includeFullCtx || false;
 
         let consts = treeObjs["const_decls"];
@@ -4596,7 +4620,7 @@ class TlaInterpreter {
         evalLog("initDef.childCount: ", initDef["node"].childCount);
         evalLog("initDef.type: ", initDef["node"].type);
 
-        let initStates = getInitStates(initDef["node"], vars, defns, constvals, treeObjs["module_table"]);
+        let initStates = getInitStates(initDef["node"], vars, defns, constvals, treeObjs["module_table"], spec.globalDefTable);
         // Keep only the valid states.
         if(includeFullCtx){
             return initStates.filter(actx => actx["val"].getVal())
@@ -4605,7 +4629,7 @@ class TlaInterpreter {
         }
     }
 
-    computeNextStates(treeObjs, constvals, initStates, action) {
+    computeNextStates(treeObjs, constvals, initStates, action, spec) {
         let consts = treeObjs["const_decls"];
         let vars = treeObjs["var_decls"];
         let defns = treeObjs["op_defs"];
@@ -4621,13 +4645,13 @@ class TlaInterpreter {
             nextDef = action;
         }
         // console.log(defns);
-        // console.log("<<<< NEXT >>>>");
+        // console.log("<<<< NEXT >>>>");       
 
         let allNext = [];
         for (const istate of initStates) {
             let currState = _.cloneDeep(istate);
             // console.log("###### Computing next states from state: ", currState);
-            let ret = getNextStates(nextDef, currState, defns, constvals, treeObjs["module_table"]);
+            let ret = getNextStates(nextDef, currState, defns, constvals, treeObjs["module_table"], spec.globalDefTable);
             allNext = allNext.concat(ret);
         }
         return allNext;
@@ -4638,7 +4662,9 @@ class TlaInterpreter {
      * constant values. If 'checkInvExpr' is given, check if this invariant
      * holds in each state, and terminate upon encountering the first violation.
      */
-    computeReachableStates(treeObjs, constvals, checkInvExpr) {
+    computeReachableStates(treeObjs, constvals, checkInvExpr, spec) {
+        // console.log("TREEOBJS:", treeObjs);
+        // console.log("TREEOBJS:", spec.globalDefTable);
         let vars = treeObjs["var_decls"];
         let defns = treeObjs["op_defs"];
 
@@ -4647,7 +4673,8 @@ class TlaInterpreter {
 
         // Compute initial states and keep only the valid ones.
         // let initStates = getInitStates(initDef["node"], vars, defns, constvals);
-        let initStates = this.computeInitStates(treeObjs, constvals);
+        console.log("[INIT] Computing initial states");
+        let initStates = this.computeInitStates(treeObjs, constvals, undefined, spec);
 
         let initStatesOrig = _.cloneDeep(initStates);
         let stateQueue = initStates;
@@ -4675,7 +4702,7 @@ class TlaInterpreter {
             // Compute next states reachable from the current state, and add
             // them to the state queue.
             let currStateArg = _.cloneDeep(currState);
-            let nextStateCtxs = this.computeNextStates(treeObjs, constvals, [currStateArg])
+            let nextStateCtxs = this.computeNextStates(treeObjs, constvals, [currStateArg], undefined, spec)
             let nextStates = nextStateCtxs.map(c => c["state"].deprimeVars());
             console.log("nextStates:", nextStates);
             // console.log("reachableStates:", reachableStates);

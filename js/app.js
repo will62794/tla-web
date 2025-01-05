@@ -1131,6 +1131,8 @@ function getActionLabelText(actionLabel, quantBounds) {
 function animationViewForTraceState(state){
     let viewNode = model.specTreeObjs["op_defs"][model.animViewDefName].node;
     let initCtx = new Context(null, state, model.specDefs, {}, model.specConstVals);
+    initCtx.setGlobalDefTable(model.spec.globalDefTable);
+    initCtx["defns_curr_context"] = model.specDefs[model.animViewDefName]["curr_defs_context"];
     let start = performance.now();
     // evalNodeGraph = [];
     let ret = evalExpr(viewNode, initCtx);
