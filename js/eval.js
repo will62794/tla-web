@@ -2355,6 +2355,34 @@ function evalEq(lhs, rhs, ctx) {
 
     let isUnprimedVar = ctx.state.hasVar(identName) && !isPrimedVar(lhs, ctx);
 
+    // 
+    // Even if a left hand side does not directly refer to a variable, it is
+    // possible it may refer to a definition that ultimately resolves to a
+    // variable reference. We check this via repeated reduction of the left
+    // hand side expression.
+    // 
+    // TODO: Eventually need to apply this definition lookup recursively, and
+    // for it to handle full beta reduction e.g. operators, etc.
+    //
+    if (!isUnprimedVar && !isPrimedVar(lhs, ctx) &&
+        ctx["defns_curr_context"] !== undefined && ctx["defns_curr_context"].includes(identName)) {
+        console.log("EVAL EQ defns_curr_context:", ctx["defns_curr_context"]);
+
+        // Look up the def in the global module table.
+        let defNode = ctx.global_def_table[identName]["node"];
+        assert(defNode !== undefined, "Could not find definition for identifier: " + identName);
+        console.log("EVAL EQ defNode:", defNode);
+
+        isUnprimedVar = ctx.state.hasVar(defNode.text) && !isPrimedVar(defNode, ctx);
+        if (isUnprimedVar || isPrimedVar(defNode, ctx)) {
+            console.log("Updating lhs to defNode:", defNode.text);
+            lhs = defNode;
+            identName = defNode.text;
+        }
+    }
+
+
+
     if (isPrimedVar(lhs, ctx) || (isUnprimedVar && !ASSIGN_PRIMED)) {
         // Update assignments for all current evaluation ctx.
 
