@@ -325,7 +325,7 @@ async function testStateGraphEquiv(testId, stateGraph, parsedSpec, specPath, con
         { "spec": "simple_extends_instance_def_with_subst", "constvals": undefined },
         { "spec": "simple_extends_instance_def_with_var_subst_one_implicit", "constvals": undefined },
         // TODO: Re-enable this once we figure out how to handle recursive beta reduction for variable assignment.
-        // { "spec": "simple_extends_instance_def_with_var_subst_same_name", "constvals": undefined },
+        { "spec": "simple_extends_instance_with_var_subst_identity", "constvals": undefined },
         // { "spec": "simple_extends_instance_def_with_var_subst_default_name", "constvals": undefined },
         { "spec": "simple_extends_instance_with_var_and_const_subst", "constvals": undefined },
         { "spec": "simple_extends_instance_with_var_and_const_subst_transitive", "constvals": undefined },
