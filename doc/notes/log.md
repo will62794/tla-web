@@ -96,3 +96,43 @@ In general, if we expanded all definitions fully (i.e. apply all reductions), wh
 If we expand all definitions fully, then, as Lamport notes, a top-level formula should only refer to
 
 > variables, primed variables, model values, and built-in TLA+ operators and constants.
+
+## 2025-01-05
+
+Also need to consider the case of "global" definitions that may have name clashes?
+e.g.
+```tla
+---- MODULE simple_extends_instance ----
+EXTENDS Sequences, Naturals
+
+H1 == INSTANCE simple_extends_M3
+H2 == INSTANCE simple_extends_M4
+VARIABLES x
+
+Init == 
+    \/ x = H1!ExprM3 + 3 + H2!ExprM3
+
+Next == x' = x
+
+====
+```
+
+where 
+
+```tla
+---- MODULE simple_extends_M3 ----
+EXTENDS Sequences
+
+ExprM3 == 43
+
+====
+```
+
+```tla
+---- MODULE simple_extends_M4 ----
+EXTENDS Sequences
+
+ExprM3 == 45
+
+====
+```
