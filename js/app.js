@@ -1748,7 +1748,7 @@ function stateSelectionPane(hidden){
             class: "form-check-label",
             for: "fullNextStatesSwitchCheck",
             role: "switch"
-        }, "Show next states (variable diff)")
+        }, "Show full next states (variable diff)")
     ]);
     // return m("div", {id:"mid-pane", hidden: hidden}, 
     return m("div", {id: "state-choices-pane", hidden: hidden}, [
