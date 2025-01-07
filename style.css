@@ -930,3 +930,8 @@ body {
   .form-check-input:hover{
     cursor: pointer;
   }
+  .show-full-next-states-switch{
+    margin-left:10px;
+    margin-top:5px;
+    font-size:14px;
+  }

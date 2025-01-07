@@ -69,6 +69,7 @@ let model = {
     animViewDefName: "AnimView",
     lockedTrace: null,
     lockedTraceActions: null,
+    showStateDiffsInSelection: false,
 }
 
 const exampleSpecs = {
@@ -494,7 +495,7 @@ function componentNextStateChoiceElementForAction(ind, actionLabel, nextStatesFo
     return nextStateElem;
 }
 
-function componentNextStateChoiceElement(stateObj, ind, actionLabel) {
+function componentNextStateChoiceElement(stateObj, ind, actionLabel, diffOnly) {
     let state = stateObj["state"];
     let stateQuantBounds = stateObj["quant_bound"];
     let hash = state.fingerprint();
@@ -502,6 +503,14 @@ function componentNextStateChoiceElement(stateObj, ind, actionLabel) {
     let varNames = _.keys(state.getStateObj());
     let actionLabelObj = getActionLabelText(actionLabel, stateQuantBounds);
     let actionLabelText = actionLabelObj.name + actionLabelObj.params;
+
+    // If we are showing diffs only, then only show vars that have changed from the current state to this one.
+    if (model.currTrace.length > 0 && diffOnly) {
+        let currState = model.currTrace[model.currTrace.length - 1]["state"];
+        varNamesChanged = state.varDiff(currState);
+        console.log("varNamesChanged:", varNamesChanged);
+        varNames = varNames.filter(v => varNamesChanged.includes(v));
+    }
 
     let stateVarElems = varNames.map((varname, idx) => {
         let cols = [
@@ -528,7 +537,8 @@ function componentNextStateChoiceElement(stateObj, ind, actionLabel) {
     }
     // Show full states for initial state choices.
     // TODO: Possibly have option to toggle this behavior.
-    if(model.currTrace.length === 0 || actionLabelText.length === 0){
+    // When showing diffs only, we always show the full (diff'd) state, possible also with action label.
+    if(model.currTrace.length === 0 || actionLabelText.length === 0 || diffOnly){
         allElems = allElems.concat(stateVarElems);
     }
 
@@ -580,7 +590,21 @@ function componentNextStateChoices(nextStates) {
             let nextStateElem = componentNextStateChoiceElement(state, i);
             nextStateElems.push(nextStateElem);
         }
-    } else {
+    }
+    else if (model.showStateDiffsInSelection && model.currTrace.length > 0) {
+        let diffOnly = true;
+        for (const [actionId, nextStatesForAction] of Object.entries(nextStates)) {
+            let i = 0;
+            let action = model.actions[actionId];
+            for (const state of nextStatesForAction) {
+                // let nextStateElem = componentNextStateChoiceElement(state, i, action.name);
+                let nextStateElem = componentNextStateChoiceElement(state, i, action.name, diffOnly);
+                nextStateElems.push(nextStateElem);
+                i += 1;
+            }
+        }
+    }
+    else {
         // Action specific case.
         for (const [actionId, nextStatesForAction] of Object.entries(nextStates)) {
             let i = 0;
@@ -1709,9 +1733,27 @@ function specEditorPane(hidden){
 }
 
 function stateSelectionPane(hidden){
+
+    let fullNextStatesSwitch = m("div", { class: "form-check form-switch show-full-next-states-switch", hidden: model.currTrace.length === 0 }, [
+        m("input", {
+            class: "form-check-input",
+            type: "checkbox",
+            role: "switch",
+            id: "fullNextStatesSwitchCheck",
+            onclick: function (event) {
+                model.showStateDiffsInSelection = !model.showStateDiffsInSelection;
+            }
+        }),
+        m("label", {
+            class: "form-check-label",
+            for: "fullNextStatesSwitchCheck",
+            role: "switch"
+        }, "Show next states (variable diff)")
+    ]);
     // return m("div", {id:"mid-pane", hidden: hidden}, 
     return m("div", {id: "state-choices-pane", hidden: hidden}, [
         // chooseConstantsPane(),
+        fullNextStatesSwitch,
         // m("h5", { id: "poss-next-states-title", class: "" }, (model.currTrace.length > 0) ? "Choose Next Action" : "Choose Initial State"),
         m("div", { id: "initial-states", class: "tlc-state" }, [
             model.currTrace.length === 0 && model.nextStatePred !== null ? m("div", {style: "padding:10px;"}, "Choose Initial State") : m("span"),
