@@ -646,7 +646,7 @@ function recomputeNextStates(fromState) {
         }
         nextStates = nextStatesByAction;
     } else {
-        nextStates = interp.computeNextStates(model.specTreeObjs, model.specConstVals, [fromState])
+        nextStates = interp.computeNextStates(model.specTreeObjs, model.specConstVals, [fromState], undefined, model.spec)
             .map(c => {
                 let deprimed = c["state"].deprimeVars();
                 return { "state": deprimed, "quant_bound": c["quant_bound"] };
