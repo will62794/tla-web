@@ -1750,6 +1750,9 @@ function stateSelectionPane(hidden){
             role: "switch"
         }, "Show full next states (variable diff)")
     ]);
+
+    let fetchingInProgress = model.rootModName.length === 0 && !model.loadSpecFailed;
+
     // return m("div", {id:"mid-pane", hidden: hidden}, 
     return m("div", {id: "state-choices-pane", hidden: hidden}, [
         // chooseConstantsPane(),
@@ -1757,7 +1760,7 @@ function stateSelectionPane(hidden){
         // m("h5", { id: "poss-next-states-title", class: "" }, (model.currTrace.length > 0) ? "Choose Next Action" : "Choose Initial State"),
         m("div", { id: "initial-states", class: "tlc-state" }, [
             model.currTrace.length === 0 && model.nextStatePred !== null ? m("div", {style: "padding:10px;"}, "Choose Initial State") : m("span"),
-            model.nextStatePred === null ? m("div", {style: "padding:20px;"}, "No transition relation found. Spec can be explored in the REPL.") : m("span"),
+            model.nextStatePred === null && !fetchingInProgress ? m("div", {style: "padding:20px;"}, "No transition relation found. Spec can be explored in the REPL.") : m("span"),
             componentNextStateChoices()
         ]),
     ]);    
