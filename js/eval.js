@@ -2366,12 +2366,12 @@ function evalEq(lhs, rhs, ctx) {
     //
     if (!isUnprimedVar && !isPrimedVar(lhs, ctx) &&
         ctx["defns_curr_context"] !== undefined && ctx["defns_curr_context"].includes(identName)) {
-        console.log("EVAL EQ defns_curr_context:", ctx["defns_curr_context"]);
+        // console.log("EVAL EQ defns_curr_context:", ctx["defns_curr_context"]);
 
         // Look up the def in the global module table.
         let defNode = ctx.global_def_table[identName]["node"];
         assert(defNode !== undefined, "Could not find definition for identifier: " + identName);
-        console.log("EVAL EQ defNode:", defNode);
+        // console.log("EVAL EQ defNode:", defNode);
 
         isUnprimedVar = ctx.state.hasVar(defNode.text) && !isPrimedVar(defNode, ctx);
         if (isUnprimedVar || isPrimedVar(defNode, ctx)) {
