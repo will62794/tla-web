@@ -1927,29 +1927,24 @@ function midPane() {
     ];
 }
 
-function resizer(e) {
+// 
+// Event handlers for pane resizing.
+// 
 
+let resize_initial_pos_x = null;
+function resize_mousemove(e){
     const leftPane = document.querySelector("#mid-pane");
-    // const rightPane = document.querySelector(".right");
-    // const gutter = document.querySelector(".gutter");
-    
+    const rightPane = document.querySelector("#trace-container");
 
-    window.addEventListener('mousemove', mousemove);
-    window.addEventListener('mouseup', mouseup);
+    // Expand/contract left and right panes.
+    leftPane.style.width = e.x - leftPane.getBoundingClientRect().left + 'px';
+    rightPane.style.width = rightPane.getBoundingClientRect().right - e.x +  'px';
+}
 
-    let prevX = e.x;
-    const leftPanel = leftPane.getBoundingClientRect();
-
-    function mousemove(e) {
-        let newX = prevX - e.x;
-        leftPane.style.width = leftPanel.width - newX + "px";
-    }
-
-    function mouseup() {
-        window.removeEventListener('mousemove', mousemove);
-        window.removeEventListener('mouseup', mouseup);
-    }
-
+function resize_mouseup(e){
+    // Remove all resizing event listeners.
+    window.removeEventListener('mousemove', resize_mousemove);
+    window.removeEventListener('mouseup', resize_mouseup);
 }
 
 function tracePane() {
@@ -2102,7 +2097,13 @@ function resizeGutter() {
         },
         "src": "assets/drag-handle-svgrepo-com.svg",
         onmousedown: (e) => {
-            resizer(e)
+            // resizer(e)
+            resize_initial_pos_x = e.x;
+            window.addEventListener('mousemove', resize_mousemove);
+            window.addEventListener('mouseup', resize_mouseup);
+        },
+        onmouseup: (e) => {
+            window.removeEventListener('mousemove', resize_mousemove);
         },
         ondragstart : function() { return false; }
     }, "O"))

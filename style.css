@@ -650,9 +650,8 @@ body {
     /* float:left; */
     /* border-left:solid 2px lightgray; */
 
-    flex-grow: 1; /* default 0 */
     position: relative;
-    min-width: 45%;
+    min-width: 30%;
     /* border:solid 1px red; */
   }
 
@@ -673,7 +672,7 @@ body {
     cursor: col-resize;
     text-align: center;
     width: 7px;
-    height:35px;
+    height:100px;
   }
 
   #repl-container {
