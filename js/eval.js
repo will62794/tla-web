@@ -2345,6 +2345,37 @@ function isPrimedVar(treeNode, ctx) {
         ctx.state.hasVar(lhs.text) && ctx.state.getVarVal(lhs.text) !== null);
 }
 
+// Recursively unrolls definitions until we reach an expression that no longer points to another
+// definition (e.g. a variant of "beta reduction")
+function applyDefReduction(node, ctx){
+    evalLog("defReduction:", node, ctx);
+
+    // let currDefNode = node;
+    let currDefNode = node;
+    let currDefCtx = ctx["defns_curr_context"];
+    let currIdentName = currDefNode.text;
+
+    while (currDefCtx !== undefined && currDefCtx.includes(currIdentName)) {
+
+        // Look up the def in the global module table.
+        currDef = ctx.global_def_table[currIdentName];
+        currDefNode = currDef.node;
+        assert(currDef.node !== undefined, "Could not find definition for identifier: " + currIdentName);
+        // console.log("EVAL EQ defNode:", defNode);
+
+        evalLog("defReduction step:", currIdentName, currDef.node.text, currDef, ctx);
+
+        currDefCtx = currDef.curr_defs_context;
+        currIdentName = currDef.node.text;
+        evalLog(currDefCtx)
+        
+    }
+    evalLog("defReduction returning:", currDefNode);
+
+    return currDefNode;
+
+}
+
 function evalEq(lhs, rhs, ctx) {
     assert(ctx instanceof Context);
 
