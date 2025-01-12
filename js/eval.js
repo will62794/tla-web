@@ -1634,21 +1634,29 @@ class TLASpec {
                 // that it can be evaluated correctly.
                 // 
                 for (const opName in parsedObj["op_defs"]) {
-                    // let substPairs = substs.map(s => [s.namedChildren[0].text, s.namedChildren[2]]);
-                    let substPairs = substs.map(s => [s.namedChildren[0].text, {"node":s.namedChildren[2], "curr_defs_context": _.keys(op_defs).concat(_.keys(fn_defs))}]);
+                    let origOpDef = parsedObj["op_defs"][opName];
 
-                    console.log(substPairs);
+                    let substPairs = substs.map(s => [s.namedChildren[0].text, {"node":s.namedChildren[2], "curr_defs_context": _.keys(op_defs).concat(_.keys(fn_defs))}]);
                     let currentSubs = parsedObj["op_defs"][opName]["substitutions"];
-                    // console.log("current subs:", currentSubs);
+
                     // Add any new substitutions to already existing set of substitutions for this definition.
                     parsedObj["op_defs"][opName]["substitutions"] = _.merge(currentSubs, _.fromPairs(substPairs));
-                    // console.log("new subs:", parsedObj["op_defs"][opName]["substitutions"]);
-                }
 
-                op_defs = _.merge(op_defs, parsedObj["op_defs"]);
-                self.globalDefTable = _.merge(self.globalDefTable, parsedObj["op_defs"]);
-                
-                // console.log("op defs:", parsedObj["op_defs"])
+                    let newSubs = _.merge(currentSubs, _.fromPairs(substPairs));
+
+                    op_defs[opName] = { 
+                        "name": opName, 
+                        "args": origOpDef.args, 
+                        "node": origOpDef.node, 
+                        "name_prefix": "", 
+                        "module_name": modName,
+                        "substitutions": newSubs,
+                        "module_defs": parsedObj["op_defs"],
+                        "module_param_args": null,
+                        "curr_defs_context": origOpDef["curr_defs_context"]
+                    };
+                    self.globalDefTable[opName] = op_defs[opName];
+                }
             }
 
             //
