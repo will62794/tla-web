@@ -243,7 +243,8 @@ async function testStateGraphEquiv(testId, stateGraph, parsedSpec, specPath, con
             // { "spec": "simple_constant_operator", "constvals": {"Op": "Op1"} },
             { "spec": "simple_infix_def", "constvals": undefined },
             { "spec": "simple_enabled", "constvals": undefined },
-            { "spec": "simple_fcn", "constvals": undefined },
+            { "spec": "simple_fcn_literal", "constvals": undefined },
+            { "spec": "simple_fcn_def", "constvals": undefined },
             // TODO: Re-enable this test once we figure out how to handle lazy evaluation.
             // { "spec": "simple_lazy", "constvals": undefined },
             { "spec": "simple_subset", "constvals": undefined },
