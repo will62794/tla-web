@@ -61,12 +61,14 @@ For example, consider the following example:
 A == 22
 C == A + 2
 ====
-
+```
+```tla
 ---- MODULE M2 ----
 A == 44
 B == A + 1
 ====
-
+```
+```tla
 ---- MODULE M ----
 M1Inst == INSTANCE M1
 M2Inst == INSTANCE M2
