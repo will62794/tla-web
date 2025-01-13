@@ -51,6 +51,31 @@ So, when we consider substitutions, this means that definitions also have an add
 
 Note, importantly, that substitutions have subtle scoping semantics. For example, the evaluation of `e1`, the expression that was substitued for `d1`, really exists within the context of the current module, not in the context of some point in `M`. So, when specifically evaluating `e1` its context should be that the context that was current at the time of `INSTANCE` statement in the root module.
 
+## Naming
+
+Note that there are also some subtle aspects of definition naming and contexts to be considered. Specifically reltaed to definition names not being unique across modules. 
+
+For example, consider the following example:
+```tla
+---- MODULE M1 ----
+A == 22
+C == A + 2
+====
+
+---- MODULE M2 ----
+A == 44
+B == A + 1
+====
+
+---- MODULE M ----
+M1Inst == INSTANCE M1
+M2Inst == INSTANCE M2
+===
+```
+In module `M`, we now have access to definitions `M1Inst!A` and `M2Inst!A`. But, if we, for example, were considering a global lookup table for all definitions that existed across modules, the `A` defined in `M1` and the `A` defined in `M2` might have the same name at the time of their original definition, but they are clearly different definitions. So, we need to take care of this type of case by enforcing some kind of uniqueness in definition naming references. 
+
+In particular, if we assume that, across all modules needed to resolve a root module, module names will be unique, then we should be able to use the name of a definition's parent module to disambiguate definitions with the same name. That is, the definition `C` inside `M1` may refer to something called `A`, but this should really capture the fact that this is the `A` defined inside `M1`, not inside `M2`. 
+
 
 
 
