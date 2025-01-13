@@ -136,3 +136,8 @@ ExprM3 == 45
 
 ====
 ```
+
+
+## 2025-01-13
+
+Need to continue working on and finish off conversion to have definitions stored and referenced by globally unique identifier ids, and all evaluations of identifers occur based on the "current context" in which those definitions were defined. Need to also make sure substitutions for module instantiations are working correctly.
