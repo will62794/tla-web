@@ -8,7 +8,7 @@ VARIABLES x
 InternalExpr == 5
 
 Init == 
-    \/ x = InternalExpr + EternalExpr
+    \/ x = InternalExpr + ExternalExpr
 
 Next == x' = x
 

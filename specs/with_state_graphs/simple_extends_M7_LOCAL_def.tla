@@ -2,6 +2,6 @@
 EXTENDS Sequences, Naturals
 
 LOCAL InternalExpr == 12
-EternalExpr == 14 + InternalExpr
+ExternalExpr == 14 + InternalExpr
 
 ====
