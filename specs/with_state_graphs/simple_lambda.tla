@@ -30,13 +30,7 @@ Init ==
     \/ x = <<"6", Op2(Plus, 59, 12)>>
     \/ x = <<"6", Op2(Plus, 49, M)>>
     \/ x = <<"7", Op4(Plus, LAMBDA i,j,k: i * j * k, 45, 12, 65)>>
-    \* LET defined operator used an argument to higher order operator.
-    \/ x = <<"8", (LET MyOpA(i,j) == i + j IN
-                    Op2(MyOpA, 12, 18))>>
-    \/ x = <<"9", (LET MyOpA(i,j) == i + j
-                    MyOpB(u,v,h) == u + v * h IN
-                    Op4(MyOpA, MyOpB, 12, 13, M))>>
-    
+
 Next ==
     x' = x
 
