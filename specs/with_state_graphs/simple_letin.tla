@@ -17,6 +17,5 @@ Init ==
     \/ x = LET Op1(a) == a + 3 
                Op2(u, v) == u + v IN
                Op1(12) * Op2(3, 4)
-    \/ x = LET myfn[a \in {1,2}] == a + 1 IN myfn[2]
 Next == x' = x 
 ====
