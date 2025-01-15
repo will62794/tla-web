@@ -1495,6 +1495,7 @@ function onSpecParse(newText, parsedSpecTree, spec){
     model.specDefs = model.specTreeObjs["op_defs"];
     model.specAlias = model.specTreeObjs["op_defs"]["Alias"];
 
+    model.animationExists = model.spec.hasDefinitionByName(model.animViewDefName);
     if(hasNext){
         model.nextStatePred = model.specTreeObjs["op_defs"]["Next"]["node"];
     }
