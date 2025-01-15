@@ -149,7 +149,13 @@ HandleReadMessage ==
     /\ network[SystemID] # <<>>
     /\ LET msg == Head(network[SystemID])
            readResults ==
-              CASE msg.consistencyLevel = StrongConsistency ->
+              CASE 
+                \* TODO: Remove this guarding case condition once we have worked
+                \* out lazy evaluation properly for these kinds of LET-IN
+                \* expressions.
+                "consistencyLevel" \notin DOMAIN msg -> {}
+                
+                [] msg.consistencyLevel = StrongConsistency ->
                     MCosmosDB!StrongConsistencyRead(msg.key)
                 [] msg.consistencyLevel = BoundedStaleness ->
                     MCosmosDB!BoundedStalenessRead(msg.key)
