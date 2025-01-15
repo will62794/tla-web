@@ -2088,6 +2088,8 @@ class Context {
         // Stores a global definition table that can be used to look up definitions across modules.
         this.global_def_table = null;
 
+        this.spec_obj = null;
+
         // @type: Object
         // Global definitions that exist in the specification, stored as mapping
         // from definition names to their syntax tree node.
@@ -2135,6 +2137,19 @@ class Context {
 
     setGlobalDefTable(global_def_table){
         this.global_def_table = global_def_table;
+    }
+
+    setSpecObj(spec_obj){
+        this.spec_obj = spec_obj;
+    }
+
+    getDefnInCurrContext(defnName) {
+        return _.find(this.global_def_table, o => o.name === defnName && this["defns_curr_context"].includes(o.id));
+    }
+
+    hasDefnInCurrContext(defnName) {
+        return this["defns_curr_context"] !== undefined &&
+            this["defns_curr_context"].map(defid => this.global_def_table[defid].name).includes(defnName);
     }
 
     cloneDeepVal(){
@@ -2191,6 +2206,8 @@ class Context {
             eval_node, substitutionsNew,
             module_eval_namespace_prefix_new, var_decls_context_new, defns_curr_context_new);
         ctxNew.setGlobalDefTable(this["global_def_table"]);
+        ctxNew.setSpecObj(this.spec_obj);
+        ctxNew.setPrimed(this.primed);
         return ctxNew;
     }
 
@@ -2269,6 +2286,10 @@ class Context {
      */
     isPrimed() {
         return this.primed;
+    }
+
+    setPrimed(primed){
+        this.primed = primed;
     }
 
     /**
