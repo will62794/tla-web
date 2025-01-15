@@ -3152,8 +3152,9 @@ function evalBoundPostfix(node, ctx) {
     let lhs = node.namedChildren[0];
     let symbol = node.namedChildren[1];
 
-    evalLog("POSTFIX:", node);
+    evalLog("Bound POSTFIX:", node);
     if (symbol.type === "prime") {
+        evalLog("Evaluating expression in PRIMED (') context");
         return evalExpr(lhs, ctx.withPrimed());
     }
 
