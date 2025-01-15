@@ -29,7 +29,7 @@
       ]
     },
     {
-      "name": "%195",
+      "name": "%193",
       "color": "white",
       "nodesep": "0.35",
       "rank": "same",
@@ -39,7 +39,7 @@
       ]
     },
     {
-      "name": "%197",
+      "name": "%195",
       "color": "white",
       "nodesep": "0.35",
       "rank": "same",
@@ -49,7 +49,7 @@
       ]
     },
     {
-      "name": "%199",
+      "name": "%197",
       "color": "white",
       "nodesep": "0.35",
       "rank": "same",
@@ -59,7 +59,7 @@
       ]
     },
     {
-      "name": "%201",
+      "name": "%199",
       "color": "white",
       "nodesep": "0.35",
       "rank": "same",
@@ -69,7 +69,7 @@
       ]
     },
     {
-      "name": "%203",
+      "name": "%201",
       "color": "white",
       "nodesep": "0.35",
       "rank": "same",
@@ -79,7 +79,7 @@
       ]
     },
     {
-      "name": "%205",
+      "name": "%203",
       "color": "white",
       "nodesep": "0.35",
       "rank": "same",
@@ -89,7 +89,7 @@
       ]
     },
     {
-      "name": "%207",
+      "name": "%205",
       "color": "white",
       "nodesep": "0.35",
       "rank": "same",
@@ -99,7 +99,7 @@
       ]
     },
     {
-      "name": "%209",
+      "name": "%207",
       "color": "white",
       "nodesep": "0.35",
       "rank": "same",
@@ -109,7 +109,7 @@
       ]
     },
     {
-      "name": "%211",
+      "name": "%209",
       "color": "white",
       "nodesep": "0.35",
       "rank": "same",
@@ -120,184 +120,184 @@
     },
     {
       "_gvid": 10,
-      "name": "982984671360178459",
-      "label": "\/\\\\ epoch = 1\\n\/\\\\ frontdoorToken = [epoch |-> 0, checkpoint |-> 0]\\n\/\\\\ workerToken = [epoch |-> 0, checkpoint |-> 0]\\n\/\\\\ WriteConsistencyLevel = SessionConsistency\\n\/\\\\ frontdoorPC = \"frontdoorWriteTaskDataSend\"\\n\/\\\\ serviceBus = <<>>\\n\/\\\\ workerValue = \"NoValue\"\\n\/\\\\ commitIndex = 0\\n\/\\\\ returnAddrMap = <<>>\\n\/\\\\ readIndex = 0\\n\/\\\\ log = <<>>\\n\/\\\\ network = [SystemID |-> <<>>, frontdoor |-> <<>>, worker |-> <<>>]\\n\/\\\\ workerPC = \"workerBeginTaskSend\"",
+      "name": "-8445397789800075964",
+      "label": "\/\\\\ epoch = 1\\n\/\\\\ frontdoorToken = [epoch |-> 0, checkpoint |-> 0]\\n\/\\\\ workerToken = [epoch |-> 0, checkpoint |-> 0]\\n\/\\\\ WriteConsistencyLevel = \"SessionConsistency\"\\n\/\\\\ frontdoorPC = \"frontdoorWriteTaskDataSend\"\\n\/\\\\ serviceBus = <<>>\\n\/\\\\ workerValue = \"NoValue\"\\n\/\\\\ commitIndex = 0\\n\/\\\\ returnAddrMap = <<>>\\n\/\\\\ readIndex = 0\\n\/\\\\ log = <<>>\\n\/\\\\ network = [SystemID |-> <<>>, frontdoor |-> <<>>, worker |-> <<>>]\\n\/\\\\ workerPC = \"workerBeginTaskSend\"",
       "style": "filled"
     },
     {
       "_gvid": 11,
-      "name": "4011305805929720014",
-      "label": "\/\\\\ epoch = 1\\n\/\\\\ frontdoorToken = [epoch |-> 0, checkpoint |-> 0]\\n\/\\\\ workerToken = [epoch |-> 0, checkpoint |-> 0]\\n\/\\\\ WriteConsistencyLevel = SessionConsistency\\n\/\\\\ frontdoorPC = \"frontdoorWriteTaskDataReceive\"\\n\/\\\\ serviceBus = <<>>\\n\/\\\\ workerValue = \"NoValue\"\\n\/\\\\ commitIndex = 0\\n\/\\\\ returnAddrMap = <<>>\\n\/\\\\ readIndex = 0\\n\/\\\\ log = <<>>\\n\/\\\\ network = [ SystemID |->\\n      << [ type |-> \"write\",\\n           from |-> \"frontdoor\",\\n           key |-> \"taskKey\",\\n           token |-> [epoch |-> 0, checkpoint |-> 0],\\n           value |-> \"taskValue\" ] >>,\\n  frontdoor |-> <<>>,\\n  worker |-> <<>> ]\\n\/\\\\ workerPC = \"workerBeginTaskSend\""
+      "name": "4337430562215034476",
+      "label": "\/\\\\ epoch = 1\\n\/\\\\ frontdoorToken = [epoch |-> 0, checkpoint |-> 0]\\n\/\\\\ workerToken = [epoch |-> 0, checkpoint |-> 0]\\n\/\\\\ WriteConsistencyLevel = \"SessionConsistency\"\\n\/\\\\ frontdoorPC = \"frontdoorWriteTaskDataReceive\"\\n\/\\\\ serviceBus = <<>>\\n\/\\\\ workerValue = \"NoValue\"\\n\/\\\\ commitIndex = 0\\n\/\\\\ returnAddrMap = <<>>\\n\/\\\\ readIndex = 0\\n\/\\\\ log = <<>>\\n\/\\\\ network = [ SystemID |->\\n      << [ type |-> \"write\",\\n           from |-> \"frontdoor\",\\n           key |-> \"taskKey\",\\n           token |-> [epoch |-> 0, checkpoint |-> 0],\\n           value |-> \"taskValue\" ] >>,\\n  frontdoor |-> <<>>,\\n  worker |-> <<>> ]\\n\/\\\\ workerPC = \"workerBeginTaskSend\""
     },
     {
       "_gvid": 12,
-      "name": "-2364025507432530629",
-      "label": "\/\\\\ epoch = 1\\n\/\\\\ frontdoorToken = [epoch |-> 0, checkpoint |-> 0]\\n\/\\\\ workerToken = [epoch |-> 0, checkpoint |-> 0]\\n\/\\\\ WriteConsistencyLevel = SessionConsistency\\n\/\\\\ frontdoorPC = \"frontdoorWriteTaskDataReceive\"\\n\/\\\\ serviceBus = <<>>\\n\/\\\\ workerValue = \"NoValue\"\\n\/\\\\ commitIndex = 0\\n\/\\\\ returnAddrMap = ([epoch |-> 1, checkpoint |-> 1] :> \"frontdoor\")\\n\/\\\\ readIndex = 0\\n\/\\\\ log = <<[key |-> \"taskKey\", value |-> \"taskValue\"]>>\\n\/\\\\ network = [SystemID |-> <<>>, frontdoor |-> <<>>, worker |-> <<>>]\\n\/\\\\ workerPC = \"workerBeginTaskSend\""
+      "name": "7025507783529785573",
+      "label": "\/\\\\ epoch = 1\\n\/\\\\ frontdoorToken = [epoch |-> 0, checkpoint |-> 0]\\n\/\\\\ workerToken = [epoch |-> 0, checkpoint |-> 0]\\n\/\\\\ WriteConsistencyLevel = \"SessionConsistency\"\\n\/\\\\ frontdoorPC = \"frontdoorWriteTaskDataReceive\"\\n\/\\\\ serviceBus = <<>>\\n\/\\\\ workerValue = \"NoValue\"\\n\/\\\\ commitIndex = 0\\n\/\\\\ returnAddrMap = ([epoch |-> 1, checkpoint |-> 1] :> \"frontdoor\")\\n\/\\\\ readIndex = 0\\n\/\\\\ log = <<[key |-> \"taskKey\", value |-> \"taskValue\"]>>\\n\/\\\\ network = [SystemID |-> <<>>, frontdoor |-> <<>>, worker |-> <<>>]\\n\/\\\\ workerPC = \"workerBeginTaskSend\""
     },
     {
       "_gvid": 13,
-      "name": "-1483194398271347440",
-      "label": "\/\\\\ epoch = 1\\n\/\\\\ frontdoorToken = [epoch |-> 0, checkpoint |-> 0]\\n\/\\\\ workerToken = [epoch |-> 0, checkpoint |-> 0]\\n\/\\\\ WriteConsistencyLevel = SessionConsistency\\n\/\\\\ frontdoorPC = \"frontdoorWriteTaskDataReceive\"\\n\/\\\\ serviceBus = <<>>\\n\/\\\\ workerValue = \"NoValue\"\\n\/\\\\ commitIndex = 0\\n\/\\\\ returnAddrMap = << >>\\n\/\\\\ readIndex = 0\\n\/\\\\ log = <<[key |-> \"taskKey\", value |-> \"taskValue\"]>>\\n\/\\\\ network = [ SystemID |-> <<>>,\\n  frontdoor |->\\n      << [ type |-> \"write_ok\",\\n           from |-> \"SystemID\",\\n           token |-> [epoch |-> 1, checkpoint |-> 1] ] >>,\\n  worker |-> <<>> ]\\n\/\\\\ workerPC = \"workerBeginTaskSend\""
+      "name": "3296593892238087286",
+      "label": "\/\\\\ epoch = 1\\n\/\\\\ frontdoorToken = [epoch |-> 0, checkpoint |-> 0]\\n\/\\\\ workerToken = [epoch |-> 0, checkpoint |-> 0]\\n\/\\\\ WriteConsistencyLevel = \"SessionConsistency\"\\n\/\\\\ frontdoorPC = \"frontdoorWriteTaskDataReceive\"\\n\/\\\\ serviceBus = <<>>\\n\/\\\\ workerValue = \"NoValue\"\\n\/\\\\ commitIndex = 0\\n\/\\\\ returnAddrMap = << >>\\n\/\\\\ readIndex = 0\\n\/\\\\ log = <<[key |-> \"taskKey\", value |-> \"taskValue\"]>>\\n\/\\\\ network = [ SystemID |-> <<>>,\\n  frontdoor |->\\n      << [ type |-> \"write_ok\",\\n           from |-> \"SystemID\",\\n           token |-> [epoch |-> 1, checkpoint |-> 1] ] >>,\\n  worker |-> <<>> ]\\n\/\\\\ workerPC = \"workerBeginTaskSend\""
     },
     {
       "_gvid": 14,
-      "name": "7102271823796685023",
-      "label": "\/\\\\ epoch = 1\\n\/\\\\ frontdoorToken = [epoch |-> 0, checkpoint |-> 0]\\n\/\\\\ workerToken = [epoch |-> 0, checkpoint |-> 0]\\n\/\\\\ WriteConsistencyLevel = SessionConsistency\\n\/\\\\ frontdoorPC = \"frontdoorWriteTaskDataReceive\"\\n\/\\\\ serviceBus = <<>>\\n\/\\\\ workerValue = \"NoValue\"\\n\/\\\\ commitIndex = 1\\n\/\\\\ returnAddrMap = ([epoch |-> 1, checkpoint |-> 1] :> \"frontdoor\")\\n\/\\\\ readIndex = 0\\n\/\\\\ log = <<[key |-> \"taskKey\", value |-> \"taskValue\"]>>\\n\/\\\\ network = [SystemID |-> <<>>, frontdoor |-> <<>>, worker |-> <<>>]\\n\/\\\\ workerPC = \"workerBeginTaskSend\""
+      "name": "-2531441009512456959",
+      "label": "\/\\\\ epoch = 1\\n\/\\\\ frontdoorToken = [epoch |-> 0, checkpoint |-> 0]\\n\/\\\\ workerToken = [epoch |-> 0, checkpoint |-> 0]\\n\/\\\\ WriteConsistencyLevel = \"SessionConsistency\"\\n\/\\\\ frontdoorPC = \"frontdoorWriteTaskDataReceive\"\\n\/\\\\ serviceBus = <<>>\\n\/\\\\ workerValue = \"NoValue\"\\n\/\\\\ commitIndex = 1\\n\/\\\\ returnAddrMap = ([epoch |-> 1, checkpoint |-> 1] :> \"frontdoor\")\\n\/\\\\ readIndex = 0\\n\/\\\\ log = <<[key |-> \"taskKey\", value |-> \"taskValue\"]>>\\n\/\\\\ network = [SystemID |-> <<>>, frontdoor |-> <<>>, worker |-> <<>>]\\n\/\\\\ workerPC = \"workerBeginTaskSend\""
     },
     {
       "_gvid": 15,
-      "name": "-190595218049777170",
-      "label": "\/\\\\ epoch = 1\\n\/\\\\ frontdoorToken = [epoch |-> 0, checkpoint |-> 0]\\n\/\\\\ workerToken = [epoch |-> 0, checkpoint |-> 0]\\n\/\\\\ WriteConsistencyLevel = SessionConsistency\\n\/\\\\ frontdoorPC = \"frontdoorWriteTaskDataReceive\"\\n\/\\\\ serviceBus = <<>>\\n\/\\\\ workerValue = \"NoValue\"\\n\/\\\\ commitIndex = 1\\n\/\\\\ returnAddrMap = ([epoch |-> 1, checkpoint |-> 1] :> \"frontdoor\")\\n\/\\\\ readIndex = 1\\n\/\\\\ log = <<[key |-> \"taskKey\", value |-> \"taskValue\"]>>\\n\/\\\\ network = [SystemID |-> <<>>, frontdoor |-> <<>>, worker |-> <<>>]\\n\/\\\\ workerPC = \"workerBeginTaskSend\""
+      "name": "4833501360899806256",
+      "label": "\/\\\\ epoch = 1\\n\/\\\\ frontdoorToken = [epoch |-> 0, checkpoint |-> 0]\\n\/\\\\ workerToken = [epoch |-> 0, checkpoint |-> 0]\\n\/\\\\ WriteConsistencyLevel = \"SessionConsistency\"\\n\/\\\\ frontdoorPC = \"frontdoorWriteTaskDataReceive\"\\n\/\\\\ serviceBus = <<>>\\n\/\\\\ workerValue = \"NoValue\"\\n\/\\\\ commitIndex = 1\\n\/\\\\ returnAddrMap = ([epoch |-> 1, checkpoint |-> 1] :> \"frontdoor\")\\n\/\\\\ readIndex = 1\\n\/\\\\ log = <<[key |-> \"taskKey\", value |-> \"taskValue\"]>>\\n\/\\\\ network = [SystemID |-> <<>>, frontdoor |-> <<>>, worker |-> <<>>]\\n\/\\\\ workerPC = \"workerBeginTaskSend\""
     },
     {
       "_gvid": 16,
-      "name": "3606861574819504309",
-      "label": "\/\\\\ epoch = 2\\n\/\\\\ frontdoorToken = [epoch |-> 0, checkpoint |-> 0]\\n\/\\\\ workerToken = [epoch |-> 0, checkpoint |-> 0]\\n\/\\\\ WriteConsistencyLevel = SessionConsistency\\n\/\\\\ frontdoorPC = \"frontdoorWriteTaskDataReceive\"\\n\/\\\\ serviceBus = <<>>\\n\/\\\\ workerValue = \"NoValue\"\\n\/\\\\ commitIndex = 0\\n\/\\\\ returnAddrMap = ([epoch |-> 1, checkpoint |-> 1] :> \"frontdoor\")\\n\/\\\\ readIndex = 0\\n\/\\\\ log = <<>>\\n\/\\\\ network = [SystemID |-> <<>>, frontdoor |-> <<>>, worker |-> <<>>]\\n\/\\\\ workerPC = \"workerBeginTaskSend\""
+      "name": "6150216765921749818",
+      "label": "\/\\\\ epoch = 2\\n\/\\\\ frontdoorToken = [epoch |-> 0, checkpoint |-> 0]\\n\/\\\\ workerToken = [epoch |-> 0, checkpoint |-> 0]\\n\/\\\\ WriteConsistencyLevel = \"SessionConsistency\"\\n\/\\\\ frontdoorPC = \"frontdoorWriteTaskDataReceive\"\\n\/\\\\ serviceBus = <<>>\\n\/\\\\ workerValue = \"NoValue\"\\n\/\\\\ commitIndex = 0\\n\/\\\\ returnAddrMap = ([epoch |-> 1, checkpoint |-> 1] :> \"frontdoor\")\\n\/\\\\ readIndex = 0\\n\/\\\\ log = <<>>\\n\/\\\\ network = [SystemID |-> <<>>, frontdoor |-> <<>>, worker |-> <<>>]\\n\/\\\\ workerPC = \"workerBeginTaskSend\""
     },
     {
       "_gvid": 17,
-      "name": "-4644962470461785594",
-      "label": "\/\\\\ epoch = 1\\n\/\\\\ frontdoorToken = [epoch |-> 1, checkpoint |-> 1]\\n\/\\\\ workerToken = [epoch |-> 0, checkpoint |-> 0]\\n\/\\\\ WriteConsistencyLevel = SessionConsistency\\n\/\\\\ frontdoorPC = \"Done\"\\n\/\\\\ serviceBus = <<\"taskKey\">>\\n\/\\\\ workerValue = \"NoValue\"\\n\/\\\\ commitIndex = 0\\n\/\\\\ returnAddrMap = << >>\\n\/\\\\ readIndex = 0\\n\/\\\\ log = <<[key |-> \"taskKey\", value |-> \"taskValue\"]>>\\n\/\\\\ network = [SystemID |-> <<>>, frontdoor |-> <<>>, worker |-> <<>>]\\n\/\\\\ workerPC = \"workerBeginTaskSend\""
+      "name": "1773449978597381883",
+      "label": "\/\\\\ epoch = 1\\n\/\\\\ frontdoorToken = [epoch |-> 1, checkpoint |-> 1]\\n\/\\\\ workerToken = [epoch |-> 0, checkpoint |-> 0]\\n\/\\\\ WriteConsistencyLevel = \"SessionConsistency\"\\n\/\\\\ frontdoorPC = \"Done\"\\n\/\\\\ serviceBus = <<\"taskKey\">>\\n\/\\\\ workerValue = \"NoValue\"\\n\/\\\\ commitIndex = 0\\n\/\\\\ returnAddrMap = << >>\\n\/\\\\ readIndex = 0\\n\/\\\\ log = <<[key |-> \"taskKey\", value |-> \"taskValue\"]>>\\n\/\\\\ network = [SystemID |-> <<>>, frontdoor |-> <<>>, worker |-> <<>>]\\n\/\\\\ workerPC = \"workerBeginTaskSend\""
     },
     {
       "_gvid": 18,
-      "name": "2085209584206627600",
-      "label": "\/\\\\ epoch = 1\\n\/\\\\ frontdoorToken = [epoch |-> 0, checkpoint |-> 0]\\n\/\\\\ workerToken = [epoch |-> 0, checkpoint |-> 0]\\n\/\\\\ WriteConsistencyLevel = SessionConsistency\\n\/\\\\ frontdoorPC = \"frontdoorWriteTaskDataReceive\"\\n\/\\\\ serviceBus = <<>>\\n\/\\\\ workerValue = \"NoValue\"\\n\/\\\\ commitIndex = 1\\n\/\\\\ returnAddrMap = << >>\\n\/\\\\ readIndex = 0\\n\/\\\\ log = <<[key |-> \"taskKey\", value |-> \"taskValue\"]>>\\n\/\\\\ network = [ SystemID |-> <<>>,\\n  frontdoor |->\\n      << [ type |-> \"write_ok\",\\n           from |-> \"SystemID\",\\n           token |-> [epoch |-> 1, checkpoint |-> 1] ] >>,\\n  worker |-> <<>> ]\\n\/\\\\ workerPC = \"workerBeginTaskSend\""
+      "name": "-2727669331061280138",
+      "label": "\/\\\\ epoch = 1\\n\/\\\\ frontdoorToken = [epoch |-> 0, checkpoint |-> 0]\\n\/\\\\ workerToken = [epoch |-> 0, checkpoint |-> 0]\\n\/\\\\ WriteConsistencyLevel = \"SessionConsistency\"\\n\/\\\\ frontdoorPC = \"frontdoorWriteTaskDataReceive\"\\n\/\\\\ serviceBus = <<>>\\n\/\\\\ workerValue = \"NoValue\"\\n\/\\\\ commitIndex = 1\\n\/\\\\ returnAddrMap = << >>\\n\/\\\\ readIndex = 0\\n\/\\\\ log = <<[key |-> \"taskKey\", value |-> \"taskValue\"]>>\\n\/\\\\ network = [ SystemID |-> <<>>,\\n  frontdoor |->\\n      << [ type |-> \"write_ok\",\\n           from |-> \"SystemID\",\\n           token |-> [epoch |-> 1, checkpoint |-> 1] ] >>,\\n  worker |-> <<>> ]\\n\/\\\\ workerPC = \"workerBeginTaskSend\""
     },
     {
       "_gvid": 19,
-      "name": "5227906340742151339",
-      "label": "\/\\\\ epoch = 1\\n\/\\\\ frontdoorToken = [epoch |-> 0, checkpoint |-> 0]\\n\/\\\\ workerToken = [epoch |-> 0, checkpoint |-> 0]\\n\/\\\\ WriteConsistencyLevel = SessionConsistency\\n\/\\\\ frontdoorPC = \"frontdoorWriteTaskDataReceive\"\\n\/\\\\ serviceBus = <<>>\\n\/\\\\ workerValue = \"NoValue\"\\n\/\\\\ commitIndex = 1\\n\/\\\\ returnAddrMap = << >>\\n\/\\\\ readIndex = 1\\n\/\\\\ log = <<[key |-> \"taskKey\", value |-> \"taskValue\"]>>\\n\/\\\\ network = [ SystemID |-> <<>>,\\n  frontdoor |->\\n      << [ type |-> \"write_ok\",\\n           from |-> \"SystemID\",\\n           token |-> [epoch |-> 1, checkpoint |-> 1] ] >>,\\n  worker |-> <<>> ]\\n\/\\\\ workerPC = \"workerBeginTaskSend\""
+      "name": "-8189732983464292915",
+      "label": "\/\\\\ epoch = 1\\n\/\\\\ frontdoorToken = [epoch |-> 0, checkpoint |-> 0]\\n\/\\\\ workerToken = [epoch |-> 0, checkpoint |-> 0]\\n\/\\\\ WriteConsistencyLevel = \"SessionConsistency\"\\n\/\\\\ frontdoorPC = \"frontdoorWriteTaskDataReceive\"\\n\/\\\\ serviceBus = <<>>\\n\/\\\\ workerValue = \"NoValue\"\\n\/\\\\ commitIndex = 1\\n\/\\\\ returnAddrMap = << >>\\n\/\\\\ readIndex = 1\\n\/\\\\ log = <<[key |-> \"taskKey\", value |-> \"taskValue\"]>>\\n\/\\\\ network = [ SystemID |-> <<>>,\\n  frontdoor |->\\n      << [ type |-> \"write_ok\",\\n           from |-> \"SystemID\",\\n           token |-> [epoch |-> 1, checkpoint |-> 1] ] >>,\\n  worker |-> <<>> ]\\n\/\\\\ workerPC = \"workerBeginTaskSend\""
     },
     {
       "_gvid": 20,
-      "name": "-5389869556577902324",
-      "label": "\/\\\\ epoch = 2\\n\/\\\\ frontdoorToken = [epoch |-> 0, checkpoint |-> 0]\\n\/\\\\ workerToken = [epoch |-> 0, checkpoint |-> 0]\\n\/\\\\ WriteConsistencyLevel = SessionConsistency\\n\/\\\\ frontdoorPC = \"frontdoorWriteTaskDataReceive\"\\n\/\\\\ serviceBus = <<>>\\n\/\\\\ workerValue = \"NoValue\"\\n\/\\\\ commitIndex = 0\\n\/\\\\ returnAddrMap = << >>\\n\/\\\\ readIndex = 0\\n\/\\\\ log = <<>>\\n\/\\\\ network = [ SystemID |-> <<>>,\\n  frontdoor |->\\n      << [ type |-> \"write_ok\",\\n           from |-> \"SystemID\",\\n           token |-> [epoch |-> 1, checkpoint |-> 1] ] >>,\\n  worker |-> <<>> ]\\n\/\\\\ workerPC = \"workerBeginTaskSend\""
+      "name": "3223382182512141425",
+      "label": "\/\\\\ epoch = 2\\n\/\\\\ frontdoorToken = [epoch |-> 0, checkpoint |-> 0]\\n\/\\\\ workerToken = [epoch |-> 0, checkpoint |-> 0]\\n\/\\\\ WriteConsistencyLevel = \"SessionConsistency\"\\n\/\\\\ frontdoorPC = \"frontdoorWriteTaskDataReceive\"\\n\/\\\\ serviceBus = <<>>\\n\/\\\\ workerValue = \"NoValue\"\\n\/\\\\ commitIndex = 0\\n\/\\\\ returnAddrMap = << >>\\n\/\\\\ readIndex = 0\\n\/\\\\ log = <<>>\\n\/\\\\ network = [ SystemID |-> <<>>,\\n  frontdoor |->\\n      << [ type |-> \"write_ok\",\\n           from |-> \"SystemID\",\\n           token |-> [epoch |-> 1, checkpoint |-> 1] ] >>,\\n  worker |-> <<>> ]\\n\/\\\\ workerPC = \"workerBeginTaskSend\""
     },
     {
       "_gvid": 21,
-      "name": "-916200310514733514",
-      "label": "\/\\\\ epoch = 1\\n\/\\\\ frontdoorToken = [epoch |-> 1, checkpoint |-> 1]\\n\/\\\\ workerToken = [epoch |-> 0, checkpoint |-> 0]\\n\/\\\\ WriteConsistencyLevel = SessionConsistency\\n\/\\\\ frontdoorPC = \"Done\"\\n\/\\\\ serviceBus = <<>>\\n\/\\\\ workerValue = \"NoValue\"\\n\/\\\\ commitIndex = 0\\n\/\\\\ returnAddrMap = << >>\\n\/\\\\ readIndex = 0\\n\/\\\\ log = <<[key |-> \"taskKey\", value |-> \"taskValue\"]>>\\n\/\\\\ network = [ SystemID |->\\n      << [ type |-> \"read\",\\n           from |-> \"worker\",\\n           consistencyLevel |-> SessionConsistency,\\n           key |-> \"taskKey\",\\n           token |-> [epoch |-> 0, checkpoint |-> 0] ] >>,\\n  frontdoor |-> <<>>,\\n  worker |-> <<>> ]\\n\/\\\\ workerPC = \"workerBeginTaskReceive\""
+      "name": "-8326645232888180517",
+      "label": "\/\\\\ epoch = 1\\n\/\\\\ frontdoorToken = [epoch |-> 1, checkpoint |-> 1]\\n\/\\\\ workerToken = [epoch |-> 0, checkpoint |-> 0]\\n\/\\\\ WriteConsistencyLevel = \"SessionConsistency\"\\n\/\\\\ frontdoorPC = \"Done\"\\n\/\\\\ serviceBus = <<>>\\n\/\\\\ workerValue = \"NoValue\"\\n\/\\\\ commitIndex = 0\\n\/\\\\ returnAddrMap = << >>\\n\/\\\\ readIndex = 0\\n\/\\\\ log = <<[key |-> \"taskKey\", value |-> \"taskValue\"]>>\\n\/\\\\ network = [ SystemID |->\\n      << [ type |-> \"read\",\\n           from |-> \"worker\",\\n           consistencyLevel |-> \"SessionConsistency\",\\n           key |-> \"taskKey\",\\n           token |-> [epoch |-> 0, checkpoint |-> 0] ] >>,\\n  frontdoor |-> <<>>,\\n  worker |-> <<>> ]\\n\/\\\\ workerPC = \"workerBeginTaskReceive\""
     },
     {
       "_gvid": 22,
-      "name": "5234602496965865486",
-      "label": "\/\\\\ epoch = 1\\n\/\\\\ frontdoorToken = [epoch |-> 1, checkpoint |-> 1]\\n\/\\\\ workerToken = [epoch |-> 0, checkpoint |-> 0]\\n\/\\\\ WriteConsistencyLevel = SessionConsistency\\n\/\\\\ frontdoorPC = \"Done\"\\n\/\\\\ serviceBus = <<\"taskKey\">>\\n\/\\\\ workerValue = \"NoValue\"\\n\/\\\\ commitIndex = 1\\n\/\\\\ returnAddrMap = << >>\\n\/\\\\ readIndex = 0\\n\/\\\\ log = <<[key |-> \"taskKey\", value |-> \"taskValue\"]>>\\n\/\\\\ network = [SystemID |-> <<>>, frontdoor |-> <<>>, worker |-> <<>>]\\n\/\\\\ workerPC = \"workerBeginTaskSend\""
+      "name": "-1175365427909894925",
+      "label": "\/\\\\ epoch = 1\\n\/\\\\ frontdoorToken = [epoch |-> 1, checkpoint |-> 1]\\n\/\\\\ workerToken = [epoch |-> 0, checkpoint |-> 0]\\n\/\\\\ WriteConsistencyLevel = \"SessionConsistency\"\\n\/\\\\ frontdoorPC = \"Done\"\\n\/\\\\ serviceBus = <<\"taskKey\">>\\n\/\\\\ workerValue = \"NoValue\"\\n\/\\\\ commitIndex = 1\\n\/\\\\ returnAddrMap = << >>\\n\/\\\\ readIndex = 0\\n\/\\\\ log = <<[key |-> \"taskKey\", value |-> \"taskValue\"]>>\\n\/\\\\ network = [SystemID |-> <<>>, frontdoor |-> <<>>, worker |-> <<>>]\\n\/\\\\ workerPC = \"workerBeginTaskSend\""
     },
     {
       "_gvid": 23,
-      "name": "-2922973544706049729",
-      "label": "\/\\\\ epoch = 1\\n\/\\\\ frontdoorToken = [epoch |-> 1, checkpoint |-> 1]\\n\/\\\\ workerToken = [epoch |-> 0, checkpoint |-> 0]\\n\/\\\\ WriteConsistencyLevel = SessionConsistency\\n\/\\\\ frontdoorPC = \"Done\"\\n\/\\\\ serviceBus = <<\"taskKey\">>\\n\/\\\\ workerValue = \"NoValue\"\\n\/\\\\ commitIndex = 1\\n\/\\\\ returnAddrMap = << >>\\n\/\\\\ readIndex = 1\\n\/\\\\ log = <<[key |-> \"taskKey\", value |-> \"taskValue\"]>>\\n\/\\\\ network = [SystemID |-> <<>>, frontdoor |-> <<>>, worker |-> <<>>]\\n\/\\\\ workerPC = \"workerBeginTaskSend\""
+      "name": "8105014154656241090",
+      "label": "\/\\\\ epoch = 1\\n\/\\\\ frontdoorToken = [epoch |-> 1, checkpoint |-> 1]\\n\/\\\\ workerToken = [epoch |-> 0, checkpoint |-> 0]\\n\/\\\\ WriteConsistencyLevel = \"SessionConsistency\"\\n\/\\\\ frontdoorPC = \"Done\"\\n\/\\\\ serviceBus = <<\"taskKey\">>\\n\/\\\\ workerValue = \"NoValue\"\\n\/\\\\ commitIndex = 1\\n\/\\\\ returnAddrMap = << >>\\n\/\\\\ readIndex = 1\\n\/\\\\ log = <<[key |-> \"taskKey\", value |-> \"taskValue\"]>>\\n\/\\\\ network = [SystemID |-> <<>>, frontdoor |-> <<>>, worker |-> <<>>]\\n\/\\\\ workerPC = \"workerBeginTaskSend\""
     },
     {
       "_gvid": 24,
-      "name": "-1481016467242031895",
-      "label": "\/\\\\ epoch = 2\\n\/\\\\ frontdoorToken = [epoch |-> 1, checkpoint |-> 1]\\n\/\\\\ workerToken = [epoch |-> 0, checkpoint |-> 0]\\n\/\\\\ WriteConsistencyLevel = SessionConsistency\\n\/\\\\ frontdoorPC = \"Done\"\\n\/\\\\ serviceBus = <<\"taskKey\">>\\n\/\\\\ workerValue = \"NoValue\"\\n\/\\\\ commitIndex = 0\\n\/\\\\ returnAddrMap = << >>\\n\/\\\\ readIndex = 0\\n\/\\\\ log = <<>>\\n\/\\\\ network = [SystemID |-> <<>>, frontdoor |-> <<>>, worker |-> <<>>]\\n\/\\\\ workerPC = \"workerBeginTaskSend\""
+      "name": "7320009155001776697",
+      "label": "\/\\\\ epoch = 2\\n\/\\\\ frontdoorToken = [epoch |-> 1, checkpoint |-> 1]\\n\/\\\\ workerToken = [epoch |-> 0, checkpoint |-> 0]\\n\/\\\\ WriteConsistencyLevel = \"SessionConsistency\"\\n\/\\\\ frontdoorPC = \"Done\"\\n\/\\\\ serviceBus = <<\"taskKey\">>\\n\/\\\\ workerValue = \"NoValue\"\\n\/\\\\ commitIndex = 0\\n\/\\\\ returnAddrMap = << >>\\n\/\\\\ readIndex = 0\\n\/\\\\ log = <<>>\\n\/\\\\ network = [SystemID |-> <<>>, frontdoor |-> <<>>, worker |-> <<>>]\\n\/\\\\ workerPC = \"workerBeginTaskSend\""
     },
     {
       "_gvid": 25,
-      "name": "2819530387412947953",
-      "label": "\/\\\\ epoch = 1\\n\/\\\\ frontdoorToken = [epoch |-> 1, checkpoint |-> 1]\\n\/\\\\ workerToken = [epoch |-> 0, checkpoint |-> 0]\\n\/\\\\ WriteConsistencyLevel = SessionConsistency\\n\/\\\\ frontdoorPC = \"Done\"\\n\/\\\\ serviceBus = <<>>\\n\/\\\\ workerValue = \"NoValue\"\\n\/\\\\ commitIndex = 0\\n\/\\\\ returnAddrMap = << >>\\n\/\\\\ readIndex = 0\\n\/\\\\ log = <<[key |-> \"taskKey\", value |-> \"taskValue\"]>>\\n\/\\\\ network = [ SystemID |-> <<>>,\\n  frontdoor |-> <<>>,\\n  worker |->\\n      << [ type |-> \"read_ok\",\\n           from |-> \"SystemID\",\\n           token |-> [epoch |-> 1, checkpoint |-> 0],\\n           value |-> \"NoValue\" ] >> ]\\n\/\\\\ workerPC = \"workerBeginTaskReceive\""
+      "name": "-1040780151703784451",
+      "label": "\/\\\\ epoch = 1\\n\/\\\\ frontdoorToken = [epoch |-> 1, checkpoint |-> 1]\\n\/\\\\ workerToken = [epoch |-> 0, checkpoint |-> 0]\\n\/\\\\ WriteConsistencyLevel = \"SessionConsistency\"\\n\/\\\\ frontdoorPC = \"Done\"\\n\/\\\\ serviceBus = <<>>\\n\/\\\\ workerValue = \"NoValue\"\\n\/\\\\ commitIndex = 0\\n\/\\\\ returnAddrMap = << >>\\n\/\\\\ readIndex = 0\\n\/\\\\ log = <<[key |-> \"taskKey\", value |-> \"taskValue\"]>>\\n\/\\\\ network = [ SystemID |-> <<>>,\\n  frontdoor |-> <<>>,\\n  worker |->\\n      << [ type |-> \"read_ok\",\\n           from |-> \"SystemID\",\\n           token |-> [epoch |-> 1, checkpoint |-> 0],\\n           value |-> \"NoValue\" ] >> ]\\n\/\\\\ workerPC = \"workerBeginTaskReceive\""
     },
     {
       "_gvid": 26,
-      "name": "3655639350059442272",
-      "label": "\/\\\\ epoch = 1\\n\/\\\\ frontdoorToken = [epoch |-> 1, checkpoint |-> 1]\\n\/\\\\ workerToken = [epoch |-> 0, checkpoint |-> 0]\\n\/\\\\ WriteConsistencyLevel = SessionConsistency\\n\/\\\\ frontdoorPC = \"Done\"\\n\/\\\\ serviceBus = <<>>\\n\/\\\\ workerValue = \"NoValue\"\\n\/\\\\ commitIndex = 0\\n\/\\\\ returnAddrMap = << >>\\n\/\\\\ readIndex = 0\\n\/\\\\ log = <<[key |-> \"taskKey\", value |-> \"taskValue\"]>>\\n\/\\\\ network = [ SystemID |-> <<>>,\\n  frontdoor |-> <<>>,\\n  worker |->\\n      << [ type |-> \"read_ok\",\\n           from |-> \"SystemID\",\\n           token |-> [epoch |-> 1, checkpoint |-> 1],\\n           value |-> \"taskValue\" ] >> ]\\n\/\\\\ workerPC = \"workerBeginTaskReceive\""
+      "name": "1290144477835259155",
+      "label": "\/\\\\ epoch = 1\\n\/\\\\ frontdoorToken = [epoch |-> 1, checkpoint |-> 1]\\n\/\\\\ workerToken = [epoch |-> 0, checkpoint |-> 0]\\n\/\\\\ WriteConsistencyLevel = \"SessionConsistency\"\\n\/\\\\ frontdoorPC = \"Done\"\\n\/\\\\ serviceBus = <<>>\\n\/\\\\ workerValue = \"NoValue\"\\n\/\\\\ commitIndex = 0\\n\/\\\\ returnAddrMap = << >>\\n\/\\\\ readIndex = 0\\n\/\\\\ log = <<[key |-> \"taskKey\", value |-> \"taskValue\"]>>\\n\/\\\\ network = [ SystemID |-> <<>>,\\n  frontdoor |-> <<>>,\\n  worker |->\\n      << [ type |-> \"read_ok\",\\n           from |-> \"SystemID\",\\n           token |-> [epoch |-> 1, checkpoint |-> 1],\\n           value |-> \"taskValue\" ] >> ]\\n\/\\\\ workerPC = \"workerBeginTaskReceive\""
     },
     {
       "_gvid": 27,
-      "name": "4731006110891210941",
-      "label": "\/\\\\ epoch = 1\\n\/\\\\ frontdoorToken = [epoch |-> 1, checkpoint |-> 1]\\n\/\\\\ workerToken = [epoch |-> 0, checkpoint |-> 0]\\n\/\\\\ WriteConsistencyLevel = SessionConsistency\\n\/\\\\ frontdoorPC = \"Done\"\\n\/\\\\ serviceBus = <<>>\\n\/\\\\ workerValue = \"NoValue\"\\n\/\\\\ commitIndex = 1\\n\/\\\\ returnAddrMap = << >>\\n\/\\\\ readIndex = 0\\n\/\\\\ log = <<[key |-> \"taskKey\", value |-> \"taskValue\"]>>\\n\/\\\\ network = [ SystemID |->\\n      << [ type |-> \"read\",\\n           from |-> \"worker\",\\n           consistencyLevel |-> SessionConsistency,\\n           key |-> \"taskKey\",\\n           token |-> [epoch |-> 0, checkpoint |-> 0] ] >>,\\n  frontdoor |-> <<>>,\\n  worker |-> <<>> ]\\n\/\\\\ workerPC = \"workerBeginTaskReceive\""
+      "name": "-3869779525401070944",
+      "label": "\/\\\\ epoch = 1\\n\/\\\\ frontdoorToken = [epoch |-> 1, checkpoint |-> 1]\\n\/\\\\ workerToken = [epoch |-> 0, checkpoint |-> 0]\\n\/\\\\ WriteConsistencyLevel = \"SessionConsistency\"\\n\/\\\\ frontdoorPC = \"Done\"\\n\/\\\\ serviceBus = <<>>\\n\/\\\\ workerValue = \"NoValue\"\\n\/\\\\ commitIndex = 1\\n\/\\\\ returnAddrMap = << >>\\n\/\\\\ readIndex = 0\\n\/\\\\ log = <<[key |-> \"taskKey\", value |-> \"taskValue\"]>>\\n\/\\\\ network = [ SystemID |->\\n      << [ type |-> \"read\",\\n           from |-> \"worker\",\\n           consistencyLevel |-> \"SessionConsistency\",\\n           key |-> \"taskKey\",\\n           token |-> [epoch |-> 0, checkpoint |-> 0] ] >>,\\n  frontdoor |-> <<>>,\\n  worker |-> <<>> ]\\n\/\\\\ workerPC = \"workerBeginTaskReceive\""
     },
     {
       "_gvid": 28,
-      "name": "-6167337191197171457",
-      "label": "\/\\\\ epoch = 1\\n\/\\\\ frontdoorToken = [epoch |-> 1, checkpoint |-> 1]\\n\/\\\\ workerToken = [epoch |-> 0, checkpoint |-> 0]\\n\/\\\\ WriteConsistencyLevel = SessionConsistency\\n\/\\\\ frontdoorPC = \"Done\"\\n\/\\\\ serviceBus = <<>>\\n\/\\\\ workerValue = \"NoValue\"\\n\/\\\\ commitIndex = 1\\n\/\\\\ returnAddrMap = << >>\\n\/\\\\ readIndex = 1\\n\/\\\\ log = <<[key |-> \"taskKey\", value |-> \"taskValue\"]>>\\n\/\\\\ network = [ SystemID |->\\n      << [ type |-> \"read\",\\n           from |-> \"worker\",\\n           consistencyLevel |-> SessionConsistency,\\n           key |-> \"taskKey\",\\n           token |-> [epoch |-> 0, checkpoint |-> 0] ] >>,\\n  frontdoor |-> <<>>,\\n  worker |-> <<>> ]\\n\/\\\\ workerPC = \"workerBeginTaskReceive\""
+      "name": "1786647059948905038",
+      "label": "\/\\\\ epoch = 1\\n\/\\\\ frontdoorToken = [epoch |-> 1, checkpoint |-> 1]\\n\/\\\\ workerToken = [epoch |-> 0, checkpoint |-> 0]\\n\/\\\\ WriteConsistencyLevel = \"SessionConsistency\"\\n\/\\\\ frontdoorPC = \"Done\"\\n\/\\\\ serviceBus = <<>>\\n\/\\\\ workerValue = \"NoValue\"\\n\/\\\\ commitIndex = 1\\n\/\\\\ returnAddrMap = << >>\\n\/\\\\ readIndex = 1\\n\/\\\\ log = <<[key |-> \"taskKey\", value |-> \"taskValue\"]>>\\n\/\\\\ network = [ SystemID |->\\n      << [ type |-> \"read\",\\n           from |-> \"worker\",\\n           consistencyLevel |-> \"SessionConsistency\",\\n           key |-> \"taskKey\",\\n           token |-> [epoch |-> 0, checkpoint |-> 0] ] >>,\\n  frontdoor |-> <<>>,\\n  worker |-> <<>> ]\\n\/\\\\ workerPC = \"workerBeginTaskReceive\""
     },
     {
       "_gvid": 29,
-      "name": "2157224295338469018",
-      "label": "\/\\\\ epoch = 2\\n\/\\\\ frontdoorToken = [epoch |-> 1, checkpoint |-> 1]\\n\/\\\\ workerToken = [epoch |-> 0, checkpoint |-> 0]\\n\/\\\\ WriteConsistencyLevel = SessionConsistency\\n\/\\\\ frontdoorPC = \"Done\"\\n\/\\\\ serviceBus = <<>>\\n\/\\\\ workerValue = \"NoValue\"\\n\/\\\\ commitIndex = 0\\n\/\\\\ returnAddrMap = << >>\\n\/\\\\ readIndex = 0\\n\/\\\\ log = <<>>\\n\/\\\\ network = [ SystemID |->\\n      << [ type |-> \"read\",\\n           from |-> \"worker\",\\n           consistencyLevel |-> SessionConsistency,\\n           key |-> \"taskKey\",\\n           token |-> [epoch |-> 0, checkpoint |-> 0] ] >>,\\n  frontdoor |-> <<>>,\\n  worker |-> <<>> ]\\n\/\\\\ workerPC = \"workerBeginTaskReceive\""
+      "name": "-7114380864115326189",
+      "label": "\/\\\\ epoch = 2\\n\/\\\\ frontdoorToken = [epoch |-> 1, checkpoint |-> 1]\\n\/\\\\ workerToken = [epoch |-> 0, checkpoint |-> 0]\\n\/\\\\ WriteConsistencyLevel = \"SessionConsistency\"\\n\/\\\\ frontdoorPC = \"Done\"\\n\/\\\\ serviceBus = <<>>\\n\/\\\\ workerValue = \"NoValue\"\\n\/\\\\ commitIndex = 0\\n\/\\\\ returnAddrMap = << >>\\n\/\\\\ readIndex = 0\\n\/\\\\ log = <<>>\\n\/\\\\ network = [ SystemID |->\\n      << [ type |-> \"read\",\\n           from |-> \"worker\",\\n           consistencyLevel |-> \"SessionConsistency\",\\n           key |-> \"taskKey\",\\n           token |-> [epoch |-> 0, checkpoint |-> 0] ] >>,\\n  frontdoor |-> <<>>,\\n  worker |-> <<>> ]\\n\/\\\\ workerPC = \"workerBeginTaskReceive\""
     },
     {
       "_gvid": 30,
-      "name": "9089011942330688759",
-      "label": "\/\\\\ epoch = 1\\n\/\\\\ frontdoorToken = [epoch |-> 1, checkpoint |-> 1]\\n\/\\\\ workerToken = [epoch |-> 1, checkpoint |-> 0]\\n\/\\\\ WriteConsistencyLevel = SessionConsistency\\n\/\\\\ frontdoorPC = \"Done\"\\n\/\\\\ serviceBus = <<>>\\n\/\\\\ workerValue = \"NoValue\"\\n\/\\\\ commitIndex = 0\\n\/\\\\ returnAddrMap = << >>\\n\/\\\\ readIndex = 0\\n\/\\\\ log = <<[key |-> \"taskKey\", value |-> \"taskValue\"]>>\\n\/\\\\ network = [SystemID |-> <<>>, frontdoor |-> <<>>, worker |-> <<>>]\\n\/\\\\ workerPC = \"Done\""
+      "name": "8534112346847213180",
+      "label": "\/\\\\ epoch = 1\\n\/\\\\ frontdoorToken = [epoch |-> 1, checkpoint |-> 1]\\n\/\\\\ workerToken = [epoch |-> 1, checkpoint |-> 0]\\n\/\\\\ WriteConsistencyLevel = \"SessionConsistency\"\\n\/\\\\ frontdoorPC = \"Done\"\\n\/\\\\ serviceBus = <<>>\\n\/\\\\ workerValue = \"NoValue\"\\n\/\\\\ commitIndex = 0\\n\/\\\\ returnAddrMap = << >>\\n\/\\\\ readIndex = 0\\n\/\\\\ log = <<[key |-> \"taskKey\", value |-> \"taskValue\"]>>\\n\/\\\\ network = [SystemID |-> <<>>, frontdoor |-> <<>>, worker |-> <<>>]\\n\/\\\\ workerPC = \"Done\""
     },
     {
       "_gvid": 31,
-      "name": "-398175275669804102",
-      "label": "\/\\\\ epoch = 1\\n\/\\\\ frontdoorToken = [epoch |-> 1, checkpoint |-> 1]\\n\/\\\\ workerToken = [epoch |-> 0, checkpoint |-> 0]\\n\/\\\\ WriteConsistencyLevel = SessionConsistency\\n\/\\\\ frontdoorPC = \"Done\"\\n\/\\\\ serviceBus = <<>>\\n\/\\\\ workerValue = \"NoValue\"\\n\/\\\\ commitIndex = 1\\n\/\\\\ returnAddrMap = << >>\\n\/\\\\ readIndex = 0\\n\/\\\\ log = <<[key |-> \"taskKey\", value |-> \"taskValue\"]>>\\n\/\\\\ network = [ SystemID |-> <<>>,\\n  frontdoor |-> <<>>,\\n  worker |->\\n      << [ type |-> \"read_ok\",\\n           from |-> \"SystemID\",\\n           token |-> [epoch |-> 1, checkpoint |-> 0],\\n           value |-> \"NoValue\" ] >> ]\\n\/\\\\ workerPC = \"workerBeginTaskReceive\""
+      "name": "3231325825258982326",
+      "label": "\/\\\\ epoch = 1\\n\/\\\\ frontdoorToken = [epoch |-> 1, checkpoint |-> 1]\\n\/\\\\ workerToken = [epoch |-> 0, checkpoint |-> 0]\\n\/\\\\ WriteConsistencyLevel = \"SessionConsistency\"\\n\/\\\\ frontdoorPC = \"Done\"\\n\/\\\\ serviceBus = <<>>\\n\/\\\\ workerValue = \"NoValue\"\\n\/\\\\ commitIndex = 1\\n\/\\\\ returnAddrMap = << >>\\n\/\\\\ readIndex = 0\\n\/\\\\ log = <<[key |-> \"taskKey\", value |-> \"taskValue\"]>>\\n\/\\\\ network = [ SystemID |-> <<>>,\\n  frontdoor |-> <<>>,\\n  worker |->\\n      << [ type |-> \"read_ok\",\\n           from |-> \"SystemID\",\\n           token |-> [epoch |-> 1, checkpoint |-> 0],\\n           value |-> \"NoValue\" ] >> ]\\n\/\\\\ workerPC = \"workerBeginTaskReceive\""
     },
     {
       "_gvid": 32,
-      "name": "7961833607658730300",
-      "label": "\/\\\\ epoch = 1\\n\/\\\\ frontdoorToken = [epoch |-> 1, checkpoint |-> 1]\\n\/\\\\ workerToken = [epoch |-> 0, checkpoint |-> 0]\\n\/\\\\ WriteConsistencyLevel = SessionConsistency\\n\/\\\\ frontdoorPC = \"Done\"\\n\/\\\\ serviceBus = <<>>\\n\/\\\\ workerValue = \"NoValue\"\\n\/\\\\ commitIndex = 1\\n\/\\\\ returnAddrMap = << >>\\n\/\\\\ readIndex = 1\\n\/\\\\ log = <<[key |-> \"taskKey\", value |-> \"taskValue\"]>>\\n\/\\\\ network = [ SystemID |-> <<>>,\\n  frontdoor |-> <<>>,\\n  worker |->\\n      << [ type |-> \"read_ok\",\\n           from |-> \"SystemID\",\\n           token |-> [epoch |-> 1, checkpoint |-> 0],\\n           value |-> \"NoValue\" ] >> ]\\n\/\\\\ workerPC = \"workerBeginTaskReceive\""
+      "name": "-5129457597174000848",
+      "label": "\/\\\\ epoch = 1\\n\/\\\\ frontdoorToken = [epoch |-> 1, checkpoint |-> 1]\\n\/\\\\ workerToken = [epoch |-> 0, checkpoint |-> 0]\\n\/\\\\ WriteConsistencyLevel = \"SessionConsistency\"\\n\/\\\\ frontdoorPC = \"Done\"\\n\/\\\\ serviceBus = <<>>\\n\/\\\\ workerValue = \"NoValue\"\\n\/\\\\ commitIndex = 1\\n\/\\\\ returnAddrMap = << >>\\n\/\\\\ readIndex = 1\\n\/\\\\ log = <<[key |-> \"taskKey\", value |-> \"taskValue\"]>>\\n\/\\\\ network = [ SystemID |-> <<>>,\\n  frontdoor |-> <<>>,\\n  worker |->\\n      << [ type |-> \"read_ok\",\\n           from |-> \"SystemID\",\\n           token |-> [epoch |-> 1, checkpoint |-> 0],\\n           value |-> \"NoValue\" ] >> ]\\n\/\\\\ workerPC = \"workerBeginTaskReceive\""
     },
     {
       "_gvid": 33,
-      "name": "6623331460854656683",
-      "label": "\/\\\\ epoch = 2\\n\/\\\\ frontdoorToken = [epoch |-> 1, checkpoint |-> 1]\\n\/\\\\ workerToken = [epoch |-> 0, checkpoint |-> 0]\\n\/\\\\ WriteConsistencyLevel = SessionConsistency\\n\/\\\\ frontdoorPC = \"Done\"\\n\/\\\\ serviceBus = <<>>\\n\/\\\\ workerValue = \"NoValue\"\\n\/\\\\ commitIndex = 0\\n\/\\\\ returnAddrMap = << >>\\n\/\\\\ readIndex = 0\\n\/\\\\ log = <<>>\\n\/\\\\ network = [ SystemID |-> <<>>,\\n  frontdoor |-> <<>>,\\n  worker |->\\n      << [ type |-> \"read_ok\",\\n           from |-> \"SystemID\",\\n           token |-> [epoch |-> 1, checkpoint |-> 0],\\n           value |-> \"NoValue\" ] >> ]\\n\/\\\\ workerPC = \"workerBeginTaskReceive\""
+      "name": "-2024669446711758939",
+      "label": "\/\\\\ epoch = 2\\n\/\\\\ frontdoorToken = [epoch |-> 1, checkpoint |-> 1]\\n\/\\\\ workerToken = [epoch |-> 0, checkpoint |-> 0]\\n\/\\\\ WriteConsistencyLevel = \"SessionConsistency\"\\n\/\\\\ frontdoorPC = \"Done\"\\n\/\\\\ serviceBus = <<>>\\n\/\\\\ workerValue = \"NoValue\"\\n\/\\\\ commitIndex = 0\\n\/\\\\ returnAddrMap = << >>\\n\/\\\\ readIndex = 0\\n\/\\\\ log = <<>>\\n\/\\\\ network = [ SystemID |-> <<>>,\\n  frontdoor |-> <<>>,\\n  worker |->\\n      << [ type |-> \"read_ok\",\\n           from |-> \"SystemID\",\\n           token |-> [epoch |-> 1, checkpoint |-> 0],\\n           value |-> \"NoValue\" ] >> ]\\n\/\\\\ workerPC = \"workerBeginTaskReceive\""
     },
     {
       "_gvid": 34,
-      "name": "3163004762589387606",
-      "label": "\/\\\\ epoch = 1\\n\/\\\\ frontdoorToken = [epoch |-> 1, checkpoint |-> 1]\\n\/\\\\ workerToken = [epoch |-> 1, checkpoint |-> 1]\\n\/\\\\ WriteConsistencyLevel = SessionConsistency\\n\/\\\\ frontdoorPC = \"Done\"\\n\/\\\\ serviceBus = <<>>\\n\/\\\\ workerValue = \"taskValue\"\\n\/\\\\ commitIndex = 0\\n\/\\\\ returnAddrMap = << >>\\n\/\\\\ readIndex = 0\\n\/\\\\ log = <<[key |-> \"taskKey\", value |-> \"taskValue\"]>>\\n\/\\\\ network = [SystemID |-> <<>>, frontdoor |-> <<>>, worker |-> <<>>]\\n\/\\\\ workerPC = \"Done\""
+      "name": "6499471068158743931",
+      "label": "\/\\\\ epoch = 1\\n\/\\\\ frontdoorToken = [epoch |-> 1, checkpoint |-> 1]\\n\/\\\\ workerToken = [epoch |-> 1, checkpoint |-> 1]\\n\/\\\\ WriteConsistencyLevel = \"SessionConsistency\"\\n\/\\\\ frontdoorPC = \"Done\"\\n\/\\\\ serviceBus = <<>>\\n\/\\\\ workerValue = \"taskValue\"\\n\/\\\\ commitIndex = 0\\n\/\\\\ returnAddrMap = << >>\\n\/\\\\ readIndex = 0\\n\/\\\\ log = <<[key |-> \"taskKey\", value |-> \"taskValue\"]>>\\n\/\\\\ network = [SystemID |-> <<>>, frontdoor |-> <<>>, worker |-> <<>>]\\n\/\\\\ workerPC = \"Done\""
     },
     {
       "_gvid": 35,
-      "name": "-2692774257158781075",
-      "label": "\/\\\\ epoch = 1\\n\/\\\\ frontdoorToken = [epoch |-> 1, checkpoint |-> 1]\\n\/\\\\ workerToken = [epoch |-> 0, checkpoint |-> 0]\\n\/\\\\ WriteConsistencyLevel = SessionConsistency\\n\/\\\\ frontdoorPC = \"Done\"\\n\/\\\\ serviceBus = <<>>\\n\/\\\\ workerValue = \"NoValue\"\\n\/\\\\ commitIndex = 1\\n\/\\\\ returnAddrMap = << >>\\n\/\\\\ readIndex = 0\\n\/\\\\ log = <<[key |-> \"taskKey\", value |-> \"taskValue\"]>>\\n\/\\\\ network = [ SystemID |-> <<>>,\\n  frontdoor |-> <<>>,\\n  worker |->\\n      << [ type |-> \"read_ok\",\\n           from |-> \"SystemID\",\\n           token |-> [epoch |-> 1, checkpoint |-> 1],\\n           value |-> \"taskValue\" ] >> ]\\n\/\\\\ workerPC = \"workerBeginTaskReceive\""
+      "name": "-433001854477350370",
+      "label": "\/\\\\ epoch = 1\\n\/\\\\ frontdoorToken = [epoch |-> 1, checkpoint |-> 1]\\n\/\\\\ workerToken = [epoch |-> 0, checkpoint |-> 0]\\n\/\\\\ WriteConsistencyLevel = \"SessionConsistency\"\\n\/\\\\ frontdoorPC = \"Done\"\\n\/\\\\ serviceBus = <<>>\\n\/\\\\ workerValue = \"NoValue\"\\n\/\\\\ commitIndex = 1\\n\/\\\\ returnAddrMap = << >>\\n\/\\\\ readIndex = 0\\n\/\\\\ log = <<[key |-> \"taskKey\", value |-> \"taskValue\"]>>\\n\/\\\\ network = [ SystemID |-> <<>>,\\n  frontdoor |-> <<>>,\\n  worker |->\\n      << [ type |-> \"read_ok\",\\n           from |-> \"SystemID\",\\n           token |-> [epoch |-> 1, checkpoint |-> 1],\\n           value |-> \"taskValue\" ] >> ]\\n\/\\\\ workerPC = \"workerBeginTaskReceive\""
     },
     {
       "_gvid": 36,
-      "name": "4218994413997574500",
-      "label": "\/\\\\ epoch = 1\\n\/\\\\ frontdoorToken = [epoch |-> 1, checkpoint |-> 1]\\n\/\\\\ workerToken = [epoch |-> 0, checkpoint |-> 0]\\n\/\\\\ WriteConsistencyLevel = SessionConsistency\\n\/\\\\ frontdoorPC = \"Done\"\\n\/\\\\ serviceBus = <<>>\\n\/\\\\ workerValue = \"NoValue\"\\n\/\\\\ commitIndex = 1\\n\/\\\\ returnAddrMap = << >>\\n\/\\\\ readIndex = 1\\n\/\\\\ log = <<[key |-> \"taskKey\", value |-> \"taskValue\"]>>\\n\/\\\\ network = [ SystemID |-> <<>>,\\n  frontdoor |-> <<>>,\\n  worker |->\\n      << [ type |-> \"read_ok\",\\n           from |-> \"SystemID\",\\n           token |-> [epoch |-> 1, checkpoint |-> 1],\\n           value |-> \"taskValue\" ] >> ]\\n\/\\\\ workerPC = \"workerBeginTaskReceive\""
+      "name": "1860006570505012247",
+      "label": "\/\\\\ epoch = 1\\n\/\\\\ frontdoorToken = [epoch |-> 1, checkpoint |-> 1]\\n\/\\\\ workerToken = [epoch |-> 0, checkpoint |-> 0]\\n\/\\\\ WriteConsistencyLevel = \"SessionConsistency\"\\n\/\\\\ frontdoorPC = \"Done\"\\n\/\\\\ serviceBus = <<>>\\n\/\\\\ workerValue = \"NoValue\"\\n\/\\\\ commitIndex = 1\\n\/\\\\ returnAddrMap = << >>\\n\/\\\\ readIndex = 1\\n\/\\\\ log = <<[key |-> \"taskKey\", value |-> \"taskValue\"]>>\\n\/\\\\ network = [ SystemID |-> <<>>,\\n  frontdoor |-> <<>>,\\n  worker |->\\n      << [ type |-> \"read_ok\",\\n           from |-> \"SystemID\",\\n           token |-> [epoch |-> 1, checkpoint |-> 1],\\n           value |-> \"taskValue\" ] >> ]\\n\/\\\\ workerPC = \"workerBeginTaskReceive\""
     },
     {
       "_gvid": 37,
-      "name": "-3674529707070349350",
-      "label": "\/\\\\ epoch = 2\\n\/\\\\ frontdoorToken = [epoch |-> 1, checkpoint |-> 1]\\n\/\\\\ workerToken = [epoch |-> 0, checkpoint |-> 0]\\n\/\\\\ WriteConsistencyLevel = SessionConsistency\\n\/\\\\ frontdoorPC = \"Done\"\\n\/\\\\ serviceBus = <<>>\\n\/\\\\ workerValue = \"NoValue\"\\n\/\\\\ commitIndex = 0\\n\/\\\\ returnAddrMap = << >>\\n\/\\\\ readIndex = 0\\n\/\\\\ log = <<>>\\n\/\\\\ network = [ SystemID |-> <<>>,\\n  frontdoor |-> <<>>,\\n  worker |->\\n      << [ type |-> \"read_ok\",\\n           from |-> \"SystemID\",\\n           token |-> [epoch |-> 1, checkpoint |-> 1],\\n           value |-> \"taskValue\" ] >> ]\\n\/\\\\ workerPC = \"workerBeginTaskReceive\""
+      "name": "-7465880789547777157",
+      "label": "\/\\\\ epoch = 2\\n\/\\\\ frontdoorToken = [epoch |-> 1, checkpoint |-> 1]\\n\/\\\\ workerToken = [epoch |-> 0, checkpoint |-> 0]\\n\/\\\\ WriteConsistencyLevel = \"SessionConsistency\"\\n\/\\\\ frontdoorPC = \"Done\"\\n\/\\\\ serviceBus = <<>>\\n\/\\\\ workerValue = \"NoValue\"\\n\/\\\\ commitIndex = 0\\n\/\\\\ returnAddrMap = << >>\\n\/\\\\ readIndex = 0\\n\/\\\\ log = <<>>\\n\/\\\\ network = [ SystemID |-> <<>>,\\n  frontdoor |-> <<>>,\\n  worker |->\\n      << [ type |-> \"read_ok\",\\n           from |-> \"SystemID\",\\n           token |-> [epoch |-> 1, checkpoint |-> 1],\\n           value |-> \"taskValue\" ] >> ]\\n\/\\\\ workerPC = \"workerBeginTaskReceive\""
     },
     {
       "_gvid": 38,
-      "name": "5633449165281744274",
-      "label": "\/\\\\ epoch = 2\\n\/\\\\ frontdoorToken = [epoch |-> 1, checkpoint |-> 1]\\n\/\\\\ workerToken = [epoch |-> 0, checkpoint |-> 0]\\n\/\\\\ WriteConsistencyLevel = SessionConsistency\\n\/\\\\ frontdoorPC = \"Done\"\\n\/\\\\ serviceBus = <<>>\\n\/\\\\ workerValue = \"NoValue\"\\n\/\\\\ commitIndex = 0\\n\/\\\\ returnAddrMap = << >>\\n\/\\\\ readIndex = 0\\n\/\\\\ log = <<>>\\n\/\\\\ network = [ SystemID |-> <<>>,\\n  frontdoor |-> <<>>,\\n  worker |->\\n      << [ type |-> \"read_ok\",\\n           from |-> \"SystemID\",\\n           token |-> [epoch |-> 2, checkpoint |-> 0],\\n           value |-> \"NoValue\" ] >> ]\\n\/\\\\ workerPC = \"workerBeginTaskReceive\""
+      "name": "-710960532884597604",
+      "label": "\/\\\\ epoch = 2\\n\/\\\\ frontdoorToken = [epoch |-> 1, checkpoint |-> 1]\\n\/\\\\ workerToken = [epoch |-> 0, checkpoint |-> 0]\\n\/\\\\ WriteConsistencyLevel = \"SessionConsistency\"\\n\/\\\\ frontdoorPC = \"Done\"\\n\/\\\\ serviceBus = <<>>\\n\/\\\\ workerValue = \"NoValue\"\\n\/\\\\ commitIndex = 0\\n\/\\\\ returnAddrMap = << >>\\n\/\\\\ readIndex = 0\\n\/\\\\ log = <<>>\\n\/\\\\ network = [ SystemID |-> <<>>,\\n  frontdoor |-> <<>>,\\n  worker |->\\n      << [ type |-> \"read_ok\",\\n           from |-> \"SystemID\",\\n           token |-> [epoch |-> 2, checkpoint |-> 0],\\n           value |-> \"NoValue\" ] >> ]\\n\/\\\\ workerPC = \"workerBeginTaskReceive\""
     },
     {
       "_gvid": 39,
-      "name": "-7163370126408278095",
-      "label": "\/\\\\ epoch = 1\\n\/\\\\ frontdoorToken = [epoch |-> 1, checkpoint |-> 1]\\n\/\\\\ workerToken = [epoch |-> 1, checkpoint |-> 0]\\n\/\\\\ WriteConsistencyLevel = SessionConsistency\\n\/\\\\ frontdoorPC = \"Done\"\\n\/\\\\ serviceBus = <<>>\\n\/\\\\ workerValue = \"NoValue\"\\n\/\\\\ commitIndex = 1\\n\/\\\\ returnAddrMap = << >>\\n\/\\\\ readIndex = 0\\n\/\\\\ log = <<[key |-> \"taskKey\", value |-> \"taskValue\"]>>\\n\/\\\\ network = [SystemID |-> <<>>, frontdoor |-> <<>>, worker |-> <<>>]\\n\/\\\\ workerPC = \"Done\""
+      "name": "-7720452819673215686",
+      "label": "\/\\\\ epoch = 1\\n\/\\\\ frontdoorToken = [epoch |-> 1, checkpoint |-> 1]\\n\/\\\\ workerToken = [epoch |-> 1, checkpoint |-> 0]\\n\/\\\\ WriteConsistencyLevel = \"SessionConsistency\"\\n\/\\\\ frontdoorPC = \"Done\"\\n\/\\\\ serviceBus = <<>>\\n\/\\\\ workerValue = \"NoValue\"\\n\/\\\\ commitIndex = 1\\n\/\\\\ returnAddrMap = << >>\\n\/\\\\ readIndex = 0\\n\/\\\\ log = <<[key |-> \"taskKey\", value |-> \"taskValue\"]>>\\n\/\\\\ network = [SystemID |-> <<>>, frontdoor |-> <<>>, worker |-> <<>>]\\n\/\\\\ workerPC = \"Done\""
     },
     {
       "_gvid": 40,
-      "name": "-2057999732110156851",
-      "label": "\/\\\\ epoch = 1\\n\/\\\\ frontdoorToken = [epoch |-> 1, checkpoint |-> 1]\\n\/\\\\ workerToken = [epoch |-> 1, checkpoint |-> 0]\\n\/\\\\ WriteConsistencyLevel = SessionConsistency\\n\/\\\\ frontdoorPC = \"Done\"\\n\/\\\\ serviceBus = <<>>\\n\/\\\\ workerValue = \"NoValue\"\\n\/\\\\ commitIndex = 1\\n\/\\\\ returnAddrMap = << >>\\n\/\\\\ readIndex = 1\\n\/\\\\ log = <<[key |-> \"taskKey\", value |-> \"taskValue\"]>>\\n\/\\\\ network = [SystemID |-> <<>>, frontdoor |-> <<>>, worker |-> <<>>]\\n\/\\\\ workerPC = \"Done\""
+      "name": "-1495918659271095994",
+      "label": "\/\\\\ epoch = 1\\n\/\\\\ frontdoorToken = [epoch |-> 1, checkpoint |-> 1]\\n\/\\\\ workerToken = [epoch |-> 1, checkpoint |-> 0]\\n\/\\\\ WriteConsistencyLevel = \"SessionConsistency\"\\n\/\\\\ frontdoorPC = \"Done\"\\n\/\\\\ serviceBus = <<>>\\n\/\\\\ workerValue = \"NoValue\"\\n\/\\\\ commitIndex = 1\\n\/\\\\ returnAddrMap = << >>\\n\/\\\\ readIndex = 1\\n\/\\\\ log = <<[key |-> \"taskKey\", value |-> \"taskValue\"]>>\\n\/\\\\ network = [SystemID |-> <<>>, frontdoor |-> <<>>, worker |-> <<>>]\\n\/\\\\ workerPC = \"Done\""
     },
     {
       "_gvid": 41,
-      "name": "3869020063963194092",
-      "label": "\/\\\\ epoch = 2\\n\/\\\\ frontdoorToken = [epoch |-> 1, checkpoint |-> 1]\\n\/\\\\ workerToken = [epoch |-> 1, checkpoint |-> 0]\\n\/\\\\ WriteConsistencyLevel = SessionConsistency\\n\/\\\\ frontdoorPC = \"Done\"\\n\/\\\\ serviceBus = <<>>\\n\/\\\\ workerValue = \"NoValue\"\\n\/\\\\ commitIndex = 0\\n\/\\\\ returnAddrMap = << >>\\n\/\\\\ readIndex = 0\\n\/\\\\ log = <<>>\\n\/\\\\ network = [SystemID |-> <<>>, frontdoor |-> <<>>, worker |-> <<>>]\\n\/\\\\ workerPC = \"Done\""
+      "name": "8193126325194999144",
+      "label": "\/\\\\ epoch = 2\\n\/\\\\ frontdoorToken = [epoch |-> 1, checkpoint |-> 1]\\n\/\\\\ workerToken = [epoch |-> 1, checkpoint |-> 0]\\n\/\\\\ WriteConsistencyLevel = \"SessionConsistency\"\\n\/\\\\ frontdoorPC = \"Done\"\\n\/\\\\ serviceBus = <<>>\\n\/\\\\ workerValue = \"NoValue\"\\n\/\\\\ commitIndex = 0\\n\/\\\\ returnAddrMap = << >>\\n\/\\\\ readIndex = 0\\n\/\\\\ log = <<>>\\n\/\\\\ network = [SystemID |-> <<>>, frontdoor |-> <<>>, worker |-> <<>>]\\n\/\\\\ workerPC = \"Done\""
     },
     {
       "_gvid": 42,
-      "name": "-3940244002339610608",
-      "label": "\/\\\\ epoch = 1\\n\/\\\\ frontdoorToken = [epoch |-> 1, checkpoint |-> 1]\\n\/\\\\ workerToken = [epoch |-> 1, checkpoint |-> 1]\\n\/\\\\ WriteConsistencyLevel = SessionConsistency\\n\/\\\\ frontdoorPC = \"Done\"\\n\/\\\\ serviceBus = <<>>\\n\/\\\\ workerValue = \"taskValue\"\\n\/\\\\ commitIndex = 1\\n\/\\\\ returnAddrMap = << >>\\n\/\\\\ readIndex = 0\\n\/\\\\ log = <<[key |-> \"taskKey\", value |-> \"taskValue\"]>>\\n\/\\\\ network = [SystemID |-> <<>>, frontdoor |-> <<>>, worker |-> <<>>]\\n\/\\\\ workerPC = \"Done\""
+      "name": "-5150162602933178819",
+      "label": "\/\\\\ epoch = 1\\n\/\\\\ frontdoorToken = [epoch |-> 1, checkpoint |-> 1]\\n\/\\\\ workerToken = [epoch |-> 1, checkpoint |-> 1]\\n\/\\\\ WriteConsistencyLevel = \"SessionConsistency\"\\n\/\\\\ frontdoorPC = \"Done\"\\n\/\\\\ serviceBus = <<>>\\n\/\\\\ workerValue = \"taskValue\"\\n\/\\\\ commitIndex = 1\\n\/\\\\ returnAddrMap = << >>\\n\/\\\\ readIndex = 0\\n\/\\\\ log = <<[key |-> \"taskKey\", value |-> \"taskValue\"]>>\\n\/\\\\ network = [SystemID |-> <<>>, frontdoor |-> <<>>, worker |-> <<>>]\\n\/\\\\ workerPC = \"Done\""
     },
     {
       "_gvid": 43,
-      "name": "-5280633274448960404",
-      "label": "\/\\\\ epoch = 1\\n\/\\\\ frontdoorToken = [epoch |-> 1, checkpoint |-> 1]\\n\/\\\\ workerToken = [epoch |-> 1, checkpoint |-> 1]\\n\/\\\\ WriteConsistencyLevel = SessionConsistency\\n\/\\\\ frontdoorPC = \"Done\"\\n\/\\\\ serviceBus = <<>>\\n\/\\\\ workerValue = \"taskValue\"\\n\/\\\\ commitIndex = 1\\n\/\\\\ returnAddrMap = << >>\\n\/\\\\ readIndex = 1\\n\/\\\\ log = <<[key |-> \"taskKey\", value |-> \"taskValue\"]>>\\n\/\\\\ network = [SystemID |-> <<>>, frontdoor |-> <<>>, worker |-> <<>>]\\n\/\\\\ workerPC = \"Done\""
+      "name": "-4079998954855912895",
+      "label": "\/\\\\ epoch = 1\\n\/\\\\ frontdoorToken = [epoch |-> 1, checkpoint |-> 1]\\n\/\\\\ workerToken = [epoch |-> 1, checkpoint |-> 1]\\n\/\\\\ WriteConsistencyLevel = \"SessionConsistency\"\\n\/\\\\ frontdoorPC = \"Done\"\\n\/\\\\ serviceBus = <<>>\\n\/\\\\ workerValue = \"taskValue\"\\n\/\\\\ commitIndex = 1\\n\/\\\\ returnAddrMap = << >>\\n\/\\\\ readIndex = 1\\n\/\\\\ log = <<[key |-> \"taskKey\", value |-> \"taskValue\"]>>\\n\/\\\\ network = [SystemID |-> <<>>, frontdoor |-> <<>>, worker |-> <<>>]\\n\/\\\\ workerPC = \"Done\""
     },
     {
       "_gvid": 44,
-      "name": "-8896784338025686883",
-      "label": "\/\\\\ epoch = 2\\n\/\\\\ frontdoorToken = [epoch |-> 1, checkpoint |-> 1]\\n\/\\\\ workerToken = [epoch |-> 1, checkpoint |-> 1]\\n\/\\\\ WriteConsistencyLevel = SessionConsistency\\n\/\\\\ frontdoorPC = \"Done\"\\n\/\\\\ serviceBus = <<>>\\n\/\\\\ workerValue = \"taskValue\"\\n\/\\\\ commitIndex = 0\\n\/\\\\ returnAddrMap = << >>\\n\/\\\\ readIndex = 0\\n\/\\\\ log = <<>>\\n\/\\\\ network = [SystemID |-> <<>>, frontdoor |-> <<>>, worker |-> <<>>]\\n\/\\\\ workerPC = \"Done\""
+      "name": "4307969491711094649",
+      "label": "\/\\\\ epoch = 2\\n\/\\\\ frontdoorToken = [epoch |-> 1, checkpoint |-> 1]\\n\/\\\\ workerToken = [epoch |-> 1, checkpoint |-> 1]\\n\/\\\\ WriteConsistencyLevel = \"SessionConsistency\"\\n\/\\\\ frontdoorPC = \"Done\"\\n\/\\\\ serviceBus = <<>>\\n\/\\\\ workerValue = \"taskValue\"\\n\/\\\\ commitIndex = 0\\n\/\\\\ returnAddrMap = << >>\\n\/\\\\ readIndex = 0\\n\/\\\\ log = <<>>\\n\/\\\\ network = [SystemID |-> <<>>, frontdoor |-> <<>>, worker |-> <<>>]\\n\/\\\\ workerPC = \"Done\""
     },
     {
       "_gvid": 45,
-      "name": "1547750179539650155",
-      "label": "\/\\\\ epoch = 2\\n\/\\\\ frontdoorToken = [epoch |-> 1, checkpoint |-> 1]\\n\/\\\\ workerToken = [epoch |-> 2, checkpoint |-> 0]\\n\/\\\\ WriteConsistencyLevel = SessionConsistency\\n\/\\\\ frontdoorPC = \"Done\"\\n\/\\\\ serviceBus = <<>>\\n\/\\\\ workerValue = \"NoValue\"\\n\/\\\\ commitIndex = 0\\n\/\\\\ returnAddrMap = << >>\\n\/\\\\ readIndex = 0\\n\/\\\\ log = <<>>\\n\/\\\\ network = [SystemID |-> <<>>, frontdoor |-> <<>>, worker |-> <<>>]\\n\/\\\\ workerPC = \"Done\""
+      "name": "-4334324918324632799",
+      "label": "\/\\\\ epoch = 2\\n\/\\\\ frontdoorToken = [epoch |-> 1, checkpoint |-> 1]\\n\/\\\\ workerToken = [epoch |-> 2, checkpoint |-> 0]\\n\/\\\\ WriteConsistencyLevel = \"SessionConsistency\"\\n\/\\\\ frontdoorPC = \"Done\"\\n\/\\\\ serviceBus = <<>>\\n\/\\\\ workerValue = \"NoValue\"\\n\/\\\\ commitIndex = 0\\n\/\\\\ returnAddrMap = << >>\\n\/\\\\ readIndex = 0\\n\/\\\\ log = <<>>\\n\/\\\\ network = [SystemID |-> <<>>, frontdoor |-> <<>>, worker |-> <<>>]\\n\/\\\\ workerPC = \"Done\""
     }
   ],
   "edges": [
