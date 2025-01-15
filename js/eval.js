@@ -2869,6 +2869,14 @@ function evalBoundInfix(node, ctx) {
         let lhsVal = evalExpr(lhs, ctx)[0]["val"];
         let rhsVal = evalExpr(rhs, ctx)[0]["val"];
 
+        // Cast tuples to be treated as functions if we are composing functions.
+        if(lhsVal instanceof TupleValue){
+            lhsVal = lhsVal.toFcnRcd()
+        }
+        if(rhsVal instanceof TupleValue){
+            rhsVal = rhsVal.toFcnRcd();
+        }
+
         return [ctx.withVal(lhsVal.compose(rhsVal))];
     }
 
