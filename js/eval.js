@@ -581,14 +581,13 @@ class FcnRcdValue extends TLAValue {
  * Represents a TLA+ definition (either 0-arity or an n-arity operation definition.)
  */
 // class Definition {
-//     constructor(name, isLocalDef, infixOpSymbol, args, var_decls, op_defs, fn_defs, parentModuleName) {
+//     constructor(name, isLocalDef, infixOpSymbol, args, var_decls, op_defs, parentModuleName) {
 //         this.name = name;
 //         this.isLocalDef = isLocalDef;
 //         this.infixOpSymbol = infixOpSymbol;
 //         this.args = args;
 //         this.var_decls = var_decls;
 //         this.op_defs = op_defs;
-//         this.fn_defs = fn_defs;
 //         this.parentModuleName = parentModuleName;
 //     }
 // }
