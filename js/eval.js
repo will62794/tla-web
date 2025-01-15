@@ -1287,11 +1287,28 @@ class TLASpec {
 
         // Stores global table of all definitions encountered during parsing of any module.
         this.globalDefTable = {};
+        this.globalDefId = 0;
 
         this.specText = specText;
         this.specPath = specPath;
 
+        // Stores the parsed root spec object.
+        this.spec_obj = {};
+
     }
+
+    /**
+     * Generate a globally unique identifier for a definition. 
+     * 
+     * We use numerical identifiers but these can be considered as string
+     * identifiers.
+     */
+    nextGlobalDefId() {
+        let nextId = this.globalDefId;
+        this.globalDefId += 1;
+        return String(nextId);
+    }
+
     hasDefinitionByName(defName){
         return this.getDefinitionByName(defName) !== undefined;
     }
