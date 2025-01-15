@@ -1254,6 +1254,13 @@ class TLASpec {
         this.specText = specText;
         this.specPath = specPath;
 
+    hasDefinitionByName(defName){
+        return this.getDefinitionByName(defName) !== undefined;
+    }
+
+    getDefinitionByName(defName){
+        let defObj = _.find(this.spec_obj["op_defs"], (defobj) => defobj.name === defName);
+        return defObj;
     }
 
     // TODO: Extend this to parse fetched modules during spec parsing.
