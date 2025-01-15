@@ -1254,6 +1254,7 @@ class TLASpec {
         this.specText = specText;
         this.specPath = specPath;
 
+    }
     hasDefinitionByName(defName){
         return this.getDefinitionByName(defName) !== undefined;
     }
