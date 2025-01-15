@@ -571,6 +571,43 @@ class FcnRcdValue extends TLAValue {
     }
 }
 
+
+
+// 
+// TODO: Eventually consider moving over definition objects and table into these more structured formats.
+// 
+
+/**
+ * Represents a TLA+ definition (either 0-arity or an n-arity operation definition.)
+ */
+// class Definition {
+//     constructor(name, isLocalDef, infixOpSymbol, args, var_decls, op_defs, fn_defs, parentModuleName) {
+//         this.name = name;
+//         this.isLocalDef = isLocalDef;
+//         this.infixOpSymbol = infixOpSymbol;
+//         this.args = args;
+//         this.var_decls = var_decls;
+//         this.op_defs = op_defs;
+//         this.fn_defs = fn_defs;
+//         this.parentModuleName = parentModuleName;
+//     }
+// }
+
+/**
+ * Stores a global table of definitions encountered during parsing a root spec and all imported/instantiated modules.
+ */
+// class GlobalDefinitionTable {
+//     constructor() {
+//         this.defs = {};
+//     }
+
+//     addDefinition(name, definition) {
+//         this.defs[definition.parentModuleName + "$$$" + name] = definition;
+//         definition.parentModuleName;
+//         console.log("added definition", name, definition, definition.parentModuleName);
+//     }
+// }
+
 /**
  * Represents a concrete TLA+ state i.e. a mapping from variable names to values.
  */
