@@ -255,26 +255,14 @@ async function testStateGraphEquiv(testId, stateGraph, parsedSpec, specPath, con
             { "spec": "simple_disjunction_constant", "constvals": undefined },
             { "spec": "simple_conjunction_constant", "constvals": undefined },
             { "spec": "simple_disjunction_init", "constvals": undefined },
-            { "spec": "simple_unchanged_no_tuple", "constvals": undefined },
-            { "spec": "simple_unchanged_nested_def", "constvals": undefined },
-            { "spec": "simple_unchanged_nested_tuple_def", "constvals": undefined },
-            { "spec": "simple_unchanged", "constvals": undefined },
             { "spec": "simple_quant_multi", "constvals": undefined },
             { "spec": "simple_defined_var_assignment", "constvals": undefined },
             // TODO: Re-enable this once we implement full recursive beta reduction for variable assignment.
-            // { "spec": "simple_defined_var_assignment_transitive", "constvals": undefined },
+            { "spec": "simple_defined_var_assignment_transitive", "constvals": undefined },
             // { "spec": "simple_quant_tuple", "constvals": undefined },
             { "spec": "simple_multiline", "constvals": undefined },
             { "spec": "simple_letin", "constvals": undefined },
             { "spec": "simple_letin_fn_def", "constvals": undefined },
-            { "spec": "simple_extends", "constvals": undefined },
-            // { "spec": "simple_extends_local_def", "constvals": undefined },
-            { "spec": "simple_extends_instance", "constvals": undefined },
-            { "spec": "simple_extends_instance_transitive", "constvals": undefined },
-            { "spec": "simple_extends_instance_def", "constvals": undefined },
-            { "spec": "simple_extends_instance_def_user_infix_op", "constvals": undefined },
-            { "spec": "simple_extends_instance_def_transitive", "constvals": undefined },
-            { "spec": "simple_extends_instance_def_transitive_import", "constvals": undefined },
             { "spec": "simple_operator", "constvals": undefined },
             { "spec": "simple_lambda", "constvals": undefined },
             { "spec": "simple_lambda_letin", "constvals": undefined },
@@ -294,6 +282,7 @@ async function testStateGraphEquiv(testId, stateGraph, parsedSpec, specPath, con
             { "spec": "simple_var_tuple", "constvals": undefined },
             { "spec": "simple_choose", "constvals": undefined },
             { "spec": "simple_tlc_fn", "constvals": undefined },
+            { "spec": "simple_tlc_fn_compose", "constvals": undefined },
             { "spec": "simple_tlc_ops", "constvals": undefined },
             { "spec": "set_dot_notation", "constvals": undefined },
             { "spec": "record_literal_eval", "constvals": undefined },
@@ -306,7 +295,6 @@ async function testStateGraphEquiv(testId, stateGraph, parsedSpec, specPath, con
             { "spec": "pre_module_comments", "constvals": undefined },
             { "spec": "lockserver_nodefs", "constvals": undefined },
             { "spec": "lockserver_nodefs1", "constvals": undefined },
-            { "spec": "lockserver_nodefs_unchanged", "constvals": undefined },
             { "spec": "operator_param_clash_before_var_def", "constvals": undefined },
             { "spec": "operator_param_clash_before_const_def", "constvals": {"c": new IntValue(12)} },
             // TODO: Re-enable this test once we figure out to deal with interaction b/w declarations and module imports.
@@ -322,15 +310,34 @@ async function testStateGraphEquiv(testId, stateGraph, parsedSpec, specPath, con
             },
 
         ],
+    "UNCHANGED": [
+        { "spec": "simple_unchanged_no_tuple", "constvals": undefined },
+        { "spec": "simple_unchanged_nested_def", "constvals": undefined },
+        { "spec": "simple_unchanged_nested_tuple_def", "constvals": undefined },
+        { "spec": "simple_unchanged_nested_tuple", "constvals": undefined },
+        { "spec": "simple_unchanged", "constvals": undefined },
+        { "spec": "lockserver_nodefs_unchanged", "constvals": undefined },
+    ],
+    "Module instantiation": [
+        { "spec": "simple_extends", "constvals": undefined },
+        { "spec": "simple_extends_local_def", "constvals": undefined },
+        { "spec": "simple_extends_instance", "constvals": undefined },
+        { "spec": "simple_extends_instance_transitive", "constvals": undefined },
+        { "spec": "simple_extends_instance_def", "constvals": undefined },
+        { "spec": "simple_extends_instance_def_user_infix_op", "constvals": undefined },
+        { "spec": "simple_extends_instance_def_transitive", "constvals": undefined },
+        { "spec": "simple_extends_instance_def_transitive_import", "constvals": undefined },
+        { "spec": "simple_extends_instance_duplicate_def_names", "constvals": undefined },
+    ],
     "Module instantiation with substitution": [
         { "spec": "simple_extends_instance_with_const_subst", "constvals": undefined },
         { "spec": "simple_extends_instance_with_var_subst", "constvals": undefined },
         { "spec": "simple_extends_instance_def_with_subst", "constvals": undefined },
         { "spec": "simple_extends_instance_def_with_var_subst_one_implicit", "constvals": undefined },
         // TODO: Re-enable this once we figure out how to handle recursive beta reduction for variable assignment.
-        // { "spec": "simple_extends_instance_def_with_var_subst_same_name", "constvals": undefined },
+        { "spec": "simple_extends_instance_def_with_var_subst_same_name", "constvals": undefined },
         { "spec": "simple_extends_instance_with_var_subst_identity", "constvals": undefined },
-        // { "spec": "simple_extends_instance_def_with_var_subst_default_name", "constvals": undefined },
+        { "spec": "simple_extends_instance_def_with_var_subst_default_name", "constvals": undefined },
         { "spec": "simple_extends_instance_with_var_and_const_subst", "constvals": undefined },
         { "spec": "simple_extends_instance_with_var_and_const_subst_transitive", "constvals": undefined },
         { "spec": "simple_extends_instance_def_with_var_subst", "constvals": undefined },
@@ -390,18 +397,18 @@ async function testStateGraphEquiv(testId, stateGraph, parsedSpec, specPath, con
                 "Nil": new StringValue("Nil"),
             }
         },
-        // {
-        //     "spec": "show521677",
-        //     "constvals": {
-        //         "StrongConsistency" : "StrongConsistency",
-        //         "BoundedStaleness" : "BoundedStaleness",
-        //         "SessionConsistency" : "SessionConsistency",
-        //         "ConsistentPrefix" : "ConsistentPrefix",
-        //         "EventualConsistency" : "EventualConsistency",
-        //         "StalenessBound": 1,
-        //         "VersionBound": 3
-        //     }
-        // },
+        {
+            "spec": "show521677",
+            "constvals": {
+                "StrongConsistency" : new StringValue("StrongConsistency"),
+                "BoundedStaleness" : new StringValue("BoundedStaleness"),
+                "SessionConsistency" : new StringValue("SessionConsistency"),
+                "ConsistentPrefix" : new StringValue("ConsistentPrefix"),
+                "EventualConsistency" : new StringValue("EventualConsistency"),
+                "StalenessBound": new IntValue(1),
+                "VersionBound": new IntValue(3)
+            }
+        },
         // { "spec": "TestLinQueue", "constvals": undefined },
         // {
         //     "spec": "DieHarder", 

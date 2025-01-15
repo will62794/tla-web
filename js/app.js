@@ -35,6 +35,7 @@ let model = {
     currTrace: [],
     currTraceActions: [],
     currTraceAliasVals: [],
+    spec: null,
     specTreeObjs: null,
     specDefs: null,
     specConsts: null,
@@ -956,8 +957,11 @@ function reloadSpec() {
     //     return;
     // }
 
-    let hasInit = model.specTreeObjs["op_defs"].hasOwnProperty("Init");
-    let hasNext = model.specTreeObjs["op_defs"].hasOwnProperty("Next");
+    let hasInit = model.spec.hasDefinitionByName("Init");
+    let hasNext = model.spec.hasDefinitionByName("Next");
+
+    // let hasInit = model.specTreeObjs["op_defs"].hasOwnProperty("Init");
+    // let hasNext = model.specTreeObjs["op_defs"].hasOwnProperty("Next");
 
     // Init or Next is missing, we allow the spec to be loaded but just stop here before trying
     // to generate any initial states.
@@ -1153,10 +1157,10 @@ function getActionLabelText(actionLabel, quantBounds) {
 }
 
 function animationViewForTraceState(state){
-    let viewNode = model.specTreeObjs["op_defs"][model.animViewDefName].node;
+    let viewNode = model.spec.getDefinitionByName(model.animViewDefName).node;
     let initCtx = new Context(null, state, model.specDefs, {}, model.specConstVals);
     initCtx.setGlobalDefTable(model.spec.globalDefTable);
-    initCtx["defns_curr_context"] = model.specDefs[model.animViewDefName]["curr_defs_context"];
+    initCtx["defns_curr_context"] = model.spec.getDefinitionByName(model.animViewDefName)["curr_defs_context"];
     let start = performance.now();
     // evalNodeGraph = [];
     let ret = evalExpr(viewNode, initCtx);
@@ -1187,7 +1191,7 @@ function componentTraceViewerState(stateCtx, ind, isLastState, actionId) {
     let actionLabelObj = getActionLabelText(actionLabel, stateQuantBounds);
     let actionLabelText = actionLabelObj.name + actionLabelObj.params;
 
-    model.animationExists = model.specDefs.hasOwnProperty(model.animViewDefName);
+    model.animationExists = model.spec.hasDefinitionByName(model.animViewDefName);
     let vizSvg = m("svg", { width: 0, height: 0 }, []);
 
     if (model.animationExists && model.enableAnimationView) {
@@ -1471,8 +1475,8 @@ function onSpecParse(newText, parsedSpecTree, spec){
     model.currNextStates = [];
     model.replInput = "";
 
-    let hasInit = model.specTreeObjs["op_defs"].hasOwnProperty("Init");
-    let hasNext = model.specTreeObjs["op_defs"].hasOwnProperty("Next");
+    let hasInit = model.spec.hasDefinitionByName("Init");
+    let hasNext = model.spec.hasDefinitionByName("Next");
 
     // 
     // Now we allow specs without an Init or Next explicitly defined 
@@ -1496,8 +1500,9 @@ function onSpecParse(newText, parsedSpecTree, spec){
     model.specAlias = model.specTreeObjs["op_defs"]["Alias"];
 
     model.animationExists = model.spec.hasDefinitionByName(model.animViewDefName);
+
     if(hasNext){
-        model.nextStatePred = model.specTreeObjs["op_defs"]["Next"]["node"];
+        model.nextStatePred = model.spec.getDefinitionByName("Next")["node"];
     }
 
      // Load constants if given.
@@ -2051,6 +2056,10 @@ function replPane(hidden) {
                     model.replError = false;
                     let ctx = new Context(null, new TLAState({}), model.specDefs, {}, model.specConstVals);
                     try {
+                        // All definitions in the root module should be accessible.
+                        ctx["defns_curr_context"] = _.keys(model.spec.spec_obj["op_defs"]);
+                        ctx.setGlobalDefTable(model.spec.globalDefTable);
+                        console.log("REPL:", ctx);
                         let res = evalExprStrInContext(ctx, model.replInput);
                         console.log(res);
                         model.replResult = res;
