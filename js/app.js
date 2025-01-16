@@ -1160,6 +1160,7 @@ function animationViewForTraceState(state){
     let viewNode = model.spec.getDefinitionByName(model.animViewDefName).node;
     let initCtx = new Context(null, state, model.specDefs, {}, model.specConstVals);
     initCtx.setGlobalDefTable(model.spec.globalDefTable);
+    initCtx.setSpecObj(model.spec);
     initCtx["defns_curr_context"] = model.spec.getDefinitionByName(model.animViewDefName)["curr_defs_context"];
     let start = performance.now();
     // evalNodeGraph = [];
@@ -2059,6 +2060,7 @@ function replPane(hidden) {
                         // All definitions in the root module should be accessible.
                         ctx["defns_curr_context"] = _.keys(model.spec.spec_obj["op_defs"]);
                         ctx.setGlobalDefTable(model.spec.globalDefTable);
+                        ctx.setSpecObj(model.spec);
                         console.log("REPL:", ctx);
                         let res = evalExprStrInContext(ctx, model.replInput);
                         console.log(res);
