@@ -3,6 +3,10 @@ EXTENDS Naturals
 
 VARIABLE x
 
+F(cc) == cc + 78
+
+M == INSTANCE simple_extends_M9
+
 Init == 
     \/ x = [
             a |-> LET y == 2 IN y + 4,
@@ -17,5 +21,8 @@ Init ==
     \/ x = LET Op1(a) == a + 3 
                Op2(u, v) == u + v IN
                Op1(12) * Op2(3, 4)
+    \/ LET arg1 == 56 IN 
+        /\ x = F(arg1)
+    \/ LET arg1 == 77 IN x = M!F(arg1) + 88
 Next == x' = x 
 ====
