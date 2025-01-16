@@ -410,14 +410,17 @@ async function testStateGraphEquiv(testId, stateGraph, parsedSpec, specPath, con
             }
         },
         // { "spec": "TestLinQueue", "constvals": undefined },
-        // {
-        //     "spec": "DieHarder", 
-        //     "constvals": {
-        //         "Jug": new SetValue([new StringValue("j1"), new StringValue("j2")]), 
-        //         // TODO: Set this to correct function value.
-        //         "Capacity": new SetValue([new StringValue("c1"), new StringValue("c2")])
-        //     }        
-        // }
+        {
+            "spec": "DieHarder", 
+            "constvals": {
+                "Jug": new SetValue([new StringValue("j1"), new StringValue("j2")]), 
+                // TODO: Set this to correct function value.
+                "Capacity": new FcnRcdValue(
+                    [new StringValue("j1"), new StringValue("j2")],
+                    [new IntValue(3), new IntValue(5)],
+                )
+            }        
+        }
     ]
     }
 

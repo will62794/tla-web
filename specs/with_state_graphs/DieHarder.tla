@@ -3,7 +3,7 @@
 (* We now generalize the problem from Die Hard into one with an arbitrary  *)
 (* number of jugs, each holding some specified amount of water.            *)
 (***************************************************************************)
-EXTENDS Naturals
+EXTENDS Naturals, TLC
 
 (***************************************************************************)
 (* We now declare two constant parameters.                                 *)
@@ -16,8 +16,8 @@ CONSTANT Jug,      \* The set of all jugs.
 (* We make an assumption about these constants--namely, that Capacity is a *)
 (* function from jugs to positive integers, and Goal is a natural number.  *)
 (***************************************************************************)
-ASSUME /\ Capacity \in [Jug -> {n \in Nat : n > 0}]
-       /\ Goal \in Nat
+\* ASSUME /\ Capacity \in [Jug -> {n \in Nat : n > 0}]
+    \*    /\ Goal \in Nat
 (***************************************************************************)
 (* We are going to need the Min operator again, so let's define it here.   *)
 (* (I prefer defining constant operators like this in the part of the      *)
@@ -104,8 +104,8 @@ NotSolved == \A j \in Jug : contents[j] # Goal
 
 \* The following definitions duplicate the original Die Hard problem.
 MCJug == {"j1", "j2"}
-MCCapacity ==
-  [j \in MCJug |-> CASE j = "j1" -> 3
-                     [] j = "j2" -> 5 ]
+MCCapacity == ("j1" :> 3 @@ "j2" :> 5)
+\*   [j \in MCJug |-> CASE j = "j1" -> 3
+                    \*  [] j = "j2" -> 5 ]
 
 =============================================================================
