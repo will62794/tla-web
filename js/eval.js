@@ -3176,7 +3176,7 @@ function evalPrefixedOp(node, ctx) {
     } else {
         opName = rhs.text
     }
-    console.log("opName, opArgs:", opName, opArgs, ctx);
+    console.log("opName, opArgs:", opName, opArgs, ctx, _.clone(ctx.defns_curr_context));
 
     // 
     // If there are parameterized module arguments, then we evaluate this expression in the context of module
@@ -3233,10 +3233,14 @@ function evalPrefixedOp(node, ctx) {
     // variables, definitions, declarations that existed at the point of
     // original definition in a module. So, we see if this could be a module
     // based definition that we need to look up.
-    if(ctx.defns_curr_context !== undefined && ctx.defns_curr_context.includes(prefixedOpName)){
-        // Look up the def in the global module table.
-        opDef = ctx.global_def_table[prefixedOpName];
-    }
+    // if(
+    //     // ctx.defns_curr_context !== undefined && ctx.defns_curr_context.includes(prefixedOpName)
+    //     ctx.hasDefnInCurrContext(prefixedOpName)
+    // ){
+    //     // Look up the def in the global module table.
+    //     opDef = ctx.getDefnInCurrContext(prefixedOpName);
+    //     // opDef = ctx.global_def_table[prefixedOpName];
+    // }
 
 
     if (ctx.hasDefnInCurrContext(prefixedOpName)) {
@@ -3267,7 +3271,6 @@ function evalPrefixedOp(node, ctx) {
         }
 
         let newCtx = ctx.clone();
-        let ret;
 
         // Evaluate this expression with access to definitions inside the original module.
         // TODO: Re-consider this as an approach to evaluating named module instantation definitions?
@@ -3284,26 +3287,23 @@ function evalPrefixedOp(node, ctx) {
         // }
         // newCtx["module_eval_namespace_prefix"] = modNsPrefix;
 
-        // Definitions are defined with a "current context" i.e. the set of
-        // variables, definitions, declarations that existed at the point of
-        // original definition in a module. So, when we go to evaluate this
-        // definition, we need to include these definitions in the evaluation
-        // context.
-        evalLog("opDef:", opDef);
-        let origCurrDefns = _.clone(newCtx["defns_curr_context"]);
-        if (opDef.hasOwnProperty("curr_defs_context")) {
-            newCtx["defns_curr_context"] = opDef["curr_defs_context"];
-        }
-
 
         // If this is an operator with arguments, then we evaluate it accordingly.
         // e.g. M!Op(1,2)
         if (opArgs.length > 0) {
-            ret = evalUserBoundOp(rhs, opDef, newCtx);
-        } else {
-            ret = evalExpr(opDef.node, newCtx);
+            evalLog("eval user bound op:", _.clone(newCtx.defns_curr_context));
+            return evalUserBoundOp(rhs, opDef, newCtx);
         }
 
+        // Definitions are defined with a "current context" i.e. the set of
+        // definitions/declarations that existed at the point of original
+        // definition in a module. So, we need to include these definitions in
+        // the evaluation context.
+        let origCurrDefns = _.clone(newCtx["defns_curr_context"]);
+        if (opDef.hasOwnProperty("curr_defs_context")) {
+            newCtx["defns_curr_context"] = _.clone(opDef["curr_defs_context"]);
+        }
+        let ret = evalExpr(opDef.node, newCtx);
         ret.map(c => c.defns_curr_context = origCurrDefns);
         return ret;
 
@@ -4198,7 +4198,7 @@ function evalLetIn(node, ctx) {
     let letInExpr = node.childForFieldName("expression");
 
     // Evaluate the expression with the bound definitions.
-    let newBoundCtx = ctx;
+    let newBoundCtx = ctx.clone();
     let prevLetDefs = [];
     for (const def of opDefs) {
         let defVarName = def.childForFieldName("name").text;
@@ -4220,61 +4220,21 @@ function evalLetIn(node, ctx) {
 
         evalLog("LET IN parameters:", parameters)
 
-        // 0-arity definition, so we can just evaluate it.
-        if (parameters.length == 0) {
-            // Make sure to evaluate each new LET definition expression in the context of the 
-            // previously bound definitions.
-            let defVal = evalExpr(defBody, newBoundCtx)[0]["val"];
-            newBoundCtx = newBoundCtx.withBoundVar(defVarName, defVal);
+        // Bind as a new operator/definition in the context.
+        let newLetDefId = newBoundCtx.spec_obj.nextGlobalDefId();
+        let opDef = {
+            "id": newLetDefId,
+            "name": defVarName,
+            "args": parameters,
+            "node": defBody,
+            "let_in_def": true
+        };
 
-
-
-            // (LAZY EVALUATION SKETCHES)
-
-            // 
-            // We want to bind each new definition from the LET-IN expression to
-            // its body, but we also need to ensure that each defined expression
-            // is evaluated in the context of only the previously defined
-            // definitions up to that point.
-            //
-            // LET A == 1 B == A + 2 IN A + B
-            //
-            // For example, B is evaluated in a context where A is defined, but
-            // A is evaluated in a context where no additional definitions are
-            // bound.
-            // 
-
-            // TODO: Do we want each definition to also be augmented with possible extra "local" definitions, that are defined
-            // only in the scope of this specific definition?
-            // let def = { "name": defVarName, "quant_bounds": {}, "node": defBody, "local_scope_defs": prevLetDefs  };
-            // newBoundCtx = newBoundCtx.withBoundDefn(defVarName, def);
-            // prevLetDefs.push(def);
-
-
-        } else {
-            // >= 1-arity operator. So we don't evaluate it, but need to bind it as an operator in the context.
-            let newLetDefId = newBoundCtx.spec_obj.nextGlobalDefId();
-            let opDef = {
-                "id": newLetDefId,
-                "name": defVarName,
-                "args": parameters,
-                "node": defBody
-            };
-
-            newBoundCtx.global_def_table[newLetDefId] = opDef;
-            newBoundCtx.defns_curr_context.push(newLetDefId);
-        }
-
-        //
-        // Lazy evaluation variant. Disable for now until semantics are clearer.
-        //
-        // let defValLazy = new LazyValue();
-        // defValLazy.expr = def.childForFieldName("definition");
-        // defValLazy.context = newBoundCtx.clone();
-        // evalLog(`LETIN: Binding LazyValue for name '${defVarName}'`);
-        // newBoundCtx = newBoundCtx.withBoundVar(defVarName, defValLazy);
+        newBoundCtx.global_def_table[newLetDefId] = opDef;
+        newBoundCtx.defns_curr_context.push(newLetDefId);
 
     }
+
     // Also support function definitions in LET-IN expressions.
     for (const def of fcnDefs) {
         let fnName = def.namedChildren[0].text;
@@ -4286,7 +4246,8 @@ function evalLetIn(node, ctx) {
             "name": fnName,
             "quant_bounds": quant_bounds,
             "node": def,
-            "is_function": true
+            "is_function": true,
+            "let_in_def": true
         };
 
         newBoundCtx.global_def_table[newLetDefId] = fnDef;
