@@ -328,6 +328,8 @@ async function testStateGraphEquiv(testId, stateGraph, parsedSpec, specPath, con
         { "spec": "simple_extends_instance_def_transitive", "constvals": undefined },
         { "spec": "simple_extends_instance_def_transitive_import", "constvals": undefined },
         { "spec": "simple_extends_instance_duplicate_def_names", "constvals": undefined },
+        { "spec": "simple_extends_with_var", "constvals": undefined },
+        { "spec": "simple_extends_with_var_and_const", "constvals": {"d": new IntValue(22)} }
     ],
     "Module instantiation with substitution": [
         { "spec": "simple_extends_instance_with_const_subst", "constvals": undefined },

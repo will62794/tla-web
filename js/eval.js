@@ -1649,6 +1649,13 @@ class TLASpec {
                         }
                         return !d.is_local;
                     }));
+
+                    // Also import any declarations (variables or constants) from the module into
+                    // the current one.
+                    var_decls = _.merge(var_decls, parsedObj["var_decls"]);
+                    const_decls = _.merge(const_decls, parsedObj["const_decls"]);
+
+                    // Save the imported definitions globally.
                     self.globalDefTable = _.merge(self.globalDefTable, parsedObj["op_defs"]);
                 })
 
