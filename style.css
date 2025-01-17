@@ -668,11 +668,16 @@ body {
     border-radius: 3px;
   }
 
+  .resize-gutter:hover {
+    /* background-color: #ddd; */
+    opacity: 0.8;
+  }
+
   .resize-gutter-handle {
     cursor: col-resize;
     text-align: center;
     width: 7px;
-    height:100px;
+    height:400px;
   }
 
   #repl-container {
