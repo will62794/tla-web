@@ -1620,7 +1620,7 @@ function explodeButtonDropdown(){
         return ""
     }
 
-    return m("div", {class:"dropdown"}, [
+    return m("div", {class:"btn-group", role:"group"}, [
         m("button", { 
             class: "btn btn-sm btn-outline-primary " + (model.explodedConstantExpr === null ? " dropdown-toggle" : ""), 
             "data-bs-toggle": "dropdown",
@@ -1658,49 +1658,59 @@ function toggleTracePaneButton(){
 
 function componentButtonsContainer() {
 
-    return [m("div", { id: "trace-buttons", class:"input-group mb-3" }, [
-        m("button", { class: "btn btn-sm btn-outline-primary button-bagse", id: "trace-bacfk-button", onclick: traceStepBack }, "Back"),
-        // 
-        // TODO: Enable trace locking once clearing up all allowable state transitions.
-        //
-        // m("button", { 
-        //     class: "btn btn-sm btn-outline-primary button-bagse", 
-        //     id: "trace-bacfk-button", 
-        //     disabled: (model.lockedTrace !== null && model.currTrace.length === model.lockedTrace.length), 
-        //     hidden: (model.lockedTrace === null), 
-        //     onclick: traceStepForward 
-        // }, "Forward"),
-        m("button", { class: "btn btn-sm btn-outline-primary button-bagse", id: "trace-refset-button", onclick: resetTrace }, "Reset"),
-        // m("button", { 
-        //     class: "btn btn-sm btn-outline-primary button-bagse", 
-        //     id: "trace-refset-button", 
-        //     onclick: model.lockedTrace === null ? lockTrace : unlockTrace, 
-        //     // hidden: (model.lockedTrace !== null) 
-        // }, model.lockedTrace === null ? "Lock trace" : "Unlock trace"),
-        m("button", { class: "btn btn-sm btn-outline-primary button-bagse", id: "trace-refset-button", onclick: copyTraceLinkToClipboard }, "Copy trace link"),
-        // Explode dropdown.
-        explodeButtonDropdown(),
-        // Add trace expression.
-        m("button", { 
-            class: "btn btn-sm btn-outline-primary", 
-            disabled: model.traceExprInputText.length === 0,
-            id: "trace-reset-button", 
-            onclick: () => addTraceExpr(model.traceExprInputText) 
-        }, "Add Trace Expression"),
-        // m("div", { class: "button-base trace-button", id: "trace-reset-button", onclick: () => checkInv(model.traceExprInputText) }, "Check Invariant"),
-        m("input", {
-            class: "form-control form-control-sm",
-            style: "font-family:monospace;",
-            id: "trace-expr-infput",
-            placeholder: "Enter TLA+ trace expression.",
-            value: model.traceExprInputText,
-            oninput: e => { model.traceExprInputText = e.target.value }
-        }),
-        toggleTracePaneButton(),
+    return [m("div", {class: "btn-toolbar", role:"toolbar"}, [
+        m("div", { id: "trace-buttons", class:"btn-group mr-2", role:"group" }, [
+            m("button", { class: "btn btn-sm btn-outline-primary button-bagse", id: "trace-bacfk-button", onclick: traceStepBack }, "Back"),
+            // 
+            // TODO: Enable trace locking once clearing up all allowable state transitions.
+            //
+            // m("button", { 
+            //     class: "btn btn-sm btn-outline-primary button-bagse", 
+            //     id: "trace-bacfk-button", 
+            //     disabled: (model.lockedTrace !== null && model.currTrace.length === model.lockedTrace.length), 
+            //     hidden: (model.lockedTrace === null), 
+            //     onclick: traceStepForward 
+            // }, "Forward"),
+            m("button", { class: "btn btn-sm btn-outline-primary button-bagse", id: "trace-refset-button", onclick: resetTrace }, "Reset"),
+            // m("button", { 
+            //     class: "btn btn-sm btn-outline-primary button-bagse", 
+            //     id: "trace-refset-button", 
+            //     onclick: model.lockedTrace === null ? lockTrace : unlockTrace, 
+            //     // hidden: (model.lockedTrace !== null) 
+            // }, model.lockedTrace === null ? "Lock trace" : "Unlock trace"),
+            m("button", { class: "btn btn-sm btn-outline-primary button-bagse", id: "trace-refset-button", onclick: copyTraceLinkToClipboard }, "Copy trace link"),
+            // Explode dropdown.
+            explodeButtonDropdown(),
+            // Add trace expression.
+            // m("div", { class: "button-base trace-button", id: "trace-reset-button", onclick: () => checkInv(model.traceExprInputText) }, "Check Invariant"),
+            m("button", { 
+                class: "btn btn-sm btn-outline-primary", 
+                disabled: model.traceExprInputText.length === 0,
+                id: "trace-reset-button", 
+                onclick: () => addTraceExpr(model.traceExprInputText) 
+            }, "Add trace expression"),
+            m("input", {
+                class: "form-control form-control-sm",
+                style: "font-family:monospace;width:230px;font-size:11px",
+                id: "trace-expr-infput",
+                placeholder: "Enter TLA+ trace expression.",
+                value: model.traceExprInputText,
+                oninput: e => { model.traceExprInputText = e.target.value }
+            }),
+            // toggleTracePaneButton(),
+            // m("br"),
+            // m("div", {}, model.hiddenStateVars.map(v => m("div", v)))
+        ]),
+        
 
-        // m("br"),
-        // m("div", {}, model.hiddenStateVars.map(v => m("div", v)))
-    ])];
+    ])
+        
+        
+
+    // m("div", { id: "trace-buttons", class:"input-group mb-3" }, [
+
+
+];
 }
 
 function componentHiddenStateVars(hidden) {
