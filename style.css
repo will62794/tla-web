@@ -658,11 +658,11 @@ body {
   }
 
   .resize-gutter {
-    width: 8px;
+    width: 3px;
     /* height: 100%; */
     background: #eee;
     position: relative;
-    min-width: 8px;
+    min-width: 3px;
     /* margin-right:100px; */
     /* top: 0; */
     /* left: 0; */
@@ -673,6 +673,7 @@ body {
   .resize-gutter:hover {
     /* background-color: #ddd; */
     opacity: 0.8;
+    cursor: col-resize;
   }
 
   .resize-gutter-handle {

@@ -2111,18 +2111,9 @@ function componentPaneSelector() {
 function resizeGutter() {
     return m("div", { 
         class: "resize-gutter",
-    }, m("img", {
-        class: "resize-gutter-handle",
-        style: {
-            position: "absolute", 
-            top: "50%", 
-            transform: "translateY(-50%)", 
-            "text-align": "center",
-            "opacity": 0.8
-        },
-        "src": "assets/drag-handle-svgrepo-com.svg",
         onmousedown: (e) => {
             // resizer(e)
+            e.preventDefault()
             resize_initial_pos_x = e.x;
             window.addEventListener('mousemove', resize_mousemove);
             window.addEventListener('mouseup', resize_mouseup);
@@ -2131,7 +2122,29 @@ function resizeGutter() {
             window.removeEventListener('mousemove', resize_mousemove);
         },
         ondragstart : function() { return false; }
-    }, "O"))
+    }
+    // , m("img", {
+    //     class: "resize-gutter-handle",
+    //     style: {
+    //         position: "absolute", 
+    //         top: "50%", 
+    //         transform: "translateY(-50%)", 
+    //         "text-align": "center",
+    //         "opacity": 0.8
+    //     },
+    //     "src": "assets/drag-handle-svgrepo-com.svg",
+    //     onmousedown: (e) => {
+    //         // resizer(e)
+    //         resize_initial_pos_x = e.x;
+    //         window.addEventListener('mousemove', resize_mousemove);
+    //         window.addEventListener('mouseup', resize_mouseup);
+    //     },
+    //     onmouseup: (e) => {
+    //         window.removeEventListener('mousemove', resize_mousemove);
+    //     },
+    //     ondragstart : function() { return false; }
+    // }, "O")
+)
 }
 
 function componentExplorerPane() {
