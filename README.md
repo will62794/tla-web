@@ -1,6 +1,6 @@
 <!-- # TLA<sup>+</sup> Web Explorer -->
 # Spectacle 
-<img src="assets/glasses-svgrepo-com.svg" width="50" height="20" alt="Spectacle logo" style="vertical-align: middle">
+<!-- <img src="assets/glasses-svgrepo-com.svg" width="50" height="20" alt="Spectacle logo" style="vertical-align: middle"> -->
 
 
 Spectacle is an interactive, web-based tool for exploring, visualizing, and sharing formal specifications written in the [TLA<sup>+</sup> specification language](https://lamport.azurewebsites.net/tla/tla.html).  The motivation is to have a better way to quickly interact with a formal specification and easily share results. For example, it provides a way to share protocol behaviors and counterexample traces in a convenient, portable, and repeatable manner. 
