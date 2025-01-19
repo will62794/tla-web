@@ -2,7 +2,8 @@
  * 
  * TLA+ interpreter. 
  * 
- * Contains logic for expression evaluation and initial/next state generation.
+ * Contains logic for expression evaluation and initial/next state generation. 
+ * See the `evalExpr` function below.
  * 
  */
 
