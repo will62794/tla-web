@@ -2379,9 +2379,10 @@ async function loadApp() {
                                 "font-size":"18px",
                                 "text-decoration": "none",
                             }}, [
-                            "TLA",
-                            m("sup", "+"),
-                            " Web Explorer"
+                            // "TLA",
+                            // m("sup", "+"),
+                            // " Web Explorer"
+                            "Spectacle"
                         ]) ,
                         m("span", {class:"navbar-text", href: "https://github.com/will62794/tla-web", style: "padding-right:15px"}, 
                             [
