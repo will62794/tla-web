@@ -563,7 +563,7 @@ function errorMsgStr(errorObj) {
     if (errorObj !== null && errorObj.errorPos === null) {
         errorPosStr = errorObj.errorPos === null ? "" : "(" + errorObj.errorPos + ")";
     }
-    return errorObj === null ? "" : errorObj.message + " " + errorPosStr;
+    return errorObj === null ? "" : "ERROR: " + errorObj.message + " " + errorPosStr;
 }
 
 function componentErrorInfo() {

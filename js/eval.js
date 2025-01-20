@@ -4927,7 +4927,7 @@ function getNextStates(nextDef, currStateVars, defns, constvals, moduleTable, gl
                 }
             }
         }
-        throw new Error(`${next_states_with_unassigned.length} generated next states had unassigned variables`);
+        throw new Error(`${next_states_with_unassigned.length} generated next states had unassigned variables.`);
     }
 
 
