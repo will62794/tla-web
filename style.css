@@ -23,7 +23,8 @@ body {
 
   #tla-web-explorer-title:hover{
     cursor: pointer;
-    color:gray;
+    /* color:gray; */
+    opacity:0.5;
   }
 
   #mid-pane {

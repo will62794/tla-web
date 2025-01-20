@@ -2371,34 +2371,34 @@ async function loadApp() {
             return [
                 // Header.
                 m("nav", { class: "navbar bg-body-tertiary border-bottom mb-2" }, [
-                    m("div", {class:"container-fluid"}, [
-                        m("a", {
-                            id: "tla-web-explorer-title",
-                            class:"navbar-brand mb-0 h1", href: "https://github.com/will62794/tla-web", 
-                            style:{
-                                "font-size":"18px",
-                                "text-decoration": "none",
-                            }}, [
-                            // "TLA",
-                            // m("sup", "+"),
-                            // " Web Explorer"
-                            "Spectacle"
-                        ]) ,
-                        m("span", {class:"navbar-text", href: "https://github.com/will62794/tla-web", style: "padding-right:15px"}, 
+                    m("div", { class: "container-fluid" }, [
+                        m("div", [
+                            m("a", {
+                                id: "tla-web-explorer-title",
+                                class: "navbar-brand mb-0 h1", href: "https://github.com/will62794/spectacle",
+                                style: {
+                                    "font-size": "20px",
+                                    "text-decoration": "none",
+                                }
+                            }, [
+                                "Spectacle",
+                                m("img", { id: "glasses-logo", src: "assets/glasses-svgrepo-com.svg", style: { "height": "26px", "margin-left": "6px" } })
+                            ])
+                        ]),
+                        m("span", { class: "navbar-text", href: "https://github.com/will62794/spectacle", style: "padding-right:15px" },
                             [
                                 m("span", {}, [
-                                    m("span", {style:"font-weight:bold"}, "Root module:  "),
+                                    m("span", { style: "font-weight:bold" }, "Root module:  "),
                                     m("span", model.rootModName + (model.rootModName.length > 0 ? ".tla" : "")),
-                                    m("span", {style:{opacity:0.5}}, fetchingText),
+                                    m("span", { style: { opacity: 0.5 } }, fetchingText),
                                     spinner,
                                     parseError
                                 ]
                                 )
                             ]
-                        ),                        
-                       
+                        ),
                     ]),
-                    
+
                 ]),
                 // m("nav", { class: "navbar bg-body-tertiary", style:"height:30px;" }, [
                 //     m("div", {class:"container-fluid"}, [
