@@ -1681,16 +1681,6 @@ class TLASpec {
                 console.log("INSTANCE modname:", instanceNodes);
                 console.log("INSTANCE LIST:", modName);
                 console.log("INSTANCE subs:", substs);
-                // for(const subst of substs){
-                // let substKey = subst.namedChildren[0]; let substVal =
-                // subst.namedChildren[2]; console.log("INSTANCE subst:",
-                // substKey.text, substVal.text); Add these substitutions as
-                // defintions in the current module. These substitutions
-                // should only be for VARIABLE or CONSTANT declarations.
-                // TODO: Handle VARIABLE substitutions correctly.
-                // op_defs[substKey.text] = { "name": substKey.text, "args":
-                // [], "node": substVal };
-                // }   
 
                 console.log("Parsing INSTANCE module:", modName);
                 let parsedObj = self.parseSpecModule(self.moduleTable[modName]);
