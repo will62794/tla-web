@@ -6,11 +6,13 @@ VARIABLES x
 
 M(c) == INSTANCE simple_extends_M8 WITH x <- x[c]
 
+bval == "b"
+
 Init == 
     \/ /\ x \in [D -> 0..2]
        /\ M("a")!XCond
     \/ /\ x \in [D -> 0..2]
-       /\ M("b")!XCond
+       /\ M(bval)!XCond
 
 Next == x' = x
 

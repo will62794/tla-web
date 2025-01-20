@@ -3259,6 +3259,7 @@ function evalPrefixedOp(node, ctx) {
 
         assert(moduleParamArgNames.length === paramArgVals.length, "Mismatch in number of module arguments and parameters.");
         for(let i = 0; i < moduleParamArgNames.length; i++){
+            evalLog("binding module param arg:", moduleParamArgNames[i]," <- ", paramArgVals[i]);
             ctx = ctx.withBoundVar(moduleParamArgNames[i], paramArgVals[i]);
         }
 
@@ -3469,6 +3470,10 @@ function evalIdentifierRef(node, ctx) {
         let newCtx = ctx.clone();
         if (ctx["substitutions"][ident_name].hasOwnProperty("curr_defs_context")) {
             newCtx["defns_curr_context"] = ctx["substitutions"][ident_name].curr_defs_context;
+            // If we performed a substitution for an identifier, then we no
+            // longer need to perform substitutions for that identifier when
+            // evaluating the substituted expression.
+            _.unset(newCtx["substitutions"], ident_name);
         }
         return evalExpr(subNode, newCtx);
     }
