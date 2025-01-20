@@ -412,6 +412,7 @@ async function testStateGraphEquiv(testId, stateGraph, parsedSpec, specPath, con
             }
         },
         // { "spec": "TestLinQueue", "constvals": undefined },
+        {"spec": "DieHard", "constvals": undefined},
         {
             "spec": "DieHarder", 
             "constvals": {
