@@ -891,10 +891,24 @@ function setConstantValues(reload = true) {
         constVals[constDecl] = constValText;
 
         let ctx = new Context(null, new TLAState({}), model.specDefs, {}, model.specConstVals);
-        // Flag so that we treat unknown identifiers as model values during evaluation.
-        ctx.evalModelVals = true;
-        let cVal = evalExprStrInContext(ctx, constValText);
-        console.log("cval:", cVal);
+
+        // 
+        // If this refers to a definition in the spec, then we treat it as a
+        // definition substitution. and leave it as a plain string. 
+        // Otherwise, we try to evaluate it as an expression.
+        // 
+        // TODO: Eventually should more of this be handled directly in the interpreter?
+        //
+        let cVal = null;
+        console.log("model.specDefs:", model.specDefs);
+        if (_.find(model.specDefs, d => d.name === constValText)) {
+            cVal = constValText;
+        } else {
+            // Flag so that we treat unknown identifiers as model values during evaluation.
+            ctx.evalModelVals = true;
+            let cVal = evalExprStrInContext(ctx, constValText);
+            console.log("cval:", cVal);
+        }
         constTlaVals[constDecl] = cVal;
     }
 

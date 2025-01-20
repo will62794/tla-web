@@ -1853,7 +1853,13 @@ class TLASpec {
             if (node.type === "constant_declaration") {
                 let constDecls = cursor.currentNode().namedChildren.filter(c => c.type !== "comment");
                 for (const declNode of constDecls) {
-                    const_decls[declNode.text] = { "id": declNode.id };
+                    if (declNode.type === "operator_declaration") {
+                        // e.g. CONSTANT Op(_,_)
+                        // Just save the operator name directly.
+                        const_decls[declNode.namedChildren[0].text] = { "id": declNode.id };
+                    } else {
+                        const_decls[declNode.text] = { "id": declNode.id };
+                    }
                 }
             }
 
@@ -3999,9 +4005,15 @@ function evalBoundOp(node, ctx) {
         return [ctx.withVal(argExprVal)];
     }
 
-    // Check for the bound op in the set of known definitions.
+    // See if this is defined as via a CONSTANT assignment.
     let opDef = null;
+    if (ctx["constants"] !== undefined && ctx["constants"].hasOwnProperty(opName) && !(ctx["constants"][opName] instanceof TLAValue)) {
+        evalLog("Found constant definition for:", opName, ctx["constants"][opName]);
+        opDef = ctx.getDefnInCurrContext(ctx["constants"][opName]);
+        return evalUserBoundOp(node, opDef, ctx);
+    }
 
+    // Check for the bound op in the set of known definitions.
     if (ctx.hasDefnInCurrContext(opName)) {
         // Look up the def in the global module table.
         opDef = ctx.getDefnInCurrContext(opName);
