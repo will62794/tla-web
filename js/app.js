@@ -901,14 +901,14 @@ function setConstantValues(reload = true) {
         //
         let cVal = null;
         console.log("model.specDefs:", model.specDefs);
-        if (_.find(model.specDefs, d => d.name === constValText)) {
+        if (_.find(model.specDefs, d => d.name === constValText) !== undefined) {
             cVal = constValText;
         } else {
             // Flag so that we treat unknown identifiers as model values during evaluation.
             ctx.evalModelVals = true;
-            let cVal = evalExprStrInContext(ctx, constValText);
-            console.log("cval:", cVal);
+            cVal = evalExprStrInContext(ctx, constValText);
         }
+        console.log("Setting constant value:", constDecl, "to", cVal);
         constTlaVals[constDecl] = cVal;
     }
 
