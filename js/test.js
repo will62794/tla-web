@@ -300,7 +300,6 @@ async function testStateGraphEquiv(testId, stateGraph, parsedSpec, specPath, con
             // TODO: Re-enable this test once we figure out to deal with interaction b/w declarations and module imports.
             // { "spec": "operator_param_clash_before_var_def_inter", "constvals": undefined },
             { "spec": "def_before_var_decl", "constvals": undefined },
-            // {"spec": "DieHard", "constvals": undefined},
             {
                 "spec": "lockserver_constant_comment",
                 "constvals": {
