@@ -245,7 +245,6 @@ async function testStateGraphEquiv(testId, stateGraph, parsedSpec, specPath, con
             { "spec": "simple_enabled", "constvals": undefined },
             { "spec": "simple_fcn_literal", "constvals": undefined },
             { "spec": "simple_fcn_def", "constvals": undefined },
-            // TODO: Re-enable this test once we figure out how to handle lazy evaluation.
             { "spec": "simple_lazy", "constvals": undefined },
             { "spec": "simple_subset", "constvals": undefined },
             { "spec": "simple_quant", "constvals": undefined },
@@ -257,7 +256,6 @@ async function testStateGraphEquiv(testId, stateGraph, parsedSpec, specPath, con
             { "spec": "simple_disjunction_init", "constvals": undefined },
             { "spec": "simple_quant_multi", "constvals": undefined },
             { "spec": "simple_defined_var_assignment", "constvals": undefined },
-            // TODO: Re-enable this once we implement full recursive beta reduction for variable assignment.
             { "spec": "simple_defined_var_assignment_transitive", "constvals": undefined },
             // { "spec": "simple_quant_tuple", "constvals": undefined },
             { "spec": "simple_multiline", "constvals": undefined },
@@ -335,7 +333,6 @@ async function testStateGraphEquiv(testId, stateGraph, parsedSpec, specPath, con
         { "spec": "simple_extends_instance_with_var_subst", "constvals": undefined },
         { "spec": "simple_extends_instance_def_with_subst", "constvals": undefined },
         { "spec": "simple_extends_instance_def_with_var_subst_one_implicit", "constvals": undefined },
-        // TODO: Re-enable this once we figure out how to handle recursive beta reduction for variable assignment.
         { "spec": "simple_extends_instance_def_with_var_subst_same_name", "constvals": undefined },
         { "spec": "simple_extends_instance_with_var_subst_identity", "constvals": undefined },
         { "spec": "simple_extends_instance_def_with_var_subst_default_name", "constvals": undefined },
