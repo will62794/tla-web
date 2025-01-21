@@ -1856,7 +1856,8 @@ class TLASpec {
                     if (declNode.type === "operator_declaration") {
                         // e.g. CONSTANT Op(_,_)
                         // Just save the operator name directly.
-                        const_decls[declNode.namedChildren[0].text] = { "id": declNode.id };
+                        let opName = node.childForFieldName("quantifier");
+                        const_decls[opName] = { "id": declNode.id };
                     } else {
                         const_decls[declNode.text] = { "id": declNode.id };
                     }
@@ -3144,6 +3145,13 @@ function evalBoundInfix(node, ctx) {
         // console.log(opDef);
         // console.log(node);
         return evalUserBoundOp(node, opDefObj, ctx)
+    }
+
+    // Infix operators can also be bound to CONSTANT values.
+    if (ctx["constants"] !== undefined && ctx["constants"].hasOwnProperty(symbolText) && !(ctx["constants"][symbolText] instanceof TLAValue)) {
+        evalLog("Found constant definition for:", symbolText, ctx["constants"][symbolText]);
+        opDef = ctx.getDefnInCurrContext(ctx["constants"][symbolText]);
+        return evalUserBoundOp(node, opDef, ctx);
     }
 
     throw new Error("unsupported infix symbol: '" + symbol.text + "'");
