@@ -1853,14 +1853,16 @@ class TLASpec {
             if (node.type === "constant_declaration") {
                 let constDecls = cursor.currentNode().namedChildren.filter(c => c.type !== "comment");
                 for (const declNode of constDecls) {
+                    let constDeclName = null;
                     if (declNode.type === "operator_declaration") {
                         // e.g. CONSTANT Op(_,_)
                         // Just save the operator name directly.
-                        let opName = node.childForFieldName("quantifier");
-                        const_decls[opName] = { "id": declNode.id };
+                        constDeclName = declNode.childForFieldName("name").text;
                     } else {
-                        const_decls[declNode.text] = { "id": declNode.id };
+                        constDeclName = declNode.text
                     }
+                    const_decls[constDeclName] = { "id": declNode.id };
+                    evalLog("Added CONSTANT decl:", constDeclName, node.namedChildren);
                 }
             }
 
