@@ -2,11 +2,43 @@ strict digraph DiskGraph {
 nodesep=0.35;
 subgraph cluster_graph {
 color="white";
-8132692779957249086 [label="x = 0",style = filled]
-8132692779957249086 -> 4923445692854152869 [label="",color="black",fontcolor="black"];
+6329252015968950060 [label="x = 6",style = filled]
+6329252015968950060 -> 4923445692854152869 [label="",color="black",fontcolor="black"];
 4923445692854152869 [label="x = 5"];
-4923445692854152869 -> 4923445692854152869 [label="",color="black",fontcolor="black"];
-{rank = same; 8132692779957249086;}
-{rank = same; 4923445692854152869;}
+6329252015968950060 -> 6329252015968950060 [label="",color="black",fontcolor="black"];
+6329252015968950060 -> -8178219181039606634 [label="",color="black",fontcolor="black"];
+-8178219181039606634 [label="x = 7"];
+6329252015968950060 -> 740240026893633665 [label="",color="black",fontcolor="black"];
+740240026893633665 [label="x = 9"];
+4923445692854152869 -> -8178219181039606634 [label="",color="black",fontcolor="black"];
+4923445692854152869 -> -3237250641632068805 [label="",color="black",fontcolor="black"];
+-3237250641632068805 [label="x = 8"];
+4923445692854152869 -> 740240026893633665 [label="",color="black",fontcolor="black"];
+4923445692854152869 -> -4569065269629828430 [label="",color="black",fontcolor="black"];
+-4569065269629828430 [label="x = 11"];
+-8178219181039606634 -> 6329252015968950060 [label="",color="black",fontcolor="black"];
+-8178219181039606634 -> -8178219181039606634 [label="",color="black",fontcolor="black"];
+-8178219181039606634 -> -3237250641632068805 [label="",color="black",fontcolor="black"];
+-8178219181039606634 -> 1855569396714172680 [label="",color="black",fontcolor="black"];
+1855569396714172680 [label="x = 10"];
+740240026893633665 -> 4923445692854152869 [label="",color="black",fontcolor="black"];
+740240026893633665 -> 6329252015968950060 [label="",color="black",fontcolor="black"];
+740240026893633665 -> -8178219181039606634 [label="",color="black",fontcolor="black"];
+740240026893633665 -> 740240026893633665 [label="",color="black",fontcolor="black"];
+-3237250641632068805 -> -8178219181039606634 [label="",color="black",fontcolor="black"];
+-3237250641632068805 -> -3237250641632068805 [label="",color="black",fontcolor="black"];
+-3237250641632068805 -> 740240026893633665 [label="",color="black",fontcolor="black"];
+-3237250641632068805 -> -4569065269629828430 [label="",color="black",fontcolor="black"];
+-4569065269629828430 -> -8178219181039606634 [label="",color="black",fontcolor="black"];
+-4569065269629828430 -> -3237250641632068805 [label="",color="black",fontcolor="black"];
+-4569065269629828430 -> 740240026893633665 [label="",color="black",fontcolor="black"];
+-4569065269629828430 -> -4569065269629828430 [label="",color="black",fontcolor="black"];
+1855569396714172680 -> 6329252015968950060 [label="",color="black",fontcolor="black"];
+1855569396714172680 -> -8178219181039606634 [label="",color="black",fontcolor="black"];
+1855569396714172680 -> -3237250641632068805 [label="",color="black",fontcolor="black"];
+1855569396714172680 -> 1855569396714172680 [label="",color="black",fontcolor="black"];
+{rank = same; 6329252015968950060;}
+{rank = same; 740240026893633665;-8178219181039606634;4923445692854152869;}
+{rank = same; -3237250641632068805;1855569396714172680;-4569065269629828430;}
 }
 }

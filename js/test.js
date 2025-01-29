@@ -12,6 +12,102 @@ const urlSearchParams = new URLSearchParams(window.location.search);
 const urlParams = Object.fromEntries(urlSearchParams.entries());
 let enableEvalTracing = parseInt(urlParams["debug"]);
 
+
+function displayEvalGraph(nodeGraph, divname) {
+
+    console.log("#displayEvalGraph");
+    let stategraphDiv = document.getElementById(divname);
+    if(stategraphDiv === null){
+        // TODO: Work out synchronization of this eval graph computation with other UI
+        // element interactions properly.
+        return;
+    }
+    stategraphDiv.innerHTML = "";
+    // stategraphDiv.hidden = false;
+
+    // cytoscape.use("dagre");
+
+    var cy = cytoscape({
+        container: stategraphDiv, // container to render in
+        style: [
+            {
+                selector: 'node',
+                // shape: "barrel",
+                size: "auto",
+                style: {
+                    'label': function (el) {
+                        return el.data()["expr_text"].replaceAll("\n", "");
+                    },
+                    // "width": function(el){
+                    //     console.log(el);
+                    //     return el.data().expr_text.length * 10 + 20;
+                    // },
+                    // "height": 15,
+                    "background-color": "white",
+                    "text-valign": "center",
+                    // "text-halign": "center",
+                    "border-style": "solid",
+                    "border-width": "1",
+                    "border-color": "black",
+                    "padding-left": "10px",
+                    "font-family": "monospace",
+                    "font-size": "7px",
+                    "shape": "rectangle"
+                }
+            },
+        ]
+    });
+
+    console.log("nodeGraph:", nodeGraph);
+    console.log("nodeGraph:", nodeGraph.map(d => d[0]));
+    let nodes = _.uniq(_.flatten(nodeGraph.map(d => d[0])))
+    for (const node of nodes) {
+        cy.add({
+            group: 'nodes',
+            data: { 
+                id: hashSum(node), 
+                expr_text: node 
+            },
+            position: { x: 200, y: 200 }
+        });
+    }
+
+    let eind = 0;
+    for (const edgeData of nodeGraph) {
+        let edge = edgeData[0];
+        let retVal = edgeData[1];
+        let edgeOrder = edgeData[2];
+        let evalDur = edgeData[3];
+        cy.add({
+            group: 'edges', data: {
+                id: 'e' + eind,
+                source: hashSum(edge[0]),
+                target: hashSum(edge[1]),
+                // label: retVal[0]["val"].toString() //+ " " + edgeOrder + "(" + retVal.length + ") [" + evalDur + "ms]"
+                label: retVal[0]["val"].toString() + " (n=" + retVal.length + ")" // + ") [" + evalDur + "ms]"
+            }
+        });
+        eind++;
+    }
+    cy.edges('edge').style({
+        "curve-style": "straight",
+        "target-arrow-shape": "triangle",
+        "font-family": "monospace",
+        "font-size": "8px",
+        "color": "blue",
+        "width": 2,
+        "label": function (el) {
+            return el.data().label;
+        }
+    })
+    // let layout = cy.layout({name:"cose"});
+    // let layout = cy.layout({ name: "breadthfirst" });
+    let layout = cy.layout({ name: "dagre", nodeDimensionsIncludeLabels: true });
+    // let layout = cy.layout({ name: "elk" });
+    cy.resize();
+    layout.run();
+}
+
 function toggleTestDetails(testId) {
 
     // alert("details"+testId);
@@ -106,10 +202,13 @@ async function testStateGraphEquiv(testId, stateGraph, parsedSpec, specPath, con
 
     console.log("### TEST: Computing reachable states with JS interpreter.")
     let reachableObj = interp.computeReachableStates(parsedSpec, constvals, undefined, spec);
+    console.log("nodeGraph:", interp.initEvalGraph);
+    displayEvalGraph(interp.initEvalGraph, "init-eval-graph-pane");
+    displayEvalGraph(interp.nextEvalGraph, "next-eval-graph-pane");
 
     let initial = reachableObj["initStates"];
     let reachable = reachableObj["states"];
-    let reachableEdges = reachableObj["edges"];
+        let reachableEdges = reachableObj["edges"];
 
     console.log("### TEST: Processing reachable states computed by TLC.")
 
@@ -719,6 +818,7 @@ async function testStateGraphEquiv(testId, stateGraph, parsedSpec, specPath, con
         testAllSpecs(testsToRun, onTestCompletion);
     } else{
         testAllSpecs(allTestsList, onTestCompletion);
+        // Hide eval graphs when running multiple tests.
     }
 
 

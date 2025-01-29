@@ -4978,6 +4978,8 @@ class TlaInterpreter {
         evalLog("initDef.type: ", initDef["node"].type);
 
         let initStates = getInitStates(initDef["node"], vars, defns, constvals, treeObjs["module_table"], spec.globalDefTable, spec);
+        this.initEvalGraph = _.clone(evalNodeGraph);
+
         // Keep only the valid states.
         if(includeFullCtx){
             return initStates.filter(actx => actx["val"].getVal())
@@ -5011,6 +5013,7 @@ class TlaInterpreter {
             let ret = getNextStates(nextDef, currState, defns, constvals, treeObjs["module_table"], spec.globalDefTable, spec);
             allNext = allNext.concat(ret);
         }
+        this.nextEvalGraph = _.clone(evalNodeGraph);
         return allNext;
     }
 
@@ -5032,6 +5035,7 @@ class TlaInterpreter {
         // let initStates = getInitStates(initDef["node"], vars, defns, constvals);
         console.log("[INIT] Computing initial states");
         let initStates = this.computeInitStates(treeObjs, constvals, undefined, spec);
+        this.initEvalGraph = _.clone(evalNodeGraph);
 
         let initStatesOrig = _.cloneDeep(initStates);
         let stateQueue = initStates;
