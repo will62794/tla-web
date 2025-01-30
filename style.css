@@ -333,6 +333,16 @@ body {
       /* height:80%; */
       font-size:12px;
       width:100%;
+
+      scrollbar-width: none;
+      /* Firefox */
+      -ms-overflow-style: none;
+
+      /* IE and Edge */
+      &::-webkit-scrollbar {
+          display: none;
+          /* Chrome, Safari and Opera */
+      }
   }
 
   #next-states{
@@ -433,7 +443,15 @@ body {
     /* border-bottom:solid 1px gray; */
     /* overflow-y: scroll; */
     overflow-y: scroll;
+    scrollbar-width: none;
+      /* Firefox */
+      -ms-overflow-style: none;
 
+      /* IE and Edge */
+      &::-webkit-scrollbar {
+          display: none;
+          /* Chrome, Safari and Opera */
+      }
   }
 
   .hidden-state-var{
