@@ -1779,7 +1779,7 @@ function stateSelectionPane(hidden){
             class: "form-check-label",
             for: "fullNextStatesSwitchCheck",
             role: "switch"
-        }, "Show full next states (variable diff)")
+        }, "Show full next states")
     ]);
 
     let fetchingInProgress = model.rootModName.length === 0 && !model.loadSpecFailed;
@@ -1790,7 +1790,7 @@ function stateSelectionPane(hidden){
         fullNextStatesSwitch,
         // m("h5", { id: "poss-next-states-title", class: "" }, (model.currTrace.length > 0) ? "Choose Next Action" : "Choose Initial State"),
         m("div", { id: "initial-states", class: "tlc-state" }, [
-            model.currTrace.length === 0 && model.nextStatePred !== null ? m("div", {style: "padding:10px;"}, "Choose Initial State") : m("span"),
+            model.currTrace.length === 0 && model.nextStatePred !== null ? m("div", {style: "padding:10px;", id:"choose-initial-state-title"}, "Choose Initial State") : m("span"),
             model.nextStatePred === null && !fetchingInProgress ? m("div", {style: "padding:20px;"}, "No transition relation found. Spec can be explored in the REPL.") : m("span"),
             componentNextStateChoices()
         ]),

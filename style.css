@@ -13,8 +13,13 @@ body {
       /* text-decoration: underline; */
   }
 
+  #choose-initial-state-title{
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
+  }
+
   .navbar-brand{
     font-family: "Roboto", sans-serif;
+    font-size: 14px;
   } 
 
   #tla-web-explorer-title{
@@ -611,8 +616,8 @@ body {
   .next-state-choice-full:hover{
     background-color:#eee;
     cursor:pointer;
-    border:solid;
-    border-color: black;
+    /* border:solid; */
+    /* border-color: red; */
   }
 
   .state-varname{
