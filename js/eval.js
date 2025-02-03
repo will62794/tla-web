@@ -2582,8 +2582,29 @@ function evalEq(lhs, rhs, ctx) {
 
     // Deal with equality of variable on left hand side.
     let identName = lhs.text;
+    // console.log("identName:", identName, lhs);
 
     let lhsCtx = ctx.clone();
+
+    // 
+    // If this is a primed identifier, then we see if we need to look up the unprimed identifer name e.g.
+    //
+    // VARIABLE x
+    // def = x
+    // Init == def' = 2
+    //
+    // If 
+    if (lhs.children.length > 1 && lhs.type === "bound_postfix_op" && lhs.children[1].type === "prime" && !isPrimedVar(lhs, ctx)) {
+        let unprimedName = lhs.children[0].text;
+        console.log("unprimed name:", unprimedName);
+
+        lhs = { text: unprimedName, type: "identifier_ref", children: [] };
+        lhs = applyDefReduction(lhs, lhsCtx);
+
+        // Now treat this a primed version of the reduced expression.
+        lhs = { text: lhs.text + "'", type: "bound_postfix_op", children: [lhs, { text: "'", type: "prime" }] };
+        identName = identName + "'";
+    }
 
     // Check for identity substitutions.
     if (ctx.hasSubstitutionFor(identName) && ctx["substitutions"][identName].node === null && ctx["substitutions"][identName].hasOwnProperty("identity")) {

@@ -278,6 +278,7 @@ async function testStateGraphEquiv(testId, stateGraph, parsedSpec, specPath, con
             { "spec": "simple_fcn_polymorphism", "constvals": undefined },
             { "spec": "simple_seq_update3", "constvals": undefined},
             { "spec": "simple_primed", "constvals": undefined },
+            { "spec": "simple_primed_defs", "constvals": undefined },
             { "spec": "simple_var_tuple", "constvals": undefined },
             { "spec": "simple_choose", "constvals": undefined },
             { "spec": "simple_tlc_fn", "constvals": undefined },
