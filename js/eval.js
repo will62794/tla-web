@@ -2596,7 +2596,7 @@ function evalEq(lhs, rhs, ctx) {
     // If 
     if (lhs.children.length > 1 && lhs.type === "bound_postfix_op" && lhs.children[1].type === "prime" && !isPrimedVar(lhs, ctx)) {
         let unprimedName = lhs.children[0].text;
-        console.log("unprimed name:", unprimedName);
+        // console.log("unprimed name:", unprimedName);
 
         lhs = { text: unprimedName, type: "identifier_ref", children: [] };
         lhs = applyDefReduction(lhs, lhsCtx);
