@@ -2637,7 +2637,6 @@ function evalEq(lhs, rhs, ctx) {
     ) {
         let identName = lhs.children[0].text;
         let newLhs = null;
-        console.log("unprimed name:", identName);
         while (ctx.hasSubstitutionFor(identName) &&
             ctx["substitutions"][identName].node !== null &&
             ctx["substitutions"][identName].node.text !== identName) {
@@ -3257,7 +3256,7 @@ function evalPrefixedOp(node, ctx) {
     } else {
         opName = rhs.text
     }
-    console.log("opName, opArgs:", opName, opArgs, ctx, _.clone(ctx.defns_curr_context));
+    // console.log("opName, opArgs:", opName, opArgs, ctx, _.clone(ctx.defns_curr_context));
 
     // 
     // If there are parameterized module arguments, then we evaluate this expression in the context of module
@@ -3273,10 +3272,10 @@ function evalPrefixedOp(node, ctx) {
     let paramArgVals = [];
     if (moduleNode.length > 1) {
         let paramModuleArgs = lhs.namedChildren[0].namedChildren[0].namedChildren.slice(1);
-        console.log("module paramModuleArgs:", paramModuleArgs);
+        // console.log("module paramModuleArgs:", paramModuleArgs);
         paramArgVals = paramModuleArgs.map(a => evalExpr(a, ctx)[0]["val"]);
     }
-    console.log("module paramArgVals:", paramArgVals);
+    // console.log("module paramArgVals:", paramArgVals);
 
     // If this is a parameterized module prefixed op, like M!Op(1,2), then we look up the 
     // definition just using M!Op, and deal with the parameter arguments separately.
@@ -3300,7 +3299,7 @@ function evalPrefixedOp(node, ctx) {
     //
 
     let prefixedOpName = modPrefix + opName;
-    console.log("prefixedOpName:", prefixedOpName);
+    // console.log("prefixedOpName:", prefixedOpName);
 
 
     let opDef = null;
