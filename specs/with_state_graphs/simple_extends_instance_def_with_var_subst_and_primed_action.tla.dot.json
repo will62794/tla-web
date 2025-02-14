@@ -3,7 +3,7 @@
   "directed": true,
   "strict": true,
   "nodesep": "0.35",
-  "_subgraph_cnt": 4,
+  "_subgraph_cnt": 5,
   "objects": [
     {
       "name": "cluster_graph",
@@ -13,84 +13,102 @@
       "subgraphs": [
         1,
 2,
-3
+3,
+4
       ],
       "nodes": [
-        4,5,6,7,8
+        5,6,7,8,9,10,11,12
       ],
       "edges": [
-        0,1,2,3,4
+        0,1,2,3,4,5,6,7
       ]
     },
     {
-      "name": "%11",
+      "name": "%17",
       "color": "white",
       "nodesep": "0.35",
       "rank": "same",
       "_gvid": 1,
       "nodes": [
-        4,5
+        5,6
       ]
     },
     {
-      "name": "%13",
+      "name": "%19",
       "color": "white",
       "nodesep": "0.35",
       "rank": "same",
       "_gvid": 2,
       "nodes": [
-        6,7
+        7,8
       ]
     },
     {
-      "name": "%15",
+      "name": "%21",
       "color": "white",
       "nodesep": "0.35",
       "rank": "same",
       "_gvid": 3,
       "nodes": [
-        8
+        9,10
       ]
     },
     {
+      "name": "%23",
+      "color": "white",
+      "nodesep": "0.35",
+      "rank": "same",
       "_gvid": 4,
-      "name": "4923445692854152869",
-      "label": "x = 5",
-      "style": "filled"
+      "nodes": [
+        11,12
+      ]
     },
     {
       "_gvid": 5,
-      "name": "-7468425565063145670",
-      "label": "x = 45",
+      "name": "-7416941435862882270",
+      "label": "\/\\\\ x = 5\\n\/\\\\ y = 12",
       "style": "filled"
     },
     {
       "_gvid": 6,
-      "name": "8132692779957249086",
-      "label": "x = 0"
+      "name": "3645145528189483555",
+      "label": "\/\\\\ x = 45\\n\/\\\\ y = 33",
+      "style": "filled"
     },
     {
       "_gvid": 7,
-      "name": "-6230161439325923452",
-      "label": "x = 1"
+      "name": "6656155087056622680",
+      "label": "\/\\\\ x = 0\\n\/\\\\ y = 12"
     },
     {
       "_gvid": 8,
-      "name": "-5039642576729477619",
-      "label": "x = 2"
+      "name": "-4071977952000624891",
+      "label": "\/\\\\ x = 1\\n\/\\\\ y = 33"
+    },
+    {
+      "_gvid": 9,
+      "name": "3457251424751895553",
+      "label": "\/\\\\ x = 1\\n\/\\\\ y = 12"
+    },
+    {
+      "_gvid": 10,
+      "name": "6022288610897627118",
+      "label": "\/\\\\ x = 2\\n\/\\\\ y = 33"
+    },
+    {
+      "_gvid": 11,
+      "name": "-4966197225238268694",
+      "label": "\/\\\\ x = 2\\n\/\\\\ y = 12"
+    },
+    {
+      "_gvid": 12,
+      "name": "-5415407358012545188",
+      "label": "\/\\\\ x = 0\\n\/\\\\ y = 33"
     }
   ],
   "edges": [
     {
       "_gvid": 0,
-      "tail": 4,
-      "head": 6,
-      "color": "black",
-      "fontcolor": "black",
-      "label": ""
-    },
-    {
-      "_gvid": 1,
       "tail": 5,
       "head": 7,
       "color": "black",
@@ -98,25 +116,57 @@
       "label": ""
     },
     {
-      "_gvid": 2,
+      "_gvid": 1,
       "tail": 6,
-      "head": 7,
-      "color": "black",
-      "fontcolor": "black",
-      "label": ""
-    },
-    {
-      "_gvid": 3,
-      "tail": 7,
       "head": 8,
       "color": "black",
       "fontcolor": "black",
       "label": ""
     },
     {
-      "_gvid": 4,
+      "_gvid": 2,
+      "tail": 7,
+      "head": 9,
+      "color": "black",
+      "fontcolor": "black",
+      "label": ""
+    },
+    {
+      "_gvid": 3,
       "tail": 8,
-      "head": 6,
+      "head": 10,
+      "color": "black",
+      "fontcolor": "black",
+      "label": ""
+    },
+    {
+      "_gvid": 4,
+      "tail": 9,
+      "head": 11,
+      "color": "black",
+      "fontcolor": "black",
+      "label": ""
+    },
+    {
+      "_gvid": 5,
+      "tail": 10,
+      "head": 12,
+      "color": "black",
+      "fontcolor": "black",
+      "label": ""
+    },
+    {
+      "_gvid": 6,
+      "tail": 11,
+      "head": 7,
+      "color": "black",
+      "fontcolor": "black",
+      "label": ""
+    },
+    {
+      "_gvid": 7,
+      "tail": 12,
+      "head": 8,
       "color": "black",
       "fontcolor": "black",
       "label": ""

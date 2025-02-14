@@ -2596,14 +2596,12 @@ function evalEq(lhs, rhs, ctx) {
     // If 
     if (lhs.children.length > 1 && lhs.type === "bound_postfix_op" && lhs.children[1].type === "prime" && !isPrimedVar(lhs, ctx)) {
         let unprimedName = lhs.children[0].text;
-        // console.log("unprimed name:", unprimedName);
 
         lhs = { text: unprimedName, type: "identifier_ref", children: [] };
         lhs = applyDefReduction(lhs, lhsCtx);
-
         // Now treat this a primed version of the reduced expression.
         lhs = { text: lhs.text + "'", type: "bound_postfix_op", children: [lhs, { text: "'", type: "prime" }] };
-        identName = identName + "'";
+        identName = lhs.text;
     }
 
     // Check for identity substitutions.
@@ -2630,6 +2628,35 @@ function evalEq(lhs, rhs, ctx) {
         lhsCtx["defns_curr_context"] = lhsCtx["substitutions"][identName]["curr_defs_context"];
         lhs = subNode;
         identName = subNode.text;
+    }
+
+    // If this is a primed variable identifier, then we also need to see if there is a substitution defined for it.
+    if (lhs.children.length > 1 &&
+        lhs.type === "bound_postfix_op" &&
+        lhs.children[1].type === "prime"
+    ) {
+        let identName = lhs.children[0].text;
+        let newLhs = null;
+        console.log("unprimed name:", identName);
+        while (ctx.hasSubstitutionFor(identName) &&
+            ctx["substitutions"][identName].node !== null &&
+            ctx["substitutions"][identName].node.text !== identName) {
+            let subNode = ctx["substitutions"][identName].node;
+            evalLog("Substituted node:", subNode.text, "for", identName);
+            evalLog(ctx["substitutions"][identName]);
+
+            // The definition context for the substitution may be different from the
+            // definition context for the overall expression being evaluated.
+            lhsCtx = ctx.clone();
+            lhsCtx["defns_curr_context"] = lhsCtx["substitutions"][identName]["curr_defs_context"];
+            newLhs = subNode;
+            identName = newLhs.text;
+        }
+
+        // Re-prime the variable after we computed the substitutions.
+        if (newLhs !== null) {
+            lhs = { text: newLhs.text + "'", type: "bound_postfix_op", children: [newLhs, { text: "'", type: "prime" }] };
+        }
     }
 
 
@@ -2768,6 +2795,25 @@ function extractUnchangedVarSet(ctx, unchangedVal) {
         assert(unchangedVal.type === "identifier_ref");
 
         let ident_name = unchangedVal.text;
+        evalLog("UNCHANGED identifier_ref:", ident_name);
+
+        // Also check for substitutions of this identifier ref.
+        while (ctx.hasSubstitutionFor(ident_name) && ctx["substitutions"][ident_name].node !== null && ctx["substitutions"][ident_name].node.text !== ident_name) {
+            let subNode = ctx["substitutions"][ident_name].node;
+            evalLog("Substituted node:", subNode.text, "for", ident_name);
+            evalLog(ctx["substitutions"][ident_name]);
+
+            // The definition context for the substitution may be different from the
+            // definition context for the overall expression being evaluated.
+            lhsCtx = ctx.clone();
+            lhsCtx["defns_curr_context"] = lhsCtx["substitutions"][ident_name]["curr_defs_context"];
+            lhs = subNode;
+            ident_name = subNode.text;
+            unchangedVal = subNode;
+        }
+
+        evalLog("UNCHANGED sub lookup:", ident_name, ctx);
+
 
         // If this identifier is a definition in the current context, then 
         // look up the definition node, and recurse on it.
