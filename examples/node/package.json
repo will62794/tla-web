@@ -1,0 +1,8 @@
+{
+  "dependencies": {
+    "@tlaplus/tree-sitter-tlaplus": "1.2.4",
+    "tree-sitter": "^0.21.1",
+    "lodash": "^4.17.21"
+  }
+}
+
