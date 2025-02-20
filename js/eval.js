@@ -3864,10 +3864,12 @@ function evalUserBoundOp(node, opDefObj, ctx){
             assert(placeholders.length === lambdaArgs.length,
                 `LAMBDA argument count of ${lambdaArgs.length} must match anonymous operator arg count of ${placeholders.length}.`)
 
-            let op = { "name": anonOpArgName, "args": lambdaArgs, "node": lambdaBody };
+            // Note: LAMBDAs effectively capture the defs that exist in their
+            // scope, since they may be evaluated lazily, later on.
+            let lambdaOpId = opEvalContext.spec_obj.nextGlobalDefId();
+            let op = { "name": anonOpArgName, "args": lambdaArgs, "node": lambdaBody, "id": lambdaOpId, "defns_curr_context": opEvalContext["defns_curr_context"], "lambda": true };
             opEvalContext["operators_bound"][anonOpArgName] = op;
 
-            let lambdaOpId = opEvalContext.spec_obj.nextGlobalDefId();
             opEvalContext.global_def_table[lambdaOpId] = op;
             opEvalContext["defns_curr_context"].push(lambdaOpId);
         } else {
@@ -3879,6 +3881,12 @@ function evalUserBoundOp(node, opDefObj, ctx){
     let origCurrDefns = _.clone(opEvalContext["defns_curr_context"]);
     if(opDefObj !== undefined && opDefObj.hasOwnProperty("curr_defs_context")){
         opEvalContext["defns_curr_context"] = opDefObj["curr_defs_context"];
+    }
+
+    // If we are evaluating a bound operator that was originally defined as a lambda function, then we need to evaluate the
+    // operator with the definition context of the original lambda function.
+    if (opDefObj !== undefined && opDefObj.hasOwnProperty("lambda")) {
+        opEvalContext["defns_curr_context"] = opEvalContext["defns_curr_context"].concat(opDefObj["defns_curr_context"]);
     }
 
     evalLog("opEvalContext:", opEvalContext);
