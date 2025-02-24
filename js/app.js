@@ -806,7 +806,7 @@ function actionIdForNextState(nextStateHash) {
     return actionId;
 }
 
-function chooseNextState(statehash_short, quantBoundsHash) {
+function chooseNextState(statehash_short, quantBoundsHash, rethrow = false) {
     // console.log("currNextStates:", JSON.stringify(currNextStates));
     // console.log("chooseNextState: ", statehash_short);
 
@@ -831,7 +831,7 @@ function chooseNextState(statehash_short, quantBoundsHash) {
     }
 
     if (nextStateChoices.length === 0) {
-        throw Error("Given state hash does not exist among possible next states.")
+        throw Error("Given state hash " + statehash_short + " does not exist among possible next states.")
     }
     let nextState = nextStateChoices[0];
 
@@ -870,6 +870,9 @@ function chooseNextState(statehash_short, quantBoundsHash) {
         if (currEvalNode !== null) {
             // Display line where evaluation error occurred.
             showEvalError(currEvalNode, e);
+        }
+        if(rethrow){
+            throw e;
         }
         return;
     }
@@ -2249,12 +2252,13 @@ function loadRouteParamsState() {
             // Check each state for possible quant bounds hash,
             // if it has one.
             let stateAndQuantBounds = stateHash.split("_");
+            let rethrow = true;
             if (stateAndQuantBounds.length > 1) {
                 let justStateHash = stateAndQuantBounds[0];
                 let quantBoundHash = stateAndQuantBounds[1];
-                chooseNextState(justStateHash, quantBoundHash);
+                chooseNextState(justStateHash, quantBoundHash, rethrow);
             } else {
-                chooseNextState(stateHash);
+                chooseNextState(stateHash, null, rethrow);
             }
         }
     }
