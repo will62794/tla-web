@@ -391,6 +391,7 @@ async function testStateGraphEquiv(testId, stateGraph, parsedSpec, specPath, con
             { "spec": "pre_module_comments", "constvals": undefined },
             { "spec": "lockserver_nodefs", "constvals": undefined },
             { "spec": "lockserver_nodefs1", "constvals": undefined },
+            { "spec": "conj_parsing", "constvals": undefined },
             { "spec": "operator_param_clash_before_var_def", "constvals": undefined },
             { "spec": "operator_param_clash_before_const_def", "constvals": {"c": new IntValue(12)} },
             // TODO: Re-enable this test once we figure out to deal with interaction b/w declarations and module imports.
