@@ -1,0 +1,94 @@
+strict digraph DiskGraph {
+nodesep=0.35;
+subgraph cluster_graph {
+color="white";
+-4980130853636220570 [label="/\\ action = \"Init\"\n/\\ history = <<>>\n/\\ ledgerBranches = <<<<>>>>",style = filled]
+-4980130853636220570 -> -1046388088215488561 [label="",color="black",fontcolor="black"];
+-1046388088215488561 [label="/\\ action = \"TruncateLedger (CheckQuorum)\"\n/\\ history = <<>>\n/\\ ledgerBranches = <<<<>>, <<>>>>"];
+-4980130853636220570 -> -2562608168713538232 [label="",color="black",fontcolor="black"];
+-2562608168713538232 [label="/\\ action = \"RwTxRequest\"\n/\\ history = <<[type |-> \"RwTxRequest\", tx |-> 0]>>\n/\\ ledgerBranches = <<<<>>>>"];
+-4980130853636220570 -> 1717835769274442813 [label="",color="black",fontcolor="black"];
+1717835769274442813 [label="/\\ action = \"RoTxRequest\"\n/\\ history = <<[type |-> \"RoTxRequest\", tx |-> 0]>>\n/\\ ledgerBranches = <<<<>>>>"];
+-4980130853636220570 -> 3859354331450335947 [label="",color="black",fontcolor="black"];
+3859354331450335947 [label="/\\ action = \"AppendOtherTxn\"\n/\\ history = <<>>\n/\\ ledgerBranches = <<<<[view |-> 1]>>>>"];
+-2562608168713538232 -> 4998795925227399029 [label="",color="black",fontcolor="black"];
+4998795925227399029 [label="/\\ action = \"TruncateLedger (CheckQuorum)\"\n/\\ history = <<[type |-> \"RwTxRequest\", tx |-> 0]>>\n/\\ ledgerBranches = <<<<>>, <<>>>>"];
+-2562608168713538232 -> 6222657838122844150 [label="",color="black",fontcolor="black"];
+6222657838122844150 [label="/\\ action = \"RwTxRequest\"\n/\\ history = <<[type |-> \"RwTxRequest\", tx |-> 0], [type |-> \"RwTxRequest\", tx |-> 1]>>\n/\\ ledgerBranches = <<<<>>>>"];
+-2562608168713538232 -> -3249799354677347572 [label="",color="black",fontcolor="black"];
+-3249799354677347572 [label="/\\ action = \"RoTxRequest\"\n/\\ history = <<[type |-> \"RwTxRequest\", tx |-> 0], [type |-> \"RoTxRequest\", tx |-> 1]>>\n/\\ ledgerBranches = <<<<>>>>"];
+-2562608168713538232 -> 6201779424744711452 [label="",color="black",fontcolor="black"];
+6201779424744711452 [label="/\\ action = \"RwTxExecute\"\n/\\ history = <<[type |-> \"RwTxRequest\", tx |-> 0]>>\n/\\ ledgerBranches = <<<<[tx |-> 0, view |-> 1]>>>>"];
+-2562608168713538232 -> 2114143121004995179 [label="",color="black",fontcolor="black"];
+2114143121004995179 [label="/\\ action = \"AppendOtherTxn\"\n/\\ history = <<[type |-> \"RwTxRequest\", tx |-> 0]>>\n/\\ ledgerBranches = <<<<[view |-> 1]>>>>"];
+1717835769274442813 -> 4249489385705034810 [label="",color="black",fontcolor="black"];
+4249489385705034810 [label="/\\ action = \"TruncateLedger (CheckQuorum)\"\n/\\ history = <<[type |-> \"RoTxRequest\", tx |-> 0]>>\n/\\ ledgerBranches = <<<<>>, <<>>>>"];
+1717835769274442813 -> -3091817133430520251 [label="",color="black",fontcolor="black"];
+-3091817133430520251 [label="/\\ action = \"RwTxRequest\"\n/\\ history = <<[type |-> \"RoTxRequest\", tx |-> 0], [type |-> \"RwTxRequest\", tx |-> 1]>>\n/\\ ledgerBranches = <<<<>>>>"];
+1717835769274442813 -> 5884689946498646719 [label="",color="black",fontcolor="black"];
+5884689946498646719 [label="/\\ action = \"RoTxRequest\"\n/\\ history = <<[type |-> \"RoTxRequest\", tx |-> 0], [type |-> \"RoTxRequest\", tx |-> 1]>>\n/\\ ledgerBranches = <<<<>>>>"];
+1717835769274442813 -> -1599143527802986735 [label="",color="black",fontcolor="black"];
+-1599143527802986735 [label="/\\ action = \"AppendOtherTxn\"\n/\\ history = <<[type |-> \"RoTxRequest\", tx |-> 0]>>\n/\\ ledgerBranches = <<<<[view |-> 1]>>>>"];
+3859354331450335947 -> 5690205987327872878 [label="",color="black",fontcolor="black"];
+5690205987327872878 [label="/\\ action = \"TruncateLedger (CheckQuorum)\"\n/\\ history = <<>>\n/\\ ledgerBranches = <<<<[view |-> 1]>>, <<>>>>"];
+3859354331450335947 -> 4584927018649689804 [label="",color="black",fontcolor="black"];
+4584927018649689804 [label="/\\ action = \"TruncateLedger (CheckQuorum)\"\n/\\ history = <<>>\n/\\ ledgerBranches = <<<<[view |-> 1]>>, <<[view |-> 1]>>>>"];
+3859354331450335947 -> -6306304050756352918 [label="",color="black",fontcolor="black"];
+-6306304050756352918 [label="/\\ action = \"RwTxRequest\"\n/\\ history = <<[type |-> \"RwTxRequest\", tx |-> 0]>>\n/\\ ledgerBranches = <<<<[view |-> 1]>>>>"];
+3859354331450335947 -> 6578096886790385805 [label="",color="black",fontcolor="black"];
+6578096886790385805 [label="/\\ action = \"RoTxRequest\"\n/\\ history = <<[type |-> \"RoTxRequest\", tx |-> 0]>>\n/\\ ledgerBranches = <<<<[view |-> 1]>>>>"];
+3859354331450335947 -> 4307258250508461464 [label="",color="black",fontcolor="black"];
+4307258250508461464 [label="/\\ action = \"AppendOtherTxn\"\n/\\ history = <<>>\n/\\ ledgerBranches = <<<<[view |-> 1], [view |-> 1]>>>>"];
+6201779424744711452 -> 8297578182319044799 [label="",color="black",fontcolor="black"];
+8297578182319044799 [label="/\\ action = \"TruncateLedger (CheckQuorum)\"\n/\\ history = <<[type |-> \"RwTxRequest\", tx |-> 0]>>\n/\\ ledgerBranches = <<<<[tx |-> 0, view |-> 1]>>, <<>>>>"];
+6201779424744711452 -> 1703501469007840168 [label="",color="black",fontcolor="black"];
+1703501469007840168 [label="/\\ action = \"TruncateLedger (CheckQuorum)\"\n/\\ history = <<[type |-> \"RwTxRequest\", tx |-> 0]>>\n/\\ ledgerBranches = <<<<[tx |-> 0, view |-> 1]>>, <<[tx |-> 0, view |-> 1]>>>>"];
+6201779424744711452 -> -2436452102164478089 [label="",color="black",fontcolor="black"];
+-2436452102164478089 [label="/\\ action = \"RwTxRequest\"\n/\\ history = <<[type |-> \"RwTxRequest\", tx |-> 0], [type |-> \"RwTxRequest\", tx |-> 1]>>\n/\\ ledgerBranches = <<<<[tx |-> 0, view |-> 1]>>>>"];
+6201779424744711452 -> 193542905812146667 [label="",color="black",fontcolor="black"];
+193542905812146667 [label="/\\ action = \"RoTxRequest\"\n/\\ history = <<[type |-> \"RwTxRequest\", tx |-> 0], [type |-> \"RoTxRequest\", tx |-> 1]>>\n/\\ ledgerBranches = <<<<[tx |-> 0, view |-> 1]>>>>"];
+6201779424744711452 -> 3376194044974095439 [label="",color="black",fontcolor="black"];
+3376194044974095439 [label="/\\ action = \"RwTxResponse\"\n/\\ history = <<[type |-> \"RwTxRequest\", tx |-> 0], [type |-> \"RwTxResponse\", tx |-> 0, observed |-> <<0>>, tx_id |-> <<1, 1>>]>>\n/\\ ledgerBranches = <<<<[tx |-> 0, view |-> 1]>>>>"];
+6201779424744711452 -> 8245932224515066383 [label="",color="black",fontcolor="black"];
+8245932224515066383 [label="/\\ action = \"AppendOtherTxn\"\n/\\ history = <<[type |-> \"RwTxRequest\", tx |-> 0]>>\n/\\ ledgerBranches = <<<<[tx |-> 0, view |-> 1], [view |-> 1]>>>>"];
+2114143121004995179 -> 3978177296472198997 [label="",color="black",fontcolor="black"];
+3978177296472198997 [label="/\\ action = \"TruncateLedger (CheckQuorum)\"\n/\\ history = <<[type |-> \"RwTxRequest\", tx |-> 0]>>\n/\\ ledgerBranches = <<<<[view |-> 1]>>, <<>>>>"];
+2114143121004995179 -> -3832008194077991737 [label="",color="black",fontcolor="black"];
+-3832008194077991737 [label="/\\ action = \"TruncateLedger (CheckQuorum)\"\n/\\ history = <<[type |-> \"RwTxRequest\", tx |-> 0]>>\n/\\ ledgerBranches = <<<<[view |-> 1]>>, <<[view |-> 1]>>>>"];
+2114143121004995179 -> -7932701925940680334 [label="",color="black",fontcolor="black"];
+-7932701925940680334 [label="/\\ action = \"RwTxRequest\"\n/\\ history = <<[type |-> \"RwTxRequest\", tx |-> 0], [type |-> \"RwTxRequest\", tx |-> 1]>>\n/\\ ledgerBranches = <<<<[view |-> 1]>>>>"];
+2114143121004995179 -> 5995803170147707542 [label="",color="black",fontcolor="black"];
+5995803170147707542 [label="/\\ action = \"RoTxRequest\"\n/\\ history = <<[type |-> \"RwTxRequest\", tx |-> 0], [type |-> \"RoTxRequest\", tx |-> 1]>>\n/\\ ledgerBranches = <<<<[view |-> 1]>>>>"];
+2114143121004995179 -> 3440559431632874228 [label="",color="black",fontcolor="black"];
+3440559431632874228 [label="/\\ action = \"RwTxExecute\"\n/\\ history = <<[type |-> \"RwTxRequest\", tx |-> 0]>>\n/\\ ledgerBranches = <<<<[view |-> 1], [tx |-> 0, view |-> 1]>>>>"];
+2114143121004995179 -> 7274787755186948249 [label="",color="black",fontcolor="black"];
+7274787755186948249 [label="/\\ action = \"AppendOtherTxn\"\n/\\ history = <<[type |-> \"RwTxRequest\", tx |-> 0]>>\n/\\ ledgerBranches = <<<<[view |-> 1], [view |-> 1]>>>>"];
+-1599143527802986735 -> 1741435311338678294 [label="",color="black",fontcolor="black"];
+1741435311338678294 [label="/\\ action = \"TruncateLedger (CheckQuorum)\"\n/\\ history = <<[type |-> \"RoTxRequest\", tx |-> 0]>>\n/\\ ledgerBranches = <<<<[view |-> 1]>>, <<>>>>"];
+-1599143527802986735 -> 935919807029233590 [label="",color="black",fontcolor="black"];
+935919807029233590 [label="/\\ action = \"TruncateLedger (CheckQuorum)\"\n/\\ history = <<[type |-> \"RoTxRequest\", tx |-> 0]>>\n/\\ ledgerBranches = <<<<[view |-> 1]>>, <<[view |-> 1]>>>>"];
+-1599143527802986735 -> 4151022420765342973 [label="",color="black",fontcolor="black"];
+4151022420765342973 [label="/\\ action = \"RwTxRequest\"\n/\\ history = <<[type |-> \"RoTxRequest\", tx |-> 0], [type |-> \"RwTxRequest\", tx |-> 1]>>\n/\\ ledgerBranches = <<<<[view |-> 1]>>>>"];
+-1599143527802986735 -> -340203801362727143 [label="",color="black",fontcolor="black"];
+-340203801362727143 [label="/\\ action = \"RoTxRequest\"\n/\\ history = <<[type |-> \"RoTxRequest\", tx |-> 0], [type |-> \"RoTxRequest\", tx |-> 1]>>\n/\\ ledgerBranches = <<<<[view |-> 1]>>>>"];
+-1599143527802986735 -> 3471695456478643371 [label="",color="black",fontcolor="black"];
+3471695456478643371 [label="/\\ action = \"RoTxResponse\"\n/\\ history = <<[type |-> \"RoTxRequest\", tx |-> 0], [type |-> \"RoTxResponse\", tx |-> 0, observed |-> << >>, tx_id |-> <<1, 1>>]>>\n/\\ ledgerBranches = <<<<[view |-> 1]>>>>"];
+-1599143527802986735 -> -5655102988380342052 [label="",color="black",fontcolor="black"];
+-5655102988380342052 [label="/\\ action = \"AppendOtherTxn\"\n/\\ history = <<[type |-> \"RoTxRequest\", tx |-> 0]>>\n/\\ ledgerBranches = <<<<[view |-> 1], [view |-> 1]>>>>"];
+-6306304050756352918 -> 3978177296472198997 [label="",color="black",fontcolor="black"];
+-6306304050756352918 -> -3832008194077991737 [label="",color="black",fontcolor="black"];
+-6306304050756352918 -> -7932701925940680334 [label="",color="black",fontcolor="black"];
+-6306304050756352918 -> 5995803170147707542 [label="",color="black",fontcolor="black"];
+-6306304050756352918 -> 3440559431632874228 [label="",color="black",fontcolor="black"];
+-6306304050756352918 -> 7274787755186948249 [label="",color="black",fontcolor="black"];
+6578096886790385805 -> 1741435311338678294 [label="",color="black",fontcolor="black"];
+6578096886790385805 -> 935919807029233590 [label="",color="black",fontcolor="black"];
+6578096886790385805 -> 4151022420765342973 [label="",color="black",fontcolor="black"];
+6578096886790385805 -> -340203801362727143 [label="",color="black",fontcolor="black"];
+6578096886790385805 -> 3471695456478643371 [label="",color="black",fontcolor="black"];
+6578096886790385805 -> -5655102988380342052 [label="",color="black",fontcolor="black"];
+{rank = same; -4980130853636220570;}
+{rank = same; 3859354331450335947;-2562608168713538232;1717835769274442813;}
+{rank = same; -1599143527802986735;6201779424744711452;2114143121004995179;6578096886790385805;-6306304050756352918;}
+}
+}

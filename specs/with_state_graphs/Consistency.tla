@@ -203,23 +203,24 @@ RwTxResponseAction(i) ==
 \* RwTxResponseAction ==
 \*     /\ \E i \in DOMAIN history :
         \* Check request has been received and executed but not yet responded to
-        /\ history[i].type = RwTxRequest
-        /\ {j \in DOMAIN history: 
-            /\ j > i 
-            /\ history[j].type = RwTxResponse
-            /\ history[j].tx = history[i].tx} = {}
-        /\ \E view \in FirstBranch..Len(ledgerBranches):
-            /\ \E seqnum \in DOMAIN ledgerBranches[view]: 
-                /\ "tx" \in DOMAIN ledgerBranches[view][seqnum]
-                /\ history[i].tx = ledgerBranches[view][seqnum].tx
-                /\ history' = Append(
-                    history,[
-                        type |-> RwTxResponse, 
-                        tx |-> history[i].tx, 
-                        observed |-> LedgerBranchTxOnly(SubSeq(ledgerBranches[view],1,seqnum)),
-                        tx_id |-> <<ledgerBranches[view][seqnum].view, seqnum>>] )
-    /\ UNCHANGED ledgerBranches
+    /\ history[i].type = RwTxRequest
+    /\ {j \in DOMAIN history: 
+        /\ j > i 
+        /\ history[j].type = RwTxResponse
+        /\ history[j].tx = history[i].tx} = {}
+    /\ \E view \in FirstBranch..Len(ledgerBranches):
+        /\ \E seqnum \in DOMAIN ledgerBranches[view]: 
+            /\ "tx" \in DOMAIN ledgerBranches[view][seqnum]
+            /\ history[i].tx = ledgerBranches[view][seqnum].tx
+            /\ history' = Append(
+                history,[
+                    type |-> RwTxResponse, 
+                    tx |-> history[i].tx, 
+                    observed |-> LedgerBranchTxOnly(SubSeq(ledgerBranches[view],1,seqnum)),
+                    tx_id |-> <<ledgerBranches[view][seqnum].view, seqnum>>] )
     /\ action' = "RwTxResponse"
+    /\ ledgerBranches' = ledgerBranches
+    \* /\ UNCHANGED ledgerBranches
 
 \* Sending a committed status message
 \* Note that a request could only be committed if it's in the highest view's ledger
@@ -341,21 +342,22 @@ StatusInvalidResponseAction(i) ==
 
 ----------------------------------------------------------------------
 
+Constraint == Len(history) < 2 /\ Len(ledgerBranches) < 2 /\ \A i \in DOMAIN ledgerBranches : Len(ledgerBranches[i]) < 2
+
 \* A CCF service with a single node will never have a view change
 \* so the log will never be rolled back and thus transaction IDs cannot be invalid
 Next ==
-    \/ TruncateLedgerAction
-    \/ AppendOtherTxnAction
-    \/ RwTxRequestAction
-    \/ RoTxRequestAction
+    \/ TruncateLedgerAction /\ Constraint
+    \/ RwTxRequestAction /\ Constraint
+    \/ RoTxRequestAction /\ Constraint
     \/ \E i \in DOMAIN history :
-        \/ RwTxExecuteAction(i)
-        \/ RwTxResponseAction(i)
-        \/ RoTxResponseAction(i)
-        \/ StatusCommittedResponseAction(i)
-        \/ StatusInvalidResponseAction(i)
+        \/ RwTxExecuteAction(i) /\ Constraint
+        \/ RwTxResponseAction(i) /\ Constraint
+        \/ RoTxResponseAction(i) /\ Constraint
+        \/ StatusCommittedResponseAction(i) /\ Constraint
+        \/ StatusInvalidResponseAction(i) /\ Constraint
+    \/ AppendOtherTxnAction /\ Constraint
 
 Spec == Init /\ [][Next]_vars
 
-Constraint == Len(history) < 2
 ====

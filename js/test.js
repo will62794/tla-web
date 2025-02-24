@@ -519,7 +519,8 @@ async function testStateGraphEquiv(testId, stateGraph, parsedSpec, specPath, con
                     [new IntValue(3), new IntValue(5)],
                 )
             }        
-        }
+        },
+        // { "spec": "Consistency", "constvals": undefined },
     ]
     }
 
