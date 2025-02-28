@@ -812,7 +812,7 @@ function chooseNextState(statehash_short, quantBoundsHash, rethrow = false) {
 
     let currNextStatesSet = _.flatten(_.values(model.currNextStates));
     let nextStateChoices = currNextStatesSet.filter(s => {
-        if (quantBoundsHash === undefined) {
+        if (quantBoundsHash === undefined || _.isEmpty(quantBoundsHash)) {
             return s["state"].fingerprint() === statehash_short;
         } else {
             // If quant bounds are given, then choose next state that both
