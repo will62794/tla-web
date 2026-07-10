@@ -72,7 +72,17 @@ let model = {
     debug: false,
     showLoadFileBox: false,
     loadSpecFailed: false,
+    // Specific message shown when a spec load fails (falls back to a generic one).
+    loadSpecErrorMsg: null,
     specUrlInputText: "",
+    // Selected "Load from" source type: "raw" (any raw URL), "gitlab", or "github".
+    specSourceProvider: "raw",
+    // Structured inputs for the GitLab source pane.
+    gitlabInput: { host: "", project: "", file: "", ref: "main", token: "" },
+    // Structured inputs for the GitHub source pane.
+    githubInput: { owner: "", repo: "", file: "", ref: "main", token: "" },
+    // Whether the split "Load" button's source dropdown menu is open.
+    showLoadSourceMenu: false,
     specEditorChanges: [],
     enableAnimationView: false,
     explodedConstantExpr: null,
@@ -2487,7 +2497,9 @@ function loadTraceWebWorker(stateHashList){
         constValInputs: model.specConstInputVals,
         initDefName: model.initStatePredName,
         nextDefName: model.nextStatePredName,
-        definitionOverrides: model.definitionOverrides
+        definitionOverrides: model.definitionOverrides,
+        gitlabAccessToken: model.gitlabInput.token,
+        githubAccessToken: model.githubInput.token
     });
 }
 
@@ -2503,7 +2515,9 @@ function startCheckInvariantWebWorker(invariantExpr){
         constValInputs: model.specConstInputVals,
         invariantExpr: invariantExpr,
         initDefName: model.initStatePredName,
-        nextDefName: model.nextStatePredName
+        nextDefName: model.nextStatePredName,
+        gitlabAccessToken: model.gitlabInput.token,
+        githubAccessToken: model.githubInput.token
     });
     console.log("Posted message to invariant checking worker.");
 
@@ -3224,33 +3238,211 @@ function loadSpecBox(hidden){
             ])
         ],
         m("h5", "From URL"),
-        m("div", { class: "input-group mb-3" }, [
-            m("button", {
-                id:"load-spec-urfl-button", 
-                class: "btn btn-sm btn-secondary",
-                "data-testid": "load-spec-button",
-                onclick: () => {
-                    model.rootModName = "";
-                    model.specPath = model.specUrlInputText;
-                    plausible('LoadSpec', {props: {loaded_spec_path: model.specPath}})
-                    model.specConstInputVals = {};
-                    updateTraceRouteParams();
-                    loadSpecFromPath(model.specPath);
-                    // reloadSpec();
-                    model.showLoadFileBox = !model.showLoadFileBox;
-                }
-            }, "Load"),
-            m("input", {
-                type:"text", 
-                text:"file upload", 
-                class:"form-control form-control-sm" + (model.loadSpecFailed ? " is-invalid" : ""),
-                placeholder: "URL to .tla file.",
-                "data-testid": "load-spec-url-input",
-                oninput: e => { model.specUrlInputText = e.target.value }
-            }, "From URL upload:"),
-        ]),
-        m("div", model.loadSpecFailed ? loadFailedErrMsg : "")
+        model.specSourceProvider === "gitlab" ? gitlabSourcePane()
+            : model.specSourceProvider === "github" ? githubSourcePane()
+            : rawUrlSourcePane(),
+        loadSourceButton(),
+        m("div", { class: model.loadSpecFailed ? "text-danger mt-2" : "" },
+            model.loadSpecFailed ? (model.loadSpecErrorMsg || loadFailedErrMsg) : "")
     ])
+}
+
+// Human-readable labels for each URL-based spec source.
+const SPEC_SOURCE_LABELS = {
+    raw: "Load from raw URL",
+    gitlab: "Load from GitLab",
+    github: "Load from GitHub",
+};
+
+// Split "Load" button whose caret dropdown selects the source provider. The main
+// button loads using the currently-selected provider's inputs.
+function loadSourceButton(){
+    return m("div", { class: "btn-group" }, [
+        m("button", {
+            class: "btn btn-sm btn-secondary",
+            "data-testid": "load-spec-button",
+            onclick: () => { model.showLoadSourceMenu = false; loadForCurrentProvider(); }
+        }, SPEC_SOURCE_LABELS[model.specSourceProvider]),
+        m("button", {
+            class: "btn btn-sm btn-secondary dropdown-toggle dropdown-toggle-split",
+            "data-testid": "load-source-caret",
+            "aria-expanded": model.showLoadSourceMenu ? "true" : "false",
+            onclick: () => { model.showLoadSourceMenu = !model.showLoadSourceMenu; }
+        }, m("span", { class: "visually-hidden" }, "Toggle source")),
+        m("ul", { class: "dropdown-menu" + (model.showLoadSourceMenu ? " show" : "") },
+            ["raw", "gitlab", "github"].map(p =>
+                m("li", m("a", {
+                    class: "dropdown-item" + (model.specSourceProvider === p ? " active" : ""),
+                    href: "#",
+                    "data-testid": "load-source-" + p,
+                    onclick: (e) => {
+                        e.preventDefault();
+                        model.specSourceProvider = p;
+                        model.showLoadSourceMenu = false;
+                    }
+                }, SPEC_SOURCE_LABELS[p]))
+            )
+        )
+    ]);
+}
+
+// Load the spec using the inputs of the currently-selected source provider.
+function loadForCurrentProvider(){
+    if(model.specSourceProvider === "gitlab"){
+        setGitLabAccessToken(model.gitlabInput.token);
+        loadResolvedSpecPath(gitlabUrlFromFields());
+    } else if(model.specSourceProvider === "github"){
+        setGitHubAccessToken(model.githubInput.token);
+        loadResolvedSpecPath(githubUrlFromFields());
+    } else {
+        loadResolvedSpecPath(model.specUrlInputText);
+    }
+}
+
+// Common sequence to load a resolved spec URL (used by all URL-based sources).
+function loadResolvedSpecPath(specPath){
+    model.rootModName = "";
+    model.specPath = specPath;
+    plausible('LoadSpec', {props: {loaded_spec_path: model.specPath}})
+    model.specConstInputVals = {};
+    updateTraceRouteParams();
+    loadSpecFromPath(model.specPath);
+    model.showLoadFileBox = !model.showLoadFileBox;
+}
+
+// "Raw URL" source pane: fetch any raw .tla URL verbatim (original behavior).
+function rawUrlSourcePane(){
+    return m("div", { class: "input-group input-group-sm mb-2" }, [
+        m("input", {
+            type:"text",
+            class:"form-control form-control-sm" + (model.loadSpecFailed ? " is-invalid" : ""),
+            placeholder: "URL to raw .tla file.",
+            "data-testid": "load-spec-url-input",
+            oninput: e => { model.specUrlInputText = e.target.value }
+        }),
+    ]);
+}
+
+// Infer the GitLab instance host when Spectacle is served from GitLab Pages
+// (e.g. "<proj>.gitlab-master-pages.nvidia.com" -> "gitlab-master.nvidia.com").
+// Best-effort only; the field remains user-editable.
+function defaultGitLabHost(){
+    try {
+        let parts = window.location.hostname.split(".");
+        if(parts.length > 2 && parts[1].includes("-pages")){
+            return parts.slice(1).join(".").replace("-pages", "");
+        }
+    } catch(e){}
+    return "";
+}
+
+// Build the GitLab API raw-file URL from the structured input fields.
+function gitlabUrlFromFields(){
+    let host = model.gitlabInput.host.trim().replace(/^https?:\/\//, "").replace(/\/+$/, "");
+    let ref = model.gitlabInput.ref.trim() || "HEAD";
+    return gitlabApiRawUrl("https://" + host, model.gitlabInput.project.trim(), model.gitlabInput.file.trim(), ref);
+}
+
+// Parse a pasted GitLab blob/raw/API URL to prefill the structured fields.
+function applyGitLabPaste(str){
+    let loc = parseGitLabBlobUrl(str) || parseGitLabApiUrl(str);
+    if(loc !== null){
+        model.gitlabInput.host = loc.instanceBase.replace(/^https?:\/\//, "");
+        model.gitlabInput.project = loc.projectPath;
+        model.gitlabInput.file = loc.filePath;
+        model.gitlabInput.ref = loc.ref;
+    }
+}
+
+// "GitLab" source pane: hybrid paste box + editable Host/Project/File/Ref/Token
+// fields. Fetches are routed through the CORS-enabled GitLab REST API.
+function gitlabSourcePane(){
+    let field = (label, key, placeholder, type) => m("div", { class: "input-group input-group-sm mb-1" }, [
+        m("label", { class: "input-group-text", style: "width: 5.5em;" }, label),
+        m("input", {
+            type: type || "text",
+            class: "form-control form-control-sm",
+            placeholder: placeholder || "",
+            value: model.gitlabInput[key],
+            "data-testid": "gitlab-" + key,
+            oninput: e => { model.gitlabInput[key] = e.target.value; }
+        })
+    ]);
+    return m("div", { class: "mb-3" }, [
+        m("div", { class: "input-group input-group-sm mb-1" }, [
+            m("label", { class: "input-group-text", style: "width: 5.5em;" }, "Paste URL"),
+            m("input", {
+                type: "text",
+                class: "form-control form-control-sm",
+                placeholder: "Paste a GitLab file URL to auto-fill fields (optional).",
+                "data-testid": "gitlab-paste",
+                oninput: e => { applyGitLabPaste(e.target.value); }
+            })
+        ]),
+        field("Host", "host", "gitlab.example.com"),
+        field("Project", "project", "group/subgroup/project"),
+        field("File", "file", "path/to/Spec.tla"),
+        field("Ref", "ref", "branch, tag, or commit SHA"),
+        field("Token", "token", "optional access token for private repos", "password"),
+    ]);
+}
+
+// Build the GitHub fetch URL from the structured input fields. Public repos use
+// raw.githubusercontent.com; when a token is supplied we use the authenticated
+// contents API so private repos work too.
+function githubUrlFromFields(){
+    let owner = model.githubInput.owner.trim();
+    let repo = model.githubInput.repo.trim();
+    let file = model.githubInput.file.trim();
+    let ref = model.githubInput.ref.trim() || "HEAD";
+    if(model.githubInput.token.trim().length > 0){
+        return githubApiRawUrl(owner, repo, ref, file);
+    }
+    return githubRawUrl(owner, repo, ref, file);
+}
+
+// Parse a pasted GitHub blob/raw/API URL to prefill the structured fields.
+function applyGitHubPaste(str){
+    let loc = parseGitHubUrl(str);
+    if(loc !== null){
+        model.githubInput.owner = loc.owner;
+        model.githubInput.repo = loc.repo;
+        model.githubInput.file = loc.filePath;
+        model.githubInput.ref = loc.ref;
+    }
+}
+
+// "GitHub" source pane: hybrid paste box + editable Owner/Repo/File/Ref/Token
+// fields.
+function githubSourcePane(){
+    let field = (label, key, placeholder, type) => m("div", { class: "input-group input-group-sm mb-1" }, [
+        m("label", { class: "input-group-text", style: "width: 5.5em;" }, label),
+        m("input", {
+            type: type || "text",
+            class: "form-control form-control-sm",
+            placeholder: placeholder || "",
+            value: model.githubInput[key],
+            "data-testid": "github-" + key,
+            oninput: e => { model.githubInput[key] = e.target.value; }
+        })
+    ]);
+    return m("div", { class: "mb-3" }, [
+        m("div", { class: "input-group input-group-sm mb-1" }, [
+            m("label", { class: "input-group-text", style: "width: 5.5em;" }, "Paste URL"),
+            m("input", {
+                type: "text",
+                class: "form-control form-control-sm",
+                placeholder: "Paste a GitHub file URL to auto-fill fields (optional).",
+                "data-testid": "github-paste",
+                oninput: e => { applyGitHubPaste(e.target.value); }
+            })
+        ]),
+        field("Owner", "owner", "user or org"),
+        field("Repo", "repo", "repository"),
+        field("File", "file", "path/to/Spec.tla"),
+        field("Ref", "ref", "branch, tag, or commit SHA"),
+        field("Token", "token", "optional access token for private repos", "password"),
+    ]);
 }
 
 function specAnimationEditorPane(hidden){
@@ -3979,6 +4171,7 @@ function loadSpecText(text, specPath) {
     model.specPath = specPath;
     model.traceExprs = [];
     model.loadSpecFailed = false;
+    model.loadSpecErrorMsg = null;
     model.invariantViolated = false;
     model.invariantCheckingDuration = 0;
     model.invariantCheckerRunning = false;
@@ -4033,7 +4226,7 @@ function tryLoadAnimSpec(specPath) {
 
     let animSpecPath = specPath.replace(".tla", "_anim.tla");
     model.externalAnimationExists = false;
-    m.request(animSpecPath, { responseType: "text" }).then(function (animText) {
+    m.request(animSpecPath, { responseType: "text", headers: specFetchHeaders(animSpecPath) }).then(function (animText) {
         model.specAnimText = animText;
         model.animationExists = true;
         model.externalAnimationExists = true;
@@ -4083,12 +4276,15 @@ function loadSpecFromPath(specPath){
     // Download the specified spec and load it in the editor pane.
 
     console.log("Loading spec from path '" + specPath + "'");
+    model.loadSpecFailed = false;
+    model.loadSpecErrorMsg = null;
     if(specPath.length === 0){
         console.log("Spec path is empty");
         model.loadSpecFailed = true;
+        model.loadSpecErrorMsg = "No spec URL provided.";
         return;
     }
-    return m.request(specPath, { responseType: "text" }).then(function (specText) {
+    return m.request(specPath, { responseType: "text", headers: specFetchHeaders(specPath) }).then(function (specText) {
         loadSpecText(specText, specPath);
         if(!model.inlineAnimationExists){
             tryLoadAnimSpec(specPath);
@@ -4096,10 +4292,41 @@ function loadSpecFromPath(specPath){
     }).catch(function(e) {
         console.log("Error loading file ", specPath, e);
         model.loadSpecFailed = true;
+        model.loadSpecErrorMsg = loadFailureMessage(specPath, e);
+        // Mithril's auto-redraw for m.request runs before this appended catch, so
+        // trigger an explicit redraw to reflect the failure state in the UI.
+        m.redraw();
     });
 }
 
+// Build a helpful failure message, distinguishing auth/not-found errors (which
+// for private repos usually mean a missing or invalid access token) from other
+// network/CORS errors.
+function loadFailureMessage(specPath, e){
+    let status = (e && typeof e.code === "number") ? e.code : null;
+    let isGit = isGitLabApiUrl(specPath) || isGitHubApiUrl(specPath) ||
+        /raw\.githubusercontent\.com/.test(specPath);
+    if(status === 401 || status === 403 || status === 404){
+        let base = `Could not fetch spec (HTTP ${status}).`;
+        if(isGit){
+            return base + " If this is a private repository, provide a valid access token; " +
+                "otherwise check the host, project, file path, and ref.";
+        }
+        return base + " Check that the URL points to a raw TLA+ file.";
+    }
+    if(status !== null){
+        return `Could not fetch spec (HTTP ${status}).`;
+    }
+    return "Error fetching spec. This may be a network/CORS issue, or the URL may " +
+        "not point to a fetchable raw TLA+ file.";
+}
+
 async function loadApp() {
+
+    // Prefill the GitLab host when served from a GitLab Pages origin.
+    if(model.gitlabInput.host.length === 0){
+        model.gitlabInput.host = defaultGitLabHost();
+    }
 
     // Download example spec.
     // model.specPath = "./specs/simple2.tla";

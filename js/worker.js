@@ -163,6 +163,11 @@ onmessage = async (e) => {
     let nextDefName = e.data.nextDefName;
     let definitionOverrides = e.data.definitionOverrides;
 
+    // Propagate any access tokens so module fetches in the worker can
+    // authenticate against private GitLab/GitHub repositories.
+    setGitLabAccessToken(e.data.gitlabAccessToken);
+    setGitHubAccessToken(e.data.githubAccessToken);
+
     await TreeSitter.init();
     parser = new TreeSitter();
 
