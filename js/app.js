@@ -78,6 +78,12 @@ let model = {
     constantsPaneHidden: false,
     selectedTab: Tab.StateSelection,
     selectedTraceTab: TraceTab.Trace,
+    // When true, the TLA+ spec/animation editor tabs are moved out of the left
+    // column into their own dedicated rightmost column (three-column layout).
+    specColumnSeparate: false,
+    // Selected spec tab (Tab.SpecEditor or Tab.SpecAnimationEditor) when the
+    // spec editor lives in its own column.
+    selectedSpecTab: Tab.SpecEditor,
     rootModName: "",
     debug: false,
     showLoadFileBox: false,
@@ -1043,7 +1049,7 @@ function errorMsgStr(errorInfo) {
                     style: "font-size: 14px;font-weight: normal",
                     class: "hover-link",
                     onclick: () => {
-                        model.selectedTab = Tab.SpecEditor;
+                        setSpecTab(Tab.SpecEditor);
                         m.redraw();
                         highlightError();
                     }
@@ -1133,7 +1139,7 @@ function componentErrorInfo() {
             style: "font-size: 12px;",
             class: "",
             onclick: () => {
-                model.selectedTab = Tab.SpecEditor;
+                setSpecTab(Tab.SpecEditor);
                 m.redraw();
                 highlightError();
             }
@@ -3120,10 +3126,10 @@ function componentHiddenStateVars(hidden) {
 function specEditorPane(hidden){
     let liStyle = {"font-size": "12px", "padding-top": "3px", "padding-bottom": "3px"};
     return m("div", { id: "code-input-pane", style: {display: hidden ? "none" : "block"}}, [
-        m("div", { id: "code-container", hidden: model.selectedTab !== Tab.SpecEditor }, [
+        m("div", { id: "code-container", hidden: activeSpecTab() !== Tab.SpecEditor }, [
             m("textarea", { id: "code-input" })
         ]),
-        m("div", { id: "code-anim-container", hidden: model.selectedTab !== Tab.SpecAnimationEditor }, [
+        m("div", { id: "code-anim-container", hidden: activeSpecTab() !== Tab.SpecAnimationEditor }, [
             m("textarea", { id: "code-anim-input" })
         ])
     ]);
@@ -3334,15 +3340,168 @@ function specAnimationEditorPane(hidden){
     ]);
 }
 
+// Returns the currently active spec editor tab, reading from the correct
+// selection field depending on whether the spec editor is in its own column.
+function activeSpecTab(){
+    return model.specColumnSeparate ? model.selectedSpecTab : model.selectedTab;
+}
+
+// Selects a spec editor tab, writing to the correct selection field depending
+// on whether the spec editor is in its own column.
+function setSpecTab(tab){
+    if(model.specColumnSeparate){
+        model.selectedSpecTab = tab;
+    } else {
+        model.selectedTab = tab;
+    }
+}
+
+// Returns true if the given textarea has already been turned into a CodeMirror
+// editor (CodeMirror inserts its wrapper as the textarea's next sibling).
+function specEditorInitialized(textarea){
+    return !!(textarea && textarea.nextSibling && textarea.nextSibling.classList &&
+              textarea.nextSibling.classList.contains("CodeMirror"));
+}
+
+// Re-create the CodeMirror editors on the (freshly rendered) spec/animation
+// textareas after the spec editor pane has been moved to a different column.
+// The old DOM (including the previous CodeMirror instances) is torn down by
+// Mithril, so we rebuild them and restore their previous contents.
+function reinitSpecEditors(specVal, animVal){
+    const codeInput = document.getElementById("code-input");
+    if(codeInput && !specEditorInitialized(codeInput)){
+        codeEditor = CodeMirror.fromTextArea(codeInput, {
+            lineNumbers: true,
+            showCursorWhenSelecting: true,
+            fontSize: "13px",
+            theme: "default",
+            scrollbarStyle: "null",
+        });
+        codeEditor.getWrapperElement().style.fontSize = "13px";
+        codeEditor.setSize("100%", "100%");
+        codeEditor.on("changes", () => {
+            handleCodeChange().then(function () {
+                loadRouteParamsState();
+                m.redraw();
+            });
+        });
+        if(specVal !== null){
+            codeEditor.setValue(specVal);
+        }
+        codeEditor.refresh();
+    }
+
+    const codeAnimInput = document.getElementById("code-anim-input");
+    if(codeAnimInput && !specEditorInitialized(codeAnimInput)){
+        codeAnimEditor = CodeMirror.fromTextArea(codeAnimInput, {
+            lineNumbers: true,
+            showCursorWhenSelecting: true,
+            scrollbarStyle: "null",
+        });
+        codeAnimEditor.getWrapperElement().classList.add("CodeMirror-anim-spec");
+        codeAnimEditor.setSize("100%", "100%");
+        codeAnimEditor.on("changes", () => {
+            handleAnimCodeChange().then(function () {
+                m.redraw();
+            });
+        });
+        if(animVal !== null){
+            codeAnimEditor.setValue(animVal);
+        }
+        codeAnimEditor.refresh();
+    }
+}
+
+// Enable or disable the three-column layout (spec/animation editor in its own
+// rightmost column). This relies on Mithril re-rendering the layout after the
+// current event handler returns, so the spec editor DOM is rebuilt in the new
+// column before reinitSpecEditors() runs on the next tick. It should therefore
+// be called from within an event handler (or with an already-mounted app whose
+// redraw is otherwise triggered), not before the initial mount.
+function setSpecColumnSeparate(enabled){
+    if(model.specColumnSeparate === enabled){
+        return;
+    }
+
+    // Preserve the current editor contents before Mithril tears down and
+    // re-creates the spec editor DOM in the new column.
+    let specVal = null;
+    let animVal = null;
+    let mainCm = document.querySelector(".CodeMirror:not(.CodeMirror-anim-spec)");
+    if(mainCm && mainCm.CodeMirror){ specVal = mainCm.CodeMirror.getValue(); }
+    let animCm = document.querySelector(".CodeMirror-anim-spec");
+    if(animCm && animCm.CodeMirror){ animVal = animCm.CodeMirror.getValue(); }
+
+    if(enabled){
+        model.specColumnSeparate = true;
+        // Carry over any currently selected spec/config tab into the new column
+        // and fall back to the Actions tab in the left column.
+        if(model.selectedTab === Tab.SpecEditor || model.selectedTab === Tab.SpecAnimationEditor || model.selectedTab === Tab.Config){
+            model.selectedSpecTab = model.selectedTab;
+            model.selectedTab = Tab.StateSelection;
+        }
+    } else {
+        model.specColumnSeparate = false;
+        // Merge the spec tab selection back into the left column.
+        model.selectedTab = model.selectedSpecTab;
+    }
+
+    // Rebuild the editors in their new location once Mithril has redrawn.
+    setTimeout(() => {
+        reinitSpecEditors(specVal, animVal);
+        m.redraw();
+    }, 0);
+}
+
+// Read the "specColumn" flag from the URL query string. This is safe to call
+// before Mithril's router is mounted (unlike m.route.param), so the initial
+// layout can be set up before the first render.
+function specColumnParamEnabled(){
+    let hash = window.location.hash || "";
+    let qIdx = hash.indexOf("?");
+    let hashQuery = qIdx >= 0 ? hash.slice(qIdx + 1) : "";
+    let search = (window.location.search || "").replace(/^\?/, "");
+    let combined = [search, hashQuery].filter(s => s.length > 0).join("&");
+    let params = {};
+    if(typeof m !== "undefined" && m.parseQueryString){
+        params = m.parseQueryString(combined);
+    } else {
+        for(let pair of combined.split("&")){
+            if(!pair) continue;
+            let [k, v] = pair.split("=");
+            params[decodeURIComponent(k)] = (v === undefined) ? true : decodeURIComponent(v);
+        }
+    }
+    return params.specColumn === true || params.specColumn === "true";
+}
+
+// Persist the current three-column layout state to the URL route params.
+function updateSpecColumnRouteParam(){
+    let params = m.route.param();
+    if(model.specColumnSeparate){
+        params.specColumn = true;
+    } else {
+        delete params.specColumn;
+    }
+    m.route.set("/home", params);
+}
+
+// Toggle the spec/animation editor tabs between the shared left column and a
+// dedicated rightmost column, and reflect the choice in the URL.
+function toggleSpecColumnSeparate(){
+    setSpecColumnSeparate(!model.specColumnSeparate);
+    updateSpecColumnRouteParam();
+}
+
 function openSpecEditorTab(){
-    model.selectedTab = Tab.SpecEditor;
+    setSpecTab(Tab.SpecEditor);
     setTimeout(() => {
         getCodeMirrorEditor().refresh();
     }, 50);
 }
 
 function openSpecAnimationEditorTab(){
-    model.selectedTab = Tab.SpecAnimationEditor;
+    setSpecTab(Tab.SpecAnimationEditor);
     setTimeout(() => {
         getAnimationCodeMirrorEditor().refresh();
     }, 50);
@@ -3357,7 +3516,7 @@ function specAnimTabElem(){
             onclick: () => {
                 openSpecAnimationEditorTab();
             },
-        }, m("a", {class: model.selectedTab === Tab.SpecAnimationEditor ? "nav-link active" : "nav-link"}, "Animation"));
+        }, m("a", {class: activeSpecTab() === Tab.SpecAnimationEditor ? "nav-link active" : "nav-link"}, "Animation"));
     }
 }
 
@@ -3370,7 +3529,7 @@ function specTabElem(){
             onclick: () => {
                 openSpecEditorTab();
             },
-        }, m("a", {class: model.selectedTab === Tab.SpecEditor ? "nav-link active" : "nav-link"}, "Spec"));
+        }, m("a", {class: activeSpecTab() === Tab.SpecEditor ? "nav-link active" : "nav-link"}, "Spec"));
     }
     
     // return m("li", {
@@ -3411,6 +3570,20 @@ function specTabElem(){
     // ]);
 }
 
+// The Config tab. It uses the activeSpecTab()/setSpecTab() mapping so it can
+// live in either the left column (two-column layout) or the rightmost spec
+// column (three-column layout) without duplicating selection logic.
+function configTabElem(){
+    return m("li", {
+        class: "nav-item",
+        onclick: () => setSpecTab(Tab.Config),
+    }, m("a", {class: activeSpecTab() === Tab.Config ? "nav-link active" : "nav-link"}, [
+        "Config",
+        (!model.spec || !model.spec.hasDefinitionByName(model.initStatePredName) || !model.spec.hasDefinitionByName(model.nextStatePredName)) ?
+            m("span", {class: "text-warning ms-1", title: "Missing Init or Next definition"}, "⚠") : ""
+    ]));
+}
+
 function headerTabBar() {
     let activeClasses = "nav-link active";
     let tabs = [
@@ -3420,19 +3593,12 @@ function headerTabBar() {
             onclick: () => model.selectedTab = Tab.StateSelection,
             // style: "background-color:" + ((model.selectedTab === Tab.StateSelection) ? "lightgray" : "none")
         }, m("a", {class: model.selectedTab === Tab.StateSelection ? "nav-link active" : "nav-link"}, "Actions")),
-        m("li", {
-            // id: "state-selection-tab-button",
-            class: "nav-item",
-            // hidden: _.isEmpty(model.specConsts),
-            onclick: () => model.selectedTab = Tab.Config,
-            // style: "background-color:" + ((model.selectedTab === Tab.StateSelection) ? "lightgray" : "none")
-        }, m("a", {class: model.selectedTab === Tab.Config ? "nav-link active" : "nav-link"}, [
-            "Config",
-            (!model.spec || !model.spec.hasDefinitionByName(model.initStatePredName) || !model.spec.hasDefinitionByName(model.nextStatePredName)) ? 
-                m("span", {class: "text-warning ms-1", title: "Missing Init or Next definition"}, "⚠") : ""
-        ])),
-        specTabElem(),
-        specAnimTabElem(),
+        // The config tab lives here only when the spec editor isn't split into
+        // its own column; otherwise it moves next to the Spec/Anim tabs.
+        model.specColumnSeparate ? null : configTabElem(),
+        // The spec/animation tabs live here only when not split into their own column.
+        model.specColumnSeparate ? null : specTabElem(),
+        model.specColumnSeparate ? null : specAnimTabElem(),
         m("li", {
             // id: "spec-editor-tab-button", 
             class: "nav-item",
@@ -3479,8 +3645,11 @@ function midPane() {
     let tabs = [
         headerTabBar(),
         stateSelectionPane(model.selectedTab !== Tab.StateSelection),
-        componentChooseConfig(model.selectedTab !== Tab.Config),
-        specEditorPane(model.selectedTab !== Tab.SpecEditor && model.selectedTab !== Tab.SpecAnimationEditor),
+        // The config pane lives here only when the spec editor isn't split into
+        // its own column; otherwise it moves to the rightmost spec column.
+        model.specColumnSeparate ? null : componentChooseConfig(model.selectedTab !== Tab.Config),
+        // The spec editor lives here only when it doesn't have its own column.
+        model.specColumnSeparate ? null : specEditorPane(model.selectedTab !== Tab.SpecEditor && model.selectedTab !== Tab.SpecAnimationEditor),
         // specAnimationEditorPane(model.selectedTab !== Tab.SpecAnimationEditor),
         loadPane(model.selectedTab !== Tab.Load)
     ];
@@ -3493,9 +3662,48 @@ function midPane() {
     return [
         m("div", { 
             id: "mid-pane", 
-            style: {width: model.tracePaneHidden ? "90%" : "45%"} 
+            style: {width: midPaneWidth()} 
         }, tabs)
     ];
+}
+
+// Width of the left (#mid-pane) column, accounting for the trace pane being
+// hidden and whether the spec editor has its own column.
+function midPaneWidth(){
+    if(model.tracePaneHidden){
+        return "90%";
+    }
+    return model.specColumnSeparate ? "30%" : "45%";
+}
+
+// Width of the middle (#trace-container) column.
+function tracePaneWidth(){
+    if(model.tracePaneHidden){
+        return "5%";
+    }
+    return model.specColumnSeparate ? "40%" : "55%";
+}
+
+// The dedicated rightmost column holding the Config and TLA+ spec/animation
+// editor tabs. Only rendered when model.specColumnSeparate is true.
+function specPane(){
+    let navStyle = "nav-tabs";
+    let tabBar = m("div", {}, [
+        m("ul", { class: `nav ${navStyle}` }, [
+            configTabElem(),
+            specTabElem(),
+            specAnimTabElem()
+        ])
+    ]);
+
+    return m("div", {
+        id: "spec-pane",
+        style: {width: "30%"}
+    }, [
+        tabBar,
+        componentChooseConfig(activeSpecTab() !== Tab.Config),
+        specEditorPane(activeSpecTab() !== Tab.SpecEditor && activeSpecTab() !== Tab.SpecAnimationEditor)
+    ]);
 }
 
 // 
@@ -3503,14 +3711,28 @@ function midPane() {
 // 
 
 let resize_initial_pos_x = null;
+// Selectors for the two adjacent panes on either side of the gutter being dragged.
+let resize_left_selector = "#mid-pane";
+let resize_right_selector = "#trace-container";
 function resize_mousemove(e){
-    const leftPane = document.querySelector("#mid-pane");
-    const rightPane = document.querySelector("#trace-container");
-    const panelContainer = document.querySelector(".panel-container");
+    const leftPane = document.querySelector(resize_left_selector);
+    const rightPane = document.querySelector(resize_right_selector);
+    if(!leftPane || !rightPane){
+        return;
+    }
 
-    // Expand/contract left and right panes.
-    leftPane.style.width = e.x - leftPane.getBoundingClientRect().left + 'px';
-    rightPane.style.width = panelContainer.getBoundingClientRect().width - e.x + 'px';
+    const leftRect = leftPane.getBoundingClientRect();
+    const rightRect = rightPane.getBoundingClientRect();
+
+    // Keep the combined width of the two adjacent panes constant so that any
+    // other columns are unaffected. This works for both the two- and
+    // three-column layouts.
+    const combinedWidth = leftRect.width + rightRect.width;
+    let newLeftWidth = e.x - leftRect.left;
+    // Clamp so neither adjacent pane collapses entirely.
+    newLeftWidth = Math.max(80, Math.min(combinedWidth - 80, newLeftWidth));
+    leftPane.style.width = newLeftWidth + 'px';
+    rightPane.style.width = (combinedWidth - newLeftWidth) + 'px';
 }
 
 function resize_mouseup(e){
@@ -3603,7 +3825,7 @@ function tracePane() {
 
     return m("div", { 
             id: "trace-container", 
-            style: {width: model.tracePaneHidden ? "5%" : "55%"}
+            style: {width: tracePaneWidth()}
         }, [
         tabs,
         otherTabs
@@ -3783,7 +4005,9 @@ function componentPaneSelector() {
     ])
 }
 
-function resizeGutter() {
+function resizeGutter(leftSelector, rightSelector) {
+    leftSelector = leftSelector || "#mid-pane";
+    rightSelector = rightSelector || "#trace-container";
     return m("div", { 
         class: "resize-gutter",
         onmousedown: (e) => {
@@ -3791,6 +4015,8 @@ function resizeGutter() {
             e.preventDefault()
             e.redraw = false;
 
+            resize_left_selector = leftSelector;
+            resize_right_selector = rightSelector;
             resize_initial_pos_x = e.x;
             window.addEventListener('mousemove', resize_mousemove);
             window.addEventListener('mouseup', resize_mouseup);
@@ -4322,27 +4548,47 @@ async function loadApp() {
                             //     " Protocol Gallery"
                             // ])
                         ]),
-                        m("span", { class: "navbar-text", href: "https://github.com/will62794/spectacle", style: "padding-right:15px" },
-                            [
-                                m("span", {}, [
-                                    m("span", { style: "font-weight:bold", "font-size": "14px" }, "Root module:  "),
-                                    m("span", {
-                                        ondblclick: () => {
-                                            model.debug = 1 - model.debug;
-                                            enableEvalTracing = model.debug === 1;
-                                            console.log("debug", model.debug);
-                                            updateRouteParams({debug: model.debug});
-                                            m.redraw();
-                                        },
-                                        style: {cursor: "pointer", "font-family": "monospace", "font-size": "14px"}
-                                    },model.rootModName + (model.rootModName.length > 0 ? ".tla" : "")),
-                                    m("span", { style: { opacity: 0.5, "font-size": "14px" } }, fetchingText),
-                                    spinner,
-                                    parseError
+                        m("div", { class: "d-flex align-items-center" }, [
+                            // Toggle the three-column layout (spec editor in its own column).
+                            m("div", { class: "form-check form-switch mb-0 me-4", style: "font-size:14px;" }, [
+                                m("input", {
+                                    class: "form-check-input",
+                                    type: "checkbox",
+                                    role: "switch",
+                                    id: "specColumnSwitch",
+                                    style: "cursor:pointer;",
+                                    checked: model.specColumnSeparate,
+                                    onclick: () => toggleSpecColumnSeparate(),
+                                }),
+                                m("label", {
+                                    class: "form-check-label",
+                                    for: "specColumnSwitch",
+                                    style: "cursor:pointer;",
+                                    title: "Show the spec editor in its own column",
+                                }, "Three columns")
+                            ]),
+                            m("span", { class: "navbar-text", href: "https://github.com/will62794/spectacle", style: "padding-right:15px" },
+                                [
+                                    m("span", {}, [
+                                        m("span", { style: "font-weight:bold", "font-size": "14px" }, "Root module:  "),
+                                        m("span", {
+                                            ondblclick: () => {
+                                                model.debug = 1 - model.debug;
+                                                enableEvalTracing = model.debug === 1;
+                                                console.log("debug", model.debug);
+                                                updateRouteParams({debug: model.debug});
+                                                m.redraw();
+                                            },
+                                            style: {cursor: "pointer", "font-family": "monospace", "font-size": "14px"}
+                                        },model.rootModName + (model.rootModName.length > 0 ? ".tla" : "")),
+                                        m("span", { style: { opacity: 0.5, "font-size": "14px" } }, fetchingText),
+                                        spinner,
+                                        parseError
+                                    ]
+                                    )
                                 ]
-                                )
-                            ]
-                        ),
+                            ),
+                        ]),
                     ]),
 
                 ]),
@@ -4362,8 +4608,11 @@ async function loadApp() {
                     // m("div", { id: "spec-name-fheader", style:"font-size:14px;margin-bottom:10px;width:100%;" }, "Root spec: " + model.rootModName + ".tla"),
                     // Display pane.
                     midPane(),
-                    resizeGutter(),
-                    tracePane()
+                    resizeGutter("#mid-pane", "#trace-container"),
+                    tracePane(),
+                    // Optional third column holding the spec/animation editor tabs.
+                    model.specColumnSeparate ? resizeGutter("#trace-container", "#spec-pane") : null,
+                    model.specColumnSeparate ? specPane() : null
                     // componentExplorerPane(),
                 ])];
         }
@@ -4394,6 +4643,13 @@ async function loadApp() {
                 ])
             ];
         }
+    }
+
+    // Apply the three-column layout preference from the URL *before* the
+    // initial mount, so the spec editor is created directly in its own column
+    // (App.oncreate initializes CodeMirror on whichever column renders it).
+    if(specColumnParamEnabled()){
+        model.specColumnSeparate = true;
     }
 
     // m.mount(root, App)

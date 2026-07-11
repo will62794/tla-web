@@ -784,6 +784,27 @@ body {
     /* flex:1; */
   }
 
+  /* Dedicated rightmost column for the TLA+ spec/animation editor tabs
+     (three-column layout). */
+  #spec-pane {
+    height: 100vh;
+    width: 30%;
+    min-width: 280px;
+    padding-left: 18px;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+
+    /* Hide scrollbar. */
+    overflow-y: scroll;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+  }
+
+  #spec-pane::-webkit-scrollbar {
+    display: none;
+  }
+
   .resize-gutter {
     width: 3px;
     /* height: 100%; */
