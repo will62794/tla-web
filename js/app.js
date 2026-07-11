@@ -1530,6 +1530,34 @@ function chooseNextState(statehash_short, quantBoundsHash, rethrow = false) {
     }
 }
 
+// Extend the current trace with a random behavior by repeatedly picking a
+// uniformly random next state, reusing the same machinery as manual stepping.
+// Continues from the current trace tip; if the trace is empty, the first pick
+// is a random initial state. Stops early on a deadlock (no next states) or an
+// evaluation error. Returns the number of steps actually simulated.
+function simulateRandomBehavior(numSteps) {
+    let simulated = 0;
+    for (let i = 0; i < numSteps; i++) {
+        let choices = _.flatten(_.values(model.currNextStates));
+        if (choices.length === 0) {
+            // Deadlock: no further states to simulate.
+            break;
+        }
+        let choice = _.sample(choices);
+        let qb = choice["quant_bound"];
+        let quantBoundsHash = _.isEmpty(qb) ? undefined : hashQuantBounds(qb);
+        try {
+            chooseNextState(choice["state"].fingerprint(), quantBoundsHash, true);
+        } catch (e) {
+            console.error("Random simulation stopped due to error computing next states.", e);
+            break;
+        }
+        simulated++;
+    }
+    m.redraw();
+    return simulated;
+}
+
 function setConstantValues(reload = true) {
     console.log("Setting constant values");
     let constVals = {};
@@ -2955,12 +2983,23 @@ function componentButtonsContainer() {
                 disabled: model.currTrace.length <= 1,
                 onclick: traceStepBack 
             }, "Back"),
+            // Dual-purpose Forward button: when there is forward history (from
+            // having stepped Back), it acts as a normal redo. Otherwise there is
+            // nothing to redo, so rather than disabling it, it becomes a
+            // "simulate" control that advances the trace by one random step.
             m("button", { 
                 class: "btn btn-sm btn-outline-primary button-bagse", 
                 id: "trace-forward-button", 
-                disabled: model.forwardHistory.length === 0,
-                onclick: traceStepForward 
-            }, "Forward"),
+                "data-testid": "trace-forward-button",
+                title: model.forwardHistory.length > 0
+                    ? "Step forward (redo)"
+                    : "Simulate a random next step",
+                disabled: model.forwardHistory.length === 0 &&
+                    _.flatten(_.values(model.currNextStates)).length === 0,
+                onclick: model.forwardHistory.length > 0
+                    ? traceStepForward
+                    : () => simulateRandomBehavior(1)
+            }, model.forwardHistory.length > 0 ? "Forward" : "Forward (simulate)"),
 
             m("button", { 
                 class: "btn btn-sm btn-outline-primary button-bagse", 
@@ -3833,6 +3872,12 @@ function addTraceExpr(newTraceExpr) {
 
 // Load any state encoded in route parameters after parsing/loading a spec.
 function loadRouteParamsState() {
+    // Number of random states to simulate on load, if requested via URL
+    // (e.g. ?numSimSteps=20). When no explicit trace is given, a random
+    // behavior of this length is simulated on load. The "Forward (simulate)"
+    // button always advances a single step regardless of this value.
+    let numSimParam = parseInt(m.route.param("numSimSteps"), 10);
+
     // Load trace expression if given.
     let traceExpressions = m.route.param("traceExprs")
     if (traceExpressions) {
@@ -3933,6 +3978,16 @@ function loadRouteParamsState() {
                 chooseNextState(stateHash, undefined, rethrow);
             }
         }
+    }
+
+    // If a simulation step count was requested and no explicit trace was given,
+    // simulate a random behavior of that length now. The simulated trace is
+    // written back into the URL (via chooseNextState), so a later reload
+    // replays it rather than simulating a different one.
+    if (!traceParamStr && Number.isFinite(numSimParam) && numSimParam > 0 &&
+        initAndNextDefsValid() && allConstValsSet()) {
+        model.selectedTraceTab = TraceTab.Trace;
+        simulateRandomBehavior(numSimParam);
     }
 }
 
