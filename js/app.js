@@ -111,7 +111,12 @@ let model = {
     traceLoadingProgress: { currentState: 0, totalStates: 0 }, // 0-100
     traceLoadingError: null,
     traceLoadingStart: null,
-    expandedActionName: null // Track which action definition is currently expanded
+    expandedActionName: null, // Track which action definition is currently expanded
+    // CodeMirror text marker for the currently highlighted action in the spec editor.
+    highlightedActionMark: null,
+    // Name of the action currently highlighted (e.g. by hovering a trace state),
+    // used to also highlight the matching action box on the Actions tab.
+    highlightedActionName: null
 }
 
 const exampleSpecs = {
@@ -940,18 +945,20 @@ function componentNextStateChoiceElementForAction(ind, actionLabel, nextStatesFo
     }
 
     let opac = model.lassoTo === null ? "100" : "50";
-    let nextStateElem = m("div", {
-        class: "init-state",
-        style: `opacity: ${opac}%`,
+    // Also highlight this box when its action is highlighted elsewhere (e.g. by
+    // hovering the corresponding trace state).
+    let boxClass = "init-state action-choice-box";
+    if (model.highlightedActionName === actionName) {
+        boxClass += " action-choice-box-active";
+    }
+    // Hovering anywhere on the outer box highlights the action in the spec.
+    let nextStateElem = m("div", Object.assign(actionChoiceHoverAttrs(actionName), {
+        class: boxClass,
+        style: `opacity: ${opac}%; --action-hl-color: ${actionColor(actionName)};`,
         onclick: function () {
             model.currHoveredAction = actionName;
-        }        // onmouseover: () => {
-        //     model.nextStatePreview = state;
-        // },
-        // onmouseout: () => {
-        //     model.nextStatePreview = null;
-        // }
-    }, m("table", { class: "trace-select-table" }, allElems));
+        }
+    }), m("table", { class: "trace-select-table" }, allElems));
     return nextStateElem;
 }
 
@@ -999,6 +1006,8 @@ function componentNextStateChoiceElement(stateObj, ind, actionLabel, diffOnly) {
         ];
     });
 
+    // Hovering the whole state box (below) highlights the action in the spec, so
+    // the action-name cell itself doesn't need its own hover handlers.
     let actionNameElem = [m("tr", { style: "width:100%" }, [
         m("td", { class: "action-name", colspan: 2 }, actionLabelText)
     ])];
@@ -1018,22 +1027,34 @@ function componentNextStateChoiceElement(stateObj, ind, actionLabel, diffOnly) {
     }
 
     let opac = model.lassoTo === null ? "100" : "50";
-    let nextStateElem = m("div", {
-        class: "init-state next-state-choice-full",
-        style: `opacity: ${opac}%`,
+    // Colorize the box by its corresponding action, so full-state choices are
+    // visually grouped by action, matching the Actions / Parameters view. The
+    // "-active" variant tints the box when its action is highlighted elsewhere
+    // (e.g. by hovering the corresponding trace state).
+    let boxClass = "init-state next-state-choice-full";
+    let boxStyle = `opacity: ${opac}%`;
+    if (actionLabel) {
+        boxStyle += `; --action-hl-color: ${actionColor(actionLabelObj.name)};`;
+        if (model.highlightedActionName === actionLabelObj.name) {
+            boxClass += " next-state-choice-full-active";
+        }
+    }
+    let boxAttrs = {
+        class: boxClass,
+        style: boxStyle,
         "data-testid": "next-state-choice",
         onclick: (e) => {
             // Explicit redraw will be triggered inside 'chooseNextState'.
             e.redraw = false;
             chooseNextState(hash)
         },
-        // onmouseover: () => {
-        //     model.nextStatePreview = state;
-        // },
-        // onmouseout: () => {
-        //     model.nextStatePreview = null;
-        // }
-    }, m("table", { class: "trace-select-table" }, allElems));
+    };
+    if (actionLabel) {
+        // Hovering anywhere on the state box highlights its action in the spec
+        // editor, matching the Actions / Parameters view.
+        Object.assign(boxAttrs, actionChoiceHoverAttrs(actionLabelObj.name));
+    }
+    let nextStateElem = m("div", boxAttrs, m("table", { class: "trace-select-table" }, allElems));
     return nextStateElem;
 }
 
@@ -2374,7 +2395,49 @@ function componentTraceViewerState(stateCtx, ind, isLastState, actionId) {
     if (model.animationExists && model.enableAnimationView) {
         // traceStateElemChildren.push(vizSvg);
     }
-    let traceStateElem = m("div", { "class": "trace-state tlc-state", "data-testid": "trace-state-elem" }, traceStateElemChildren);
+
+    // Hovering anywhere on the state highlights, in the spec editor, the
+    // definition that produced it: the action for regular steps, or the Init
+    // predicate for the initial state. Most useful in the three-column layout,
+    // where the spec is always visible.
+    let stateAttrs = { "class": "trace-state tlc-state", "data-testid": "trace-state-elem" };
+    // The definition to highlight in the spec editor, and the action name to
+    // tint on the Actions tab (null for the initial state, which has no action).
+    let highlightNode = null;
+    let highlightName = null;
+    let highlightColor = null;
+    if (actionId !== null && action) {
+        highlightNode = action;
+        highlightName = getActionLabelText(action.name).name;
+        highlightColor = actionColor(highlightName);
+    } else if (ind === 0) {
+        // The initial state has no action; highlight the Init predicate.
+        highlightNode = { name: model.initStatePredName, node: null };
+        highlightColor = actionColor(model.initStatePredName);
+    }
+    if (highlightNode) {
+        stateAttrs.class += " trace-state-highlightable";
+        // Carry the action's color so the :hover rule can tint the box with it.
+        stateAttrs.style = "--action-hl-color: " + highlightColor + ";";
+        let doHighlight = () => {
+            highlightActionInSpec(highlightNode);
+            model.highlightedActionName = highlightName;
+        };
+        // Use mouseenter/mouseleave (which don't bubble) so moving across the
+        // state's inner elements doesn't cause the highlight to flicker. We allow
+        // Mithril to redraw so the matching action box on the Actions tab updates.
+        stateAttrs.onmouseenter = doHighlight;
+        stateAttrs.onmouseleave = clearActionHighlight;
+        stateAttrs.onclick = (e) => {
+            e.redraw = false;
+            // On click, ensure the spec editor is visible then highlight it.
+            if (!model.specColumnSeparate) {
+                setSpecTab(Tab.SpecEditor);
+                doHighlight();
+            }
+        };
+    }
+    let traceStateElem = m("div", stateAttrs, traceStateElemChildren);
     return traceStateElem;
 }
 
@@ -3432,6 +3495,9 @@ function setSpecColumnSeparate(enabled){
     let animCm = document.querySelector(".CodeMirror-anim-spec");
     if(animCm && animCm.CodeMirror){ animVal = animCm.CodeMirror.getValue(); }
 
+    // The editor (and thus any action highlight mark) is torn down and rebuilt.
+    model.highlightedActionMark = null;
+
     if(enabled){
         model.specColumnSeparate = true;
         // Carry over any currently selected spec/config tab into the new column
@@ -4273,6 +4339,114 @@ function getAnimationCodeMirrorEditor() {
     const $codeEditor = document.querySelector('.CodeMirror-anim-spec');
     const editor = $codeEditor.CodeMirror;
     return editor;
+}
+
+// Returns the CodeMirror instance for the main spec editor, scoped to whichever
+// column currently hosts it. This avoids matching the animation editor or the
+// transient read-only editors created by the trace viewer's action-def preview.
+function getSpecCodeMirror() {
+    let container = model.specColumnSeparate ? "#spec-pane" : "#mid-pane";
+    let el = document.querySelector(`${container} .CodeMirror:not(.CodeMirror-anim-spec)`);
+    return (el && el.CodeMirror) ? el.CodeMirror : null;
+}
+
+// A palette of distinct light background colors used to give each action its
+// own highlight color across the trace, Actions tab, and spec editor. Yellow
+// tones are intentionally excluded so they don't clash with the `lightyellow`
+// highlight used for changed variables.
+const ACTION_HIGHLIGHT_COLORS = [
+    "#dbeafe", // blue
+    "#dcfce7", // green
+    "#fce7f3", // pink
+    "#ede9fe", // purple
+    "#ccfbf1", // teal
+    "#fee2e2", // red
+    "#e0e7ff", // indigo
+    "#cffafe"  // cyan
+];
+
+// Deterministically map an action (base) name to a stable highlight color.
+function actionColor(name) {
+    if (!name) {
+        return ACTION_HIGHLIGHT_COLORS[0];
+    }
+    let h = 0;
+    for (let i = 0; i < name.length; i++) {
+        h = (h * 31 + name.charCodeAt(i)) >>> 0;
+    }
+    return ACTION_HIGHLIGHT_COLORS[h % ACTION_HIGHLIGHT_COLORS.length];
+}
+
+// Clear the current action highlight (spec editor mark + Actions-tab tint).
+function clearActionHighlight() {
+    if (model.highlightedActionMark) {
+        model.highlightedActionMark.clear();
+        model.highlightedActionMark = null;
+    }
+    model.highlightedActionName = null;
+}
+
+// Highlight the definition of the given action in the spec editor, scrolling it
+// into view. Falls back to the action's node within Next if it has no named
+// definition. Only marks the editor when it is actually visible.
+function highlightActionInSpec(action) {
+    // The spec editor must be visible to highlight into it. In the three-column
+    // layout it is always visible; in two-column mode it must be the active tab.
+    let specVisible = model.specColumnSeparate ||
+        model.selectedTab === Tab.SpecEditor || model.selectedTab === Tab.SpecAnimationEditor;
+    let editor = specVisible ? getSpecCodeMirror() : null;
+    if (!editor || !action || !model.spec) {
+        return;
+    }
+
+    // Prefer the action's definition body; fall back to its node within Next.
+    let baseName = getActionLabelText(action.name).name;
+    let node = null;
+    try {
+        let def = model.spec.getDefinitionByName(baseName);
+        node = (def && def.node) ? def.node : null;
+    } catch (e) { /* fall through to action.node */ }
+    node = node || action.node;
+    if (!node || !node.startPosition || !node.endPosition) {
+        return;
+    }
+
+    // Map positions back to original source coordinates (identity while
+    // syntactic rewrites are disabled, but future-proof).
+    let rewriter = model.specTreeObjs ? model.specTreeObjs["rewriter"] : null;
+    let startPos = rewriter ? rewriter.getOrigLocation(node.startPosition.row, node.startPosition.column)
+                            : [node.startPosition.row, node.startPosition.column];
+    let endPos = rewriter ? rewriter.getOrigLocation(node.endPosition.row, node.endPosition.column)
+                          : [node.endPosition.row, node.endPosition.column];
+    let start = { line: startPos[0], ch: startPos[1] };
+    let end = { line: endPos[0], ch: endPos[1] };
+
+    if (model.highlightedActionMark) {
+        model.highlightedActionMark.clear();
+    }
+    model.highlightedActionMark = editor.markText(start, end, {
+        className: "action-highlight",
+        css: "background-color: " + actionColor(baseName)
+    });
+    setTimeout(() => editor.scrollIntoView({ from: start, to: end }, 40), 0);
+}
+
+// Highlight an action given its (base) name, resolving it against model.actions.
+function highlightActionByName(actionName) {
+    let action = (model.actions || []).find(a => getActionLabelText(a.name).name === actionName);
+    // Fall back to a lightweight stand-in; highlightActionInSpec can still
+    // resolve a named definition without a node.
+    highlightActionInSpec(action || { name: actionName, node: null });
+}
+
+// Hover attributes shared by the action rows on the Actions tab: highlight the
+// action in the spec editor on enter, clear on leave.
+function actionChoiceHoverAttrs(actionName) {
+    return {
+        title: "Hover to highlight this action in the spec",
+        onmouseenter: (e) => { e.redraw = false; highlightActionByName(actionName); },
+        onmouseleave: (e) => { e.redraw = false; clearActionHighlight(); },
+    };
 }
 
 function loadAnimSpecText(animText, specPath) {

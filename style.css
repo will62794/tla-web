@@ -1,3 +1,10 @@
+:root {
+  /* Shared tint for cross-highlighting an action across the trace state box,
+     the Actions-tab action box, and the spec editor. A blue tint is used to
+     avoid clashing with the yellow highlight on changed variables. */
+  --action-highlight-bg: #e3f0fb;
+}
+
 body {
     margin: 0;
     padding: 0;
@@ -606,6 +613,15 @@ body {
     padding-bottom:5px;
   }
 
+  /* Tint the hovered action box on the Actions tab, matching the trace state
+     box hover highlight (which also highlights the action in the spec editor).
+     The "-active" variant is applied when the action is highlighted from
+     elsewhere, e.g. by hovering the corresponding trace state. */
+  .action-choice-box:hover,
+  .action-choice-box-active{
+    background-color: var(--action-hl-color, var(--action-highlight-bg));
+  }
+
   .action-expand-icon {
     transition: transform 0.2s ease;
   }
@@ -723,11 +739,10 @@ body {
     width: 95%;
   }
 
-  .next-state-choice-full:hover{
-    background-color:#eee;
+  .next-state-choice-full:hover,
+  .next-state-choice-full-active{
+    background-color: var(--action-hl-color, #eee);
     cursor:pointer;
-    /* border:solid; */
-    /* border-color: red; */
   }
 
   .state-varname{
@@ -1008,6 +1023,24 @@ body {
   .line-error-highlight{
     background-color:rgba(255, 0, 0, 0.25);
     /* opacity:0.25; */
+  }
+
+  /* Highlight for the action definition corresponding to a hovered trace
+     step / next-state action choice. */
+  .action-highlight{
+    background-color: var(--action-highlight-bg);
+    border-radius: 2px;
+  }
+
+  /* Hovering a trace state highlights its action in the spec editor. */
+  .trace-state-highlightable{
+    cursor: pointer;
+  }
+  /* Tint only the state box (not the full-width row) when hovered.
+     Uses !important because #trace-state-holder has an inline background-color
+     set in JS, which would otherwise override this rule. */
+  .trace-state-highlightable:hover #trace-state-holder{
+    background-color: var(--action-hl-color, var(--action-highlight-bg)) !important;
   }
 
   .error-info{
