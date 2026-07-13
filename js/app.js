@@ -3640,7 +3640,7 @@ function checkPane(hidden) {
                 oninput: (e) => model.invariantExprToCheck = e.target.value
             }),
             m("button", {
-                class: "btn btn-primary",
+                class: "btn btn-sm btn-outline-primary",
                 disabled: model.invariantExprToCheck === "" || model.invariantCheckerRunning,
                 onclick: () => {
                     console.log(`Starting web worker for checking invariant expression: '${model.invariantExprToCheck}'.`)
@@ -3653,7 +3653,7 @@ function checkPane(hidden) {
                 " Check Invariant"
             ]),
             m("button", {
-                class: "btn btn-primary btn-danger",
+                class: "btn btn-sm btn-outline-danger",
                 disabled: !model.invariantCheckerRunning,
                 onclick: () => {
                     console.log(`Stopping web worker for checking invariant expression: '${model.invariantExprToCheck}'.`)
