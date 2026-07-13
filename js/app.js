@@ -3188,7 +3188,11 @@ function componentHiddenStateVars(hidden) {
 
 function specEditorPane(hidden){
     let liStyle = {"font-size": "12px", "padding-top": "3px", "padding-bottom": "3px"};
-    return m("div", { id: "code-input-pane", style: {display: hidden ? "none" : "block"}}, [
+    // In the dedicated spec column the editor should flex to fill the column
+    // (so CodeMirror is bounded and shows a scrollbar); in the shared left
+    // column it stays a plain block.
+    let visibleDisplay = model.specColumnSeparate ? "flex" : "block";
+    return m("div", { id: "code-input-pane", style: {display: hidden ? "none" : visibleDisplay}}, [
         m("div", { id: "code-container", hidden: activeSpecTab() !== Tab.SpecEditor }, [
             m("textarea", { id: "code-input" })
         ]),
@@ -3438,7 +3442,7 @@ function reinitSpecEditors(specVal, animVal){
             showCursorWhenSelecting: true,
             fontSize: "13px",
             theme: "default",
-            scrollbarStyle: "null",
+            scrollbarStyle: "native",
         });
         codeEditor.getWrapperElement().style.fontSize = "13px";
         codeEditor.setSize("100%", "100%");
@@ -3459,7 +3463,7 @@ function reinitSpecEditors(specVal, animVal){
         codeAnimEditor = CodeMirror.fromTextArea(codeAnimInput, {
             lineNumbers: true,
             showCursorWhenSelecting: true,
-            scrollbarStyle: "null",
+            scrollbarStyle: "native",
         });
         codeAnimEditor.getWrapperElement().classList.add("CodeMirror-anim-spec");
         codeAnimEditor.setSize("100%", "100%");
@@ -4626,6 +4630,11 @@ async function loadApp() {
     //
     var root = document.body
 
+    // Tracks the trace length at the last auto-scroll, so we only scroll the
+    // trace view to the newest state when it actually grows (not on every
+    // redraw, which would fight the user scrolling up to inspect earlier states).
+    let lastAutoScrolledTraceLen = 0;
+
     App = {
         count: 1,
         oncreate: function () {
@@ -4637,7 +4646,7 @@ async function loadApp() {
                     showCursorWhenSelecting: true,
                     fontSize: "13px",
                     theme: "default",
-                    scrollbarStyle: "null",
+                    scrollbarStyle: "native",
                     // TODO: Work out tlaplus mode functionality for syntax highlighting.
                     // mode:"tlaplus"
                 });
@@ -4649,7 +4658,7 @@ async function loadApp() {
                 codeAnimEditor = CodeMirror.fromTextArea(codeAnimInput, {
                     lineNumbers: true,
                     showCursorWhenSelecting: true,
-                    scrollbarStyle: "null",
+                    scrollbarStyle: "native",
                 });
                 codeAnimEditor.getWrapperElement().classList.add("CodeMirror-anim-spec");
             }
@@ -4671,10 +4680,17 @@ async function loadApp() {
             // }
         },
         onupdate: function () {
-            // Keep trace viewer scrolled to bottom.
+            // Scroll the trace to the newest state only when the trace grew
+            // (e.g. a step/simulate appended a state). Doing this on every
+            // redraw would snap the view back to the end whenever the user
+            // scrolled up to look at earlier states.
             let trace = document.getElementById("trace");
             if(trace !== null){
-                trace.scrollTo(0, trace.scrollHeight);
+                let traceLen = model.currTrace.length;
+                if(traceLen > lastAutoScrolledTraceLen){
+                    trace.scrollTo(0, trace.scrollHeight);
+                }
+                lastAutoScrolledTraceLen = traceLen;
             }
 
             // let oldParams = m.route.param();
