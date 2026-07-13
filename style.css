@@ -447,6 +447,10 @@ body {
       /* display: grid; */
       /* grid-template-columns: 75% 25%; */
       /* grid-template-rows: 100%; */
+
+      /* Carousel-like hover: smoothly scale the focused state. */
+      transition: transform 0.18s ease, opacity 0.18s ease;
+      transform-origin: center left;
   }
 
   .state-choice-varval{
@@ -738,6 +742,10 @@ body {
       border-color:gray;
       border-radius: 8px;
       border-width: 1px;
+
+      /* Carousel-like hover: smoothly scale the focused choice box. */
+      transition: transform 0.18s ease, opacity 0.18s ease;
+      transform-origin: center left;
   }
 
   .init-state:hover{ 
@@ -745,6 +753,22 @@ body {
     cursor:pointer;
     /* border:solid; */
     /* border-color: black; */
+  }
+
+  /* --- Carousel-like hover (prototype) ---
+     Mirrors the trace-state effect: while the pointer is over the next-state
+     choices, the hovered box grows and lifts to the front while its siblings
+     fade back. transform doesn't affect layout, so the list doesn't reflow. */
+  /* !important overrides the inline opacity set on each box in JS. */
+  #initial-states:hover .init-state{
+    opacity: 0.55 !important;
+  }
+  #initial-states:hover .init-state:hover{
+    opacity: 1 !important;
+    transform: scale(1.06);
+    position: relative;
+    z-index: 5;
+    box-shadow: 0 8px 22px rgba(0, 0, 0, 0.22);
   }
 
   .next-state-choice-full{
@@ -1096,6 +1120,24 @@ body {
      set in JS, which would otherwise override this rule. */
   .trace-state-highlightable:hover #trace-state-holder{
     background-color: var(--action-hl-color, var(--action-highlight-bg)) !important;
+  }
+
+  /* --- Carousel-like hover (prototype) ---
+     When the pointer is over the trace, the hovered state grows and lifts to
+     the front while its siblings shrink and fade, giving a dock/carousel
+     focus effect. transform doesn't affect layout, so neighbours keep their
+     positions and the trace doesn't reflow. */
+  #trace:hover .trace-state{
+    opacity: 0.55;
+  }
+  #trace:hover .trace-state:hover{
+    opacity: 1;
+    transform: scale(1.06);
+    position: relative;
+    z-index: 5;
+  }
+  #trace:hover .trace-state:hover #trace-state-holder{
+    box-shadow: 0 8px 22px rgba(0, 0, 0, 0.22);
   }
 
   .error-info{
