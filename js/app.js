@@ -31,6 +31,16 @@ let TraceTab = {
     Check: 4 // Added Check tab
 }
 
+// How next-state choices are displayed on the Actions tab.
+let NextStateView = {
+    // Show action names with their parameter choices only.
+    Actions: "actions",
+    // Show full next states, highlighting the variables that changed.
+    StatesDiff: "statesDiff",
+    // Show full next states without any diff highlighting.
+    States: "states"
+}
+
 let model = {
     specText: null,
     specAnimText: null,
@@ -82,7 +92,7 @@ let model = {
     animRenderTime: null,
     lockedTrace: null,
     lockedTraceActions: null,
-    showStateDiffsInSelection: false,
+    nextStateView: NextStateView.Actions,
     copyLinkPressCooldown: false,
     invariantExprToCheck: "",
     invariantViolated: false,
@@ -948,18 +958,32 @@ function componentNextStateChoiceElement(stateObj, ind, actionLabel, diffOnly) {
     let actionLabelObj = getActionLabelText(actionLabel, stateQuantBounds);
     let actionLabelText = actionLabelObj.name + actionLabelObj.params;
 
-    // If we are showing diffs only, then only show vars that have changed from the current state to this one.
-    if (model.currTrace.length > 0 && diffOnly) {
-        let currState = model.currTrace[model.currTrace.length - 1]["state"];
+    // For both full-state views, compute which variables changed relative to the
+    // current (last) state so we can highlight them, similar to the trace view.
+    let varNamesChanged = [];
+    let currState = null;
+    if (model.currTrace.length > 0 && (diffOnly || model.nextStateView === NextStateView.States)) {
+        currState = model.currTrace[model.currTrace.length - 1]["state"];
         varNamesChanged = state.varDiff(currState);
         // console.log("varNamesChanged:", varNamesChanged);
-        varNames = varNames.filter(v => varNamesChanged.includes(v));
+        // In the diff view, only show the variables that actually changed.
+        if (diffOnly) {
+            varNames = varNames.filter(v => varNamesChanged.includes(v));
+        }
     }
 
     let stateVarElems = varNames.map((varname, idx) => {
+        let changed = varNamesChanged.includes(varname);
+        // Highlight the names of changed variables (lightyellow), matching the trace view.
+        let varnameCol = changed ? "lightyellow" : "none";
+        let varVal = state.getVarVal(varname);
+        // Passing the previous value lets tlaValView highlight the changed sub-values.
+        let prevVarVal = currState !== null ? currState.getVarVal(varname) : null;
         let cols = [
-            m("td", { class: "state-varname" }, varname),
-            m("td", { class: "state-choice-varval" }, [tlaValView(state.getVarVal(varname))]),
+            m("td", { class: "state-varname" }, [
+                m("span", { style: { "background-color": varnameCol } }, varname)
+            ]),
+            m("td", { class: "state-choice-varval" }, [tlaValView(varVal, prevVarVal)]),
             // m("td", { class: "state-choice-varval"}, [state.getVarVal(varname).toString()]),
             m("td", { style: "width:5px" }, ""), // placeholder row.
         ]
@@ -981,8 +1005,9 @@ function componentNextStateChoiceElement(stateObj, ind, actionLabel, diffOnly) {
     }
     // Show full states for initial state choices.
     // TODO: Possibly have option to toggle this behavior.
-    // When showing diffs only, we always show the full (diff'd) state, possible also with action label.
-    if(model.currTrace.length === 0 || actionLabelText.length === 0 || diffOnly){
+    // When showing full next states (either with diff highlighting or plain), we
+    // always show the full state, possibly also with the action label.
+    if(model.currTrace.length === 0 || actionLabelText.length === 0 || diffOnly || model.nextStateView === NextStateView.States){
         allElems = allElems.concat(stateVarElems);
     }
 
@@ -1135,8 +1160,9 @@ function componentNextStateChoices(nextStates) {
             nextStateElems.push(nextStateElem);
         }
     }
-    else if (model.showStateDiffsInSelection && model.currTrace.length > 0) {
-        let diffOnly = true;
+    else if ((model.nextStateView === NextStateView.StatesDiff || model.nextStateView === NextStateView.States) && model.currTrace.length > 0) {
+        // Show full next states, optionally highlighting the changed variables.
+        let diffOnly = model.nextStateView === NextStateView.StatesDiff;
         for (const [actionId, nextStatesForAction] of Object.entries(nextStates)) {
             let i = 0;
             let action = model.actions[actionId];
@@ -1435,6 +1461,13 @@ function updateTraceRouteParams() {
         newParams["defOverrides"] = model.definitionOverrides;
     } else {
         delete newParams.defOverrides;
+    }
+
+    // Persist how next-state choices are displayed on the Actions tab.
+    if (model.nextStateView !== NextStateView.Actions) {
+        newParams["nextStateView"] = model.nextStateView;
+    } else {
+        delete newParams.nextStateView;
     }
 
     m.route.set("/home", newParams);
@@ -3098,27 +3131,28 @@ function specEditorPane(hidden){
 
 function stateSelectionPane(hidden){
 
-    let fullNextStatesSwitch = m("div", { 
-        class: "form-check form-switch show-full-next-states-switch", 
+    let nextStateViewOptions = [
+        { mode: NextStateView.Actions, label: "Actions / Parameters" },
+        { mode: NextStateView.StatesDiff, label: "Full states (diff)" },
+        { mode: NextStateView.States, label: "Full states" },
+    ];
+    let fullNextStatesSwitch = m("div", {
+        class: "btn-group show-full-next-states-switch",
+        role: "group",
+        "aria-label": "Next state view mode",
         hidden: model.currTrace.length === 0 || model.errorInfo !== null
-    }, [
-        m("input", {
-            class: "form-check-input",
-            type: "checkbox",
-            role: "switch",
-            id: "fullNextStatesSwitchCheck",
-            hidden: model.errorInfo !== null,
-            onclick: function (event) {
-                model.showStateDiffsInSelection = !model.showStateDiffsInSelection;
+    }, nextStateViewOptions.map(opt => {
+        let active = model.nextStateView === opt.mode;
+        return m("button", {
+            type: "button",
+            class: "btn btn-sm " + (active ? "btn-primary" : "btn-outline-primary"),
+            "aria-pressed": active ? "true" : "false",
+            onclick: function () {
+                model.nextStateView = opt.mode;
+                updateTraceRouteParams();
             }
-        }),
-        m("label", {
-            class: "form-check-label",
-            for: "fullNextStatesSwitchCheck",
-            role: "switch",
-            hidden: model.errorInfo !== null,
-        }, "Show full next states")
-    ]);
+        }, opt.label);
+    }));
 
     let fetchingInProgress = model.rootModName.length === 0 && !model.loadSpecFailed;
 
@@ -3911,6 +3945,18 @@ function loadRouteParamsState() {
     if (animParam === true && model.animationExists) {
         model.selectedTraceTab = TraceTab.Animation;
         model.enableAnimationView = true;
+    }
+
+    // Restore how next-state choices are displayed on the Actions tab.
+    let nextStateViewParam = m.route.param("nextStateView");
+    if (nextStateViewParam === NextStateView.StatesDiff || nextStateViewParam === NextStateView.States) {
+        model.nextStateView = nextStateViewParam;
+    } else {
+        // Backwards compatibility with the old boolean "showFullStates" param.
+        let showFullStatesParam = m.route.param("showFullStates");
+        if (showFullStatesParam === true || showFullStatesParam === "true") {
+            model.nextStateView = NextStateView.StatesDiff;
+        }
     }
 
     // Load init and next predicate names if given.
