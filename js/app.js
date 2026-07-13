@@ -3447,6 +3447,8 @@ function resize_mouseup(e){
 }
 
 function tracePane() {
+    // Tab order groups visualizations (Trace, Animation) before tools
+    // (REPL, Check).
     let tabs = [
         m("li", {
             class: "nav-item",
@@ -3454,11 +3456,7 @@ function tracePane() {
             ondblclick: () => {
                 model.tracePaneHidden = true;
             },
-        }, m("a", {class: model.selectedTraceTab === TraceTab.Trace ? "nav-link active" : "nav-link"}, "Trace")),
-        m("li", {
-            class: "nav-item",
-            onclick: () => model.selectedTraceTab = TraceTab.REPL,
-        }, m("a", {class: model.selectedTraceTab === TraceTab.REPL ? "nav-link active" : "nav-link"}, "REPL"))
+        }, m("a", {class: model.selectedTraceTab === TraceTab.Trace ? "nav-link active" : "nav-link"}, "Trace"))
     ]
 
     if (model.animationExists || model.externalAnimationExists) {
@@ -3471,6 +3469,14 @@ function tracePane() {
         }, m("a", { class: model.selectedTraceTab === TraceTab.Animation ? "nav-link active" : "nav-link" }, "Animation"));
         tabs.push(animTab);
     }
+
+    // REPL tool tab, placed right of the Animation (visualization) tab.
+    tabs.push(
+        m("li", {
+            class: "nav-item",
+            onclick: () => model.selectedTraceTab = TraceTab.REPL,
+        }, m("a", {class: model.selectedTraceTab === TraceTab.REPL ? "nav-link active" : "nav-link"}, "REPL"))
+    )
 
     // Add invariant checking tab.
     tabs.push(
