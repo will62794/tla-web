@@ -80,7 +80,10 @@ function isGitHubApiUrl(url) {
 function specFetchHeaders(url) {
     let headers = {};
     if (GITLAB_ACCESS_TOKEN !== null && isGitLabApiUrl(url)) {
-        headers["PRIVATE-TOKEN"] = GITLAB_ACCESS_TOKEN;
+        // Use the OAuth-compliant Bearer header: GitLab accepts it for both OAuth
+        // access tokens AND personal/project access tokens, whereas PRIVATE-TOKEN
+        // only works for the latter (an OAuth token there yields HTTP 401).
+        headers["Authorization"] = "Bearer " + GITLAB_ACCESS_TOKEN;
     }
     if (isGitHubApiUrl(url)) {
         // Ask the contents API to return the raw file body rather than JSON.

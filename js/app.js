@@ -10,6 +10,27 @@ let vizInstance = null;
 
 const LOCAL_SERVER_URL = "http://127.0.0.1:8000";
 
+//
+// GitLab OAuth (PKCE) sign-in configuration.
+//
+// The deployment-specific values (per-host OAuth application IDs) live in
+// app-config.js so that app.js stays free of site-specific settings. Read them
+// defensively so the app still works if that file is missing or unedited (in
+// which case OAuth is simply disabled and the manual token field is used).
+//
+const SPECTACLE_CONFIG = (typeof window !== "undefined" && window.SpectacleConfig) ? window.SpectacleConfig : {};
+// Map of GitLab instance host -> OAuth application (client) ID.
+const GITLAB_OAUTH_CLIENT_IDS = SPECTACLE_CONFIG.gitlabOAuthClientIds || {};
+const GITLAB_OAUTH_SCOPE = SPECTACLE_CONFIG.gitlabOAuthScope || "read_api";
+
+// sessionStorage keys for the transient PKCE handshake (all cleared after use).
+const GITLAB_OAUTH_VERIFIER_KEY = "gitlabOAuth.verifier";
+const GITLAB_OAUTH_STATE_KEY = "gitlabOAuth.state";
+const GITLAB_OAUTH_RETURN_KEY = "gitlabOAuth.return";
+// Records the specPath a sign-in was auto-triggered for, so a declined/failed
+// sign-in doesn't cause an endless redirect loop for the same deep link.
+const GITLAB_OAUTH_AUTO_KEY = "gitlabOAuth.autoAttempt";
+
 let Pane = {
     Constants: 1,
     Trace: 2
@@ -79,6 +100,13 @@ let model = {
     specSourceProvider: "raw",
     // Structured inputs for the GitLab source pane.
     gitlabInput: { host: "", project: "", file: "", ref: "main", token: "" },
+    // True once a GitLab OAuth (PKCE) sign-in has populated gitlabInput.token.
+    gitlabSignedIn: false,
+    // Set after a sign-in that should auto-load a spec via the Load-tab fields
+    // once app routing is ready (see init()).
+    pendingGitLabAutoLoad: false,
+    // Human-readable error surfaced by a failed GitLab OAuth sign-in.
+    oauthError: null,
     // Structured inputs for the GitHub source pane.
     githubInput: { owner: "", repo: "", file: "", ref: "main", token: "" },
     // Whether the split "Load" button's source dropdown menu is open.
@@ -3289,6 +3317,17 @@ function loadSourceButton(){
 // Load the spec using the inputs of the currently-selected source provider.
 function loadForCurrentProvider(){
     if(model.specSourceProvider === "gitlab"){
+        let host = normalizeGitLabHost(model.gitlabInput.host);
+        // On an OAuth-enabled instance, sign in on demand instead of requiring a
+        // token: redirect to GitLab now (usually a one-click round trip since the
+        // user is already logged in) and auto-load on return. A manually-pasted
+        // token, or an already-signed-in session, skips this.
+        if(!model.gitlabSignedIn
+                && model.gitlabInput.token.trim().length === 0
+                && gitlabOAuthClientId(host) !== null){
+            beginGitLabOAuth();
+            return;
+        }
         setGitLabAccessToken(model.gitlabInput.token);
         loadResolvedSpecPath(gitlabUrlFromFields());
     } else if(model.specSourceProvider === "github"){
@@ -3336,9 +3375,14 @@ function defaultGitLabHost(){
     return "";
 }
 
+// Normalize a GitLab host string (strip scheme and any trailing slashes).
+function normalizeGitLabHost(host){
+    return (host || "").trim().replace(/^https?:\/\//, "").replace(/\/+$/, "");
+}
+
 // Build the GitLab API raw-file URL from the structured input fields.
 function gitlabUrlFromFields(){
-    let host = model.gitlabInput.host.trim().replace(/^https?:\/\//, "").replace(/\/+$/, "");
+    let host = normalizeGitLabHost(model.gitlabInput.host);
     let ref = model.gitlabInput.ref.trim() || "HEAD";
     return gitlabApiRawUrl("https://" + host, model.gitlabInput.project.trim(), model.gitlabInput.file.trim(), ref);
 }
@@ -3347,11 +3391,248 @@ function gitlabUrlFromFields(){
 function applyGitLabPaste(str){
     let loc = parseGitLabBlobUrl(str) || parseGitLabApiUrl(str);
     if(loc !== null){
-        model.gitlabInput.host = loc.instanceBase.replace(/^https?:\/\//, "");
+        model.gitlabInput.host = normalizeGitLabHost(loc.instanceBase);
         model.gitlabInput.project = loc.projectPath;
         model.gitlabInput.file = loc.filePath;
         model.gitlabInput.ref = loc.ref;
     }
+}
+
+//
+// GitLab OAuth2 (Authorization Code + PKCE) sign-in.
+//
+// Lets a user load private/internal specs using their existing GitLab identity
+// instead of a manually-pasted access token. The token obtained here is stored
+// in model.gitlabInput.token so it flows through the same load plumbing (fetch
+// headers and the web worker) as a manual token, with no other code aware of it.
+//
+// Two entry points trigger a sign-in, both of which redirect to GitLab and then
+// resume once the browser returns with an authorization code:
+//   - Load-tab action: loadForCurrentProvider() signs in on demand, then loads
+//     the spec described by the Load-tab fields (see pendingGitLabAutoLoad).
+//   - Deep link: a spec fetch that fails with an auth-suggesting status starts a
+//     sign-in and, on return, lets normal startup reload the URL (preserving the
+//     specpath/constants/trace params in the hash).
+//
+
+// The OAuth application (client) ID configured for a host, or null if the host
+// is not OAuth-enabled (in which case only the manual token field applies).
+function gitlabOAuthClientId(host){
+    let id = GITLAB_OAUTH_CLIENT_IDS[normalizeGitLabHost(host)];
+    return (typeof id === "string" && id.length > 0) ? id : null;
+}
+
+// The OAuth redirect URI is this app's base URL with no query/fragment. It must
+// match (one of) the Redirect URIs registered on the GitLab OAuth application.
+function oauthRedirectUri(){
+    return window.location.origin + window.location.pathname;
+}
+
+// URL-safe base64 (no padding) of the given bytes, per RFC 7636.
+function base64UrlEncode(bytes){
+    let str = btoa(String.fromCharCode.apply(null, new Uint8Array(bytes)));
+    return str.replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
+}
+
+// A random URL-safe token drawn from a CSPRNG.
+function randomUrlToken(nBytes){
+    let arr = new Uint8Array(nBytes);
+    crypto.getRandomValues(arr);
+    return base64UrlEncode(arr);
+}
+
+// Derive the S256 PKCE code challenge from a verifier.
+async function pkceChallengeFromVerifier(verifier){
+    let digest = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(verifier));
+    return base64UrlEncode(digest);
+}
+
+// Start the PKCE flow: stash the verifier/state plus enough to resume afterwards,
+// then redirect to the instance's authorize endpoint. Since the user is usually
+// already logged in to GitLab, this is a one-click (often auto-approved) round
+// trip that returns an access token to the browser.
+async function beginGitLabOAuth(){
+    let host = normalizeGitLabHost(model.gitlabInput.host);
+    let clientId = gitlabOAuthClientId(host);
+    if(clientId === null){
+        model.oauthError = "GitLab sign-in is not configured for host '" + host + "'.";
+        return;
+    }
+    model.oauthError = null;
+
+    let verifier = randomUrlToken(48);
+    let state = randomUrlToken(16);
+    let challenge = await pkceChallengeFromVerifier(verifier);
+
+    sessionStorage.setItem(GITLAB_OAUTH_VERIFIER_KEY, verifier);
+    sessionStorage.setItem(GITLAB_OAUTH_STATE_KEY, state);
+    // Preserve enough to resume the load after the redirect returns to a bare URL.
+    sessionStorage.setItem(GITLAB_OAUTH_RETURN_KEY, JSON.stringify({
+        host: host,
+        hash: window.location.hash,
+        gitlabInput: {
+            host: host,
+            project: model.gitlabInput.project,
+            file: model.gitlabInput.file,
+            ref: model.gitlabInput.ref
+        }
+    }));
+
+    let authUrl = `https://${host}/oauth/authorize?` + new URLSearchParams({
+        client_id: clientId,
+        redirect_uri: oauthRedirectUri(),
+        response_type: "code",
+        scope: GITLAB_OAUTH_SCOPE,
+        state: state,
+        code_challenge: challenge,
+        code_challenge_method: "S256"
+    }).toString();
+    window.location.assign(authUrl);
+}
+
+// Strip OAuth response params from the address bar (restoring an optional hash)
+// without triggering a reload.
+function restoreUrlAfterOAuth(hash){
+    try {
+        window.history.replaceState({}, document.title,
+            window.location.pathname + (hash !== undefined ? hash : window.location.hash));
+    } catch(e){ /* best effort */ }
+}
+
+// Clear any signed-in GitLab OAuth token.
+function gitlabSignOut(){
+    model.gitlabInput.token = "";
+    model.gitlabSignedIn = false;
+    model.oauthError = null;
+    setGitLabAccessToken("");
+}
+
+// If the page was loaded as an OAuth redirect (has ?code=...&state=...), exchange
+// the authorization code for an access token via PKCE and populate the token.
+// Returns false (a no-op) when there is no OAuth response in the URL. Runs before
+// app routing so the restored hash and token are in place when the app loads.
+async function handleGitLabOAuthRedirect(){
+    let params = new URLSearchParams(window.location.search);
+    let code = params.get("code");
+    let errorParam = params.get("error");
+    let returnedState = params.get("state");
+    if(code === null && errorParam === null){
+        return false;
+    }
+
+    let expectedState = sessionStorage.getItem(GITLAB_OAUTH_STATE_KEY);
+    let verifier = sessionStorage.getItem(GITLAB_OAUTH_VERIFIER_KEY);
+    // Non-null iff this sign-in was auto-triggered by a failing deep link (rather
+    // than the user loading from the Load tab).
+    let autoAttemptPath = sessionStorage.getItem(GITLAB_OAUTH_AUTO_KEY);
+    let ret = null;
+    try { ret = JSON.parse(sessionStorage.getItem(GITLAB_OAUTH_RETURN_KEY) || "null"); } catch(e){}
+    // Single-use handshake values; drop them regardless of outcome.
+    sessionStorage.removeItem(GITLAB_OAUTH_STATE_KEY);
+    sessionStorage.removeItem(GITLAB_OAUTH_VERIFIER_KEY);
+    sessionStorage.removeItem(GITLAB_OAUTH_RETURN_KEY);
+
+    let savedHash = (ret !== null && typeof ret.hash === "string") ? ret.hash : window.location.hash;
+
+    if(errorParam !== null){
+        model.oauthError = "GitLab sign-in failed: " + (params.get("error_description") || errorParam);
+        restoreUrlAfterOAuth(savedHash);
+        return true;
+    }
+    if(returnedState === null || expectedState === null || returnedState !== expectedState
+            || verifier === null || ret === null){
+        model.oauthError = "GitLab sign-in failed: invalid or expired OAuth state.";
+        restoreUrlAfterOAuth(savedHash);
+        return true;
+    }
+
+    let host = normalizeGitLabHost(ret.host);
+    try {
+        let resp = await fetch(`https://${host}/oauth/token`, {
+            method: "POST",
+            headers: { "Content-Type": "application/x-www-form-urlencoded" },
+            body: new URLSearchParams({
+                client_id: gitlabOAuthClientId(host),
+                grant_type: "authorization_code",
+                code: code,
+                redirect_uri: oauthRedirectUri(),
+                code_verifier: verifier
+            }).toString()
+        });
+        if(!resp.ok){
+            throw new Error("token endpoint returned HTTP " + resp.status);
+        }
+        let data = await resp.json();
+        if(typeof data.access_token !== "string" || data.access_token.length === 0){
+            throw new Error("no access_token in token response");
+        }
+
+        // Restore the fields the user had filled in and store the token both in
+        // the model (for the worker) and the interpreter global (for main-thread
+        // fetches of a restored specpath deep link).
+        if(ret.gitlabInput){
+            model.gitlabInput.host = ret.gitlabInput.host || host;
+            model.gitlabInput.project = ret.gitlabInput.project || "";
+            model.gitlabInput.file = ret.gitlabInput.file || "";
+            model.gitlabInput.ref = ret.gitlabInput.ref || model.gitlabInput.ref;
+        }
+        model.gitlabInput.token = data.access_token;
+        setGitLabAccessToken(data.access_token);
+        model.gitlabSignedIn = true;
+        model.specSourceProvider = "gitlab";
+        model.oauthError = null;
+        sessionStorage.removeItem(GITLAB_OAUTH_AUTO_KEY);
+
+        if(autoAttemptPath !== null){
+            // Deep-link flow: the restored URL hash carries specpath along with
+            // constants/trace/initPred/etc. Let normal startup (loadApp) load it so
+            // those params are honored; do NOT route through the Load-tab path,
+            // which intentionally clears constants and rewrites the URL.
+        } else if(model.gitlabInput.project.trim().length > 0 && model.gitlabInput.file.trim().length > 0){
+            // Load-tab flow with fields filled in: auto-load once routing is ready
+            // (deliberately starts a fresh spec, clearing constants).
+            model.pendingGitLabAutoLoad = true;
+        } else {
+            // Signed in with nothing queued: return the user to the Load tab.
+            model.selectedTab = Tab.Load;
+            model.showLoadFileBox = true;
+        }
+    } catch(e){
+        model.oauthError = "GitLab sign-in failed: " + e.message;
+    }
+    restoreUrlAfterOAuth(savedHash);
+    return true;
+}
+
+// Decide whether a failed spec fetch should transparently trigger a sign-in.
+// GitLab returns 404 (not 401) for unauthenticated access to a private project
+// (it hides existence), so 401/403/404 on a GitLab API URL are all treated as
+// possible auth failures. Only auto-trigger for OAuth-enabled hosts, when not
+// already signed in, and at most once per deep link (to avoid a redirect loop if
+// the user declines consent or genuinely lacks access).
+function shouldAttemptOAuthForFailure(specPath, status){
+    if(status !== 401 && status !== 403 && status !== 404) return false;
+    let gl = parseGitLabApiUrl(specPath);
+    if(gl === null) return false;
+    if(gitlabOAuthClientId(gl.instanceBase) === null) return false;
+    if(model.gitlabSignedIn) return false;
+    if(sessionStorage.getItem(GITLAB_OAUTH_AUTO_KEY) === specPath) return false;
+    return true;
+}
+
+// Prefill the GitLab fields from a failing deep-link URL and start the OAuth flow.
+// The current location hash (which carries specpath and other params) is
+// preserved by beginGitLabOAuth() so the spec reloads automatically on return.
+function beginOAuthForFailedLoad(specPath){
+    let gl = parseGitLabApiUrl(specPath);
+    if(gl === null) return;
+    model.gitlabInput.host = normalizeGitLabHost(gl.instanceBase);
+    model.gitlabInput.project = gl.projectPath;
+    model.gitlabInput.file = gl.filePath;
+    model.gitlabInput.ref = gl.ref;
+    model.specSourceProvider = "gitlab";
+    sessionStorage.setItem(GITLAB_OAUTH_AUTO_KEY, specPath);
+    beginGitLabOAuth();
 }
 
 // "GitLab" source pane: hybrid paste box + editable Host/Project/File/Ref/Token
@@ -3384,6 +3665,29 @@ function gitlabSourcePane(){
         field("File", "file", "path/to/Spec.tla"),
         field("Ref", "ref", "branch, tag, or commit SHA"),
         field("Token", "token", "optional access token for private repos", "password"),
+        gitlabOAuthRow(),
+    ]);
+}
+
+// Sign-in status row shown for OAuth-enabled GitLab hosts. There is no explicit
+// "Sign in" button: loading from an OAuth-enabled host signs the user in on
+// demand (see loadForCurrentProvider). This row just shows the signed-in state
+// (with sign-out) or a hint, plus any sign-in error.
+function gitlabOAuthRow(){
+    let host = normalizeGitLabHost(model.gitlabInput.host);
+    let configured = gitlabOAuthClientId(host) !== null;
+    return m("div", { class: "mt-1" }, [
+        configured && !model.gitlabSignedIn ? m("small", { class: "text-muted" },
+            "You'll be asked to sign in to GitLab when loading \u2014 no token needed.") : null,
+        model.gitlabSignedIn ? m("span", { class: "text-success" }, [
+            m("span", { class: "me-2" }, "\u2713 Signed in to " + host),
+            m("button", {
+                class: "btn btn-sm btn-outline-secondary",
+                "data-testid": "gitlab-oauth-signout",
+                onclick: () => { gitlabSignOut(); }
+            }, "Sign out")
+        ]) : null,
+        model.oauthError ? m("div", { class: "text-danger mt-1" }, model.oauthError) : null,
     ]);
 }
 
@@ -4291,6 +4595,18 @@ function loadSpecFromPath(specPath){
         }
     }).catch(function(e) {
         console.log("Error loading file ", specPath, e);
+        let status = (e && typeof e.code === "number") ? e.code : null;
+        // For a private GitLab deep link on an OAuth-enabled host, transparently
+        // start a sign-in instead of showing an error; the spec loads on return.
+        if(shouldAttemptOAuthForFailure(specPath, status)){
+            beginOAuthForFailedLoad(specPath);
+            return;
+        }
+        // Consume any one-shot auto-attempt marker for this path so a later reload
+        // can try again (e.g. after the user signs in elsewhere).
+        if(sessionStorage.getItem(GITLAB_OAUTH_AUTO_KEY) === specPath){
+            sessionStorage.removeItem(GITLAB_OAUTH_AUTO_KEY);
+        }
         model.loadSpecFailed = true;
         model.loadSpecErrorMsg = loadFailureMessage(specPath, e);
         // Mithril's auto-redraw for m.request runs before this appended catch, so
@@ -4556,7 +4872,11 @@ async function loadApp() {
     //     // mode:"tlaplus"
     // });
 
-    loadSpecFromPath(model.specPath);
+    // Skip the initial load when an OAuth sign-in just queued a spec to auto-load
+    // (see init()); loadForCurrentProvider() will fetch it, avoiding a double load.
+    if(!model.pendingGitLabAutoLoad){
+        loadSpecFromPath(model.specPath);
+    }
 }
 
 /**
@@ -4564,6 +4884,10 @@ async function loadApp() {
  */
 async function init() {
     const codeInput = document.getElementById('code-input');
+
+    // If we returned from a GitLab OAuth redirect, complete the token exchange
+    // before the app routes/loads (this also restores the pre-redirect URL hash).
+    await handleGitLabOAuthRedirect();
 
     await TreeSitter.init();
     parser = new TreeSitter();
@@ -4599,6 +4923,17 @@ async function init() {
     });
 
     await loadApp()
+
+    // If an OAuth sign-in queued a spec to load (Load-tab flow), fetch it now that
+    // routing is initialized. loadResolvedSpecPath() toggles showLoadFileBox, so
+    // open it first to have it end closed once the spec loads (matching a manual
+    // load).
+    if(model.pendingGitLabAutoLoad){
+        model.pendingGitLabAutoLoad = false;
+        model.showLoadFileBox = true;
+        loadForCurrentProvider();
+        m.redraw();
+    }
 
     // Add keyboard event listener for navigation
     document.addEventListener('keydown', handleKeyboardNavigation);
