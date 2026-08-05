@@ -31,6 +31,16 @@ let TraceTab = {
     Check: 4 // Added Check tab
 }
 
+// How next-state choices are displayed on the Actions tab.
+let NextStateView = {
+    // Show action names with their parameter choices only.
+    Actions: "actions",
+    // Show full next states, highlighting the variables that changed.
+    StatesDiff: "statesDiff",
+    // Show full next states without any diff highlighting.
+    States: "states"
+}
+
 let model = {
     specText: null,
     specAnimText: null,
@@ -68,6 +78,12 @@ let model = {
     constantsPaneHidden: false,
     selectedTab: Tab.StateSelection,
     selectedTraceTab: TraceTab.Trace,
+    // When true, the TLA+ spec/animation editor tabs are moved out of the left
+    // column into their own dedicated rightmost column (three-column layout).
+    specColumnSeparate: false,
+    // Selected spec tab (Tab.SpecEditor or Tab.SpecAnimationEditor) when the
+    // spec editor lives in its own column.
+    selectedSpecTab: Tab.SpecEditor,
     rootModName: "",
     debug: false,
     showLoadFileBox: false,
@@ -82,7 +98,7 @@ let model = {
     animRenderTime: null,
     lockedTrace: null,
     lockedTraceActions: null,
-    showStateDiffsInSelection: false,
+    nextStateView: NextStateView.Actions,
     copyLinkPressCooldown: false,
     invariantExprToCheck: "",
     invariantViolated: false,
@@ -95,7 +111,12 @@ let model = {
     traceLoadingProgress: { currentState: 0, totalStates: 0 }, // 0-100
     traceLoadingError: null,
     traceLoadingStart: null,
-    expandedActionName: null // Track which action definition is currently expanded
+    expandedActionName: null, // Track which action definition is currently expanded
+    // CodeMirror text marker for the currently highlighted action in the spec editor.
+    highlightedActionMark: null,
+    // Name of the action currently highlighted (e.g. by hovering a trace state),
+    // used to also highlight the matching action box on the Actions tab.
+    highlightedActionName: null
 }
 
 const exampleSpecs = {
@@ -924,18 +945,20 @@ function componentNextStateChoiceElementForAction(ind, actionLabel, nextStatesFo
     }
 
     let opac = model.lassoTo === null ? "100" : "50";
-    let nextStateElem = m("div", {
-        class: "init-state",
-        style: `opacity: ${opac}%`,
+    // Also highlight this box when its action is highlighted elsewhere (e.g. by
+    // hovering the corresponding trace state).
+    let boxClass = "init-state action-choice-box";
+    if (model.highlightedActionName === actionName) {
+        boxClass += " action-choice-box-active";
+    }
+    // Hovering anywhere on the outer box highlights the action in the spec.
+    let nextStateElem = m("div", Object.assign(actionChoiceHoverAttrs(actionName), {
+        class: boxClass,
+        style: `opacity: ${opac}%; --action-hl-color: ${actionColor(actionName)};`,
         onclick: function () {
             model.currHoveredAction = actionName;
-        }        // onmouseover: () => {
-        //     model.nextStatePreview = state;
-        // },
-        // onmouseout: () => {
-        //     model.nextStatePreview = null;
-        // }
-    }, m("table", { class: "trace-select-table" }, allElems));
+        }
+    }), m("table", { class: "trace-select-table" }, allElems));
     return nextStateElem;
 }
 
@@ -948,18 +971,32 @@ function componentNextStateChoiceElement(stateObj, ind, actionLabel, diffOnly) {
     let actionLabelObj = getActionLabelText(actionLabel, stateQuantBounds);
     let actionLabelText = actionLabelObj.name + actionLabelObj.params;
 
-    // If we are showing diffs only, then only show vars that have changed from the current state to this one.
-    if (model.currTrace.length > 0 && diffOnly) {
-        let currState = model.currTrace[model.currTrace.length - 1]["state"];
+    // For both full-state views, compute which variables changed relative to the
+    // current (last) state so we can highlight them, similar to the trace view.
+    let varNamesChanged = [];
+    let currState = null;
+    if (model.currTrace.length > 0 && (diffOnly || model.nextStateView === NextStateView.States)) {
+        currState = model.currTrace[model.currTrace.length - 1]["state"];
         varNamesChanged = state.varDiff(currState);
         // console.log("varNamesChanged:", varNamesChanged);
-        varNames = varNames.filter(v => varNamesChanged.includes(v));
+        // In the diff view, only show the variables that actually changed.
+        if (diffOnly) {
+            varNames = varNames.filter(v => varNamesChanged.includes(v));
+        }
     }
 
     let stateVarElems = varNames.map((varname, idx) => {
+        let changed = varNamesChanged.includes(varname);
+        // Highlight the names of changed variables (lightyellow), matching the trace view.
+        let varnameCol = changed ? "lightyellow" : "none";
+        let varVal = state.getVarVal(varname);
+        // Passing the previous value lets tlaValView highlight the changed sub-values.
+        let prevVarVal = currState !== null ? currState.getVarVal(varname) : null;
         let cols = [
-            m("td", { class: "state-varname" }, varname),
-            m("td", { class: "state-choice-varval" }, [tlaValView(state.getVarVal(varname))]),
+            m("td", { class: "state-varname" }, [
+                m("span", { style: { "background-color": varnameCol } }, varname)
+            ]),
+            m("td", { class: "state-choice-varval" }, [tlaValView(varVal, prevVarVal)]),
             // m("td", { class: "state-choice-varval"}, [state.getVarVal(varname).toString()]),
             m("td", { style: "width:5px" }, ""), // placeholder row.
         ]
@@ -969,6 +1006,8 @@ function componentNextStateChoiceElement(stateObj, ind, actionLabel, diffOnly) {
         ];
     });
 
+    // Hovering the whole state box (below) highlights the action in the spec, so
+    // the action-name cell itself doesn't need its own hover handlers.
     let actionNameElem = [m("tr", { style: "width:100%" }, [
         m("td", { class: "action-name", colspan: 2 }, actionLabelText)
     ])];
@@ -981,28 +1020,41 @@ function componentNextStateChoiceElement(stateObj, ind, actionLabel, diffOnly) {
     }
     // Show full states for initial state choices.
     // TODO: Possibly have option to toggle this behavior.
-    // When showing diffs only, we always show the full (diff'd) state, possible also with action label.
-    if(model.currTrace.length === 0 || actionLabelText.length === 0 || diffOnly){
+    // When showing full next states (either with diff highlighting or plain), we
+    // always show the full state, possibly also with the action label.
+    if(model.currTrace.length === 0 || actionLabelText.length === 0 || diffOnly || model.nextStateView === NextStateView.States){
         allElems = allElems.concat(stateVarElems);
     }
 
     let opac = model.lassoTo === null ? "100" : "50";
-    let nextStateElem = m("div", {
-        class: "init-state next-state-choice-full",
-        style: `opacity: ${opac}%`,
+    // Colorize the box by its corresponding action, so full-state choices are
+    // visually grouped by action, matching the Actions / Parameters view. The
+    // "-active" variant tints the box when its action is highlighted elsewhere
+    // (e.g. by hovering the corresponding trace state).
+    let boxClass = "init-state next-state-choice-full";
+    let boxStyle = `opacity: ${opac}%`;
+    if (actionLabel) {
+        boxStyle += `; --action-hl-color: ${actionColor(actionLabelObj.name)};`;
+        if (model.highlightedActionName === actionLabelObj.name) {
+            boxClass += " next-state-choice-full-active";
+        }
+    }
+    let boxAttrs = {
+        class: boxClass,
+        style: boxStyle,
         "data-testid": "next-state-choice",
         onclick: (e) => {
             // Explicit redraw will be triggered inside 'chooseNextState'.
             e.redraw = false;
             chooseNextState(hash)
         },
-        // onmouseover: () => {
-        //     model.nextStatePreview = state;
-        // },
-        // onmouseout: () => {
-        //     model.nextStatePreview = null;
-        // }
-    }, m("table", { class: "trace-select-table" }, allElems));
+    };
+    if (actionLabel) {
+        // Hovering anywhere on the state box highlights its action in the spec
+        // editor, matching the Actions / Parameters view.
+        Object.assign(boxAttrs, actionChoiceHoverAttrs(actionLabelObj.name));
+    }
+    let nextStateElem = m("div", boxAttrs, m("table", { class: "trace-select-table" }, allElems));
     return nextStateElem;
 }
 
@@ -1018,7 +1070,7 @@ function errorMsgStr(errorInfo) {
                     style: "font-size: 14px;font-weight: normal",
                     class: "hover-link",
                     onclick: () => {
-                        model.selectedTab = Tab.SpecEditor;
+                        setSpecTab(Tab.SpecEditor);
                         m.redraw();
                         highlightError();
                     }
@@ -1108,7 +1160,7 @@ function componentErrorInfo() {
             style: "font-size: 12px;",
             class: "",
             onclick: () => {
-                model.selectedTab = Tab.SpecEditor;
+                setSpecTab(Tab.SpecEditor);
                 m.redraw();
                 highlightError();
             }
@@ -1135,8 +1187,9 @@ function componentNextStateChoices(nextStates) {
             nextStateElems.push(nextStateElem);
         }
     }
-    else if (model.showStateDiffsInSelection && model.currTrace.length > 0) {
-        let diffOnly = true;
+    else if ((model.nextStateView === NextStateView.StatesDiff || model.nextStateView === NextStateView.States) && model.currTrace.length > 0) {
+        // Show full next states, optionally highlighting the changed variables.
+        let diffOnly = model.nextStateView === NextStateView.StatesDiff;
         for (const [actionId, nextStatesForAction] of Object.entries(nextStates)) {
             let i = 0;
             let action = model.actions[actionId];
@@ -1437,6 +1490,13 @@ function updateTraceRouteParams() {
         delete newParams.defOverrides;
     }
 
+    // Persist how next-state choices are displayed on the Actions tab.
+    if (model.nextStateView !== NextStateView.Actions) {
+        newParams["nextStateView"] = model.nextStateView;
+    } else {
+        delete newParams.nextStateView;
+    }
+
     m.route.set("/home", newParams);
 }
 
@@ -1528,6 +1588,34 @@ function chooseNextState(statehash_short, quantBoundsHash, rethrow = false) {
         }
         return;
     }
+}
+
+// Extend the current trace with a random behavior by repeatedly picking a
+// uniformly random next state, reusing the same machinery as manual stepping.
+// Continues from the current trace tip; if the trace is empty, the first pick
+// is a random initial state. Stops early on a deadlock (no next states) or an
+// evaluation error. Returns the number of steps actually simulated.
+function simulateRandomBehavior(numSteps) {
+    let simulated = 0;
+    for (let i = 0; i < numSteps; i++) {
+        let choices = _.flatten(_.values(model.currNextStates));
+        if (choices.length === 0) {
+            // Deadlock: no further states to simulate.
+            break;
+        }
+        let choice = _.sample(choices);
+        let qb = choice["quant_bound"];
+        let quantBoundsHash = _.isEmpty(qb) ? undefined : hashQuantBounds(qb);
+        try {
+            chooseNextState(choice["state"].fingerprint(), quantBoundsHash, true);
+        } catch (e) {
+            console.error("Random simulation stopped due to error computing next states.", e);
+            break;
+        }
+        simulated++;
+    }
+    m.redraw();
+    return simulated;
 }
 
 function setConstantValues(reload = true) {
@@ -2307,7 +2395,49 @@ function componentTraceViewerState(stateCtx, ind, isLastState, actionId) {
     if (model.animationExists && model.enableAnimationView) {
         // traceStateElemChildren.push(vizSvg);
     }
-    let traceStateElem = m("div", { "class": "trace-state tlc-state", "data-testid": "trace-state-elem" }, traceStateElemChildren);
+
+    // Hovering anywhere on the state highlights, in the spec editor, the
+    // definition that produced it: the action for regular steps, or the Init
+    // predicate for the initial state. Most useful in the three-column layout,
+    // where the spec is always visible.
+    let stateAttrs = { "class": "trace-state tlc-state", "data-testid": "trace-state-elem" };
+    // The definition to highlight in the spec editor, and the action name to
+    // tint on the Actions tab (null for the initial state, which has no action).
+    let highlightNode = null;
+    let highlightName = null;
+    let highlightColor = null;
+    if (actionId !== null && action) {
+        highlightNode = action;
+        highlightName = getActionLabelText(action.name).name;
+        highlightColor = actionColor(highlightName);
+    } else if (ind === 0) {
+        // The initial state has no action; highlight the Init predicate.
+        highlightNode = { name: model.initStatePredName, node: null };
+        highlightColor = actionColor(model.initStatePredName);
+    }
+    if (highlightNode) {
+        stateAttrs.class += " trace-state-highlightable";
+        // Carry the action's color so the :hover rule can tint the box with it.
+        stateAttrs.style = "--action-hl-color: " + highlightColor + ";";
+        let doHighlight = () => {
+            highlightActionInSpec(highlightNode);
+            model.highlightedActionName = highlightName;
+        };
+        // Use mouseenter/mouseleave (which don't bubble) so moving across the
+        // state's inner elements doesn't cause the highlight to flicker. We allow
+        // Mithril to redraw so the matching action box on the Actions tab updates.
+        stateAttrs.onmouseenter = doHighlight;
+        stateAttrs.onmouseleave = clearActionHighlight;
+        stateAttrs.onclick = (e) => {
+            e.redraw = false;
+            // On click, ensure the spec editor is visible then highlight it.
+            if (!model.specColumnSeparate) {
+                setSpecTab(Tab.SpecEditor);
+                doHighlight();
+            }
+        };
+    }
+    let traceStateElem = m("div", stateAttrs, traceStateElemChildren);
     return traceStateElem;
 }
 
@@ -2955,12 +3085,23 @@ function componentButtonsContainer() {
                 disabled: model.currTrace.length <= 1,
                 onclick: traceStepBack 
             }, "Back"),
+            // Dual-purpose Forward button: when there is forward history (from
+            // having stepped Back), it acts as a normal redo. Otherwise there is
+            // nothing to redo, so rather than disabling it, it becomes a
+            // "simulate" control that advances the trace by one random step.
             m("button", { 
                 class: "btn btn-sm btn-outline-primary button-bagse", 
                 id: "trace-forward-button", 
-                disabled: model.forwardHistory.length === 0,
-                onclick: traceStepForward 
-            }, "Forward"),
+                "data-testid": "trace-forward-button",
+                title: model.forwardHistory.length > 0
+                    ? "Step forward (redo)"
+                    : "Simulate a random next step",
+                disabled: model.forwardHistory.length === 0 &&
+                    _.flatten(_.values(model.currNextStates)).length === 0,
+                onclick: model.forwardHistory.length > 0
+                    ? traceStepForward
+                    : () => simulateRandomBehavior(1)
+            }, model.forwardHistory.length > 0 ? "Forward" : "Forward (simulate)"),
 
             m("button", { 
                 class: "btn btn-sm btn-outline-primary button-bagse", 
@@ -3047,11 +3188,15 @@ function componentHiddenStateVars(hidden) {
 
 function specEditorPane(hidden){
     let liStyle = {"font-size": "12px", "padding-top": "3px", "padding-bottom": "3px"};
-    return m("div", { id: "code-input-pane", style: {display: hidden ? "none" : "block"}}, [
-        m("div", { id: "code-container", hidden: model.selectedTab !== Tab.SpecEditor }, [
+    // In the dedicated spec column the editor should flex to fill the column
+    // (so CodeMirror is bounded and shows a scrollbar); in the shared left
+    // column it stays a plain block.
+    let visibleDisplay = model.specColumnSeparate ? "flex" : "block";
+    return m("div", { id: "code-input-pane", style: {display: hidden ? "none" : visibleDisplay}}, [
+        m("div", { id: "code-container", hidden: activeSpecTab() !== Tab.SpecEditor }, [
             m("textarea", { id: "code-input" })
         ]),
-        m("div", { id: "code-anim-container", hidden: model.selectedTab !== Tab.SpecAnimationEditor }, [
+        m("div", { id: "code-anim-container", hidden: activeSpecTab() !== Tab.SpecAnimationEditor }, [
             m("textarea", { id: "code-anim-input" })
         ])
     ]);
@@ -3059,27 +3204,28 @@ function specEditorPane(hidden){
 
 function stateSelectionPane(hidden){
 
-    let fullNextStatesSwitch = m("div", { 
-        class: "form-check form-switch show-full-next-states-switch", 
+    let nextStateViewOptions = [
+        { mode: NextStateView.Actions, label: "Actions / Parameters" },
+        { mode: NextStateView.StatesDiff, label: "Full states (diff)" },
+        { mode: NextStateView.States, label: "Full states" },
+    ];
+    let fullNextStatesSwitch = m("div", {
+        class: "btn-group show-full-next-states-switch",
+        role: "group",
+        "aria-label": "Next state view mode",
         hidden: model.currTrace.length === 0 || model.errorInfo !== null
-    }, [
-        m("input", {
-            class: "form-check-input",
-            type: "checkbox",
-            role: "switch",
-            id: "fullNextStatesSwitchCheck",
-            hidden: model.errorInfo !== null,
-            onclick: function (event) {
-                model.showStateDiffsInSelection = !model.showStateDiffsInSelection;
+    }, nextStateViewOptions.map(opt => {
+        let active = model.nextStateView === opt.mode;
+        return m("button", {
+            type: "button",
+            class: "btn btn-sm " + (active ? "btn-primary" : "btn-outline-primary"),
+            "aria-pressed": active ? "true" : "false",
+            onclick: function () {
+                model.nextStateView = opt.mode;
+                updateTraceRouteParams();
             }
-        }),
-        m("label", {
-            class: "form-check-label",
-            for: "fullNextStatesSwitchCheck",
-            role: "switch",
-            hidden: model.errorInfo !== null,
-        }, "Show full next states")
-    ]);
+        }, opt.label);
+    }));
 
     let fetchingInProgress = model.rootModName.length === 0 && !model.loadSpecFailed;
 
@@ -3261,15 +3407,171 @@ function specAnimationEditorPane(hidden){
     ]);
 }
 
+// Returns the currently active spec editor tab, reading from the correct
+// selection field depending on whether the spec editor is in its own column.
+function activeSpecTab(){
+    return model.specColumnSeparate ? model.selectedSpecTab : model.selectedTab;
+}
+
+// Selects a spec editor tab, writing to the correct selection field depending
+// on whether the spec editor is in its own column.
+function setSpecTab(tab){
+    if(model.specColumnSeparate){
+        model.selectedSpecTab = tab;
+    } else {
+        model.selectedTab = tab;
+    }
+}
+
+// Returns true if the given textarea has already been turned into a CodeMirror
+// editor (CodeMirror inserts its wrapper as the textarea's next sibling).
+function specEditorInitialized(textarea){
+    return !!(textarea && textarea.nextSibling && textarea.nextSibling.classList &&
+              textarea.nextSibling.classList.contains("CodeMirror"));
+}
+
+// Re-create the CodeMirror editors on the (freshly rendered) spec/animation
+// textareas after the spec editor pane has been moved to a different column.
+// The old DOM (including the previous CodeMirror instances) is torn down by
+// Mithril, so we rebuild them and restore their previous contents.
+function reinitSpecEditors(specVal, animVal){
+    const codeInput = document.getElementById("code-input");
+    if(codeInput && !specEditorInitialized(codeInput)){
+        codeEditor = CodeMirror.fromTextArea(codeInput, {
+            lineNumbers: true,
+            showCursorWhenSelecting: true,
+            fontSize: "13px",
+            theme: "default",
+            scrollbarStyle: "native",
+        });
+        codeEditor.getWrapperElement().style.fontSize = "13px";
+        codeEditor.setSize("100%", "100%");
+        codeEditor.on("changes", () => {
+            handleCodeChange().then(function () {
+                loadRouteParamsState();
+                m.redraw();
+            });
+        });
+        if(specVal !== null){
+            codeEditor.setValue(specVal);
+        }
+        codeEditor.refresh();
+    }
+
+    const codeAnimInput = document.getElementById("code-anim-input");
+    if(codeAnimInput && !specEditorInitialized(codeAnimInput)){
+        codeAnimEditor = CodeMirror.fromTextArea(codeAnimInput, {
+            lineNumbers: true,
+            showCursorWhenSelecting: true,
+            scrollbarStyle: "native",
+        });
+        codeAnimEditor.getWrapperElement().classList.add("CodeMirror-anim-spec");
+        codeAnimEditor.setSize("100%", "100%");
+        codeAnimEditor.on("changes", () => {
+            handleAnimCodeChange().then(function () {
+                m.redraw();
+            });
+        });
+        if(animVal !== null){
+            codeAnimEditor.setValue(animVal);
+        }
+        codeAnimEditor.refresh();
+    }
+}
+
+// Enable or disable the three-column layout (spec/animation editor in its own
+// rightmost column). This relies on Mithril re-rendering the layout after the
+// current event handler returns, so the spec editor DOM is rebuilt in the new
+// column before reinitSpecEditors() runs on the next tick. It should therefore
+// be called from within an event handler (or with an already-mounted app whose
+// redraw is otherwise triggered), not before the initial mount.
+function setSpecColumnSeparate(enabled){
+    if(model.specColumnSeparate === enabled){
+        return;
+    }
+
+    // Preserve the current editor contents before Mithril tears down and
+    // re-creates the spec editor DOM in the new column.
+    let specVal = null;
+    let animVal = null;
+    let mainCm = document.querySelector(".CodeMirror:not(.CodeMirror-anim-spec)");
+    if(mainCm && mainCm.CodeMirror){ specVal = mainCm.CodeMirror.getValue(); }
+    let animCm = document.querySelector(".CodeMirror-anim-spec");
+    if(animCm && animCm.CodeMirror){ animVal = animCm.CodeMirror.getValue(); }
+
+    // The editor (and thus any action highlight mark) is torn down and rebuilt.
+    model.highlightedActionMark = null;
+
+    if(enabled){
+        model.specColumnSeparate = true;
+        // Carry over any currently selected spec/config tab into the new column
+        // and fall back to the Actions tab in the left column.
+        if(model.selectedTab === Tab.SpecEditor || model.selectedTab === Tab.SpecAnimationEditor || model.selectedTab === Tab.Config){
+            model.selectedSpecTab = model.selectedTab;
+            model.selectedTab = Tab.StateSelection;
+        }
+    } else {
+        model.specColumnSeparate = false;
+        // Merge the spec tab selection back into the left column.
+        model.selectedTab = model.selectedSpecTab;
+    }
+
+    // Rebuild the editors in their new location once Mithril has redrawn.
+    setTimeout(() => {
+        reinitSpecEditors(specVal, animVal);
+        m.redraw();
+    }, 0);
+}
+
+// Read the "specColumn" flag from the URL query string. This is safe to call
+// before Mithril's router is mounted (unlike m.route.param), so the initial
+// layout can be set up before the first render.
+function specColumnParamEnabled(){
+    let hash = window.location.hash || "";
+    let qIdx = hash.indexOf("?");
+    let hashQuery = qIdx >= 0 ? hash.slice(qIdx + 1) : "";
+    let search = (window.location.search || "").replace(/^\?/, "");
+    let combined = [search, hashQuery].filter(s => s.length > 0).join("&");
+    let params = {};
+    if(typeof m !== "undefined" && m.parseQueryString){
+        params = m.parseQueryString(combined);
+    } else {
+        for(let pair of combined.split("&")){
+            if(!pair) continue;
+            let [k, v] = pair.split("=");
+            params[decodeURIComponent(k)] = (v === undefined) ? true : decodeURIComponent(v);
+        }
+    }
+    return params.specColumn === true || params.specColumn === "true";
+}
+
+// Persist the current three-column layout state to the URL route params.
+function updateSpecColumnRouteParam(){
+    let params = m.route.param();
+    if(model.specColumnSeparate){
+        params.specColumn = true;
+    } else {
+        delete params.specColumn;
+    }
+    m.route.set("/home", params);
+}
+
+// Toggle the spec/animation editor tabs between the shared left column and a
+// dedicated rightmost column, and reflect the choice in the URL.
+function toggleSpecColumnSeparate(){
+    setSpecColumnSeparate(!model.specColumnSeparate);
+    updateSpecColumnRouteParam();
+}
+
 function openSpecEditorTab(){
-    model.selectedTab = Tab.SpecEditor;
+    setSpecTab(Tab.SpecEditor);
     setTimeout(() => {
         getCodeMirrorEditor().refresh();
     }, 50);
 }
 
 function openSpecAnimationEditorTab(){
-    model.selectedTab = Tab.SpecAnimationEditor;
+    setSpecTab(Tab.SpecAnimationEditor);
     setTimeout(() => {
         getAnimationCodeMirrorEditor().refresh();
     }, 50);
@@ -3284,7 +3586,7 @@ function specAnimTabElem(){
             onclick: () => {
                 openSpecAnimationEditorTab();
             },
-        }, m("a", {class: model.selectedTab === Tab.SpecAnimationEditor ? "nav-link active" : "nav-link"}, "Animation"));
+        }, m("a", {class: activeSpecTab() === Tab.SpecAnimationEditor ? "nav-link active" : "nav-link"}, "Animation"));
     }
 }
 
@@ -3297,7 +3599,7 @@ function specTabElem(){
             onclick: () => {
                 openSpecEditorTab();
             },
-        }, m("a", {class: model.selectedTab === Tab.SpecEditor ? "nav-link active" : "nav-link"}, "Spec"));
+        }, m("a", {class: activeSpecTab() === Tab.SpecEditor ? "nav-link active" : "nav-link"}, "Spec"));
     }
     
     // return m("li", {
@@ -3338,6 +3640,20 @@ function specTabElem(){
     // ]);
 }
 
+// The Config tab. It uses the activeSpecTab()/setSpecTab() mapping so it can
+// live in either the left column (two-column layout) or the rightmost spec
+// column (three-column layout) without duplicating selection logic.
+function configTabElem(){
+    return m("li", {
+        class: "nav-item",
+        onclick: () => setSpecTab(Tab.Config),
+    }, m("a", {class: activeSpecTab() === Tab.Config ? "nav-link active" : "nav-link"}, [
+        "Config",
+        (!model.spec || !model.spec.hasDefinitionByName(model.initStatePredName) || !model.spec.hasDefinitionByName(model.nextStatePredName)) ?
+            m("span", {class: "text-warning ms-1", title: "Missing Init or Next definition"}, "⚠") : ""
+    ]));
+}
+
 function headerTabBar() {
     let activeClasses = "nav-link active";
     let tabs = [
@@ -3347,19 +3663,12 @@ function headerTabBar() {
             onclick: () => model.selectedTab = Tab.StateSelection,
             // style: "background-color:" + ((model.selectedTab === Tab.StateSelection) ? "lightgray" : "none")
         }, m("a", {class: model.selectedTab === Tab.StateSelection ? "nav-link active" : "nav-link"}, "Actions")),
-        m("li", {
-            // id: "state-selection-tab-button",
-            class: "nav-item",
-            // hidden: _.isEmpty(model.specConsts),
-            onclick: () => model.selectedTab = Tab.Config,
-            // style: "background-color:" + ((model.selectedTab === Tab.StateSelection) ? "lightgray" : "none")
-        }, m("a", {class: model.selectedTab === Tab.Config ? "nav-link active" : "nav-link"}, [
-            "Config",
-            (!model.spec || !model.spec.hasDefinitionByName(model.initStatePredName) || !model.spec.hasDefinitionByName(model.nextStatePredName)) ? 
-                m("span", {class: "text-warning ms-1", title: "Missing Init or Next definition"}, "⚠") : ""
-        ])),
-        specTabElem(),
-        specAnimTabElem(),
+        // The config tab lives here only when the spec editor isn't split into
+        // its own column; otherwise it moves next to the Spec/Anim tabs.
+        model.specColumnSeparate ? null : configTabElem(),
+        // The spec/animation tabs live here only when not split into their own column.
+        model.specColumnSeparate ? null : specTabElem(),
+        model.specColumnSeparate ? null : specAnimTabElem(),
         m("li", {
             // id: "spec-editor-tab-button", 
             class: "nav-item",
@@ -3406,8 +3715,11 @@ function midPane() {
     let tabs = [
         headerTabBar(),
         stateSelectionPane(model.selectedTab !== Tab.StateSelection),
-        componentChooseConfig(model.selectedTab !== Tab.Config),
-        specEditorPane(model.selectedTab !== Tab.SpecEditor && model.selectedTab !== Tab.SpecAnimationEditor),
+        // The config pane lives here only when the spec editor isn't split into
+        // its own column; otherwise it moves to the rightmost spec column.
+        model.specColumnSeparate ? null : componentChooseConfig(model.selectedTab !== Tab.Config),
+        // The spec editor lives here only when it doesn't have its own column.
+        model.specColumnSeparate ? null : specEditorPane(model.selectedTab !== Tab.SpecEditor && model.selectedTab !== Tab.SpecAnimationEditor),
         // specAnimationEditorPane(model.selectedTab !== Tab.SpecAnimationEditor),
         loadPane(model.selectedTab !== Tab.Load)
     ];
@@ -3420,9 +3732,48 @@ function midPane() {
     return [
         m("div", { 
             id: "mid-pane", 
-            style: {width: model.tracePaneHidden ? "90%" : "45%"} 
+            style: {width: midPaneWidth()} 
         }, tabs)
     ];
+}
+
+// Width of the left (#mid-pane) column, accounting for the trace pane being
+// hidden and whether the spec editor has its own column.
+function midPaneWidth(){
+    if(model.tracePaneHidden){
+        return "90%";
+    }
+    return model.specColumnSeparate ? "30%" : "45%";
+}
+
+// Width of the middle (#trace-container) column.
+function tracePaneWidth(){
+    if(model.tracePaneHidden){
+        return "5%";
+    }
+    return model.specColumnSeparate ? "40%" : "55%";
+}
+
+// The dedicated rightmost column holding the Config and TLA+ spec/animation
+// editor tabs. Only rendered when model.specColumnSeparate is true.
+function specPane(){
+    let navStyle = "nav-tabs";
+    let tabBar = m("div", {}, [
+        m("ul", { class: `nav ${navStyle}` }, [
+            configTabElem(),
+            specTabElem(),
+            specAnimTabElem()
+        ])
+    ]);
+
+    return m("div", {
+        id: "spec-pane",
+        style: {width: "30%"}
+    }, [
+        tabBar,
+        componentChooseConfig(activeSpecTab() !== Tab.Config),
+        specEditorPane(activeSpecTab() !== Tab.SpecEditor && activeSpecTab() !== Tab.SpecAnimationEditor)
+    ]);
 }
 
 // 
@@ -3430,14 +3781,28 @@ function midPane() {
 // 
 
 let resize_initial_pos_x = null;
+// Selectors for the two adjacent panes on either side of the gutter being dragged.
+let resize_left_selector = "#mid-pane";
+let resize_right_selector = "#trace-container";
 function resize_mousemove(e){
-    const leftPane = document.querySelector("#mid-pane");
-    const rightPane = document.querySelector("#trace-container");
-    const panelContainer = document.querySelector(".panel-container");
+    const leftPane = document.querySelector(resize_left_selector);
+    const rightPane = document.querySelector(resize_right_selector);
+    if(!leftPane || !rightPane){
+        return;
+    }
 
-    // Expand/contract left and right panes.
-    leftPane.style.width = e.x - leftPane.getBoundingClientRect().left + 'px';
-    rightPane.style.width = panelContainer.getBoundingClientRect().width - e.x + 'px';
+    const leftRect = leftPane.getBoundingClientRect();
+    const rightRect = rightPane.getBoundingClientRect();
+
+    // Keep the combined width of the two adjacent panes constant so that any
+    // other columns are unaffected. This works for both the two- and
+    // three-column layouts.
+    const combinedWidth = leftRect.width + rightRect.width;
+    let newLeftWidth = e.x - leftRect.left;
+    // Clamp so neither adjacent pane collapses entirely.
+    newLeftWidth = Math.max(80, Math.min(combinedWidth - 80, newLeftWidth));
+    leftPane.style.width = newLeftWidth + 'px';
+    rightPane.style.width = (combinedWidth - newLeftWidth) + 'px';
 }
 
 function resize_mouseup(e){
@@ -3447,6 +3812,8 @@ function resize_mouseup(e){
 }
 
 function tracePane() {
+    // Tab order groups visualizations (Trace, Animation) before tools
+    // (REPL, Check).
     let tabs = [
         m("li", {
             class: "nav-item",
@@ -3454,11 +3821,7 @@ function tracePane() {
             ondblclick: () => {
                 model.tracePaneHidden = true;
             },
-        }, m("a", {class: model.selectedTraceTab === TraceTab.Trace ? "nav-link active" : "nav-link"}, "Trace")),
-        m("li", {
-            class: "nav-item",
-            onclick: () => model.selectedTraceTab = TraceTab.REPL,
-        }, m("a", {class: model.selectedTraceTab === TraceTab.REPL ? "nav-link active" : "nav-link"}, "REPL"))
+        }, m("a", {class: model.selectedTraceTab === TraceTab.Trace ? "nav-link active" : "nav-link"}, "Trace"))
     ]
 
     if (model.animationExists || model.externalAnimationExists) {
@@ -3471,6 +3834,14 @@ function tracePane() {
         }, m("a", { class: model.selectedTraceTab === TraceTab.Animation ? "nav-link active" : "nav-link" }, "Animation"));
         tabs.push(animTab);
     }
+
+    // REPL tool tab, placed right of the Animation (visualization) tab.
+    tabs.push(
+        m("li", {
+            class: "nav-item",
+            onclick: () => model.selectedTraceTab = TraceTab.REPL,
+        }, m("a", {class: model.selectedTraceTab === TraceTab.REPL ? "nav-link active" : "nav-link"}, "REPL"))
+    )
 
     // Add invariant checking tab.
     tabs.push(
@@ -3524,7 +3895,7 @@ function tracePane() {
 
     return m("div", { 
             id: "trace-container", 
-            style: {width: model.tracePaneHidden ? "5%" : "55%"}
+            style: {width: tracePaneWidth()}
         }, [
         tabs,
         otherTabs
@@ -3640,7 +4011,7 @@ function checkPane(hidden) {
                 oninput: (e) => model.invariantExprToCheck = e.target.value
             }),
             m("button", {
-                class: "btn btn-primary",
+                class: "btn btn-sm btn-outline-primary",
                 disabled: model.invariantExprToCheck === "" || model.invariantCheckerRunning,
                 onclick: () => {
                     console.log(`Starting web worker for checking invariant expression: '${model.invariantExprToCheck}'.`)
@@ -3653,7 +4024,7 @@ function checkPane(hidden) {
                 " Check Invariant"
             ]),
             m("button", {
-                class: "btn btn-primary btn-danger",
+                class: "btn btn-sm btn-outline-danger",
                 disabled: !model.invariantCheckerRunning,
                 onclick: () => {
                     console.log(`Stopping web worker for checking invariant expression: '${model.invariantExprToCheck}'.`)
@@ -3704,7 +4075,9 @@ function componentPaneSelector() {
     ])
 }
 
-function resizeGutter() {
+function resizeGutter(leftSelector, rightSelector) {
+    leftSelector = leftSelector || "#mid-pane";
+    rightSelector = rightSelector || "#trace-container";
     return m("div", { 
         class: "resize-gutter",
         onmousedown: (e) => {
@@ -3712,6 +4085,8 @@ function resizeGutter() {
             e.preventDefault()
             e.redraw = false;
 
+            resize_left_selector = leftSelector;
+            resize_right_selector = rightSelector;
             resize_initial_pos_x = e.x;
             window.addEventListener('mousemove', resize_mousemove);
             window.addEventListener('mouseup', resize_mouseup);
@@ -3827,6 +4202,12 @@ function addTraceExpr(newTraceExpr) {
 
 // Load any state encoded in route parameters after parsing/loading a spec.
 function loadRouteParamsState() {
+    // Number of random states to simulate on load, if requested via URL
+    // (e.g. ?numSimSteps=20). When no explicit trace is given, a random
+    // behavior of this length is simulated on load. The "Forward (simulate)"
+    // button always advances a single step regardless of this value.
+    let numSimParam = parseInt(m.route.param("numSimSteps"), 10);
+
     // Load trace expression if given.
     let traceExpressions = m.route.param("traceExprs")
     if (traceExpressions) {
@@ -3860,6 +4241,18 @@ function loadRouteParamsState() {
     if (animParam === true && model.animationExists) {
         model.selectedTraceTab = TraceTab.Animation;
         model.enableAnimationView = true;
+    }
+
+    // Restore how next-state choices are displayed on the Actions tab.
+    let nextStateViewParam = m.route.param("nextStateView");
+    if (nextStateViewParam === NextStateView.StatesDiff || nextStateViewParam === NextStateView.States) {
+        model.nextStateView = nextStateViewParam;
+    } else {
+        // Backwards compatibility with the old boolean "showFullStates" param.
+        let showFullStatesParam = m.route.param("showFullStates");
+        if (showFullStatesParam === true || showFullStatesParam === "true") {
+            model.nextStateView = NextStateView.StatesDiff;
+        }
     }
 
     // Load init and next predicate names if given.
@@ -3928,6 +4321,16 @@ function loadRouteParamsState() {
             }
         }
     }
+
+    // If a simulation step count was requested and no explicit trace was given,
+    // simulate a random behavior of that length now. The simulated trace is
+    // written back into the URL (via chooseNextState), so a later reload
+    // replays it rather than simulating a different one.
+    if (!traceParamStr && Number.isFinite(numSimParam) && numSimParam > 0 &&
+        initAndNextDefsValid() && allConstValsSet()) {
+        model.selectedTraceTab = TraceTab.Trace;
+        simulateRandomBehavior(numSimParam);
+    }
 }
 
 function getCodeMirrorEditor() {
@@ -3940,6 +4343,114 @@ function getAnimationCodeMirrorEditor() {
     const $codeEditor = document.querySelector('.CodeMirror-anim-spec');
     const editor = $codeEditor.CodeMirror;
     return editor;
+}
+
+// Returns the CodeMirror instance for the main spec editor, scoped to whichever
+// column currently hosts it. This avoids matching the animation editor or the
+// transient read-only editors created by the trace viewer's action-def preview.
+function getSpecCodeMirror() {
+    let container = model.specColumnSeparate ? "#spec-pane" : "#mid-pane";
+    let el = document.querySelector(`${container} .CodeMirror:not(.CodeMirror-anim-spec)`);
+    return (el && el.CodeMirror) ? el.CodeMirror : null;
+}
+
+// A palette of distinct light background colors used to give each action its
+// own highlight color across the trace, Actions tab, and spec editor. Yellow
+// tones are intentionally excluded so they don't clash with the `lightyellow`
+// highlight used for changed variables.
+const ACTION_HIGHLIGHT_COLORS = [
+    "#dbeafe", // blue
+    "#dcfce7", // green
+    "#fce7f3", // pink
+    "#ede9fe", // purple
+    "#ccfbf1", // teal
+    "#fee2e2", // red
+    "#e0e7ff", // indigo
+    "#cffafe"  // cyan
+];
+
+// Deterministically map an action (base) name to a stable highlight color.
+function actionColor(name) {
+    if (!name) {
+        return ACTION_HIGHLIGHT_COLORS[0];
+    }
+    let h = 0;
+    for (let i = 0; i < name.length; i++) {
+        h = (h * 31 + name.charCodeAt(i)) >>> 0;
+    }
+    return ACTION_HIGHLIGHT_COLORS[h % ACTION_HIGHLIGHT_COLORS.length];
+}
+
+// Clear the current action highlight (spec editor mark + Actions-tab tint).
+function clearActionHighlight() {
+    if (model.highlightedActionMark) {
+        model.highlightedActionMark.clear();
+        model.highlightedActionMark = null;
+    }
+    model.highlightedActionName = null;
+}
+
+// Highlight the definition of the given action in the spec editor, scrolling it
+// into view. Falls back to the action's node within Next if it has no named
+// definition. Only marks the editor when it is actually visible.
+function highlightActionInSpec(action) {
+    // The spec editor must be visible to highlight into it. In the three-column
+    // layout it is always visible; in two-column mode it must be the active tab.
+    let specVisible = model.specColumnSeparate ||
+        model.selectedTab === Tab.SpecEditor || model.selectedTab === Tab.SpecAnimationEditor;
+    let editor = specVisible ? getSpecCodeMirror() : null;
+    if (!editor || !action || !model.spec) {
+        return;
+    }
+
+    // Prefer the action's definition body; fall back to its node within Next.
+    let baseName = getActionLabelText(action.name).name;
+    let node = null;
+    try {
+        let def = model.spec.getDefinitionByName(baseName);
+        node = (def && def.node) ? def.node : null;
+    } catch (e) { /* fall through to action.node */ }
+    node = node || action.node;
+    if (!node || !node.startPosition || !node.endPosition) {
+        return;
+    }
+
+    // Map positions back to original source coordinates (identity while
+    // syntactic rewrites are disabled, but future-proof).
+    let rewriter = model.specTreeObjs ? model.specTreeObjs["rewriter"] : null;
+    let startPos = rewriter ? rewriter.getOrigLocation(node.startPosition.row, node.startPosition.column)
+                            : [node.startPosition.row, node.startPosition.column];
+    let endPos = rewriter ? rewriter.getOrigLocation(node.endPosition.row, node.endPosition.column)
+                          : [node.endPosition.row, node.endPosition.column];
+    let start = { line: startPos[0], ch: startPos[1] };
+    let end = { line: endPos[0], ch: endPos[1] };
+
+    if (model.highlightedActionMark) {
+        model.highlightedActionMark.clear();
+    }
+    model.highlightedActionMark = editor.markText(start, end, {
+        className: "action-highlight",
+        css: "background-color: " + actionColor(baseName)
+    });
+    setTimeout(() => editor.scrollIntoView({ from: start, to: end }, 40), 0);
+}
+
+// Highlight an action given its (base) name, resolving it against model.actions.
+function highlightActionByName(actionName) {
+    let action = (model.actions || []).find(a => getActionLabelText(a.name).name === actionName);
+    // Fall back to a lightweight stand-in; highlightActionInSpec can still
+    // resolve a named definition without a node.
+    highlightActionInSpec(action || { name: actionName, node: null });
+}
+
+// Hover attributes shared by the action rows on the Actions tab: highlight the
+// action in the spec editor on enter, clear on leave.
+function actionChoiceHoverAttrs(actionName) {
+    return {
+        title: "Hover to highlight this action in the spec",
+        onmouseenter: (e) => { e.redraw = false; highlightActionByName(actionName); },
+        onmouseleave: (e) => { e.redraw = false; clearActionHighlight(); },
+    };
 }
 
 function loadAnimSpecText(animText, specPath) {
@@ -4119,6 +4630,11 @@ async function loadApp() {
     //
     var root = document.body
 
+    // Tracks the trace length at the last auto-scroll, so we only scroll the
+    // trace view to the newest state when it actually grows (not on every
+    // redraw, which would fight the user scrolling up to inspect earlier states).
+    let lastAutoScrolledTraceLen = 0;
+
     App = {
         count: 1,
         oncreate: function () {
@@ -4130,7 +4646,7 @@ async function loadApp() {
                     showCursorWhenSelecting: true,
                     fontSize: "13px",
                     theme: "default",
-                    scrollbarStyle: "null",
+                    scrollbarStyle: "native",
                     // TODO: Work out tlaplus mode functionality for syntax highlighting.
                     // mode:"tlaplus"
                 });
@@ -4142,7 +4658,7 @@ async function loadApp() {
                 codeAnimEditor = CodeMirror.fromTextArea(codeAnimInput, {
                     lineNumbers: true,
                     showCursorWhenSelecting: true,
-                    scrollbarStyle: "null",
+                    scrollbarStyle: "native",
                 });
                 codeAnimEditor.getWrapperElement().classList.add("CodeMirror-anim-spec");
             }
@@ -4164,10 +4680,17 @@ async function loadApp() {
             // }
         },
         onupdate: function () {
-            // Keep trace viewer scrolled to bottom.
+            // Scroll the trace to the newest state only when the trace grew
+            // (e.g. a step/simulate appended a state). Doing this on every
+            // redraw would snap the view back to the end whenever the user
+            // scrolled up to look at earlier states.
             let trace = document.getElementById("trace");
             if(trace !== null){
-                trace.scrollTo(0, trace.scrollHeight);
+                let traceLen = model.currTrace.length;
+                if(traceLen > lastAutoScrolledTraceLen){
+                    trace.scrollTo(0, trace.scrollHeight);
+                }
+                lastAutoScrolledTraceLen = traceLen;
             }
 
             // let oldParams = m.route.param();
@@ -4215,27 +4738,47 @@ async function loadApp() {
                             //     " Protocol Gallery"
                             // ])
                         ]),
-                        m("span", { class: "navbar-text", href: "https://github.com/will62794/spectacle", style: "padding-right:15px" },
-                            [
-                                m("span", {}, [
-                                    m("span", { style: "font-weight:bold", "font-size": "14px" }, "Root module:  "),
-                                    m("span", {
-                                        ondblclick: () => {
-                                            model.debug = 1 - model.debug;
-                                            enableEvalTracing = model.debug === 1;
-                                            console.log("debug", model.debug);
-                                            updateRouteParams({debug: model.debug});
-                                            m.redraw();
-                                        },
-                                        style: {cursor: "pointer", "font-family": "monospace", "font-size": "14px"}
-                                    },model.rootModName + (model.rootModName.length > 0 ? ".tla" : "")),
-                                    m("span", { style: { opacity: 0.5, "font-size": "14px" } }, fetchingText),
-                                    spinner,
-                                    parseError
+                        m("div", { class: "d-flex align-items-center" }, [
+                            // Toggle the three-column layout (spec editor in its own column).
+                            m("div", { class: "form-check form-switch mb-0 me-4", style: "font-size:14px;" }, [
+                                m("input", {
+                                    class: "form-check-input",
+                                    type: "checkbox",
+                                    role: "switch",
+                                    id: "specColumnSwitch",
+                                    style: "cursor:pointer;",
+                                    checked: model.specColumnSeparate,
+                                    onclick: () => toggleSpecColumnSeparate(),
+                                }),
+                                m("label", {
+                                    class: "form-check-label",
+                                    for: "specColumnSwitch",
+                                    style: "cursor:pointer;",
+                                    title: "Show the spec editor in its own column",
+                                }, "Three columns")
+                            ]),
+                            m("span", { class: "navbar-text", href: "https://github.com/will62794/spectacle", style: "padding-right:15px" },
+                                [
+                                    m("span", {}, [
+                                        m("span", { style: "font-weight:bold", "font-size": "14px" }, "Root module:  "),
+                                        m("span", {
+                                            ondblclick: () => {
+                                                model.debug = 1 - model.debug;
+                                                enableEvalTracing = model.debug === 1;
+                                                console.log("debug", model.debug);
+                                                updateRouteParams({debug: model.debug});
+                                                m.redraw();
+                                            },
+                                            style: {cursor: "pointer", "font-family": "monospace", "font-size": "14px"}
+                                        },model.rootModName + (model.rootModName.length > 0 ? ".tla" : "")),
+                                        m("span", { style: { opacity: 0.5, "font-size": "14px" } }, fetchingText),
+                                        spinner,
+                                        parseError
+                                    ]
+                                    )
                                 ]
-                                )
-                            ]
-                        ),
+                            ),
+                        ]),
                     ]),
 
                 ]),
@@ -4255,8 +4798,11 @@ async function loadApp() {
                     // m("div", { id: "spec-name-fheader", style:"font-size:14px;margin-bottom:10px;width:100%;" }, "Root spec: " + model.rootModName + ".tla"),
                     // Display pane.
                     midPane(),
-                    resizeGutter(),
-                    tracePane()
+                    resizeGutter("#mid-pane", "#trace-container"),
+                    tracePane(),
+                    // Optional third column holding the spec/animation editor tabs.
+                    model.specColumnSeparate ? resizeGutter("#trace-container", "#spec-pane") : null,
+                    model.specColumnSeparate ? specPane() : null
                     // componentExplorerPane(),
                 ])];
         }
@@ -4287,6 +4833,13 @@ async function loadApp() {
                 ])
             ];
         }
+    }
+
+    // Apply the three-column layout preference from the URL *before* the
+    // initial mount, so the spec editor is created directly in its own column
+    // (App.oncreate initializes CodeMirror on whichever column renders it).
+    if(specColumnParamEnabled()){
+        model.specColumnSeparate = true;
     }
 
     // m.mount(root, App)

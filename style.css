@@ -1,3 +1,10 @@
+:root {
+  /* Shared tint for cross-highlighting an action across the trace state box,
+     the Actions-tab action box, and the spec editor. A blue tint is used to
+     avoid clashing with the yellow highlight on changed variables. */
+  --action-highlight-bg: #e3f0fb;
+}
+
 body {
     margin: 0;
     padding: 0;
@@ -47,6 +54,9 @@ body {
       height: 90%;
       /* overflow-y: scroll; */
       width: 49%;
+      /* Include padding in the width so columns with differing padding still
+         render at their specified percentage width. */
+      box-sizing: border-box;
       float: left;
       min-width: 280px;
 
@@ -385,17 +395,30 @@ body {
     /* position:relative; */
     /* overflow-y: scroll; */
     /* border-bottom:solid 1px lightgray; */
-
-    /* Hide scrollbar. */
-    /* overflow-y: scroll; */
-    scrollbar-width: none; /* Firefox */
-    -ms-overflow-style: none; /* IE and Edge */
-    &::-webkit-scrollbar {
-      display: none; /* Chrome, Safari and Opera */
-    }
     flex:1;
     overflow: auto;
     padding-bottom:120px;
+
+    /* Thin scrollbar as a visible affordance that the trace can be scrolled.
+       Firefox. */
+    scrollbar-width: thin;
+    scrollbar-color: rgba(0,0,0,0.28) transparent;
+  }
+  /* Chromium/WebKit (Vivaldi, Chrome, Safari, Edge). */
+  #trace::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+  #trace::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  #trace::-webkit-scrollbar-thumb {
+    background-color: rgba(0,0,0,0.28);
+    border-radius: 4px;
+  }
+  #trace:hover::-webkit-scrollbar-thumb,
+  #trace::-webkit-scrollbar-thumb:hover {
+    background-color: rgba(0,0,0,0.45);
   }
 
   .tlc-state{
@@ -424,6 +447,10 @@ body {
       /* display: grid; */
       /* grid-template-columns: 75% 25%; */
       /* grid-template-rows: 100%; */
+
+      /* Carousel-like hover: smoothly scale the focused state. */
+      transition: transform 0.18s ease, opacity 0.18s ease;
+      transform-origin: center left;
   }
 
   .state-choice-varval{
@@ -606,6 +633,15 @@ body {
     padding-bottom:5px;
   }
 
+  /* Tint the hovered action box on the Actions tab, matching the trace state
+     box hover highlight (which also highlights the action in the spec editor).
+     The "-active" variant is applied when the action is highlighted from
+     elsewhere, e.g. by hovering the corresponding trace state. */
+  .action-choice-box:hover,
+  .action-choice-box-active{
+    background-color: var(--action-hl-color, var(--action-highlight-bg));
+  }
+
   .action-expand-icon {
     transition: transform 0.2s ease;
   }
@@ -706,6 +742,10 @@ body {
       border-color:gray;
       border-radius: 8px;
       border-width: 1px;
+
+      /* Carousel-like hover: smoothly scale the focused choice box. */
+      transition: transform 0.18s ease, opacity 0.18s ease;
+      transform-origin: center left;
   }
 
   .init-state:hover{ 
@@ -713,6 +753,22 @@ body {
     cursor:pointer;
     /* border:solid; */
     /* border-color: black; */
+  }
+
+  /* --- Carousel-like hover (prototype) ---
+     Mirrors the trace-state effect: while the pointer is over the next-state
+     choices, the hovered box grows and lifts to the front while its siblings
+     fade back. transform doesn't affect layout, so the list doesn't reflow. */
+  /* !important overrides the inline opacity set on each box in JS. */
+  #initial-states:hover .init-state{
+    opacity: 0.55 !important;
+  }
+  #initial-states:hover .init-state:hover{
+    opacity: 1 !important;
+    transform: scale(1.06);
+    position: relative;
+    z-index: 5;
+    box-shadow: 0 8px 22px rgba(0, 0, 0, 0.22);
   }
 
   .next-state-choice-full{
@@ -723,11 +779,10 @@ body {
     width: 95%;
   }
 
-  .next-state-choice-full:hover{
-    background-color:#eee;
+  .next-state-choice-full:hover,
+  .next-state-choice-full-active{
+    background-color: var(--action-hl-color, #eee);
     cursor:pointer;
-    /* border:solid; */
-    /* border-color: red; */
   }
 
   .state-varname{
@@ -765,6 +820,7 @@ body {
     /* background-color: orange; */
     height:90%;
     width:51%;
+    box-sizing: border-box;
     /* float:left; */
     /* border-left:solid 2px lightgray; */
 
@@ -772,16 +828,53 @@ body {
     min-width: 30%;
     /* border:solid 1px red; */
 
-    /* display: flex;  */
-    /* flex-direction: column;  */
-    /* height: 100vh; */
+    /* Lay the tab bar and the active pane out as a column so the trace pane
+       fills (and scrolls within) the visible column height instead of a child
+       overflowing below the fold. */
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
   }
 
   #trace-and-buttons-container{
-    display: flex; 
-    flex-direction: column; 
-    height: 100vh;
-    /* flex:1; */
+    display: flex;
+    flex-direction: column;
+    /* Fill the trace column below the tab bar (rather than a fixed 100vh that
+       overshoots the visible area), so the inner #trace region overflows and
+       shows its scrollbar. */
+    flex: 1;
+    min-height: 0;
+  }
+
+  /* Dedicated rightmost column for the TLA+ spec/animation editor tabs
+     (three-column layout). */
+  #spec-pane {
+    /* Match the height of the sibling columns (was 100vh, which overshot the
+       visible area below the navbar and hid the editor's scrollbar). */
+    height: 90%;
+    width: 30%;
+    min-width: 280px;
+    padding-left: 18px;
+    box-sizing: border-box;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    /* The CodeMirror editor scrolls internally; the column itself does not. */
+    overflow: hidden;
+  }
+
+  /* Let the editor fill the spec column below the tab bar so CodeMirror is
+     bounded and shows its (native) scrollbar instead of growing to fit all
+     lines. */
+  #spec-pane #code-input-pane {
+    flex: 1;
+    min-height: 0;
+    flex-direction: column;
+  }
+  #spec-pane #code-container,
+  #spec-pane #code-anim-container {
+    flex: 1;
+    min-height: 0;
   }
 
   .resize-gutter {
@@ -859,6 +952,28 @@ body {
   .CodeMirror{
     font-size:13px;
     font-family: Menlo, Monaco, "Times";
+  }
+
+  /* Make CodeMirror's native scrollbar match the thin scrollbar used for the
+     trace pane, so both columns' scrollbars are the same width. */
+  .CodeMirror-scroll {
+    scrollbar-width: thin; /* Firefox */
+    scrollbar-color: rgba(0,0,0,0.28) transparent;
+  }
+  .CodeMirror-scroll::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+  .CodeMirror-scroll::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  .CodeMirror-scroll::-webkit-scrollbar-thumb {
+    background-color: rgba(0,0,0,0.28);
+    border-radius: 4px;
+  }
+  .CodeMirror-scroll:hover::-webkit-scrollbar-thumb,
+  .CodeMirror-scroll::-webkit-scrollbar-thumb:hover {
+    background-color: rgba(0,0,0,0.45);
   }
 
   #pane-selector{
@@ -987,6 +1102,42 @@ body {
   .line-error-highlight{
     background-color:rgba(255, 0, 0, 0.25);
     /* opacity:0.25; */
+  }
+
+  /* Highlight for the action definition corresponding to a hovered trace
+     step / next-state action choice. */
+  .action-highlight{
+    background-color: var(--action-highlight-bg);
+    border-radius: 2px;
+  }
+
+  /* Hovering a trace state highlights its action in the spec editor. */
+  .trace-state-highlightable{
+    cursor: pointer;
+  }
+  /* Tint only the state box (not the full-width row) when hovered.
+     Uses !important because #trace-state-holder has an inline background-color
+     set in JS, which would otherwise override this rule. */
+  .trace-state-highlightable:hover #trace-state-holder{
+    background-color: var(--action-hl-color, var(--action-highlight-bg)) !important;
+  }
+
+  /* --- Carousel-like hover (prototype) ---
+     When the pointer is over the trace, the hovered state grows and lifts to
+     the front while its siblings shrink and fade, giving a dock/carousel
+     focus effect. transform doesn't affect layout, so neighbours keep their
+     positions and the trace doesn't reflow. */
+  #trace:hover .trace-state{
+    opacity: 0.55;
+  }
+  #trace:hover .trace-state:hover{
+    opacity: 1;
+    transform: scale(1.06);
+    position: relative;
+    z-index: 5;
+  }
+  #trace:hover .trace-state:hover #trace-state-holder{
+    box-shadow: 0 8px 22px rgba(0, 0, 0, 0.22);
   }
 
   .error-info{
