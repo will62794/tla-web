@@ -42,6 +42,199 @@ const TLA_COMMUNITY_MODULES = [
 
 const TLA_COMMUNITY_MODULES_BASE_URL = "https://raw.githubusercontent.com/tlaplus/CommunityModules/master/modules";
 
+//
+// GitLab spec source support.
+//
+// GitLab's human-facing "blob"/"raw" URLs do not send permissive CORS headers,
+// so they cannot be fetched cross-origin from the browser. The REST API raw-file
+// endpoint (/api/v4/projects/<id>/repository/files/<path>/raw) does send
+// `access-control-allow-origin: *`, so we route all GitLab fetches through it.
+//
+
+// Optional access tokens for authenticated API requests (private repos). Set
+// from the UI; only ever attached to the matching provider's API requests
+// (see specFetchHeaders) so a token is never leaked to another host.
+let GITLAB_ACCESS_TOKEN = null;
+function setGitLabAccessToken(token) {
+    GITLAB_ACCESS_TOKEN = (typeof token === "string" && token.length > 0) ? token : null;
+}
+
+let GITHUB_ACCESS_TOKEN = null;
+function setGitHubAccessToken(token) {
+    GITHUB_ACCESS_TOKEN = (typeof token === "string" && token.length > 0) ? token : null;
+}
+
+// True iff 'url' is a GitLab API raw-file URL.
+function isGitLabApiUrl(url) {
+    return typeof url === "string" && /\/api\/v4\/projects\/[^/]+\/repository\/files\//.test(url);
+}
+
+// True iff 'url' is a GitHub "contents" API URL.
+function isGitHubApiUrl(url) {
+    return typeof url === "string" && /^https:\/\/api\.github\.com\/repos\/[^/]+\/[^/]+\/contents\//.test(url);
+}
+
+// Returns fetch headers for a given URL. A provider token is attached ONLY to
+// that provider's API requests, so we never leak it to other hosts (e.g. the
+// GitHub community-modules repo or arbitrary raw URLs).
+function specFetchHeaders(url) {
+    let headers = {};
+    if (GITLAB_ACCESS_TOKEN !== null && isGitLabApiUrl(url)) {
+        // Use the OAuth-compliant Bearer header: GitLab accepts it for both OAuth
+        // access tokens AND personal/project access tokens, whereas PRIVATE-TOKEN
+        // only works for the latter (an OAuth token there yields HTTP 401).
+        headers["Authorization"] = "Bearer " + GITLAB_ACCESS_TOKEN;
+    }
+    if (isGitHubApiUrl(url)) {
+        // Ask the contents API to return the raw file body rather than JSON.
+        headers["Accept"] = "application/vnd.github.raw";
+        if (GITHUB_ACCESS_TOKEN !== null) {
+            headers["Authorization"] = "Bearer " + GITHUB_ACCESS_TOKEN;
+        }
+    }
+    return headers;
+}
+
+// Build a GitLab API "raw file" URL from its components.
+function gitlabApiRawUrl(instanceBase, projectPath, filePath, ref) {
+    let proj = encodeURIComponent(projectPath);
+    let fp = encodeURIComponent(filePath);
+    return `${instanceBase}/api/v4/projects/${proj}/repository/files/${fp}/raw?ref=${encodeURIComponent(ref)}`;
+}
+
+// Parse a GitLab "blob"/"raw" web URL (e.g. https://host/group/proj/-/blob/main/dir/Spec.tla)
+// into {instanceBase, projectPath, ref, filePath}. Returns null if not such a URL.
+//
+// Note: the ref is assumed to be a single path segment (branch/tag/SHA). Branch
+// names containing slashes cannot be disambiguated from the file path from the URL
+// alone; the Load UI exposes editable fields so the user can correct such cases.
+function parseGitLabBlobUrl(input) {
+    let url;
+    try { url = new URL(input); } catch (e) { return null; }
+    // The '/-/' delimiter is GitLab's marker separating the project path from the
+    // in-project route, independent of host or nested subgroups.
+    let m = url.pathname.match(/^(.*?)\/-\/(?:blob|raw)\/(.+)$/);
+    if (m === null) return null;
+    let projectPath = decodeURIComponent(m[1].replace(/^\//, ""));
+    let rest = m[2];
+    let slash = rest.indexOf("/");
+    if (slash < 0) return null;
+    let ref = decodeURIComponent(rest.slice(0, slash));
+    let filePath = decodeURIComponent(rest.slice(slash + 1));
+    if (projectPath.length === 0 || filePath.length === 0) return null;
+    return { instanceBase: url.origin, projectPath, ref, filePath };
+}
+
+// Parse a GitLab API raw-file URL back into {instanceBase, projectPath, ref, filePath}.
+// Returns null if not such a URL.
+function parseGitLabApiUrl(input) {
+    if (typeof input !== "string") return null;
+    let m = input.match(/^(.*)\/api\/v4\/projects\/([^/]+)\/repository\/files\/([^/]+)\/raw(?:\?(.*))?$/);
+    if (m === null) return null;
+    let instanceBase = m[1];
+    let projectPath = decodeURIComponent(m[2]);
+    let filePath = decodeURIComponent(m[3]);
+    let ref = "HEAD";
+    if (m[4]) {
+        let refMatch = m[4].match(/(?:^|&)ref=([^&]*)/);
+        if (refMatch) ref = decodeURIComponent(refMatch[1]);
+    }
+    return { instanceBase, projectPath, ref, filePath };
+}
+
+//
+// GitHub spec source support.
+//
+// GitHub's raw host (raw.githubusercontent.com) already sends permissive CORS
+// headers, so public specs are fetched directly from there and sibling modules
+// resolve via the ordinary directory-relative path. Private repos use the
+// authenticated "contents" API (api.github.com), which also supports CORS.
+//
+
+// Build a raw.githubusercontent.com URL (public repos).
+function githubRawUrl(owner, repo, ref, filePath) {
+    return `https://raw.githubusercontent.com/${owner}/${repo}/${ref}/${filePath}`;
+}
+
+// Build a GitHub contents API URL that returns the raw file (private repos).
+function githubApiRawUrl(owner, repo, ref, filePath) {
+    return `https://api.github.com/repos/${owner}/${repo}/contents/${filePath}?ref=${encodeURIComponent(ref)}`;
+}
+
+// Parse a GitHub web (blob/raw), raw.githubusercontent.com, or contents API URL
+// into {owner, repo, ref, filePath}. Returns null if not such a URL.
+//
+// Note: like GitLab, the ref is assumed to be a single path segment for the web
+// URL form; the Load UI exposes editable fields to correct slashed branch names.
+function parseGitHubUrl(input) {
+    let url;
+    try { url = new URL(input); } catch (e) { return null; }
+    if (url.hostname === "github.com") {
+        let m = url.pathname.match(/^\/([^/]+)\/([^/]+)\/(?:blob|raw)\/(.+)$/);
+        if (m === null) return null;
+        let rest = m[3];
+        let slash = rest.indexOf("/");
+        if (slash < 0) return null;
+        return {
+            owner: decodeURIComponent(m[1]), repo: decodeURIComponent(m[2]),
+            ref: decodeURIComponent(rest.slice(0, slash)), filePath: decodeURIComponent(rest.slice(slash + 1))
+        };
+    }
+    if (url.hostname === "raw.githubusercontent.com") {
+        let m = url.pathname.match(/^\/([^/]+)\/([^/]+)\/([^/]+)\/(.+)$/);
+        if (m === null) return null;
+        return {
+            owner: decodeURIComponent(m[1]), repo: decodeURIComponent(m[2]),
+            ref: decodeURIComponent(m[3]), filePath: decodeURIComponent(m[4])
+        };
+    }
+    if (url.hostname === "api.github.com") {
+        let m = url.pathname.match(/^\/repos\/([^/]+)\/([^/]+)\/contents\/(.+)$/);
+        if (m === null) return null;
+        return {
+            owner: decodeURIComponent(m[1]), repo: decodeURIComponent(m[2]),
+            ref: url.searchParams.get("ref") || "HEAD", filePath: decodeURIComponent(m[3])
+        };
+    }
+    return null;
+}
+
+// Parse a GitHub contents API URL back into {owner, repo, ref, filePath}.
+function parseGitHubApiUrl(input) {
+    if (typeof input !== "string") return null;
+    let m = input.match(/^https:\/\/api\.github\.com\/repos\/([^/]+)\/([^/]+)\/contents\/([^?]+)(?:\?(.*))?$/);
+    if (m === null) return null;
+    let ref = "HEAD";
+    if (m[4]) {
+        let refMatch = m[4].match(/(?:^|&)ref=([^&]*)/);
+        if (refMatch) ref = decodeURIComponent(refMatch[1]);
+    }
+    return { owner: decodeURIComponent(m[1]), repo: decodeURIComponent(m[2]), ref, filePath: decodeURIComponent(m[3]) };
+}
+
+// Given the URL a root spec was fetched from and the name of a module it imports,
+// return the URL from which to fetch that sibling module. Handles GitLab and
+// GitHub API URLs (resolving within the same project/ref/directory) and falls
+// back to plain directory-relative resolution for ordinary raw URLs (which also
+// correctly covers raw.githubusercontent.com).
+function resolveSiblingModuleUrl(specPath, modName) {
+    let gl = parseGitLabApiUrl(specPath);
+    if (gl !== null) {
+        let dir = gl.filePath.includes("/") ? gl.filePath.replace(/\/[^/]*$/, "") : "";
+        let siblingFile = (dir.length > 0 ? dir + "/" : "") + modName + ".tla";
+        return gitlabApiRawUrl(gl.instanceBase, gl.projectPath, siblingFile, gl.ref);
+    }
+    let gh = parseGitHubApiUrl(specPath);
+    if (gh !== null) {
+        let dir = gh.filePath.includes("/") ? gh.filePath.replace(/\/[^/]*$/, "") : "";
+        let siblingFile = (dir.length > 0 ? dir + "/" : "") + modName + ".tla";
+        return githubApiRawUrl(gh.owner, gh.repo, gh.ref, siblingFile);
+    }
+    const segments = decodeURIComponent(specPath).split("/");
+    const baseSpecPath = segments.slice(0, segments.length - 1).join("/");
+    return `${baseSpecPath}/${modName}.tla`;
+}
+
 // Simple assertion utility.
 function assert(condition, message) {
     if (!condition) {
@@ -1469,10 +1662,6 @@ class TLASpec {
     // TODO: Extend this to parse fetched modules during spec parsing.
     fetchModules(moduleNames, urlPath) {
         console.log("Fetching modules", moduleNames, "for spec at root path:", urlPath);
-        // console.log("module names:", moduleNames);
-        // console.log(decodeURIComponent(urlPath));
-        const segments = decodeURIComponent(urlPath).split("/");
-        const baseSpecPath = segments.slice(0, segments.length - 1).join("/");
 
         // Fetch all module names, ignoring TLA+ standard modules.
         let modulesToFetch = moduleNames.filter(m => !TLA_STANDARD_MODULES.includes(m));
@@ -1487,7 +1676,10 @@ class TLASpec {
                 return fetch(`${TLA_COMMUNITY_MODULES_BASE_URL}/${modName}.tla`).then(response => response.text());
             }
 
-            return fetch(`${baseSpecPath}/${modName}.tla`).then(response => response.text());
+            // Resolve the sibling module relative to the root spec's location
+            // (directory-relative for raw URLs, project/ref-relative for GitLab).
+            let modUrl = resolveSiblingModuleUrl(urlPath, modName);
+            return fetch(modUrl, { headers: specFetchHeaders(modUrl) }).then(response => response.text());
         });
 
         var self = this;
