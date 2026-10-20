@@ -44,6 +44,12 @@ class MultiDirHandler(http.server.SimpleHTTPRequestHandler):
 
         return super().do_GET()
 
+    # The app fetches specs after page load, so a hard reload does not bypass
+    # the browser cache for them.  Force revalidation so that edits show up.
+    def end_headers(self):
+        self.send_header('Cache-Control', 'no-cache')
+        super().end_headers()
+
     def translate_path(self, path):
         for prefix, root in self.roots.items():
             if path.startswith(prefix):
