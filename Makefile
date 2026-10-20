@@ -1,5 +1,5 @@
 serve:
-	python3 -m http.server
+	python3 serve.py
 
 serve-test:
 	python3 -m http.server 3000
