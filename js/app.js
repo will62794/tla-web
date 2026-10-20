@@ -161,7 +161,7 @@ const exampleSpecs = {
         }
     },
     "Dining Philosophers (animated)": {
-        specpath: "./specs/DiningPhilosophers.tla",
+        specpath: "https://raw.githubusercontent.com/tlaplus/Examples/master/specifications/DiningPhilosophers/DiningPhilosophers.tla",
         constant_vals: {
             "N": 5
         }
