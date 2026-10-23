@@ -33,6 +33,43 @@ test('two-phase-basic', async ({ page }) => {
     await expect(traceStates).toHaveCount(2, { timeout: 6000 });
   });
 
+// Next == \E p \in P : SetLeft(p) \/ SetRight(p) \/ Clear(p) should be
+// shown as three separate actions, each parameterized by p.
+test('exists-over-disjunction', async ({ page }) => {
+    await page.goto('http://localhost:3000/#!/home?specpath=./specs/exists_over_disjunction.tla&initPred=Init&nextPred=Next&constants%5BN%5D=5');
+
+    await expect(page.getByText('Choose Initial State')).toBeVisible();
+
+    let nextStateChoices = page.getByTestId('next-state-choice');
+    await expect(nextStateChoices).toHaveCount(1, { timeout: 6000 });
+    await nextStateChoices.nth(0).click();
+
+    let traceStates = page.getByTestId('trace-state-elem');
+    await expect(traceStates).toHaveCount(1, { timeout: 6000 });
+
+    const actionName = (name) => page.locator('.action-choice-name').filter({ hasText: new RegExp(`^${name}$`) });
+    const actionParams = (name) => actionName(name).locator('xpath=ancestor::tr[1]').getByTestId('action-choice-param');
+
+    await expect(actionName('SetLeft')).toHaveCount(1, { timeout: 6000 });
+    await expect(actionName('SetRight')).toHaveCount(1);
+    await expect(actionName('Clear')).toHaveCount(1);
+
+    // Nothing is set yet, so every p can set either side, and nobody can clear.
+    await expect(actionParams('SetLeft')).toHaveCount(5);
+    await expect(actionParams('SetRight')).toHaveCount(5);
+    await expect(actionName('Clear')).toHaveClass(/action-choice-disabled/);
+
+    await actionParams('SetLeft').filter({ hasText: '(1)' }).click();
+    await expect(traceStates).toHaveCount(2, { timeout: 6000 });
+
+    await actionParams('SetRight').filter({ hasText: '(1)' }).click();
+    await expect(traceStates).toHaveCount(3, { timeout: 6000 });
+
+    // Only 1 has both sides set, so it is the only one that can clear.
+    await expect(actionParams('Clear')).toHaveCount(1, { timeout: 6000 });
+    await expect(actionParams('Clear')).toHaveText('(1)');
+});
+
 test('enabled-any-branch', async ({ page }) => {
     await page.goto('http://localhost:3000/#!/home?specpath=./specs/enabled_any_branch.tla&initPred=Init&nextPred=Next');
 

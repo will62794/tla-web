@@ -1405,6 +1405,25 @@ function extractActionName(node) {
     }
 }
 
+/**
+ * Returns a bounded quantification node with the same quantifier bounds as
+ * 'quantNode' but with 'body' as its quantified expression.
+ */
+function withQuantifiedBody(quantNode, body) {
+    let origBody = quantNode.namedChildren.at(-1);
+    let prefix = quantNode.text.slice(0, origBody.startIndex - quantNode.startIndex);
+    return {
+        type: quantNode.type,
+        text: prefix + body.text,
+        namedChildren: quantNode.namedChildren.slice(0, -1).concat([body]),
+        children: quantNode.children.slice(0, -1).concat([body]),
+        startIndex: quantNode.startIndex,
+        endIndex: quantNode.endIndex,
+        startPosition: quantNode.startPosition,
+        endPosition: quantNode.endPosition,
+    };
+}
+
 // TODO: Extend this to parse fetched modules during spec parsing.
 function fetchModuleExtends(moduleNames, urlPath) {
     console.log("Fetching module extends");
@@ -1722,6 +1741,18 @@ class TLASpec {
 
         // Parameterized action like \E s \in Server : Action(s).
         if (node.type === "bounded_quantification") {
+            // Split \E s \in S : A(s) \/ B(s) into \E s \in S : A(s) and
+            // \E s \in S : B(s). This is sound only for \E, which
+            // distributes over \/.
+            if (node.namedChildren[0].type === "exists") {
+                let bodyActions = this.parseActionsFromNodeRec(node.namedChildren.at(-1), ind);
+                if (bodyActions.length > 1) {
+                    return bodyActions.map(a => {
+                        let quantNode = withQuantifiedBody(node, a.node);
+                        return new TLAAction(ind, quantNode, extractActionName(quantNode));
+                    });
+                }
+            }
             return [new TLAAction(ind, node, extractActionName(node))];
         }
 
